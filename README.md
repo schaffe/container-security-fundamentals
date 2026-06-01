@@ -2,6 +2,8 @@
 
 Collection of articles on container supply chain security, image hardening, and Docker's security strategy. Published via GitHub Pages using MkDocs with the Material theme.
 
+**Site:** [https://schaffe.github.io/container-security-fundamentals/](https://schaffe.github.io/container-security-fundamentals/)
+
 ## Prerequisites
 
 - Python 3.9+
