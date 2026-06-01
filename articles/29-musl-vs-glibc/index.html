@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../08-distroless-images/">
+        <link rel="prev" href="../07-notary-docker-content-trust/">
       
       
-        <link rel="next" href="../10-non-root-execution/">
+        <link rel="next" href="../08-distroless-images/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Image Minimization - Docker Supply Chain</title>
+        <title>musl vs glibc: Choosing a C Standard Library for Containers - Docker Supply Chain</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#image-minimization" class="md-skip">
+        <a href="#musl-vs-glibc-choosing-a-c-standard-library-for-containers" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Image Minimization
+              musl vs glibc: Choosing a C Standard Library for Containers
             
           </span>
         </div>
@@ -504,8 +504,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -516,11 +518,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -541,7 +543,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -556,10 +558,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../29-musl-vs-glibc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    musl vs glibc: Choosing a C Standard Library for Containers
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -575,6 +604,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#background" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Background
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#compatibility-pitfalls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compatibility Pitfalls
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-decision-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Decision Framework
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#see-also" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        See Also
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -591,8 +695,6 @@
       
   
   
-    
-  
   
   
     
@@ -605,11 +707,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -630,7 +732,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -673,37 +775,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Image Minimization
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
         
   
   
@@ -719,287 +794,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#multi-stage-build-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-stage Build Patterns
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Multi-stage Build Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#go-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Go Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#python-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Python Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#copy-from-for-binary-only-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        COPY --from for Binary-Only Results
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="COPY --from for Binary-Only Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#selective-file-copy-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selective File Copy Patterns
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-cleanup-chains" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        RUN Cleanup Chains
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="RUN Cleanup Chains">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bad (packages persist in layer 1, then deleted in layer 2):
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#good-single-run-with-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Good (single RUN with cleanup):
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#package-manager-cleanup-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Package Manager Cleanup Commands
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layer-squash" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layer Squash
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#stripping-binaries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stripping Binaries
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Stripping Binaries">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#stripping-with-ldflags-go" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stripping with ldflags (Go)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stripping-with-strip-command" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stripping with strip command
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upx-compression" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        UPX Compression
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#removing-unused-shared-libraries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Removing Unused Shared Libraries
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Removing Unused Shared Libraries">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#audit-shared-library-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Audit shared library dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distroless-as-an-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Distroless as an Alternative
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#combining-techniques-production-grade-minimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Combining Techniques: Production-Grade Minimization
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#results-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Results Comparison
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supply-chain-security-impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supply Chain Security Impact
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#interview-tips" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Interview Tips
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1748,127 +1542,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#multi-stage-build-patterns" class="md-nav__link">
+  <a href="#background" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multi-stage Build Patterns
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Multi-stage Build Patterns">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#go-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Go Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#python-application" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Python Application
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#copy-from-for-binary-only-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        COPY --from for Binary-Only Results
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="COPY --from for Binary-Only Results">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#selective-file-copy-patterns" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selective File Copy Patterns
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-cleanup-chains" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        RUN Cleanup Chains
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="RUN Cleanup Chains">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Bad (packages persist in layer 1, then deleted in layer 2):
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#good-single-run-with-cleanup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Good (single RUN with cleanup):
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#package-manager-cleanup-commands" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Package Manager Cleanup Commands
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#layer-squash" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Layer Squash
+        Background
       
     </span>
   </a>
@@ -1876,99 +1553,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#stripping-binaries" class="md-nav__link">
+  <a href="#comparison" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Stripping Binaries
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Stripping Binaries">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#stripping-with-ldflags-go" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stripping with ldflags (Go)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#stripping-with-strip-command" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Stripping with strip command
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#upx-compression" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        UPX Compression
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#removing-unused-shared-libraries" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Removing Unused Shared Libraries
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Removing Unused Shared Libraries">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#audit-shared-library-dependencies" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Audit shared library dependencies
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#distroless-as-an-alternative" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Distroless as an Alternative
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#combining-techniques-production-grade-minimization" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Combining Techniques: Production-Grade Minimization
+        Comparison
       
     </span>
   </a>
@@ -1976,10 +1564,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#results-comparison" class="md-nav__link">
+  <a href="#compatibility-pitfalls" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Results Comparison
+        Compatibility Pitfalls
       
     </span>
   </a>
@@ -1987,10 +1575,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supply-chain-security-impact" class="md-nav__link">
+  <a href="#security-decision-framework" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supply Chain Security Impact
+        Security Decision Framework
       
     </span>
   </a>
@@ -1998,10 +1586,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#interview-tips" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Interview Tips
+        See Also
       
     </span>
   </a>
@@ -2025,234 +1613,97 @@
 
 
 
-<h1 id="image-minimization">Image Minimization<a class="headerlink" href="#image-minimization" title="Permanent link">&para;</a></h1>
-<p>Container image minimization is the practice of reducing image size by eliminating build-time artifacts, unused dependencies, debug symbols, and intermediate layers. Smaller images mean faster pulls, less network transfer, reduced storage costs, and — critically — a smaller attack surface.</p>
-<h2 id="multi-stage-build-patterns">Multi-stage Build Patterns<a class="headerlink" href="#multi-stage-build-patterns" title="Permanent link">&para;</a></h2>
-<p>Multi-stage builds are the single most effective technique for image minimization. They allow separate build and runtime environments, copying only the compiled artifact into the final image.</p>
-<h3 id="go-application">Go Application<a class="headerlink" href="#go-application" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile"># Stage 1: Build with full toolchain
-FROM golang:1.21 AS builder
-WORKDIR /src
-COPY go.mod go.sum ./
-RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags=&quot;-s -w&quot; -o /app .
-
-# Stage 2: Minimal runtime with scratch
-FROM scratch
-COPY --from=builder /app /app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-EXPOSE 8080
-CMD [&quot;/app&quot;]
-</code></pre>
-<p>The <code>scratch</code> base yields an image of ~8-15 MB for a Go binary vs ~300 MB for the full Go toolchain image.</p>
-<h3 id="python-application">Python Application<a class="headerlink" href="#python-application" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile">FROM python:3.12-slim AS builder
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --user --no-cache-dir -r requirements.txt
-
-FROM python:3.12-slim
-RUN useradd -m -u 10001 appuser
-COPY --from=builder /root/.local /home/appuser/.local
-COPY --from=builder /app /app
-WORKDIR /app
-USER appuser
-# Adjust PATH to find pip-installed binaries
-ENV PATH=/home/appuser/.local/bin:$PATH
-CMD [&quot;python&quot;, &quot;main.py&quot;]
-</code></pre>
-<p>Python is harder to minimize than Go because the runtime interpreter is required. The <code>slim</code> variants remove headers, static libraries, and documentation.</p>
-<h2 id="copy-from-for-binary-only-results">COPY --from for Binary-Only Results<a class="headerlink" href="#copy-from-for-binary-only-results" title="Permanent link">&para;</a></h2>
-<p>The <code>COPY --from=&lt;stage&gt;</code> syntax can copy individual files, not just entire directories:</p>
-<pre><code class="language-dockerfile">FROM node:20 AS build
-WORKDIR /app
-COPY package*.json .
-RUN npm ci --only=production
-COPY . .
-RUN npm run build
-
-FROM gcr.io/distroless/nodejs20-debian12
-# Copy only the production dependencies
-COPY --from=build /app/node_modules /node_modules
-COPY --from=build /app/dist /dist
-CMD [&quot;/dist/server.js&quot;]
-</code></pre>
-<h3 id="selective-file-copy-patterns">Selective File Copy Patterns<a class="headerlink" href="#selective-file-copy-patterns" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile"># Copy only what's needed — not the entire builder stage
-COPY --from=builder /app/bin/server /usr/local/bin/server
-COPY --from=builder /app/config/prod.yaml /etc/app/config.yaml
-# NOT: COPY --from=builder /app /app
-</code></pre>
-<h2 id="run-cleanup-chains">RUN Cleanup Chains<a class="headerlink" href="#run-cleanup-chains" title="Permanent link">&para;</a></h2>
-<p>Every <code>RUN</code> instruction creates a new layer. Cleaning up in the same <code>RUN</code> is critical — otherwise the deleted files persist in a previous layer.</p>
-<h3 id="bad-packages-persist-in-layer-1-then-deleted-in-layer-2">Bad (packages persist in layer 1, then deleted in layer 2):<a class="headerlink" href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential   # Layer 1: ~200 MB added
-RUN apt-get remove -y build-essential                       # Layer 2: marked deleted but space persists
-</code></pre>
-<h3 id="good-single-run-with-cleanup">Good (single RUN with cleanup):<a class="headerlink" href="#good-single-run-with-cleanup" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential &amp;&amp; \
-    make &amp;&amp; \
-    apt-get purge -y --auto-remove build-essential &amp;&amp; \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-</code></pre>
-<h3 id="package-manager-cleanup-commands">Package Manager Cleanup Commands<a class="headerlink" href="#package-manager-cleanup-commands" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile"># Debian/Ubuntu
-RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends pkg &amp;&amp; \
-    rm -rf /var/lib/apt/lists/*
-
-# Alpine
-RUN apk add --no-cache --virtual .build-deps build-base &amp;&amp; \
-    make &amp;&amp; \
-    apk del .build-deps
-
-# The --virtual flag creates a virtual package that can be removed atomically
-
-# RHEL/Ubi
-RUN yum install -y make gcc &amp;&amp; \
-    make &amp;&amp; \
-    yum remove -y make gcc &amp;&amp; \
-    yum clean all &amp;&amp; \
-    rm -rf /var/cache/yum
-</code></pre>
-<h2 id="layer-squash">Layer Squash<a class="headerlink" href="#layer-squash" title="Permanent link">&para;</a></h2>
-<p>After a Docker build, the image consists of many layers. Squashing collapses them into a single layer, removing intermediate files even if they span multiple <code>RUN</code> instructions.</p>
-<pre><code class="language-bash"># During build: squash all layers into one
-docker build --squash -t myapp:squashed .
-
-# BuildKit variant (no squash flag, but better layer caching)
-DOCKER_BUILDKIT=1 docker build -t myapp:squashed .
-</code></pre>
-<p>Note: <code>--squash</code> is still experimental in some Docker versions. An alternative is using <code>docker-slim</code>:</p>
-<pre><code class="language-bash">docker-slim build myapp:latest
-# Analyzes the image and removes unnecessary files
-</code></pre>
-<h2 id="stripping-binaries">Stripping Binaries<a class="headerlink" href="#stripping-binaries" title="Permanent link">&para;</a></h2>
-<p>Debug symbols significantly increase binary size and serve no purpose in running containers.</p>
-<h3 id="stripping-with-ldflags-go">Stripping with ldflags (Go)<a class="headerlink" href="#stripping-with-ldflags-go" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile"># -s: omit symbol table and debug info
-# -w: omit DWARF symbol table
-RUN go build -ldflags=&quot;-s -w&quot; -o /app .
-</code></pre>
-<h3 id="stripping-with-strip-command">Stripping with strip command<a class="headerlink" href="#stripping-with-strip-command" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y binutils &amp;&amp; \
-    strip --strip-all /app/binary &amp;&amp; \
-    strip --strip-unneeded /usr/local/lib/*.so &amp;&amp; \
-    apt-get purge -y --auto-remove binutils &amp;&amp; \
-    rm -rf /var/lib/apt/lists/*
-</code></pre>
-<h3 id="upx-compression">UPX Compression<a class="headerlink" href="#upx-compression" title="Permanent link">&para;</a></h3>
-<p>For additional size reduction, UPX compresses the binary:</p>
-<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y upx-ucl &amp;&amp; \
-    upx --best --lzma /app/binary &amp;&amp; \
-    apt-get purge -y --auto-remove upx-ucl &amp;&amp; \
-    rm -rf /var/lib/apt/lists/*
-</code></pre>
-<p>UPX trades runtime decompression overhead for image size. This is rarely worth it for container images because:
-- Container images are already compressed during pull/docker save
-- UPX can trigger antivirus false positives
-- Decompression at startup adds latency</p>
-<h2 id="removing-unused-shared-libraries">Removing Unused Shared Libraries<a class="headerlink" href="#removing-unused-shared-libraries" title="Permanent link">&para;</a></h2>
-<p>Dynamic binaries pull in shared libraries that may not all be needed. Use <code>ldd</code> to audit and <code>strip</code> to remove unused sections.</p>
-<h3 id="audit-shared-library-dependencies">Audit shared library dependencies<a class="headerlink" href="#audit-shared-library-dependencies" title="Permanent link">&para;</a></h3>
-<pre><code class="language-dockerfile">FROM debian:bookworm-slim AS builder
-RUN apt-get update &amp;&amp; apt-get install -y patchelf
-
-# Copy the binary
-COPY myapp /myapp
-
-# List dynamic dependencies
-RUN ldd /myapp
-
-# Copy only required libraries
-RUN mkdir /lib-stripped &amp;&amp; \
-    for lib in $(ldd /myapp | grep &quot;=&gt; /&quot; | awk '{print $3}'); do \
-        cp &quot;$lib&quot; /lib-stripped/; \
-    done &amp;&amp; \
-    cp /lib64/ld-linux-x86-64.so.2 /lib-stripped/
-
-FROM scratch
-COPY --from=builder /myapp /myapp
-COPY --from=builder /lib-stripped /lib64/
-COPY --from=builder /lib-stripped /lib/
-</code></pre>
-<h3 id="distroless-as-an-alternative">Distroless as an Alternative<a class="headerlink" href="#distroless-as-an-alternative" title="Permanent link">&para;</a></h3>
-<p>Rather than manually tracking library dependencies, use distroless base images which handle this automatically:</p>
-<pre><code class="language-dockerfile"># No need for ldd/copying — distroless includes the right glibc subset
-FROM gcr.io/distroless/cc-debian12
-COPY --from=build /app /app
-</code></pre>
-<h2 id="combining-techniques-production-grade-minimization">Combining Techniques: Production-Grade Minimization<a class="headerlink" href="#combining-techniques-production-grade-minimization" title="Permanent link">&para;</a></h2>
-<pre><code class="language-dockerfile"># === Stage 1: Build ===
-FROM golang:1.21 AS builder
-WORKDIR /src
-COPY . .
-RUN CGO_ENABLED=0 go build -ldflags=&quot;-s -w&quot; -o /app .
-
-# === Stage 2: Runtime ===
-FROM gcr.io/distroless/static-debian12:nonroot
-COPY --from=builder /app /app
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-USER 65532:65532
-EXPOSE 8080
-CMD [&quot;/app&quot;]
-</code></pre>
-<h2 id="results-comparison">Results Comparison<a class="headerlink" href="#results-comparison" title="Permanent link">&para;</a></h2>
+<h1 id="musl-vs-glibc-choosing-a-c-standard-library-for-containers">musl vs glibc: Choosing a C Standard Library for Containers<a class="headerlink" href="#musl-vs-glibc-choosing-a-c-standard-library-for-containers" title="Permanent link">&para;</a></h1>
+<h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
+<p>The Alpine vs distroless vs Ubuntu decision is ultimately a <strong>libc decision</strong>. Alpine uses <strong>musl</strong>; distroless and Ubuntu use <strong>glibc</strong>. Understanding the difference is critical for container security and compatibility.</p>
+<p><strong>musl</strong> is a lightweight, fast, standards-compliant C standard library implementation. It is the default libc in Alpine Linux (~5 MB base image vs Ubuntu's ~80 MB), which makes it one of the most widely deployed libcs in the container ecosystem.</p>
+<h2 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Technique</th>
-<th>Base Image</th>
-<th>Final Size</th>
+<th>Dimension</th>
+<th>musl (Alpine)</th>
+<th>glibc (Debian, Ubuntu, distroless)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>No minimization</td>
-<td>golang:1.21</td>
-<td>~1.2 GB</td>
+<td><strong>Size</strong></td>
+<td>~700 KB</td>
+<td>~2 MB+</td>
 </tr>
 <tr>
-<td>Multi-stage</td>
-<td>scratch</td>
-<td>~12 MB</td>
+<td><strong>POSIX compliance</strong></td>
+<td>Strict — rejects glibc extensions</td>
+<td>De facto standard; many extensions</td>
 </tr>
 <tr>
-<td>+ ldflags -s -w</td>
-<td>scratch</td>
-<td>~9 MB</td>
+<td><strong>Static linking</strong></td>
+<td>First-class; Go/Rust binaries are natural fits</td>
+<td>Possible but less common</td>
 </tr>
 <tr>
-<td>+ distroless</td>
-<td>distroless/static</td>
-<td>~15 MB (includes CA certs)</td>
+<td><strong>CVE history</strong></td>
+<td>Smaller surface (less code, lower adoption)</td>
+<td>Larger surface (more code, more scrutiny)</td>
 </tr>
 <tr>
-<td>+ UPX compressed</td>
-<td>scratch</td>
-<td>~4 MB</td>
+<td><strong>Performance</strong></td>
+<td>Fast for static binaries</td>
+<td>Optimized for dynamic linking</td>
 </tr>
 </tbody>
 </table>
-<h2 id="supply-chain-security-impact">Supply Chain Security Impact<a class="headerlink" href="#supply-chain-security-impact" title="Permanent link">&para;</a></h2>
-<p>Smaller images reduce supply chain risk:</p>
-<ol>
-<li><strong>Fewer packages = fewer CVEs</strong>: Each removed transitive dependency eliminates a potential vulnerability vector</li>
-<li><strong>Faster vulnerability scanning</strong>: Scanning a 10 MB image vs a 500 MB image takes seconds vs minutes</li>
-<li><strong>Reduced blast radius</strong>: If compromised, the attacker has less tooling available in a minimal image</li>
-<li><strong>SBOM accuracy</strong>: A smaller, deterministic image produces a more accurate Software Bill of Materials</li>
-</ol>
-<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
-<p>Know the <strong>layer model</strong> — each <code>RUN</code> creates a writable layer that persists even if files are deleted in subsequent layers. The <code>COPY --from</code> is the most important minimization technique to discuss. Be ready to explain why <code>--squash</code> isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).</p>
+<h2 id="compatibility-pitfalls">Compatibility Pitfalls<a class="headerlink" href="#compatibility-pitfalls" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>glibc-specific APIs</strong>: <code>GLOB_BRACE</code>, <code>strerrorname_np</code>, <code>qsort_r</code> do not exist in musl — code using them fails to compile on Alpine</li>
+<li><strong>DNS resolution</strong>: musl handles <code>/etc/hosts</code> and NSS differently than glibc; Python's <code>urllib</code> and Node.js DNS may behave unexpectedly</li>
+<li><strong>Locale support</strong>: musl has minimal locale support compared to glibc; applications relying on locale-aware string processing may produce different output</li>
+</ul>
+<h2 id="security-decision-framework">Security Decision Framework<a class="headerlink" href="#security-decision-framework" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Base</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static Go/Rust binary, minimal size goal</td>
+<td>Alpine (musl) or distroless/static</td>
+<td>No libc dependency at runtime; minimal CVE surface</td>
+</tr>
+<tr>
+<td>Python/Node.js app, broad package availability</td>
+<td>Debian slim or distroless (glibc)</td>
+<td>glibc locale support; avoids DNS compatibility issues</td>
+</tr>
+<tr>
+<td>Enterprise compliance, signed provenance</td>
+<td>Wolfi-based distroless (musl) or DHI</td>
+<td>Chainguard/Docker handle musl compatibility; you get attestations</td>
+</tr>
+<tr>
+<td>FIPS 140-2/3 required</td>
+<td>glibc-based (Ubuntu, UBI, distroless-cc)</td>
+<td>FIPS-validated crypto modules target glibc; musl lacks CAVP certification</td>
+</tr>
+</tbody>
+</table>
+<p>musl's strictness is a double-edged sword: it catches portability bugs at compile time (good), but it means Alpine builds that pass CI may still fail on glibc-based production images (bad). Testing on the same libc as production is the only safe approach.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../08-distroless-images/">Distroless Images</a> — distroless provides both glibc and musl variants</li>
+<li><a href="../09-image-minimization/">Image Minimization</a> — Alpine is a common choice for small images</li>
+</ul>
 
 
 
 
 
 
-
-  
-  
 
 
 
