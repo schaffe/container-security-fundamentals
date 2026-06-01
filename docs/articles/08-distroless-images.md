@@ -39,6 +39,10 @@ Distroless drastically reduces the vulnerability surface by:
 
 Supply chain security engineers should note: **distroless images shrink the "gift" an attacker receives after initial RCE**. If a process gets compromised, the attacker has very limited tools to pivot, escalate, or exfiltrate.
 
+### musl vs glibc
+
+See [musl vs glibc: Choosing a C Standard Library for Containers](29-musl-vs-glibc.md) for a full comparison of the two libc implementations and their implications for base image selection.
+
 ### Dockerfile: Distroless vs Alpine vs Ubuntu
 
 ```dockerfile

@@ -18,6 +18,8 @@ nav:
     - articles/05-dependency-management-security.md
     - articles/06-trusted-builds.md
     - articles/07-notary-docker-content-trust.md
+  - Linux Fundamentals:
+    - articles/29-musl-vs-glibc.md
   - Container Image Hardening:
     - articles/08-distroless-images.md
     - articles/09-image-minimization.md
