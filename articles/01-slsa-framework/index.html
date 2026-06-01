@@ -1,0 +1,1849 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../../docker-supply-chain/">
+      
+      
+        <link rel="next" href="../02-in-toto-attestations/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>SLSA Framework (Supply-chain Levels for Software Artifacts) - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#slsa-framework-supply-chain-levels-for-software-artifacts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              SLSA Framework (Supply-chain Levels for Software Artifacts)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-provenance-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1: Provenance Exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-tamper-resistant-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2: Tamper-Resistant Provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-3-non-forgeable-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3: Non-Forgeable Provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-maximum-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4: Maximum Integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slsa-vs-in-toto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLSA vs. In-toto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Levels
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Levels">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#level-1-provenance-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 1: Provenance Exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-2-tamper-resistant-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 2: Tamper-Resistant Provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-3-non-forgeable-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 3: Non-Forgeable Provenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#level-4-maximum-integrity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Level 4: Maximum Integrity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#slsa-vs-in-toto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLSA vs. In-toto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verification-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verification Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="slsa-framework-supply-chain-levels-for-software-artifacts">SLSA Framework (Supply-chain Levels for Software Artifacts)<a class="headerlink" href="#slsa-framework-supply-chain-levels-for-software-artifacts" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SLSA (pronounced "salsa") is a security framework from OpenSSF that defines a graduated set of supply chain integrity levels. It answers one question: <strong>How much can you trust that a software artifact was built from the exact source and build instructions claimed?</strong></p>
+<p>The framework defines four levels (L1–L4), each adding stricter requirements around provenance generation, build isolation, and reproducibility. At L4, an attacker cannot produce a signed artifact without detection even if they compromise the build platform.</p>
+<h2 id="the-levels">The Levels<a class="headerlink" href="#the-levels" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>SLSA L1</th>
+<th>SLSA L2</th>
+<th>SLSA L3</th>
+<th>SLSA L4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provenance exists</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Provenance is authenticated</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Provenance is non-forgeable</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Build runs on trusted platform</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Two-person review of changes</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Hermetic, isolated build</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Reproducible build</td>
+<td>❌</td>
+<td>Optional</td>
+<td>Optional</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>No untrusted inputs</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Source identity in provenance</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="level-1-provenance-exists">Level 1: Provenance Exists<a class="headerlink" href="#level-1-provenance-exists" title="Permanent link">&para;</a></h3>
+<p>The build process generates provenance documenting what was built and how. No authentication or tamper protection is required. This is the baseline — any CI pipeline that emits a build metadata file qualifies.</p>
+<p>Example using GitHub Actions with <code>attest-build-provenance</code>:</p>
+<pre><code class="language-yaml">jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - run: make build
+      - uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: &quot;dist/myapp.tar.gz&quot;
+</code></pre>
+<h3 id="level-2-tamper-resistant-provenance">Level 2: Tamper-Resistant Provenance<a class="headerlink" href="#level-2-tamper-resistant-provenance" title="Permanent link">&para;</a></h3>
+<p>Provenance must be <strong>signed</strong> and <strong>hosted</strong> in a location the builder controls. The build platform itself generates the signature using its own identity. This makes it detectable if someone forges provenance after the fact.</p>
+<p>Requirements:
+- Provenance is signed by the build platform (e.g., using Sigstore + OIDC)
+- Provenance includes source repository and commit hash
+- All build steps are recorded</p>
+<p>Key distinction: at L2, the build platform <strong>signs on behalf of the project</strong>. If the build platform itself is compromised, it can issue false provenance.</p>
+<h3 id="level-3-non-forgeable-provenance">Level 3: Non-Forgeable Provenance<a class="headerlink" href="#level-3-non-forgeable-provenance" title="Permanent link">&para;</a></h3>
+<p>The build platform prevents the <strong>developer</strong> — not just external attackers — from tampering with the provenance. This typically means the build platform holds the signing key and refuses to sign anything it didn't execute.</p>
+<p>Requirements:
+- Build platform is hardened (isolated VMs, ephemeral environments)
+- Provenance lists all source dependencies
+- Build is run in a trusted control plane (e.g., Google Cloud Build, GitHub Actions hosted runners with OIDC)</p>
+<p>At L3, even a malicious project maintainer cannot retroactively alter build provenance because they never hold the signing key.</p>
+<h3 id="level-4-maximum-integrity">Level 4: Maximum Integrity<a class="headerlink" href="#level-4-maximum-integrity" title="Permanent link">&para;</a></h3>
+<p>L4 adds hermetic builds, two-person review, and reproducibility. The goal: <strong>no single compromised party can produce a malicious artifact that passes verification.</strong></p>
+<p>Requirements in detail:</p>
+<p><strong>Two-person review for every change:</strong> Every source commit and every build configuration change must be reviewed by a different person than the author. In practice this means branch protection rules with <code>Require pull request reviews before merging</code> and <code>Dismiss stale reviews</code>.</p>
+<p><strong>Hermetic builds:</strong> The build must not fetch any dependencies at build time — everything is pre-declared in the provenance. Running <code>go build</code> without network access:</p>
+<pre><code class="language-bash"># Hermetic Go build — no network access
+go build -mod=vendor -trimpath -ldflags=&quot;-w -s&quot; ./...
+# GOPROXY=off ensures no remote module resolution
+GOPROXY=off go build ./...
+</code></pre>
+<p><strong>Reproducible builds:</strong> Given the same source and build instructions, two independent builders produce bit-for-bit identical output. This means a third party can independently verify the build.</p>
+<p>Go example for reproducible builds in Docker:</p>
+<pre><code class="language-dockerfile">FROM golang:1.22-alpine AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags=&quot;-w -s -buildid=&quot; -o /app
+
+FROM scratch
+COPY --from=builder /app /app
+ENTRYPOINT [&quot;/app&quot;]
+</code></pre>
+<p>The <code>-trimpath</code> and <code>-buildid=</code> flags remove non-deterministic paths and build IDs. Setting <code>CGO_ENABLED=0</code> eliminates C compiler variation.</p>
+<p><strong>No untrusted inputs:</strong> Every dependency must itself meet SLSA L4, or the dependency is explicitly enumerated and reviewed.</p>
+<h2 id="slsa-vs-in-toto">SLSA vs. In-toto<a class="headerlink" href="#slsa-vs-in-toto" title="Permanent link">&para;</a></h2>
+<p>SLSA and in-toto are complementary, not competing:</p>
+<ul>
+<li><strong>In-toto</strong> defines the <strong>attestation format</strong> (how provenance is structured and signed) and the <strong>layout</strong> (who is authorized to perform which steps in the pipeline)</li>
+<li><strong>SLSA</strong> defines the <strong>requirements</strong> (what constitutes trustworthy provenance)</li>
+</ul>
+<p>In practice: in-toto attestations carry SLSA provenance predicates. A SLSA L3+ build emits an in-toto <code>SLSAProvenanceV1</code> predicate wrapped in a DSSE envelope signed with the build platform's key. The verifier checks the predicate against SLSA requirements.</p>
+<h2 id="verification-example">Verification Example<a class="headerlink" href="#verification-example" title="Permanent link">&para;</a></h2>
+<p>Using <code>slsa-verifier</code> to check provenance:</p>
+<pre><code class="language-bash">slsa-verifier verify-artifact \
+  --provenance-path build.provenance \
+  --source-uri github.com/myorg/myapp \
+  --source-tag v1.2.3 \
+  dist/myapp.tar.gz
+</code></pre>
+<p>This checks: (1) provenance signature is valid, (2) source URI matches, (3) provenance claims the build was hermetic, (4) the digest matches the artifact.</p>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"What does SLSA L4 add over L3?" — Two-person review, hermetic builds, no untrusted inputs, reproducibility</li>
+<li>"Can an L4 build use private dependencies?" — Only if the private dependency also meets SLSA L4, or is explicitly enumerated in provenance as an expected dependency</li>
+<li>"Is SLSA a tool or a standard?" — Both. It's a specification with reference implementations (<code>slsa-github-generator</code>, <code>slsa-verifier</code>)</li>
+<li>"How does SLSA relate to in-toto?" — SLSA defines the trust requirements; in-toto defines the attestation format to meet them</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

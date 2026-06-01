@@ -1,0 +1,2352 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../14-readonly-filesystem/">
+      
+      
+        <link rel="next" href="../16-securitycontext-vs-podsecuritycontext/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Multi-architecture Container Security - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#multi-architecture-container-security" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Multi-architecture Container Security
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-multi-architecture-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Multi-Architecture Manifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-platformbuildplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FROM --platform=$BUILDPLATFORM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FROM --platform=$BUILDPLATFORM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-variables-available-during-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Variables Available During Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-architecture-base-image-cve-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Architecture Base Image CVE Profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Architecture Base Image CVE Profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-architecture-affects-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Architecture Affects CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auditing-per-architecture-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auditing Per-Architecture CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generating-per-architecture-sboms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generating Per-Architecture SBOMs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registries-with-multi-arch-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registries with Multi-Arch Manifests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registries with Multi-Arch Manifests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oci-distribution-spec-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Distribution Spec Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pushing-multi-arch-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pushing Multi-Arch Images
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attestations-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attestations per Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attestations per Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cosign-attestations-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cosign Attestations per Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slsa-provenance-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLSA Provenance per Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-build-security-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Build Security Concerns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Build Security Concerns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-emulation-based-builds-qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Emulation-Based Builds (QEMU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-architecture-specific-dependency-attacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture-Specific Dependency Attacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hash-mismatch-across-architectures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Hash Mismatch Across Architectures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cicd-pipeline-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CI/CD Pipeline Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-multi-architecture-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Multi-Architecture Manifest
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#from-platformbuildplatform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        FROM --platform=$BUILDPLATFORM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="FROM --platform=$BUILDPLATFORM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#platform-variables-available-during-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Platform Variables Available During Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-architecture-base-image-cve-profiles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Architecture Base Image CVE Profiles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Architecture Base Image CVE Profiles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-architecture-affects-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Architecture Affects CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#auditing-per-architecture-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Auditing Per-Architecture CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#generating-per-architecture-sboms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Generating Per-Architecture SBOMs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#registries-with-multi-arch-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Registries with Multi-Arch Manifests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Registries with Multi-Arch Manifests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#oci-distribution-spec-support" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Distribution Spec Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pushing-multi-arch-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pushing Multi-Arch Images
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attestations-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attestations per Architecture
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attestations per Architecture">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cosign-attestations-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cosign Attestations per Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#slsa-provenance-per-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLSA Provenance per Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-build-security-concerns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-Build Security Concerns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cross-Build Security Concerns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-emulation-based-builds-qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Emulation-Based Builds (QEMU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-architecture-specific-dependency-attacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Architecture-Specific Dependency Attacks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-hash-mismatch-across-architectures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Hash Mismatch Across Architectures
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cicd-pipeline-complexity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CI/CD Pipeline Complexity
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="multi-architecture-container-security">Multi-architecture Container Security<a class="headerlink" href="#multi-architecture-container-security" title="Permanent link">&para;</a></h1>
+<p>Multi-architecture container images ensure that a single image reference (e.g., <code>myapp:v1.0</code>) automatically works on different CPU architectures — amd64, arm64, armv7, s390x, ppc64le. While multi-arch is a deployment convenience, it introduces significant supply chain security considerations that a Senior Supply Chain Security Engineer must understand.</p>
+<h2 id="the-multi-architecture-manifest">The Multi-Architecture Manifest<a class="headerlink" href="#the-multi-architecture-manifest" title="Permanent link">&para;</a></h2>
+<p>Container registries support multi-architecture images through the OCI Image Index (also called a manifest list):</p>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 2,
+  &quot;mediaType&quot;: &quot;application/vnd.oci.image.index.v1+json&quot;,
+  &quot;manifests&quot;: [
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.manifest.v1+json&quot;,
+      &quot;digest&quot;: &quot;sha256:amd64-digest&quot;,
+      &quot;platform&quot;: {
+        &quot;architecture&quot;: &quot;amd64&quot;,
+        &quot;os&quot;: &quot;linux&quot;
+      }
+    },
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.manifest.v1+json&quot;,
+      &quot;digest&quot;: &quot;sha256:arm64-digest&quot;,
+      &quot;platform&quot;: {
+        &quot;architecture&quot;: &quot;arm64&quot;,
+        &quot;os&quot;: &quot;linux&quot;,
+        &quot;variant&quot;: &quot;v8&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<pre><code class="language-bash"># Inspect the multi-arch manifest
+docker manifest inspect myapp:v1.0
+
+# Or with crane
+crane manifest myapp:v1.0
+
+# List all architectures in an image
+docker buildx imagetools inspect myapp:v1.0
+</code></pre>
+<h2 id="from-platformbuildplatform">FROM --platform=$BUILDPLATFORM<a class="headerlink" href="#from-platformbuildplatform" title="Permanent link">&para;</a></h2>
+<p>The modern approach to multi-arch builds uses Docker BuildKit's built-in platform variables:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
+ARG TARGETOS
+ARG TARGETARCH
+
+WORKDIR /src
+COPY . .
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
+    go build -ldflags=&quot;-s -w&quot; -o /app .
+
+FROM gcr.io/distroless/static-debian12:nonroot-${TARGETARCH}
+COPY --from=builder /app /app
+USER 65532:65532
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>Build for multiple architectures:</p>
+<pre><code class="language-bash"># Create a builder instance
+docker buildx create --use --name multiarch
+
+# Build and push all architectures
+docker buildx build \
+  --platform linux/amd64,linux/arm64,linux/arm/v7 \
+  -t myapp:v1.0 \
+  --push .
+</code></pre>
+<h3 id="platform-variables-available-during-build">Platform Variables Available During Build<a class="headerlink" href="#platform-variables-available-during-build" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Example Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BUILDPLATFORM</code></td>
+<td><code>linux/amd64</code></td>
+<td>The platform running the build</td>
+</tr>
+<tr>
+<td><code>BUILDOS</code></td>
+<td><code>linux</code></td>
+<td>OS of the build host</td>
+</tr>
+<tr>
+<td><code>BUILDARCH</code></td>
+<td><code>amd64</code></td>
+<td>Architecture of the build host</td>
+</tr>
+<tr>
+<td><code>TARGETPLATFORM</code></td>
+<td><code>linux/arm64</code></td>
+<td>The platform being built for</td>
+</tr>
+<tr>
+<td><code>TARGETOS</code></td>
+<td><code>linux</code></td>
+<td>OS of the target</td>
+</tr>
+<tr>
+<td><code>TARGETARCH</code></td>
+<td><code>arm64</code></td>
+<td>Architecture of the target</td>
+</tr>
+<tr>
+<td><code>TARGETVARIANT</code></td>
+<td><code>v8</code></td>
+<td>Architecture variant (arm v7/v8)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="per-architecture-base-image-cve-profiles">Per-Architecture Base Image CVE Profiles<a class="headerlink" href="#per-architecture-base-image-cve-profiles" title="Permanent link">&para;</a></h2>
+<p><strong>Different architectures have different CVE profiles</strong>. This is a critical supply chain consideration:</p>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Base Image</th>
+<th>Typical CVE Count (Distroless Static)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>amd64</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot</td>
+<td>~5</td>
+<td>Most widely scanned, quickest CVE remediation</td>
+</tr>
+<tr>
+<td><strong>arm64</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-arm64</td>
+<td>~5</td>
+<td>Similar to amd64, same packages</td>
+</tr>
+<tr>
+<td><strong>arm/v7</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-arm</td>
+<td>~8</td>
+<td>Older glibc snapshot, fewer patches</td>
+</tr>
+<tr>
+<td><strong>s390x</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-s390x</td>
+<td>~12</td>
+<td>Architecture receives fewer backport fixes</td>
+</tr>
+<tr>
+<td><strong>ppc64le</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-ppc64le</td>
+<td>~10</td>
+<td>Similar delay in security patches</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-architecture-affects-cves">Why Architecture Affects CVEs<a class="headerlink" href="#why-architecture-affects-cves" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Package rebuild frequency</strong>: Debian and other distros rebuild packages per-architecture. A CVE fixed for amd64 on day 1 may take days or weeks to land for arm/v7 or s390x.</p>
+</li>
+<li>
+<p><strong>Binary-only packages</strong>: Some vendor-provided binaries (e.g., NVIDIA CUDA, Intel MKL) are only available for specific architectures, requiring alternative packages with different CVE profiles.</p>
+</li>
+<li>
+<p><strong>Compiler-specific vulnerabilities</strong>: CVEs in GCC, LLVM, or architecture-specific code (e.g., ARM TrustZone, AMD SEV) affect only certain platforms.</p>
+</li>
+<li>
+<p><strong>Rare architecture delays</strong>: s390x and ppc64le have fewer maintainers, leading to delayed CVE backports.</p>
+</li>
+</ol>
+<h3 id="auditing-per-architecture-cves">Auditing Per-Architecture CVEs<a class="headerlink" href="#auditing-per-architecture-cves" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Scan each architecture separately
+docker scan myapp:v1.0 --platform linux/amd64
+docker scan myapp:v1.0 --platform linux/arm64
+
+# With Grype
+grype myapp:v1.0 --platform linux/amd64
+grype myapp:v1.0 --platform linux/arm64
+
+# With Trivy
+trivy image --platform linux/amd64 myapp:v1.0
+trivy image --platform linux/arm64 myapp:v1.0
+</code></pre>
+<h3 id="generating-per-architecture-sboms">Generating Per-Architecture SBOMs<a class="headerlink" href="#generating-per-architecture-sboms" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Generate SBOM per architecture
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --attest type=sbom,generator=cylindrical/docker-sbom \
+  -t myapp:v1.0 \
+  --push .
+
+# Download SBOM for a specific platform
+crane manifest myapp:v1.0@sha256:amd64-digest &gt; manifest.json
+crane blob myapp:v1.0@sha256:sbom-blob-digest &gt; sbom.spdx.json
+</code></pre>
+<h2 id="registries-with-multi-arch-manifests">Registries with Multi-Arch Manifests<a class="headerlink" href="#registries-with-multi-arch-manifests" title="Permanent link">&para;</a></h2>
+<h3 id="oci-distribution-spec-support">OCI Distribution Spec Support<a class="headerlink" href="#oci-distribution-spec-support" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Registry</th>
+<th>Multi-Arch Support</th>
+<th>Attestation Support</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Hub</strong></td>
+<td>Full</td>
+<td>Via annotations</td>
+<td>Requires <code>--push</code> with buildx</td>
+</tr>
+<tr>
+<td><strong>Google Artifact Registry</strong></td>
+<td>Full</td>
+<td>Native (SLSA, SPDX)</td>
+<td>Integrated with Binary Authorization</td>
+</tr>
+<tr>
+<td><strong>Amazon ECR</strong></td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>Signature via Signer</td>
+</tr>
+<tr>
+<td><strong>Azure ACR</strong></td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>Integrated with Notation</td>
+</tr>
+<tr>
+<td><strong>GitHub Container Registry</strong> (ghcr.io)</td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>OIDC-based signing</td>
+</tr>
+<tr>
+<td><strong>Harbor</strong></td>
+<td>Full</td>
+<td>Via Cosign integration</td>
+<td>Supports replication per-arch</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pushing-multi-arch-images">Pushing Multi-Arch Images<a class="headerlink" href="#pushing-multi-arch-images" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Build and push multi-arch
+docker buildx build --platform linux/amd64,linux/arm64 -t myapp:v1.0 --push .
+
+# Or create manifest list manually
+docker manifest create myapp:v1.0 \
+  myapp:v1.0-amd64 \
+  myapp:v1.0-arm64
+
+docker manifest push myapp:v1.0
+</code></pre>
+<h2 id="attestations-per-architecture">Attestations per Architecture<a class="headerlink" href="#attestations-per-architecture" title="Permanent link">&para;</a></h2>
+<p>Attestations provide cryptographic proof about an image's origin, build process, and vulnerability status. With multi-arch, attestations must be generated and signed per architecture.</p>
+<h3 id="cosign-attestations-per-architecture">Cosign Attestations per Architecture<a class="headerlink" href="#cosign-attestations-per-architecture" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Build with SBOM and provenance attestations per architecture
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --attest type=sbom \
+  --attest type=provenance,mode=max \
+  -t myapp:v1.0 \
+  --push .
+
+# Sign each architecture's manifest
+cosign sign myapp:v1.0@sha256:amd64-digest
+cosign sign myapp:v1.0@sha256:arm64-digest
+
+# Verify signatures for a specific platform
+cosign verify \
+  --key cosign.pub \
+  myapp:v1.0@sha256:amd64-digest
+
+# Policy: only deploy if both architectures verified
+cosign verify \
+  --policy policy.json \
+  myapp:v1.0
+</code></pre>
+<h3 id="slsa-provenance-per-architecture">SLSA Provenance per Architecture<a class="headerlink" href="#slsa-provenance-per-architecture" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;subject&quot;: [
+    {
+      &quot;name&quot;: &quot;myapp:v1.0&quot;,
+      &quot;digest&quot;: {
+        &quot;sha256&quot;: &quot;amd64-specific-digest&quot;
+      }
+    }
+  ],
+  &quot;predicateType&quot;: &quot;https://slsa.dev/provenance/v1&quot;,
+  &quot;predicate&quot;: {
+    &quot;builder&quot;: { &quot;id&quot;: &quot;https://github.com/actions/runner&quot; },
+    &quot;buildType&quot;: &quot;https://docker.io/buildx/build/v1&quot;,
+    &quot;invocation&quot;: {
+      &quot;configSource&quot;: {
+        &quot;uri&quot;: &quot;git+https://github.com/myorg/myapp@refs/tags/v1.0&quot;,
+        &quot;digest&quot;: { &quot;sha1&quot;: &quot;abc123def456&quot; }
+      }
+    },
+    &quot;buildConfig&quot;: {
+      &quot;platforms&quot;: [&quot;linux/amd64&quot;, &quot;linux/arm64&quot;],
+      &quot;targetPlatform&quot;: &quot;linux/amd64&quot;
+    },
+    &quot;metadata&quot;: {
+      &quot;buildStartedOn&quot;: &quot;2026-05-20T10:00:00Z&quot;,
+      &quot;completeness&quot;: {
+        &quot;environment&quot;: true,
+        &quot;parameters&quot;: true,
+        &quot;materials&quot;: true
+      }
+    }
+  }
+}
+</code></pre>
+<h2 id="cross-build-security-concerns">Cross-Build Security Concerns<a class="headerlink" href="#cross-build-security-concerns" title="Permanent link">&para;</a></h2>
+<h3 id="1-emulation-based-builds-qemu">1. Emulation-Based Builds (QEMU)<a class="headerlink" href="#1-emulation-based-builds-qemu" title="Permanent link">&para;</a></h3>
+<p>When building for <code>arm64</code> on an <code>amd64</code> host, Docker uses QEMU user-mode emulation:</p>
+<pre><code class="language-bash"># Install QEMU binfmt support
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# Now builds can cross-compile via QEMU emulation
+docker buildx create --use --name multiarch
+</code></pre>
+<p><strong>Security risks of QEMU emulation</strong>:
+- QEMU user-mode emulation has a history of VM escape CVEs (CVE-2020-25704, CVE-2021-20255)
+- Emulation runs the entire build pipeline — package downloads, compilation, tests — in an emulated environment
+- Supply chain attacks targeting emulation bugs could compromise the build host</p>
+<p><strong>Mitigation</strong>: Prefer native cross-compilation over QEMU emulation:</p>
+<pre><code class="language-dockerfile"># Use native cross-compilation for Go
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
+ARG TARGETOS TARGETARCH
+# Cross-compiles natively — no QEMU needed
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o /app .
+</code></pre>
+<h3 id="2-architecture-specific-dependency-attacks">2. Architecture-Specific Dependency Attacks<a class="headerlink" href="#2-architecture-specific-dependency-attacks" title="Permanent link">&para;</a></h3>
+<p>A malicious package may behave differently on different architectures:</p>
+<pre><code class="language-toml"># Cargo.toml — benign but arch-specific vulnerability
+[dependencies]
+# On amd64, this compiles to safe code
+# On arm64, unsafe vector instructions expose a buffer overflow
+arch-specific-crate = &quot;1.0&quot;
+</code></pre>
+<p><strong>Mitigation</strong>: Scan dependencies per architecture with tooling that understands arch-specific compilation:</p>
+<pre><code class="language-bash"># Run security audit per architecture
+cargo audit --target aarch64-unknown-linux-gnu
+cargo audit --target x86_64-unknown-linux-gnu
+</code></pre>
+<h3 id="3-hash-mismatch-across-architectures">3. Hash Mismatch Across Architectures<a class="headerlink" href="#3-hash-mismatch-across-architectures" title="Permanent link">&para;</a></h3>
+<p>Each architecture produces a different image digest. This complicates:
+- <strong>Image pinning</strong>: Pinning to <code>myapp@sha256:amd64-digest</code> won't work on arm64 nodes
+- <strong>Admission control</strong>: Must verify all architecture digests, not just the one on the container registry's index</p>
+<p><strong>Solution</strong>: Pin to the manifest list digest, not individual architecture digests:</p>
+<pre><code class="language-yaml"># ✅ Correct: pin to the manifest list digest
+image: myapp@sha256:manifest-list-digest
+# Kubernetes will resolve to the correct architecture from the list
+
+# ❌ Wrong: pinning to amd64 digest breaks arm64 nodes
+image: myapp@sha256:amd64-specific-digest
+</code></pre>
+<h3 id="4-cicd-pipeline-complexity">4. CI/CD Pipeline Complexity<a class="headerlink" href="#4-cicd-pipeline-complexity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># GitHub Actions multi-arch build with security scanning
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/setup-buildx-action@v3
+    - name: Build and scan
+      uses: docker/build-push-action@v5
+      with:
+        platforms: ${{ matrix.platform }}
+        tags: myapp:${{ github.sha }}-${{ matrix.platform }}
+    - name: Scan
+      run: |
+        trivy image myapp:${{ github.sha }}-${{ matrix.platform }}
+        cosign sign myapp:${{ github.sha }}-${{ matrix.platform }}
+    - name: Create manifest list
+      run: |
+        docker manifest create myapp:latest \
+          myapp:${{ github.sha }}-linux/amd64 \
+          myapp:${{ github.sha }}-linux/arm64
+        docker manifest push myapp:latest
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Multi-arch security is an evolving area. Understand that most vulnerability scanners default to amd64 — you must explicitly specify the target platform. Know that SBOM and provenance attestations should be generated per architecture, not just for the manifest list. Be able to discuss the trade-off between QEMU emulation and native cross-compilation for security. Understand that arm64's growing popularity means CVE response times are rapidly converging with amd64 (but s390x/ppc64le remain slower).</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

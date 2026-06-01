@@ -1,0 +1,2218 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../27-docker-content-trust/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Docker's Supply Chain Platform Strategy - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dockers-supply-chain-platform-strategy" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker's Supply Chain Platform Strategy
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pillars-connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Pillars Connect
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How the Pillars Connect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-integrated-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Integrated Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-docker-native-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The "Docker-Native" Advantage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#competitive-landscape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competitive Landscape
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Competitive Landscape">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chainguard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chainguard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anchore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anchore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aqua-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aqua Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#red-hat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Red Hat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockers-differentiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker's Differentiation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker&#39;s Differentiation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-developer-workflow-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Developer Workflow Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ease-of-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Ease of Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-multi-platform-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Multi-Platform Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-challenges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Challenges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Challenges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#challenge-1-platform-lock-in-perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 1: Platform Lock-In Perception
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-2-runtime-security-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 2: Runtime Security Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-3-open-source-competition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 3: Open Source Competition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-4-enterprise-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 4: Enterprise Trust
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-1-supply-chain-regulations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 1: Supply Chain Regulations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-2-aiml-image-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 2: AI/ML Image Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-3-the-docker-desktop-distribution-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 3: The "Docker Desktop" Distribution Channel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likely-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Likely Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-the-pillars-connect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How the Pillars Connect
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How the Pillars Connect">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-integrated-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Integrated Workflow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-docker-native-advantage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The "Docker-Native" Advantage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#competitive-landscape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Competitive Landscape
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Competitive Landscape">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chainguard" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chainguard
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#anchore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anchore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aqua-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aqua Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#red-hat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Red Hat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockers-differentiation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker's Differentiation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker&#39;s Differentiation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-developer-workflow-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Developer Workflow Integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-ease-of-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Ease of Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-multi-platform-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Multi-Platform Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-challenges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Challenges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Challenges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#challenge-1-platform-lock-in-perception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 1: Platform Lock-In Perception
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-2-runtime-security-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 2: Runtime Security Gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-3-open-source-competition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 3: Open Source Competition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#challenge-4-enterprise-trust" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Challenge 4: Enterprise Trust
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opportunities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunities
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opportunities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-1-supply-chain-regulations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 1: Supply Chain Regulations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-2-aiml-image-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 2: AI/ML Image Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opportunity-3-the-docker-desktop-distribution-channel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opportunity 3: The "Docker Desktop" Distribution Channel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#likely-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Likely Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dockers-supply-chain-platform-strategy">Docker's Supply Chain Platform Strategy<a class="headerlink" href="#dockers-supply-chain-platform-strategy" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Docker is assembling the components of an end-to-end supply chain security platform. The thesis is that security must be embedded into every stage of the container lifecycle — from build to distribution to runtime — and that most organizations lack an integrated platform to achieve this. Docker's strategy is to provide that platform, deeply integrated with the developer workflow that made Docker ubiquitous.</p>
+<p>The four pillars of the strategy are:</p>
+<table>
+<thead>
+<tr>
+<th>Pillar</th>
+<th>Product</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Build</strong></td>
+<td>Docker Build Cloud</td>
+<td>Fast, secure, multi-architecture builds</td>
+</tr>
+<tr>
+<td><strong>Distribution</strong></td>
+<td>Docker Hub</td>
+<td>Image storage, organization management, access control</td>
+</tr>
+<tr>
+<td><strong>Hardening</strong></td>
+<td>Docker Hardened Images (DHI)</td>
+<td>Trusted, attested base images</td>
+</tr>
+<tr>
+<td><strong>Analysis</strong></td>
+<td>Docker Scout</td>
+<td>SBOM, vulnerability scanning, policy evaluation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="how-the-pillars-connect">How the Pillars Connect<a class="headerlink" href="#how-the-pillars-connect" title="Permanent link">&para;</a></h2>
+<p>The platform strategy is not about four separate products — it's about how they work together to create a cohesive supply chain.</p>
+<h3 id="the-integrated-workflow">The Integrated Workflow<a class="headerlink" href="#the-integrated-workflow" title="Permanent link">&para;</a></h3>
+<pre><code>Developer → Dockerfile → Build Cloud → Docker Hub → Scout Analysis → Policy Gate → Production
+                              │                              │
+                              ↓                              ↓
+                         DHI Base Image               Attestations + SBOM
+</code></pre>
+<ol>
+<li><strong>Developer starts with a DHI base image</strong> — trusted, hardened, attested, with known provenance</li>
+<li><strong>Build Cloud compiles the image</strong> — multi-architecture, with provenance and SBOM attestations attached during the build</li>
+<li><strong>Image is pushed to Docker Hub</strong> — stored in private or org repository with access controls</li>
+<li><strong>Scout analyzes the image</strong> — generates SBOM, cross-references CVEs, evaluates against environment policies</li>
+<li><strong>Policy gate decides</strong> — if the image passes, it's tagged for production; if it fails, the deployment is blocked and the developer receives remediation guidance</li>
+<li><strong>Runtime verification</strong> — Scout continues to monitor images in production, alerting on new CVEs</li>
+</ol>
+<h3 id="the-docker-native-advantage">The "Docker-Native" Advantage<a class="headerlink" href="#the-docker-native-advantage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># A single workflow that touches all four pillars
+
+# 1. Build from hardened base image
+FROM docker/hardened-node:20
+COPY . .
+RUN npm ci --omit=dev
+
+# 2. Build with Build Cloud (multi-arch + attestations)
+docker buildx build \
+  --builder cloud-org-builder \
+  --platform linux/amd64,linux/arm64 \
+  --sbom=true \
+  --attest type=provenance,mode=max \
+  -t myorg/my-app:latest \
+  --push \
+  .
+
+# 3. Hub stores and distributes the image
+# 4. Scout auto-analyzes (integrated with Hub)
+# 5. Policy evaluation gates deployment
+docker scout policy --env production myorg/my-app:latest
+</code></pre>
+<p>The integration is the product. No separate scanner setup, no external registry configuration, no additional signing infrastructure — it all works because Docker controls the entire pipeline.</p>
+<hr />
+<h2 id="competitive-landscape">Competitive Landscape<a class="headerlink" href="#competitive-landscape" title="Permanent link">&para;</a></h2>
+<p>Docker's strategy must be understood in the context of its competitors, each of which approaches supply chain security from a different angle.</p>
+<h3 id="chainguard">Chainguard<a class="headerlink" href="#chainguard" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Build a better base image and toolchain (Wolfi, apk, Chainguard Images, Chainguard Enforce)</p>
+<p><strong>Strengths</strong>:
+- <strong>Wolfi is the most secure container OS</strong>: Unpatched CVEs are proactively removed rather than waiting for upstream fixes
+- <strong>Image catalog breadth</strong>: Chainguard has more language runtimes and middleware images than DHI
+- <strong>Enforce platform</strong>: Policy enforcement at admission control level (in-cluster), not just at build time
+- <strong>Open source credibility</strong>: Wolfi is open source; the community trusts the approach</p>
+<p><strong>Weaknesses</strong>:
+- No build platform equivalent to Build Cloud
+- No image registry with the same reach as Docker Hub
+- Developer workflow integration is weaker (no Docker CLI integration, no <code>docker scout</code> equivalent)
+- Smaller distribution network (no CDN equivalent to Docker Hub's pull infrastructure)</p>
+<p><strong>Docker's response</strong>: DHI uses Wolfi as its base OS, coopetition with Chainguard. Docker integrates Wolfi's security posture with Docker's distribution and developer experience advantages.</p>
+<h3 id="anchore">Anchore<a class="headerlink" href="#anchore" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Vulnerability scanning and policy engine (Grype, Syft, Anchore Enterprise)</p>
+<p><strong>Strengths</strong>:
+- <strong>Grype/Syft are the most widely used open source scanner/SBOM tool</strong>
+- <strong>Policy engine is mature</strong>: Fine-grained, flexible policy definitions with multiple control points
+- <strong>Vendor-neutral</strong>: Works with any registry, any build system, any orchestrator
+- <strong>Enterprise features</strong>: RBAC, audit logging, compliance reporting</p>
+<p><strong>Weaknesses</strong>:
+- No image registry, no build platform, no base images — pure analysis layer
+- Developer experience is CLI-first, not pipeline-integrated
+- Policy authoring requires YAML expertise; less accessible than Scout's environment-based model</p>
+<p><strong>Docker's response</strong>: Scout competes with Anchore Enterprise but is differentiated by being embedded in the Docker workflow. Scout policies are simpler to configure; the trade-off is less flexibility.</p>
+<h3 id="aqua-security">Aqua Security<a class="headerlink" href="#aqua-security" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Cloud-native application protection platform (CNAPP) covering full lifecycle</p>
+<p><strong>Strengths</strong>:
+- <strong>Broadest product scope</strong>: Image scanning, runtime protection, IaC scanning, Kubernetes security, vulnerability management
+- <strong>Enterprise maturity</strong>: Role-based access control, SIEM integration, compliance reporting, incident response workflows
+- <strong>Deep runtime protection</strong>: Not just pre-deployment scanning — Aqua monitors container behavior at runtime</p>
+<p><strong>Weaknesses</strong>:
+- <strong>Complexity</strong>: CNAPP platforms require significant setup, configuration, and ongoing management
+- <strong>Developer friction</strong>: Security gates are enforced by security teams, not developers
+- <strong>Cost</strong>: Enterprise CNAPP licensing is expensive; overkill for smaller teams</p>
+<p><strong>Docker's response</strong>: Docker focuses on developer-friendly, pre-deployment security. Docker doesn't compete at the runtime level (no Kubernetes admission controller, no runtime monitoring). The strategy is to be the best-in-class supply chain platform for the build-to-deploy window, then integrate with runtime security providers.</p>
+<h3 id="red-hat">Red Hat<a class="headerlink" href="#red-hat" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Enterprise container platform (UBI, Quay.io, OpenShift, ACS)</p>
+<p><strong>Strengths</strong>:
+- <strong>UBI is well-established</strong>: RHEL-based, commercially supported, familiar to enterprise ops teams
+- <strong>Quay is a mature registry</strong>: Geo-replication, security scanning, image mirroring
+- <strong>OpenShift integration</strong>: End-to-end platform from build to orchestration
+- <strong>Red Hat Advanced Cluster Security (ACS)</strong>: StackRox-based runtime security</p>
+<p><strong>Weaknesses</strong>:
+- <strong>RHEL dependency</strong>: UBI images are larger and have a different CVE surface than Wolfi or Alpine
+- <strong>Cost center</strong>: Red Hat subscriptions are expensive; UBI requires a Red Hat account for some features
+- <strong>Developer experience</strong>: OpenShift and Quay are enterprise-focused; less accessible for individual developers</p>
+<p><strong>Docker's response</strong>: Docker competes on developer experience and lower cost. Docker Hub is free for public images and inexpensive for private; Build Cloud is consumption-based; DHI is commercially supported but doesn't require a platform subscription. Docker's bet is that developers will choose the path of least resistance.</p>
+<hr />
+<h2 id="dockers-differentiation">Docker's Differentiation<a class="headerlink" href="#dockers-differentiation" title="Permanent link">&para;</a></h2>
+<h3 id="1-developer-workflow-integration">1. Developer Workflow Integration<a class="headerlink" href="#1-developer-workflow-integration" title="Permanent link">&para;</a></h3>
+<p>Docker's single strongest advantage is that developers already use Docker. Scout commands use the same <code>docker</code> CLI they run daily. DHI images are pulled with the same <code>docker pull</code> command. There's no new tooling, no new workflows, no new login credentials. The security layer is invisible until it needs to be visible (policy violation, CVE alert).</p>
+<h3 id="2-ease-of-use">2. Ease of Use<a class="headerlink" href="#2-ease-of-use" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Scout policies are environment-based (<code>--env production</code>), not complex Rego rules</li>
+<li>DHI images follow the same interface as official images (same env vars, same ports, same entrypoints)</li>
+<li>Build Cloud works with the existing <code>docker buildx</code> command</li>
+<li>Hub organization management is familiar to anyone who has used GitHub organizations</li>
+</ul>
+<h3 id="3-multi-platform-build">3. Multi-Platform Build<a class="headerlink" href="#3-multi-platform-build" title="Permanent link">&para;</a></h3>
+<p>Build Cloud's ability to build for <code>linux/amd64</code>, <code>linux/arm64</code>, and <code>linux/arm/v7</code> in parallel is a genuine differentiator. No other supply chain platform offers native multi-architecture build infrastructure integrated with signing and analysis.</p>
+<hr />
+<h2 id="strategic-challenges">Strategic Challenges<a class="headerlink" href="#strategic-challenges" title="Permanent link">&para;</a></h2>
+<h3 id="challenge-1-platform-lock-in-perception">Challenge 1: Platform Lock-In Perception<a class="headerlink" href="#challenge-1-platform-lock-in-perception" title="Permanent link">&para;</a></h3>
+<p>Docker's strategy only works if customers use multiple Docker products. A customer using Chainguard Images, Harbor registry, and Grype scanning is using none of Docker's platform. Docker needs to convince customers to consolidate.</p>
+<p><strong>Mitigation</strong>: Docker makes individual products valuable standalone (DHI without Scout, Scout without Hub). The platform value is additive, not gated.</p>
+<h3 id="challenge-2-runtime-security-gap">Challenge 2: Runtime Security Gap<a class="headerlink" href="#challenge-2-runtime-security-gap" title="Permanent link">&para;</a></h3>
+<p>Docker's platform stops at deployment. For runtime security, customers need Aqua, Sysdig, Falco, or a Kubernetes admission controller. Docker doesn't offer admission control, runtime monitoring, or incident response.</p>
+<p><strong>Mitigation</strong>: Docker positions itself as the build-to-deploy layer and partners with runtime security providers. The OCI standard for attestations enables runtime tools to verify Docker-signed images.</p>
+<h3 id="challenge-3-open-source-competition">Challenge 3: Open Source Competition<a class="headerlink" href="#challenge-3-open-source-competition" title="Permanent link">&para;</a></h3>
+<p>Grype/Syft (Anchore), Trivy (Aqua), cosign (Sigstore), and Wolfi (Chainguard) are all open source and widely adopted. Docker's products are proprietary (with some open source components). Open source tools are free, community-supported, and vendor-neutral.</p>
+<p><strong>Mitigation</strong>: Docker competes on integration, usability, and support. The open source tools are powerful but require assembly. Docker provides a pre-assembled, supported platform.</p>
+<h3 id="challenge-4-enterprise-trust">Challenge 4: Enterprise Trust<a class="headerlink" href="#challenge-4-enterprise-trust" title="Permanent link">&para;</a></h3>
+<p>Docker has a history of pricing changes (Docker Desktop licensing in 2021) that eroded enterprise trust. Security platform adoption requires trust. Enterprises worry about vendor lock-in, pricing changes, and long-term commitment.</p>
+<p><strong>Mitigation</strong>: Docker is building enterprise features (RBAC, audit logging, commercial SLAs) and communicating a clear product roadmap. DHI's enterprise SLA is a concrete example.</p>
+<hr />
+<h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
+<h3 id="opportunity-1-supply-chain-regulations">Opportunity 1: Supply Chain Regulations<a class="headerlink" href="#opportunity-1-supply-chain-regulations" title="Permanent link">&para;</a></h3>
+<p>Regulatory pressure is increasing: US Executive Order 14028, EU Cyber Resilience Act, FDA pre-market cybersecurity requirements. Organizations need to demonstrate supply chain security. Docker's platform provides attestation evidence that directly maps to regulatory requirements.</p>
+<h3 id="opportunity-2-aiml-image-security">Opportunity 2: AI/ML Image Security<a class="headerlink" href="#opportunity-2-aiml-image-security" title="Permanent link">&para;</a></h3>
+<p>As organizations deploy AI models in containers, they need the same supply chain guarantees. Docker can extend Scout to scan model files, Python dependencies, and CUDA toolkits. DHI can provide hardened base images for ML workflows (TensorFlow, PyTorch, NVIDIA CUDA).</p>
+<h3 id="opportunity-3-the-docker-desktop-distribution-channel">Opportunity 3: The "Docker Desktop" Distribution Channel<a class="headerlink" href="#opportunity-3-the-docker-desktop-distribution-channel" title="Permanent link">&para;</a></h3>
+<p>Every Docker Desktop installation is a potential Scout activation. Docker Desktop already includes Scout integration; expanding this to include DHI recommendations and Build Cloud integration creates a distribution channel that competitors can't match.</p>
+<hr />
+<h2 id="likely-interview-questions">Likely Interview Questions<a class="headerlink" href="#likely-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"How would you convince an organization using Chainguard Images + Harbor + Trivy to switch to Docker's platform?" (Focus on integration: one CLI, one registry, one analysis platform. The switch is from "assembling best-of-breed" to "running an integrated platform." Demonstrate Scout policy evaluation speed and Build Cloud build times.)</li>
+<li>"What's Docker's biggest supply chain security competitor?" (Chainguard — they compete on the same plane (base images + analysis + policy) with an open source foundation. Anchore and Aqua compete at different levels of the stack.)</li>
+<li>"Where would you invest next if you were leading Docker's supply chain strategy?" (Runtime verification integration — not a full runtime product, but attestation verification at admission control via a Kubernetes admission webhook. Also: AI/ML image support.)</li>
+<li>"How does Docker's platform strategy benefit a 10-person startup vs. a 10,000-person enterprise?" (Startup: zero-config Scout, free Hub, DHI base images — security out of the box. Enterprise: RBAC, org-level policies, commercial SLA, FIPS images, integration with existing CI/CD.)</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

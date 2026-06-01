@@ -1,0 +1,2104 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../04-sigstore/">
+      
+      
+        <link rel="next" href="../06-trusted-builds/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Dependency Management Security - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#dependency-management-security" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Dependency Management Security
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attack-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Classes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attack Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependency-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typosquatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typosquatting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-jacking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repo-Jacking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pinning-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pinning Strategies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pinning Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hash-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hash Pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-pinning-exact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Pinning (Exact)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#range-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Range Pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lockfile-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lockfile Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-manager-specific-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Manager-Specific Risks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Package Manager-Specific Risks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#npm-postinstall-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        npm: postinstall scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pip-setuppy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pip: setup.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apt-install-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apt: install scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rubygems-gem-install-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RubyGems: gem install hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defense-in-depth-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defense in Depth Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attack-classes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Classes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Attack Classes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dependency-confusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependency Confusion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#typosquatting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Typosquatting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#repo-jacking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Repo-Jacking
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pinning-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pinning Strategies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pinning Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hash-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hash Pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#version-pinning-exact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Pinning (Exact)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#range-pinning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Range Pinning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommendation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommendation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lockfile-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lockfile Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#package-manager-specific-risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Manager-Specific Risks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Package Manager-Specific Risks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#npm-postinstall-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        npm: postinstall scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pip-setuppy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pip: setup.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#apt-install-scripts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apt: install scripts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rubygems-gem-install-hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RubyGems: gem install hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defense-in-depth-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defense in Depth Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="dependency-management-security">Dependency Management Security<a class="headerlink" href="#dependency-management-security" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Dependency management is the largest attack surface in modern software supply chains. The majority of code in a typical application is third-party — and every dependency is a potential vector. This article covers the major attack classes and defensive strategies.</p>
+<h2 id="attack-classes">Attack Classes<a class="headerlink" href="#attack-classes" title="Permanent link">&para;</a></h2>
+<h3 id="dependency-confusion">Dependency Confusion<a class="headerlink" href="#dependency-confusion" title="Permanent link">&para;</a></h3>
+<p>An attacker publishes a package with the same name as an internal/private package to a public registry. Build tools that search public registries after (or instead of) private ones will install the malicious public package.</p>
+<p>Example: your company uses <code>@mycorp/internal-auth</code> from a private npm registry. An attacker publishes <code>internal-auth</code> (without the scope) to npmjs.org. A misconfigured <code>npm install</code> resolves the public <code>internal-auth</code> instead of failing.</p>
+<p><strong>Defense:</strong></p>
+<pre><code class="language-bash"># npm: scoped registries
+npm config set @mycorp:registry https://npm.mycorp.com
+
+# Prevent resolution from public registries
+# .npmrc
+registry=https://npm.mycorp.com
+@mycorp:registry=https://npm.mycorp.com
+</code></pre>
+<pre><code class="language-python"># pip: index-url per package
+# requirements.txt
+--extra-index-url https://private-pypi.mycorp.com/simple
+my-private-pkg==1.0.0
+</code></pre>
+<p>Docker approach: use <code>--registry-mirror</code> pointing only to an internal proxy:</p>
+<pre><code class="language-json">{
+  &quot;registry-mirrors&quot;: [&quot;https://docker-mirror.mycorp.com&quot;]
+}
+</code></pre>
+<h3 id="typosquatting">Typosquatting<a class="headerlink" href="#typosquatting" title="Permanent link">&para;</a></h3>
+<p>Attackers publish packages with misspelled names of popular packages: <code>requsts</code> instead of <code>requests</code>, <code>urllib3</code> instead of <code>urllib3</code> (that one happened).</p>
+<p><strong>Defense:</strong>
+- Use lockfiles (they pin exact versions and hashes)
+- Run <code>npm audit</code> / <code>pip audit</code> before install
+- Use registries that scan for lookalike names (npm's <code>package-name-conflicts</code> check)
+- Pre-commit hooks to detect typo-squat patterns</p>
+<h3 id="repo-jacking">Repo-Jacking<a class="headerlink" href="#repo-jacking" title="Permanent link">&para;</a></h3>
+<p>An attacker registers a GitHub organization or username matching a repository that a package depended on, after the original owner deleted or abandoned it.</p>
+<p>Example: package foo depends on <code>github.com/alice/lib-bar</code>. Alice deletes her account. Attacker registers <code>alice</code> and publishes malicious <code>lib-bar</code>.</p>
+<p><strong>Defense:</strong>
+- Source hash pinning in lockfiles (includes the resolved commit)
+- Internal mirrors of all dependencies (vendor directories, proxy caches)
+- Never delete organizations or users from source hosting platforms — transfer instead</p>
+<h2 id="pinning-strategies">Pinning Strategies<a class="headerlink" href="#pinning-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="hash-pinning">Hash Pinning<a class="headerlink" href="#hash-pinning" title="Permanent link">&para;</a></h3>
+<p>Pin dependency content by its digest, not its version label. This is the gold standard for integrity.</p>
+<pre><code class="language-dockerfile"># Weak: tag-based
+FROM node:20-alpine
+
+# Stronger: digest pinning
+FROM node:20-alpine@sha256:abc123...
+</code></pre>
+<pre><code class="language-go">// go.sum entries are hash-pinned
+github.com/gorilla/mux v1.8.1 h1:TuMFJxjvn8T3YvW7EupYaA8KBKXoAXQ=
+</code></pre>
+<p><strong>Tradeoffs:</strong>
+- ✅ Immutable reference — no tag mutation attacks
+- ❌ Requires tooling to update (Dependabot, Renovate)
+- ❌ Can become stale (no automatic security updates)</p>
+<h3 id="version-pinning-exact">Version Pinning (Exact)<a class="headerlink" href="#version-pinning-exact" title="Permanent link">&para;</a></h3>
+<p>Pin to a specific semantic version.</p>
+<pre><code class="language-python"># requirements.txt
+requests==2.31.0
+</code></pre>
+<pre><code class="language-json">// package.json
+&quot;dependencies&quot;: {
+  &quot;express&quot;: &quot;4.18.2&quot;
+}
+</code></pre>
+<p><strong>Tradeoffs:</strong>
+- ✅ Reproducible builds (with lockfile)
+- ❌ Version tags can be mutated (registry compromise)
+- ❌ No hash verification without a lockfile</p>
+<h3 id="range-pinning">Range Pinning<a class="headerlink" href="#range-pinning" title="Permanent link">&para;</a></h3>
+<p>Allow semver-compatible updates automatically.</p>
+<pre><code class="language-json">&quot;dependencies&quot;: {
+  &quot;express&quot;: &quot;^4.18.0&quot;
+}
+</code></pre>
+<pre><code class="language-python"># requirements.txt
+requests&gt;=2.31.0,&lt;3.0.0
+</code></pre>
+<p><strong>Tradeoffs:</strong>
+- ✅ Automatic patch updates (may include security fixes)
+- ❌ Malicious minor/patch version can enter without review
+- ❌ Non-reproducible without lockfile</p>
+<h3 id="recommendation">Recommendation<a class="headerlink" href="#recommendation" title="Permanent link">&para;</a></h3>
+<p>Best practice is layered:</p>
+<ol>
+<li><strong>Range pinning</strong> in manifest (flexible for development)</li>
+<li><strong>Lockfile</strong> with content hashes (integrity)</li>
+<li><strong>Automated dependency update</strong> (Dependabot, Renovate) with CI verification</li>
+<li><strong>Vendor/proxy</strong> dependencies for air-gapped safety</li>
+</ol>
+<h2 id="lockfile-security">Lockfile Security<a class="headerlink" href="#lockfile-security" title="Permanent link">&para;</a></h2>
+<p>Lockfiles (go.sum, package-lock.json, Gemfile.lock, Cargo.lock, poetry.lock) pin every transitive dependency to specific versions with content hashes. They are the single most effective dependency security control.</p>
+<pre><code class="language-bash"># npm integrity: package-lock.json includes integrity hash
+&quot;lodash&quot;: {
+  &quot;version&quot;: &quot;4.17.21&quot;,
+  &quot;integrity&quot;: &quot;sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==&quot;
+}
+</code></pre>
+<pre><code class="language-go"># go.sum: multiple hashes per module version
+github.com/gorilla/mux v1.8.1 h1:TuMFJxjvn8T3YvW7EupY...
+github.com/gorilla/mux v1.8.1/go.mod h1:67gPMLoMrV+GYYiFqDMEcW9sC3W...
+</code></pre>
+<p><strong>Do not delete lockfiles.</strong> Ever. They are the source of truth for what actually gets installed. Committing lockfiles is a security best practice — even in libraries.</p>
+<h2 id="package-manager-specific-risks">Package Manager-Specific Risks<a class="headerlink" href="#package-manager-specific-risks" title="Permanent link">&para;</a></h2>
+<h3 id="npm-postinstall-scripts">npm: postinstall scripts<a class="headerlink" href="#npm-postinstall-scripts" title="Permanent link">&para;</a></h3>
+<p>npm packages can run arbitrary code during installation via the <code>postinstall</code> script. This is the vector for <code>event-stream</code> (the <code>flatmap-stream</code> backdoor).</p>
+<pre><code class="language-bash"># Disable lifecycle scripts globally
+npm config set ignore-scripts true
+
+# Or per-project in .npmrc
+ignore-scripts=true
+
+# Allow specific packages to run scripts
+npm config set --engine-strict true
+</code></pre>
+<h3 id="pip-setuppy">pip: setup.py<a class="headerlink" href="#pip-setuppy" title="Permanent link">&para;</a></h3>
+<p>Python packages can execute arbitrary code during <code>pip install</code> — <code>setup.py</code> is a Python file, not a declarative config. <code>pyproject.toml</code> (PEP 517/518) improves this but <code>setup.py</code> remains common.</p>
+<pre><code class="language-bash"># Use PEP 517-only mode
+pip install --use-pep517 mypackage
+
+# Install from wheel (pre-built, no setup.py execution)
+pip install mypackage-1.0.0-py3-none-any.whl
+</code></pre>
+<h3 id="apt-install-scripts">apt: install scripts<a class="headerlink" href="#apt-install-scripts" title="Permanent link">&para;</a></h3>
+<p>Debian packages can run <code>preinst</code> and <code>postinst</code> scripts during installation.</p>
+<pre><code class="language-bash"># Skip maintainer scripts (dangerous — may break package)
+apt-get install -o DPkg::Options::=--force-confnew \
+  -o DPkg::Options::=--force-confdef \
+  docker-ce
+
+# Or extract without installing
+dpkg-deb -x package.deb ./extracted/
+</code></pre>
+<h3 id="rubygems-gem-install-hooks">RubyGems: gem install hooks<a class="headerlink" href="#rubygems-gem-install-hooks" title="Permanent link">&para;</a></h3>
+<p>Ruby gems can define <code>pre_install</code> and <code>post_install</code> hooks. The <code>rest-client</code> gem incident (2019) demonstrated gem installation executing arbitrary code.</p>
+<pre><code class="language-bash"># Disable gem hooks
+gem install --no-document --no-user-install mygem
+</code></pre>
+<h2 id="defense-in-depth-summary">Defense in Depth Summary<a class="headerlink" href="#defense-in-depth-summary" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Tool/Control</th>
+<th>Prevents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Registry configuration</td>
+<td>Scoped registries, index-url</td>
+<td>Dependency confusion</td>
+</tr>
+<tr>
+<td>Lockfiles</td>
+<td>package-lock.json, go.sum, Cargo.lock</td>
+<td>Typosquatting, hash mismatch</td>
+</tr>
+<tr>
+<td>Hash pinning</td>
+<td><code>@sha256:</code> in Dockerfiles</td>
+<td>Tag mutation</td>
+</tr>
+<tr>
+<td>CI verification</td>
+<td><code>npm audit</code>, <code>trivy fs</code>, <code>pip audit</code></td>
+<td>Known vulnerabilities</td>
+</tr>
+<tr>
+<td>Proxy/mirror</td>
+<td>Artifactory, Nexus, Docker registry mirror</td>
+<td>Repo-jacking, registry compromise</td>
+</tr>
+<tr>
+<td>Least privilege install</td>
+<td><code>--ignore-scripts</code>, <code>--use-pep517</code>, <code>no-install-recommends</code></td>
+<td>Post-install code execution</td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"Why commit lockfiles for libraries?" — Even library consumers benefit from knowing what versions the library was tested with; preventing surprise resolutions</li>
+<li>"How does dependency confusion differ from typosquatting?" — Confusion exploits namespace overlap between public and private registries; typosquatting exploits name misspelling. They're orthogonal — a typo-squatted package could also be a dependency confusion package</li>
+<li>"What is the single most impactful dependency security control?" — Lockfile with content hashes, committed to the repository, verified in CI</li>
+<li>"Should you use <code>npm audit</code> in CI?" — Yes, but as a gating mechanism only after evaluating the false positive rate for your ecosystem</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

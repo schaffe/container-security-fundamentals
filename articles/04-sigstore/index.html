@@ -1,0 +1,1888 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../03-sbom/">
+      
+      
+        <link rel="next" href="../05-dependency-management-security/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Sigstore (cosign, Fulcio, Rekor) - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#sigstore-cosign-fulcio-rekor" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Sigstore (cosign, Fulcio, Rekor)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cosign-sign-verify-attest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cosign: Sign, Verify, Attest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cosign: Sign, Verify, Attest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attesting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fulcio-ephemeral-certificate-authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fulcio: Ephemeral Certificate Authority
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rekor-transparency-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rekor: Transparency Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-based-vs-keyless-signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key-Based vs. Keyless Signing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundle-format-for-offline-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bundle Format for Offline Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cosign-sign-verify-attest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        cosign: Sign, Verify, Attest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="cosign: Sign, Verify, Attest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#verifying" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Verifying
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attesting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fulcio-ephemeral-certificate-authority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fulcio: Ephemeral Certificate Authority
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rekor-transparency-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rekor: Transparency Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-based-vs-keyless-signing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key-Based vs. Keyless Signing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundle-format-for-offline-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bundle Format for Offline Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="sigstore-cosign-fulcio-rekor">Sigstore (cosign, Fulcio, Rekor)<a class="headerlink" href="#sigstore-cosign-fulcio-rekor" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Sigstore is a Linux Foundation project that makes cryptographic software signing accessible by replacing traditional long-lived key pairs with <strong>ephemeral, OIDC-based certificates</strong>. It consists of three core services plus a client CLI:</p>
+<ul>
+<li><strong>cosign</strong> — CLI client for signing and verifying container images, blobs, and in-toto attestations</li>
+<li><strong>Fulcio</strong> — Certificate Authority that issues short-lived code-signing certificates via OIDC</li>
+<li><strong>Rekor</strong> — Append-only transparency log that records all signing events</li>
+</ul>
+<p>The architecture eliminates the two hardest problems in code signing: <strong>key management</strong> (what to do with the private key) and <strong>identity revocation</strong> (how to invalidate a compromised key).</p>
+<h2 id="cosign-sign-verify-attest">cosign: Sign, Verify, Attest<a class="headerlink" href="#cosign-sign-verify-attest" title="Permanent link">&para;</a></h2>
+<h3 id="signing">Signing<a class="headerlink" href="#signing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Traditional key-based signing
+cosign generate-key-pair
+cosign sign --key cosign.key myorg/myapp:latest
+
+# Keyless signing (default for newer versions)
+cosign sign myorg/myapp:latest
+</code></pre>
+<p>Keyless signing flow:</p>
+<ol>
+<li>cosign prompts the user to authenticate via an OIDC provider (GitHub, Google, Microsoft)</li>
+<li>cosign generates an ephemeral key pair in memory</li>
+<li>cosign sends the public key to Fulcio, which issues a short-lived X.509 certificate bound to the OIDC identity</li>
+<li>cosign signs the artifact, attaching both the signature and the Fulcio-issued certificate</li>
+<li>cosign uploads the signing metadata to Rekor, getting back a transparency log entry index</li>
+</ol>
+<pre><code class="language-bash"># Sign with specific OIDC provider
+cosign sign --identity-token &quot;$(gcloud auth print-identity-token)&quot; \
+  myorg/myapp:latest
+</code></pre>
+<h3 id="verifying">Verifying<a class="headerlink" href="#verifying" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Key-based verification
+cosign verify --key cosign.pub myorg/myapp:latest
+
+# Keyless verification
+cosign verify myorg/myapp:latest
+
+# Verify with specific identity
+cosign verify --certificate-identity &quot;alice@example.com&quot; \
+  --certificate-oidc-issuer &quot;https://accounts.google.com&quot; \
+  myorg/myapp:latest
+</code></pre>
+<p>Keyless verification works by:</p>
+<ol>
+<li>Extracting the Fulcio certificate from the container image</li>
+<li>Validating the certificate chain against Fulcio's root CA</li>
+<li>Checking the Rekor transparency log to ensure the signing event was recorded</li>
+<li>Optionally verifying the signer's identity (email, OIDC issuer)</li>
+</ol>
+<h3 id="attesting">Attesting<a class="headerlink" href="#attesting" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Attest with in-toto predicate
+cosign attest --predicate build.provenance \
+  --type slsaprovenance \
+  myorg/myapp:latest
+
+# Verify attestation
+cosign verify-attestation --type slsaprovenance \
+  myorg/myapp:latest
+</code></pre>
+<p><code>cosign attest</code> wraps the predicate in an in-toto statement, signs the DSSE envelope, and attaches it to the container image as an OCI artifact.</p>
+<h2 id="fulcio-ephemeral-certificate-authority">Fulcio: Ephemeral Certificate Authority<a class="headerlink" href="#fulcio-ephemeral-certificate-authority" title="Permanent link">&para;</a></h2>
+<p>Fulcio issues X.509 certificates that are:</p>
+<ul>
+<li><strong>Short-lived</strong> (typically 10–60 minutes) — no revocation list needed</li>
+<li><strong>Bound to OIDC identity</strong> — the certificate SAN (Subject Alternative Name) contains the OIDC email or identity</li>
+<li><strong>Chained to Fulcio root</strong> — verifiers trust Fulcio's root CA</li>
+</ul>
+<p>The certificate includes custom OID extensions:</p>
+<pre><code>X509v3 extensions:
+    X509v3 Subject Alternative Name:
+        email:alice@example.com
+    1.3.6.1.4.1.57264.1.1:
+        https://accounts.google.com
+    1.3.6.1.4.1.57264.1.8:
+        https://github.com/myorg/myapp/.github/workflows/build.yml@refs/heads/main
+</code></pre>
+<p>The OID extension <code>1.3.6.1.4.1.57264.1.1</code> records the OIDC issuer. Extension <code>1.3.6.1.4.1.57264.1.8</code> records the build pipeline trigger (for CI-based signing).</p>
+<h2 id="rekor-transparency-log">Rekor: Transparency Log<a class="headerlink" href="#rekor-transparency-log" title="Permanent link">&para;</a></h2>
+<p>Rekor is an immutable, append-only log that records signing metadata. It provides:</p>
+<ul>
+<li><strong>Discovery</strong>: Anyone can search the log to find all artifacts signed by a given identity</li>
+<li><strong>Transparency</strong>: Signers cannot deny having signed an artifact (non-repudiation)</li>
+<li><strong>Audit</strong>: If a signing key or identity is compromised, the log shows exactly what was signed</li>
+</ul>
+<pre><code class="language-bash"># Search Rekor by artifact hash
+rekor-cli search --sha abc123...
+
+# Search by email
+rekor-cli search --email alice@example.com
+
+# Get log entry details
+rekor-cli get --log-index 12345678
+
+# Verify inclusion proof
+rekor-cli verify --log-index 12345678 --artifact myapp.tar.gz
+</code></pre>
+<p>Each Rekor entry includes an <strong>inclusion proof</strong> — a Merkle tree proof that the entry exists in the log at a specific index. Combined with the Signed Entry Timestamp (SET), this proves the artifact was signed before a certain time.</p>
+<h2 id="key-based-vs-keyless-signing">Key-Based vs. Keyless Signing<a class="headerlink" href="#key-based-vs-keyless-signing" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Key-Based</th>
+<th>Keyless (Sigstore)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Key storage</td>
+<td>Filesystem, KMS, HSM</td>
+<td>Ephemeral (never persisted)</td>
+</tr>
+<tr>
+<td>Key rotation</td>
+<td>Manual, risky</td>
+<td>Inherent (new key per sign)</td>
+</tr>
+<tr>
+<td>Identity binding</td>
+<td>Manual (key = identity)</td>
+<td>Automatic (via OIDC)</td>
+</tr>
+<tr>
+<td>Revocation</td>
+<td>CRL, key rotation</td>
+<td>No revocation needed (short TTL)</td>
+</tr>
+<tr>
+<td>Offline verification</td>
+<td>Yes (with public key)</td>
+<td>Yes (with bundle)</td>
+</tr>
+<tr>
+<td>Transparency</td>
+<td>None</td>
+<td>Rekor log</td>
+</tr>
+<tr>
+<td>Granularity</td>
+<td>Per-key identity</td>
+<td>Per-signer identity</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bundle-format-for-offline-verification">Bundle Format for Offline Verification<a class="headerlink" href="#bundle-format-for-offline-verification" title="Permanent link">&para;</a></h2>
+<p>Sigstore supports offline verification via <strong>bundles</strong> — a self-contained file with the signature, certificate, and Rekor inclusion proof.</p>
+<pre><code class="language-bash"># Create a bundle during signing
+cosign sign --bundle sigstore.bundle myorg/myapp:latest
+
+# Verify offline using the bundle
+cosign verify --bundle sigstore.bundle myorg/myapp:latest
+</code></pre>
+<p>The bundle contains:</p>
+<pre><code class="language-json">{
+  &quot;base64Signature&quot;: &quot;...&quot;,
+  &quot;certificate&quot;: &quot;-----BEGIN CERTIFICATE-----...&quot;,
+  &quot;rekorBundle&quot;: {
+    &quot;signedEntryTimestamp&quot;: &quot;...&quot;,
+    &quot;integratedTime&quot;: 1700000000,
+    &quot;logIndex&quot;: 12345678,
+    &quot;logID&quot;: &quot;c0d23d6ad...&quot;
+  }
+}
+</code></pre>
+<p>This enables air-gapped verification — as long as the verifier has the Rekor root public key and the bundle, they can verify offline without calling Fulcio or Rekor.</p>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"What problem does Sigstore solve that GPG signing doesn't?" — Key management: no key generation, storage, rotation, leak recovery, or revocation. Identity is bound via OIDC, so <code>alice@example.com</code> signing = <code>alice@example.com</code> verified</li>
+<li>"Can Sigstore work in an air-gapped environment?" — Yes, using bundles for offline verification. However, signing requires OIDC (network) unless using key-based mode</li>
+<li>"What happens if Rekor is unavailable?" — Signing and verification work independently; Rekor only provides transparency. Without Rekor, you lose non-repudiation and audit trails but can still verify signatures using the certificate chain</li>
+<li>"How does Fulcio know the OIDC token is valid?" — Fulcio validates the OIDC token's signature against the provider's JWKS endpoint, then extracts the identity into the certificate SAN</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2225 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../08-distroless-images/">
+      
+      
+        <link rel="next" href="../10-non-root-execution/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Image Minimization - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#image-minimization" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Image Minimization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#multi-stage-build-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-stage Build Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi-stage Build Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#go-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#copy-from-for-binary-only-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        COPY --from for Binary-Only Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COPY --from for Binary-Only Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selective-file-copy-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selective File Copy Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-cleanup-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RUN Cleanup Chains
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RUN Cleanup Chains">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bad (packages persist in layer 1, then deleted in layer 2):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#good-single-run-with-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Good (single RUN with cleanup):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-manager-cleanup-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Manager Cleanup Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layer-squash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer Squash
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stripping-binaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping Binaries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stripping Binaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stripping-with-ldflags-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping with ldflags (Go)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stripping-with-strip-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping with strip command
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upx-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UPX Compression
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#removing-unused-shared-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Unused Shared Libraries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Removing Unused Shared Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-shared-library-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit shared library dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distroless-as-an-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless as an Alternative
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combining-techniques-production-grade-minimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Techniques: Production-Grade Minimization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supply-chain-security-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supply Chain Security Impact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#multi-stage-build-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-stage Build Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Multi-stage Build Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#go-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Application
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#copy-from-for-binary-only-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        COPY --from for Binary-Only Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="COPY --from for Binary-Only Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#selective-file-copy-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Selective File Copy Patterns
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-cleanup-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RUN Cleanup Chains
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RUN Cleanup Chains">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bad (packages persist in layer 1, then deleted in layer 2):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#good-single-run-with-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Good (single RUN with cleanup):
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-manager-cleanup-commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package Manager Cleanup Commands
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layer-squash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer Squash
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#stripping-binaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping Binaries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Stripping Binaries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stripping-with-ldflags-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping with ldflags (Go)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stripping-with-strip-command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stripping with strip command
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upx-compression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UPX Compression
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#removing-unused-shared-libraries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing Unused Shared Libraries
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Removing Unused Shared Libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#audit-shared-library-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Audit shared library dependencies
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distroless-as-an-alternative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless as an Alternative
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combining-techniques-production-grade-minimization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining Techniques: Production-Grade Minimization
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#results-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Results Comparison
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supply-chain-security-impact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supply Chain Security Impact
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="image-minimization">Image Minimization<a class="headerlink" href="#image-minimization" title="Permanent link">&para;</a></h1>
+<p>Container image minimization is the practice of reducing image size by eliminating build-time artifacts, unused dependencies, debug symbols, and intermediate layers. Smaller images mean faster pulls, less network transfer, reduced storage costs, and — critically — a smaller attack surface.</p>
+<h2 id="multi-stage-build-patterns">Multi-stage Build Patterns<a class="headerlink" href="#multi-stage-build-patterns" title="Permanent link">&para;</a></h2>
+<p>Multi-stage builds are the single most effective technique for image minimization. They allow separate build and runtime environments, copying only the compiled artifact into the final image.</p>
+<h3 id="go-application">Go Application<a class="headerlink" href="#go-application" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Stage 1: Build with full toolchain
+FROM golang:1.21 AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags=&quot;-s -w&quot; -o /app .
+
+# Stage 2: Minimal runtime with scratch
+FROM scratch
+COPY --from=builder /app /app
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+EXPOSE 8080
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>The <code>scratch</code> base yields an image of ~8-15 MB for a Go binary vs ~300 MB for the full Go toolchain image.</p>
+<h3 id="python-application">Python Application<a class="headerlink" href="#python-application" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+RUN useradd -m -u 10001 appuser
+COPY --from=builder /root/.local /home/appuser/.local
+COPY --from=builder /app /app
+WORKDIR /app
+USER appuser
+# Adjust PATH to find pip-installed binaries
+ENV PATH=/home/appuser/.local/bin:$PATH
+CMD [&quot;python&quot;, &quot;main.py&quot;]
+</code></pre>
+<p>Python is harder to minimize than Go because the runtime interpreter is required. The <code>slim</code> variants remove headers, static libraries, and documentation.</p>
+<h2 id="copy-from-for-binary-only-results">COPY --from for Binary-Only Results<a class="headerlink" href="#copy-from-for-binary-only-results" title="Permanent link">&para;</a></h2>
+<p>The <code>COPY --from=&lt;stage&gt;</code> syntax can copy individual files, not just entire directories:</p>
+<pre><code class="language-dockerfile">FROM node:20 AS build
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+
+FROM gcr.io/distroless/nodejs20-debian12
+# Copy only the production dependencies
+COPY --from=build /app/node_modules /node_modules
+COPY --from=build /app/dist /dist
+CMD [&quot;/dist/server.js&quot;]
+</code></pre>
+<h3 id="selective-file-copy-patterns">Selective File Copy Patterns<a class="headerlink" href="#selective-file-copy-patterns" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Copy only what's needed — not the entire builder stage
+COPY --from=builder /app/bin/server /usr/local/bin/server
+COPY --from=builder /app/config/prod.yaml /etc/app/config.yaml
+# NOT: COPY --from=builder /app /app
+</code></pre>
+<h2 id="run-cleanup-chains">RUN Cleanup Chains<a class="headerlink" href="#run-cleanup-chains" title="Permanent link">&para;</a></h2>
+<p>Every <code>RUN</code> instruction creates a new layer. Cleaning up in the same <code>RUN</code> is critical — otherwise the deleted files persist in a previous layer.</p>
+<h3 id="bad-packages-persist-in-layer-1-then-deleted-in-layer-2">Bad (packages persist in layer 1, then deleted in layer 2):<a class="headerlink" href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential   # Layer 1: ~200 MB added
+RUN apt-get remove -y build-essential                       # Layer 2: marked deleted but space persists
+</code></pre>
+<h3 id="good-single-run-with-cleanup">Good (single RUN with cleanup):<a class="headerlink" href="#good-single-run-with-cleanup" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential &amp;&amp; \
+    make &amp;&amp; \
+    apt-get purge -y --auto-remove build-essential &amp;&amp; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+</code></pre>
+<h3 id="package-manager-cleanup-commands">Package Manager Cleanup Commands<a class="headerlink" href="#package-manager-cleanup-commands" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Debian/Ubuntu
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends pkg &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+
+# Alpine
+RUN apk add --no-cache --virtual .build-deps build-base &amp;&amp; \
+    make &amp;&amp; \
+    apk del .build-deps
+
+# The --virtual flag creates a virtual package that can be removed atomically
+
+# RHEL/Ubi
+RUN yum install -y make gcc &amp;&amp; \
+    make &amp;&amp; \
+    yum remove -y make gcc &amp;&amp; \
+    yum clean all &amp;&amp; \
+    rm -rf /var/cache/yum
+</code></pre>
+<h2 id="layer-squash">Layer Squash<a class="headerlink" href="#layer-squash" title="Permanent link">&para;</a></h2>
+<p>After a Docker build, the image consists of many layers. Squashing collapses them into a single layer, removing intermediate files even if they span multiple <code>RUN</code> instructions.</p>
+<pre><code class="language-bash"># During build: squash all layers into one
+docker build --squash -t myapp:squashed .
+
+# BuildKit variant (no squash flag, but better layer caching)
+DOCKER_BUILDKIT=1 docker build -t myapp:squashed .
+</code></pre>
+<p>Note: <code>--squash</code> is still experimental in some Docker versions. An alternative is using <code>docker-slim</code>:</p>
+<pre><code class="language-bash">docker-slim build myapp:latest
+# Analyzes the image and removes unnecessary files
+</code></pre>
+<h2 id="stripping-binaries">Stripping Binaries<a class="headerlink" href="#stripping-binaries" title="Permanent link">&para;</a></h2>
+<p>Debug symbols significantly increase binary size and serve no purpose in running containers.</p>
+<h3 id="stripping-with-ldflags-go">Stripping with ldflags (Go)<a class="headerlink" href="#stripping-with-ldflags-go" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># -s: omit symbol table and debug info
+# -w: omit DWARF symbol table
+RUN go build -ldflags=&quot;-s -w&quot; -o /app .
+</code></pre>
+<h3 id="stripping-with-strip-command">Stripping with strip command<a class="headerlink" href="#stripping-with-strip-command" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y binutils &amp;&amp; \
+    strip --strip-all /app/binary &amp;&amp; \
+    strip --strip-unneeded /usr/local/lib/*.so &amp;&amp; \
+    apt-get purge -y --auto-remove binutils &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+</code></pre>
+<h3 id="upx-compression">UPX Compression<a class="headerlink" href="#upx-compression" title="Permanent link">&para;</a></h3>
+<p>For additional size reduction, UPX compresses the binary:</p>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y upx-ucl &amp;&amp; \
+    upx --best --lzma /app/binary &amp;&amp; \
+    apt-get purge -y --auto-remove upx-ucl &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+</code></pre>
+<p>UPX trades runtime decompression overhead for image size. This is rarely worth it for container images because:
+- Container images are already compressed during pull/docker save
+- UPX can trigger antivirus false positives
+- Decompression at startup adds latency</p>
+<h2 id="removing-unused-shared-libraries">Removing Unused Shared Libraries<a class="headerlink" href="#removing-unused-shared-libraries" title="Permanent link">&para;</a></h2>
+<p>Dynamic binaries pull in shared libraries that may not all be needed. Use <code>ldd</code> to audit and <code>strip</code> to remove unused sections.</p>
+<h3 id="audit-shared-library-dependencies">Audit shared library dependencies<a class="headerlink" href="#audit-shared-library-dependencies" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM debian:bookworm-slim AS builder
+RUN apt-get update &amp;&amp; apt-get install -y patchelf
+
+# Copy the binary
+COPY myapp /myapp
+
+# List dynamic dependencies
+RUN ldd /myapp
+
+# Copy only required libraries
+RUN mkdir /lib-stripped &amp;&amp; \
+    for lib in $(ldd /myapp | grep &quot;=&gt; /&quot; | awk '{print $3}'); do \
+        cp &quot;$lib&quot; /lib-stripped/; \
+    done &amp;&amp; \
+    cp /lib64/ld-linux-x86-64.so.2 /lib-stripped/
+
+FROM scratch
+COPY --from=builder /myapp /myapp
+COPY --from=builder /lib-stripped /lib64/
+COPY --from=builder /lib-stripped /lib/
+</code></pre>
+<h3 id="distroless-as-an-alternative">Distroless as an Alternative<a class="headerlink" href="#distroless-as-an-alternative" title="Permanent link">&para;</a></h3>
+<p>Rather than manually tracking library dependencies, use distroless base images which handle this automatically:</p>
+<pre><code class="language-dockerfile"># No need for ldd/copying — distroless includes the right glibc subset
+FROM gcr.io/distroless/cc-debian12
+COPY --from=build /app /app
+</code></pre>
+<h2 id="combining-techniques-production-grade-minimization">Combining Techniques: Production-Grade Minimization<a class="headerlink" href="#combining-techniques-production-grade-minimization" title="Permanent link">&para;</a></h2>
+<pre><code class="language-dockerfile"># === Stage 1: Build ===
+FROM golang:1.21 AS builder
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags=&quot;-s -w&quot; -o /app .
+
+# === Stage 2: Runtime ===
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /app /app
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+USER 65532:65532
+EXPOSE 8080
+CMD [&quot;/app&quot;]
+</code></pre>
+<h2 id="results-comparison">Results Comparison<a class="headerlink" href="#results-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Base Image</th>
+<th>Final Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No minimization</td>
+<td>golang:1.21</td>
+<td>~1.2 GB</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>scratch</td>
+<td>~12 MB</td>
+</tr>
+<tr>
+<td>+ ldflags -s -w</td>
+<td>scratch</td>
+<td>~9 MB</td>
+</tr>
+<tr>
+<td>+ distroless</td>
+<td>distroless/static</td>
+<td>~15 MB (includes CA certs)</td>
+</tr>
+<tr>
+<td>+ UPX compressed</td>
+<td>scratch</td>
+<td>~4 MB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="supply-chain-security-impact">Supply Chain Security Impact<a class="headerlink" href="#supply-chain-security-impact" title="Permanent link">&para;</a></h2>
+<p>Smaller images reduce supply chain risk:</p>
+<ol>
+<li><strong>Fewer packages = fewer CVEs</strong>: Each removed transitive dependency eliminates a potential vulnerability vector</li>
+<li><strong>Faster vulnerability scanning</strong>: Scanning a 10 MB image vs a 500 MB image takes seconds vs minutes</li>
+<li><strong>Reduced blast radius</strong>: If compromised, the attacker has less tooling available in a minimal image</li>
+<li><strong>SBOM accuracy</strong>: A smaller, deterministic image produces a more accurate Software Bill of Materials</li>
+</ol>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Know the <strong>layer model</strong> — each <code>RUN</code> creates a writable layer that persists even if files are deleted in subsequent layers. The <code>COPY --from</code> is the most important minimization technique to discuss. Be ready to explain why <code>--squash</code> isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1748 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="..">
+      
+      
+        <link rel="next" href="../articles/01-slsa-framework/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Docker Supply Chain Overview - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-supply-chain" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker Supply Chain Overview
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#topic-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topic Map
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Topic Map">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-supply-chain-security-theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Supply Chain Security Theory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-container-image-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Container Image Hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-helm-chart-security-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Helm Chart Security Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cve-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CVE Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-docker-product-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Docker Product &amp; Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-question-patterns-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Question Patterns to Expect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../articles/28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#topic-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Topic Map
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Topic Map">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-supply-chain-security-theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Supply Chain Security Theory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-container-image-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Container Image Hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-helm-chart-security-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Helm Chart Security Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-cve-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. CVE Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-docker-product-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Docker Product &amp; Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-question-patterns-to-expect" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Question Patterns to Expect
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resources
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="docker-supply-chain">Docker Supply Chain<a class="headerlink" href="#docker-supply-chain" title="Permanent link">&para;</a></h1>
+<h2 id="topic-map">Topic Map<a class="headerlink" href="#topic-map" title="Permanent link">&para;</a></h2>
+<h3 id="1-supply-chain-security-theory">1. Supply Chain Security Theory<a class="headerlink" href="#1-supply-chain-security-theory" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>SLSA framework:</strong> L1–L4 levels, requirements per level. Provenance generation, hermetic builds, reproducibility. Map existing L3 pipeline: what attestations, build platform, verification chain, trust domain. What would L4 require (two-person review, no untrusted inputs, reproducibility)? L4 is aspirational even at Google.</li>
+<li><strong>In-toto attestations:</strong> Predicate types — SLSA Provenance (v0.2/v1), test result, vuln scan, code review. Attestation bundle format (DSSE + in-toto statement + predicate). Link to cosign <code>attest</code> command.</li>
+<li><strong>SBOM:</strong> CycloneDX vs SPDX formats. Generation with Syft, Trivy, Docker Scout. Consumption: vulnerability matching via Grype, Trivy, OSV. VEX documents (Vulnerability Exploitability eXchange) for communicating "not affected" decisions. Relationship between SBOM and attestation.</li>
+<li><strong>Sigstore:</strong> cosign (sign, verify, attest, verify-attestation), Fulcio (ephemeral certificates via OIDC), Rekor (transparency log), keyless vs key-based signing. Signing identities based on OIDC (email, SPIFFE). Bundle format for offline verification.</li>
+<li><strong>Dependency management security:</strong> Dependency confusion, typosquatting, repo-jacking. Hash pinning (exact) vs version pinning (semver) vs range pinning — security vs maintainability trade-offs. Lockfile security. Package manager-specific risks (npm postinstall, pip setup.py, apt install scripts).</li>
+<li><strong>Trusted builds:</strong> Build platform security. Non-build platform cannot sign. Air-gapped signing, HSM/TEE-backed keys, threshold signing. SLSA's build platform requirements.</li>
+<li><strong>Notary / Docker Content Trust:</strong> TUF (The Update Framework) — root, targets, snapshot, timestamp key hierarchy. Delegation roles. Why Docker is investing in both Notary v2 and Sigstore integration.</li>
+</ul>
+<h3 id="2-container-image-hardening">2. Container Image Hardening<a class="headerlink" href="#2-container-image-hardening" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Distroless images:</strong> What they exclude (shell, package manager, setuid binaries, common Unix tools — cp, tar, vi). Attack surface comparison: distroless (~5 packages) vs Alpine (~30) vs Ubuntu (~150). When distroless breaks: health checks needing shell, runtime package installs, debugging. Mitigations: debug image variants, static binaries.</li>
+<li><strong>Image minimization:</strong> Multi-stage build patterns. COPY --from for binary-only result. RUN cleanup chains (<code>rm -rf /var/lib/apt/lists/*</code>), layer squash (<code>--squash</code>). Stripping binaries, removing shared libraries not needed at runtime.</li>
+<li><strong>Non-root execution:</strong> USER directive, UID/GID allocation (common patterns: 10001, 65534/nobody). <code>--security-opt=no-new-privileges:true</code>. Implications for port binding (&gt;1024 needed).</li>
+<li><strong>Linux capabilities:</strong> Full list of ~40 capabilities. <code>--cap-drop=ALL --cap-add=CHOWN --cap-add=NET_BIND_SERVICE</code> as common hardened pattern. What each capability enables and the risk. Ambient capabilities for non-root.</li>
+<li><strong>Seccomp:</strong> Docker's default seccomp profile (blocked ~300 of ~450 syscalls). RuntimeDefault vs custom profiles. Common blocked syscalls: <code>mount</code>, <code>umount</code>, <code>ptrace</code>, <code>swapon</code>, <code>kexec_load</code>. Writing custom profiles for specific applications.</li>
+<li><strong>AppArmor / SELinux:</strong> Per-container profiles. docker-default AppArmor profile. SELinux type enforcement (svirt_lxc_net_t). How they interact with seccomp and capabilities. K8s SecurityContext fields for AppArmor/SELinux.</li>
+<li><strong>Read-only filesystem:</strong> <code>readOnlyRootFilesystem: true</code> in SecurityContext. Mount tmpfs for write locations (<code>/tmp</code>, <code>/var/run</code>, <code>/var/log</code>, <code>/var/cache/nginx</code>). What applications break (need to write to /etc, /var/lib).</li>
+<li><strong>Multi-arch security:</strong> <code>FROM --platform=$BUILDPLATFORM</code> in multi-stage. Per-arch base images (arm64 vs amd64) have different CVE profiles. Registries with multi-arch manifests, attestation per-architecture.</li>
+</ul>
+<h3 id="3-helm-chart-security-adaptation">3. Helm Chart Security Adaptation<a class="headerlink" href="#3-helm-chart-security-adaptation" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>SecurityContext vs PodSecurityContext:</strong> SecurityContext on container (container-level settings: capabilities, runAsUser, readOnlyRootFS, seccomp). PodSecurityContext on pod (pod-level: fsGroup, runAsNonRoot, supplementalGroups, seLinuxOptions, sysctls). Cascade behavior: pod-level defaults overrideable at container level.</li>
+<li><strong>Pod Security Standards:</strong> Three policies — privileged (no restrictions), baseline (minimal, prevents known privilege escalations), restricted (hardened, follows pod hardening best practices). What each allows/blocks:</li>
+<li><strong>Baseline:</strong> No hostPID, no hostNetwork, no hostIPC, no privileged containers, no hostPath volumes, no CAP_SYS_ADMIN</li>
+<li><strong>Restricted:</strong> All baseline + must run as non-root, must drop ALL capabilities, readOnlyRootFS=true (unless mount needed), seccomp RuntimeDefault, no allowPrivilegeEscalation</li>
+<li><strong>Adapting upstream charts:</strong> Common breaking changes when making restricted:</li>
+<li>Containers running as root → add <code>runAsUser: &lt;non-root&gt;</code> and ensure image supports it</li>
+<li>Init containers needing <code>NET_ADMIN</code> or <code>SYS_ADMIN</code> → redesign or use restricted subset</li>
+<li>Port binding below 1024 → remap to &gt;1024</li>
+<li>Volume writes → readOnlyRootFS + explicit emptyDir for write locations</li>
+<li>Liveness/readiness probes needing shell (<code>command: ["sh", "-c"]</code>) → rewrite as HTTP/TCP/gRPC probes or use static binary</li>
+<li><code>securityContext.privileged: true</code> → remove, restructure</li>
+<li><strong>Admission control:</strong> Kyverno <code>verifyImages</code> rule for enforcing signed images. OPA/Gatekeeper constraints for Pod Security Standards. Pod Security Admission (native in K8s 1.23+, GA in 1.25). Enforce vs audit vs warn mode.</li>
+</ul>
+<h3 id="4-cve-lifecycle">4. CVE Lifecycle<a class="headerlink" href="#4-cve-lifecycle" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Scanner internals:</strong></li>
+<li><strong>Trivy:</strong> OS package DB (Alpine secdb, RedHat OVAL, Debian SSA, Ubuntu USN) + language-specific (npm, pip, gem, go, cargo, maven). Fast, widely adopted.</li>
+<li><strong>Grype:</strong> Anchore's scanner. Similar to Trivy but uses different vulnerability DB (GHSA + NVD + RedHat + Ubuntu + Alpine). Deeper library matching for some ecosystems.</li>
+<li><strong>Docker Scout:</strong> SBOM-first approach. Generates CycloneDX SBOM, matches against multiple DBs. Policy evaluation (fixable, severity threshold, package type). Integrated with Docker Hub and CLI.</li>
+<li><strong>Comparison:</strong> All three catch ~same set of known CVEs. Key differences: SBOM workflow (Scout), speed (Trivy), library depth (Grype for Python/Java). Use multiple for defense in depth.</li>
+<li><strong>CVE sources:</strong> NVD (comprehensive, slow to update), GHSA (faster, GitHub-focused), OSV (Google, cross-ecosystem, API-first), RedHat OVAL (RHEL-specific, backport info). Each has different coverage windows.</li>
+<li><strong>CVSS 3.1 / 4.0:</strong> Base Score (AV/AC/PR/UI/S/C/I/A), Temporal, Environmental. Differences in v4 (new metrics: Attack Requirements, Safety impact, Automatable). EPSS (Exploit Prediction Scoring System) — probability of exploitation, used alongside CVSS for prioritization.</li>
+<li><strong>Fix categorization:</strong> Fixable (patch available, just upgrade) vs unfixable (upstream won't fix, wontfix, or no patch). OS-package CVEs (libc, openssl) vs language-library CVEs (log4j, lodash). Backport patches (vendor fixes without version bump) vs rebase to latest.</li>
+<li><strong>Coordinated disclosure:</strong> Embargo period, reporter coordination, customer notification. Docker's vulnerability reporting process.</li>
+</ul>
+<h3 id="5-docker-product-strategy">5. Docker Product &amp; Strategy<a class="headerlink" href="#5-docker-product-strategy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Docker Scout:</strong> SBOM generation (<code>docker scout sbom</code>), environment-based policy evaluation (<code>docker scout policy</code>, <code>docker scout recommendations</code>), attestation management (<code>docker scout attestation</code>), integration with Docker Hub and GitHub Actions.</li>
+<li><strong>Docker Hardened Images (DHI):</strong> What's in the catalog (Postgres, Nginx, Redis, Grafana, cert-manager, Kyverno, MongoDB, and more). Build pipeline: SLSA L3, BuildKit, multi-arch, cosign + attestations, regular CVE scanning. How DHI differs from Docker Official Images (stricter hardening, enterprise SLAs, FIPS options).</li>
+<li><strong>Docker Content Trust / Notary v2:</strong> Signing workflow, key hierarchy (root key offline, targets key online, snapshot/timestamp keys). Delegation roles for team signing. v2 improvements over v1.</li>
+<li><strong>Docker's supply chain platform:</strong> How DHI (hardened images) + Scout (analysis/visibility) + Hub (distribution) + Build Cloud (build platform) form an end-to-end supply chain security platform. Competitive landscape:</li>
+<li><strong>Chainguard:</strong> wolfi-based minimal images, apk package manager, strong community. Direct competitor to DHI.</li>
+<li><strong>Anchore:</strong> Enterprise policy engine, Grype scanner, SBOM management. Competes with Scout.</li>
+<li><strong>Aqua Security:</strong> CSPM, CNAPP, runtime protection. Docker competes on developer workflow integration.</li>
+<li><strong>Red Hat:</strong> UBI images, Quay registry. Docker competes on ease of use and multi-platform.</li>
+</ul>
+<h2 id="interview-question-patterns-to-expect">Interview Question Patterns to Expect<a class="headerlink" href="#interview-question-patterns-to-expect" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>System design:</strong> Design a hardened image build pipeline, a CVE triage system, an image signing and verification workflow</li>
+<li><strong>CVE scenario:</strong> Given a specific CVE, walk through triage, fix strategy, customer communication</li>
+<li><strong>Helm chart security review:</strong> Given a Helm chart, identify security issues and fix them</li>
+<li><strong>SLSA walkthrough:</strong> "Tell me about the SLSA L3 pipeline you built" — architecture, trade-offs, attestation format</li>
+<li><strong>Go coding:</strong> Write a test that deploys a chart to a real K8s cluster and validates behavior</li>
+<li><strong>Docker strategy:</strong> How should Docker position DHI vs Chainguard? How would you improve the developer experience?</li>
+<li><strong>Supply chain design:</strong> Design a system that signs images, verifies at deploy time, and handles key compromise</li>
+</ol>
+<h2 id="resources">Resources<a class="headerlink" href="#resources" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>SLSA:</strong> slsa.dev — framework docs, attestation format, threat model</li>
+<li><strong>Sigstore:</strong> sigstore.dev — cosign docs, Fulcio, Rekor</li>
+<li><strong>Docker Scout docs:</strong> docs.docker.com/scout/</li>
+<li><strong>Docker Hardened Images:</strong> hub.docker.com — explore DHI catalog</li>
+<li><strong>Trivy:</strong> github.com/aquasecurity/trivy — hands-on scanning</li>
+<li><strong>Helm security:</strong> helm.sh/docs/topics/security/ plus real upstream charts (cert-manager, Grafana)</li>
+<li><strong>Pod Security Standards:</strong> kubernetes.io/docs/concepts/security/pod-security-standards/</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

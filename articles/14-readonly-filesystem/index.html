@@ -1,0 +1,2303 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../13-apparmor-selinux/">
+      
+      
+        <link rel="next" href="../15-multi-arch-security/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Read-only Filesystems in Containers - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#read-only-filesystems-in-containers" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Read-only Filesystems in Containers
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-security-case-for-read-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Security Case for Read-Only
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Security Case for Read-Only">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-read-only-prevents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Read-Only Prevents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attack-scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-read-only-filesystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring Read-Only Filesystems
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Read-Only Filesystems">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mounting-tmpfs-for-write-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mounting tmpfs for Write Locations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mounting tmpfs for Write Locations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#best-practices-for-tmpfs-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices for tmpfs Mounts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-apps-break-and-how-to-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Apps Break and How to Fix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Apps Break and How to Fix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-1-nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 1: nginx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-2-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 2: PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-3-javajvm-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 3: Java/JVM Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-4-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 4: Redis
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emptydir-volumes-in-k8s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emptyDir Volumes in K8s
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="emptyDir Volumes in K8s">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emptydir-vs-hostpath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmptyDir vs hostPath
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzing-application-write-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Application Write Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-hardened-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Hardened Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-security-case-for-read-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Security Case for Read-Only
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The Security Case for Read-Only">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-read-only-prevents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Read-Only Prevents
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attack-scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Attack Scenario
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-read-only-filesystems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring Read-Only Filesystems
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring Read-Only Filesystems">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mounting-tmpfs-for-write-locations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mounting tmpfs for Write Locations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mounting tmpfs for Write Locations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#best-practices-for-tmpfs-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices for tmpfs Mounts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-apps-break-and-how-to-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Apps Break and How to Fix
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Apps Break and How to Fix">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#application-1-nginx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 1: nginx
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-2-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 2: PostgreSQL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-3-javajvm-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 3: Java/JVM Applications
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#application-4-redis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Application 4: Redis
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#emptydir-volumes-in-k8s" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        emptyDir Volumes in K8s
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="emptyDir Volumes in K8s">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emptydir-vs-hostpath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EmptyDir vs hostPath
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#analyzing-application-write-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Analyzing Application Write Behavior
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-hardened-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Hardened Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="read-only-filesystems-in-containers">Read-only Filesystems in Containers<a class="headerlink" href="#read-only-filesystems-in-containers" title="Permanent link">&para;</a></h1>
+<p>A read-only root filesystem (<code>readOnlyRootFilesystem: true</code>) is one of the most effective container hardening measures. When set, the container's entire filesystem is immutable — processes cannot write to any path unless an explicit writable volume is mounted. This prevents an attacker from modifying binaries, injecting malicious scripts, writing to cron, or persisting changes after compromise.</p>
+<h2 id="the-security-case-for-read-only">The Security Case for Read-Only<a class="headerlink" href="#the-security-case-for-read-only" title="Permanent link">&para;</a></h2>
+<h3 id="what-read-only-prevents">What Read-Only Prevents<a class="headerlink" href="#what-read-only-prevents" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Binary replacement</strong>: Attacker cannot overwrite <code>/usr/bin/app</code> with a trojaned version</li>
+<li><strong>Configuration tampering</strong>: Cannot modify <code>/etc/app/config.yaml</code> at runtime</li>
+<li><strong>Malicious script injection</strong>: Cannot write <code>/tmp/evil.sh</code> and execute it</li>
+<li><strong>Log tampering</strong>: Cannot modify existing logs (but can write to stdout/stderr)</li>
+<li><strong>Supply chain persistence</strong>: Cannot write startup scripts or cron entries</li>
+<li><strong>Container escape via overlayfs</strong>: Some overlayfs vulnerabilities require write access</li>
+</ul>
+<h3 id="attack-scenario">Attack Scenario<a class="headerlink" href="#attack-scenario" title="Permanent link">&para;</a></h3>
+<p>Without read-only root:</p>
+<pre><code>1. RCE via HTTP request (e.g., Log4Shell)
+2. Compromised process runs as root
+3. echo &quot;malicious&quot; &gt; /etc/ld.so.preload    ← writes to container filesystem
+4. Next exec loads malicious shared library  ← persistence achieved
+</code></pre>
+<p>With read-only root:</p>
+<pre><code>1. RCE via HTTP request
+2. Compromised process runs as root
+3. echo &quot;malicious&quot; &gt; /etc/ld.so.preload    ← fails: Read-only file system
+4. Attacker cannot persist — must exploit in-memory only
+</code></pre>
+<p>The ephemeral nature of the compromise is critical: the attacker loses all access when the container restarts.</p>
+<h2 id="configuring-read-only-filesystems">Configuring Read-Only Filesystems<a class="headerlink" href="#configuring-read-only-filesystems" title="Permanent link">&para;</a></h2>
+<h3 id="docker">Docker<a class="headerlink" href="#docker" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker run --read-only --tmpfs /tmp --tmpfs /var/run myapp
+</code></pre>
+<h3 id="kubernetes">Kubernetes<a class="headerlink" href="#kubernetes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: readonly-app
+spec:
+  containers:
+  - name: app
+    image: myapp
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: var-run
+      mountPath: /var/run
+    - name: var-log
+      mountPath: /var/log
+    - name: cache
+      mountPath: /var/cache/nginx
+  volumes:
+  - name: tmp
+    emptyDir:
+      medium: Memory
+  - name: var-run
+    emptyDir: {}
+  - name: var-log
+    emptyDir: {}
+  - name: cache
+    emptyDir: {}
+</code></pre>
+<h2 id="mounting-tmpfs-for-write-locations">Mounting tmpfs for Write Locations<a class="headerlink" href="#mounting-tmpfs-for-write-locations" title="Permanent link">&para;</a></h2>
+<p>When the root is read-only, specific directories need writable tmpfs mounts. Common writable paths:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Why It Needs Writes</th>
+<th>Application Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp</code></td>
+<td>General temporary files</td>
+<td>All runtimes (JVM, Node, Python)</td>
+</tr>
+<tr>
+<td><code>/var/run</code></td>
+<td>PID files, Unix sockets</td>
+<td>nginx, PostgreSQL, Redis</td>
+</tr>
+<tr>
+<td><code>/var/log</code></td>
+<td>Application logs</td>
+<td>Most applications</td>
+</tr>
+<tr>
+<td><code>/var/cache/nginx</code></td>
+<td>Proxy cache</td>
+<td>nginx</td>
+</tr>
+<tr>
+<td><code>/var/lib/mysql</code></td>
+<td>Database data</td>
+<td>MySQL/MariaDB (use PersistentVolume instead)</td>
+</tr>
+<tr>
+<td><code>/run/secrets</code></td>
+<td>Runtime secrets</td>
+<td>HashiCorp Vault sidecar</td>
+</tr>
+<tr>
+<td><code>/home/appuser</code></td>
+<td>User home directory</td>
+<td>SSH, git, Python venv</td>
+</tr>
+<tr>
+<td><code>/dev/shm</code></td>
+<td>Shared memory</td>
+<td>PostgreSQL</td>
+</tr>
+<tr>
+<td><code>/var/spool/postfix</code></td>
+<td>Mail queue</td>
+<td>Postfix</td>
+</tr>
+</tbody>
+</table>
+<h3 id="best-practices-for-tmpfs-mounts">Best Practices for tmpfs Mounts<a class="headerlink" href="#best-practices-for-tmpfs-mounts" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># Use Memory-backed tmpfs for runtime data that doesn't need persistence
+- name: tmp
+  emptyDir:
+    medium: Memory    # RAM-backed, faster, no disk write
+    sizeLimit: 256Mi  # Prevent memory exhaustion
+</code></pre>
+<pre><code class="language-yaml"># Use disk-backed emptyDir for larger data
+- name: var-log
+  emptyDir:
+    sizeLimit: 500Mi
+</code></pre>
+<h2 id="what-apps-break-and-how-to-fix">What Apps Break and How to Fix<a class="headerlink" href="#what-apps-break-and-how-to-fix" title="Permanent link">&para;</a></h2>
+<h3 id="application-1-nginx">Application 1: nginx<a class="headerlink" href="#application-1-nginx" title="Permanent link">&para;</a></h3>
+<p>nginx requires writable paths for:
+- <code>/var/run/nginx.pid</code> — PID file
+- <code>/var/cache/nginx/</code> — proxy cache
+- <code>/var/log/nginx/</code> — access and error logs</p>
+<p><strong>Fix</strong>:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: nginx-run
+      mountPath: /var/run
+    - name: nginx-cache
+      mountPath: /var/cache/nginx
+    - name: nginx-logs
+      mountPath: /var/log/nginx
+  volumes:
+  - name: nginx-run
+    emptyDir: {}
+  - name: nginx-cache
+    emptyDir: {}
+  - name: nginx-logs
+    emptyDir: {}
+</code></pre>
+<p>Or redirect nginx logs to stdout:</p>
+<pre><code class="language-nginx"># /etc/nginx/nginx.conf
+error_log /dev/stdout info;
+access_log /dev/stdout;
+</code></pre>
+<h3 id="application-2-postgresql">Application 2: PostgreSQL<a class="headerlink" href="#application-2-postgresql" title="Permanent link">&para;</a></h3>
+<p>PostgreSQL requires:
+- <code>/var/run/postgresql/</code> — Unix socket directory
+- <code>/var/lib/postgresql/data/</code> — database data
+- <code>/tmp/.s.PGSQL.5432</code> — temporary socket
+- <code>/dev/shm</code> — shared memory for parallel query execution</p>
+<p><strong>Fix</strong>:</p>
+<pre><code class="language-yaml">volumeMounts:
+- name: postgres-data
+  mountPath: /var/lib/postgresql/data
+- name: postgres-run
+  mountPath: /var/run/postgresql
+- name: dshm
+  mountPath: /dev/shm
+volumes:
+- name: postgres-data
+  persistentVolumeClaim:
+    claimName: postgres-pvc
+- name: postgres-run
+  emptyDir: {}
+- name: dshm
+  emptyDir:
+    medium: Memory
+</code></pre>
+<h3 id="application-3-javajvm-applications">Application 3: Java/JVM Applications<a class="headerlink" href="#application-3-javajvm-applications" title="Permanent link">&para;</a></h3>
+<p>JVM writes to:
+- <code>/tmp</code> — HotSpot compiler, JIT cache
+- <code>java.io.tmpdir</code> — can be redirected
+- <code>/tmp/hsperfdata_*</code> — performance data</p>
+<p><strong>Fix</strong>:</p>
+<pre><code class="language-dockerfile"># Redirect JVM temp directory
+ENV _JAVA_OPTIONS=&quot;-Djava.io.tmpdir=/tmp&quot;
+</code></pre>
+<pre><code class="language-yaml">volumeMounts:
+- name: tmp
+  mountPath: /tmp
+  readOnly: false
+volumes:
+- name: tmp
+  emptyDir:
+    medium: Memory
+</code></pre>
+<h3 id="application-4-redis">Application 4: Redis<a class="headerlink" href="#application-4-redis" title="Permanent link">&para;</a></h3>
+<p>Redis requires:
+- <code>/data</code> — RDB snapshots and AOF logs
+- <code>/tmp</code> — temporary files during operations</p>
+<p><strong>Fix</strong>:</p>
+<pre><code class="language-yaml">volumeMounts:
+- name: redis-data
+  mountPath: /data
+- name: tmp
+  mountPath: /tmp
+volumes:
+- name: redis-data
+  emptyDir: {}
+- name: tmp
+  emptyDir:
+    medium: Memory
+</code></pre>
+<h2 id="emptydir-volumes-in-k8s">emptyDir Volumes in K8s<a class="headerlink" href="#emptydir-volumes-in-k8s" title="Permanent link">&para;</a></h2>
+<p><code>emptyDir</code> volumes are the primary mechanism for providing writable space in read-only containers.</p>
+<h3 id="properties">Properties<a class="headerlink" href="#properties" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">volumes:
+- name: tmp
+  emptyDir:
+    medium: Memory      # Use tmpfs (RAM) — default is disk
+    sizeLimit: 1Gi      # Limit total size — prevent DoS
+</code></pre>
+<ul>
+<li><strong>Sandbox isolation</strong>: Each pod gets its own emptyDir — containers cannot see other pods' emptyDirs</li>
+<li><strong>Ephemeral</strong>: Contents are deleted when the pod is removed</li>
+<li><strong>Medium</strong>: </li>
+<li>Default: disk-backed (node's filesystem) — survives container restart but not pod deletion</li>
+<li>Memory: tmpfs (RAM) — faster, uses container's memory limit, lost on reboot</li>
+<li><strong>Shared between containers</strong>: All containers in a pod can share emptyDir volumes</li>
+</ul>
+<h3 id="emptydir-vs-hostpath">EmptyDir vs hostPath<a class="headerlink" href="#emptydir-vs-hostpath" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># ❌ Avoid hostPath — security risk, binds to host filesystem
+volumes:
+- name: data
+  hostPath:
+    path: /var/data
+    type: DirectoryOrCreate
+
+# ✅ Use emptyDir for ephemeral data
+volumes:
+- name: data
+  emptyDir:
+    medium: Memory
+</code></pre>
+<h2 id="analyzing-application-write-behavior">Analyzing Application Write Behavior<a class="headerlink" href="#analyzing-application-write-behavior" title="Permanent link">&para;</a></h2>
+<p>Before enabling read-only filesystem, identify all write paths:</p>
+<pre><code class="language-bash"># Run the application and monitor writes
+docker run --rm --entrypoint sh myapp -c &quot;strace -f -e trace=%file% -o /tmp/writes.log /usr/local/bin/app&quot;
+
+# Or pre-flight: check for write attempts
+docker run --read-only --tmpfs /tmp myapp
+# If it crashes, check stderr for &quot;Read-only file system&quot; errors
+</code></pre>
+<p>Common hidden write paths:</p>
+<pre><code class="language-bash"># NSS cache
+/etc/nsswitch.conf
+/var/db/mtab
+# Shared memory
+/dev/shm
+/proc/self/exe
+# Lock files
+/var/lock/
+# .cache directories
+/home/appuser/.cache/
+</code></pre>
+<h2 id="complete-hardened-example">Complete Hardened Example<a class="headerlink" href="#complete-hardened-example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-dockerfile">FROM node:20-slim AS build
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY . .
+
+FROM gcr.io/distroless/nodejs20-debian12:nonroot
+COPY --from=build /app /app
+WORKDIR /app
+USER 65532:65532
+CMD [&quot;/app/dist/server.js&quot;]
+</code></pre>
+<pre><code class="language-yaml">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hardened-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hardened-app
+  template:
+    metadata:
+      labels:
+        app: hardened-app
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: app
+        image: myapp:latest
+        ports:
+        - containerPort: 3000
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [&quot;ALL&quot;]
+          readOnlyRootFilesystem: true
+          runAsUser: 65532
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: varrun
+          mountPath: /var/run
+        resources:
+          limits:
+            memory: &quot;256Mi&quot;
+            cpu: &quot;500m&quot;
+      volumes:
+      - name: tmp
+        emptyDir:
+          medium: Memory
+          sizeLimit: 64Mi
+      - name: varrun
+        emptyDir:
+          sizeLimit: 16Mi
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Know that <code>readOnlyRootFilesystem: true</code> is part of the <strong>K8s Restricted Pod Security Standard</strong>. Understand that most containers break with this setting initially — identifying the minimum set of writable directories is the key skill. Be able to explain why read-only filesystems prevent entire classes of container escape (write-based overlay exploits, binary injection, cron/init persistence). Understand that <code>emptyDir</code> with <code>medium: Memory</code> uses the container's memory limit, so proper resource limits are essential.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2056 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../22-cvss-epss/">
+      
+      
+        <link rel="next" href="../24-coordinated-disclosure/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CVE Fix Categorization and Strategies - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cve-fix-categorization-and-strategies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CVE Fix Categorization and Strategies
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fixable-vs-unfixable-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixable vs Unfixable CVEs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-package-vs-language-library-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OS Package vs Language Library CVEs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OS Package vs Language Library CVEs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-package-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OS Package CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-library-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language Library CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backport-patches-vs-rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backport Patches vs Rebase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-wont-fix-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling "Won't Fix" CVEs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remediation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remediation Strategies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remediation Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-rebuild-with-patched-base-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Rebuild with Patched Base Image
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-pin-specific-package-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Pin Specific Package Version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-apply-upstream-patch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Apply Upstream Patch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mitigate-at-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mitigate at Runtime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-accept-the-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Accept the Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-cve-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real CVE Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real CVE Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log4j-cve-2021-44228" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log4j (CVE-2021-44228)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runc-cve-2024-21626" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runC (CVE-2024-21626)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#libcrypto-cve-2023-4807" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        libcrypto (CVE-2023-4807)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communicating-fix-timelines-to-customers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communicating Fix Timelines to Customers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fixable-vs-unfixable-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fixable vs Unfixable CVEs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#os-package-vs-language-library-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OS Package vs Language Library CVEs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OS Package vs Language Library CVEs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#os-package-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OS Package CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#language-library-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Language Library CVEs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backport-patches-vs-rebase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Backport Patches vs Rebase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#handling-wont-fix-cves" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Handling "Won't Fix" CVEs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remediation-strategies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remediation Strategies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remediation Strategies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-rebuild-with-patched-base-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Rebuild with Patched Base Image
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-pin-specific-package-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Pin Specific Package Version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-apply-upstream-patch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Apply Upstream Patch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mitigate-at-runtime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Mitigate at Runtime
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-accept-the-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Accept the Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-cve-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Real CVE Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Real CVE Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#log4j-cve-2021-44228" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Log4j (CVE-2021-44228)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runc-cve-2024-21626" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runC (CVE-2024-21626)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#libcrypto-cve-2023-4807" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        libcrypto (CVE-2023-4807)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#communicating-fix-timelines-to-customers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Communicating Fix Timelines to Customers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="cve-fix-categorization-and-strategies">CVE Fix Categorization and Strategies<a class="headerlink" href="#cve-fix-categorization-and-strategies" title="Permanent link">&para;</a></h1>
+<p>Not all CVEs can be fixed the same way. Some have upstream patches, some require backports, some have no fix at all, and some must be mitigated at runtime. A Senior Supply Chain Security Engineer needs to categorize vulnerabilities by fix status and select the appropriate remediation strategy — then communicate that plan to customers and leadership.</p>
+<h2 id="fixable-vs-unfixable-cves">Fixable vs Unfixable CVEs<a class="headerlink" href="#fixable-vs-unfixable-cves" title="Permanent link">&para;</a></h2>
+<p>The first categorization is whether a fix exists:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Definition</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fix available</strong></td>
+<td>Upstream maintainer or distro has published a patched version</td>
+<td><code>bash 5.2.15</code> → <code>bash 5.2.26</code></td>
+</tr>
+<tr>
+<td><strong>Backport available</strong></td>
+<td>Distro has patched a specific version without rebasing the entire package</td>
+<td><code>libcrypto3 3.1.4-r2</code> → <code>3.1.4-r3</code> (same upstream, different patch level)</td>
+</tr>
+<tr>
+<td><strong>No fix yet</strong></td>
+<td>CVE is published, maintainer is working on patch</td>
+<td>CVE-2021-44228 (Log4j) day 0</td>
+</tr>
+<tr>
+<td><strong>Won't fix</strong></td>
+<td>Maintainer has declined to fix (end-of-life, low severity, breaking change)</td>
+<td>Older Alpine packages in edge repos</td>
+</tr>
+<tr>
+<td><strong>Introduced by fix</strong></td>
+<td>Regression from a security patch creates a new CVE</td>
+<td>CVE-2023-38178 (introduced by fix for another issue)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="os-package-vs-language-library-cves">OS Package vs Language Library CVEs<a class="headerlink" href="#os-package-vs-language-library-cves" title="Permanent link">&para;</a></h2>
+<p>This distinction determines the entire remediation approach.</p>
+<h3 id="os-package-cves">OS Package CVEs<a class="headerlink" href="#os-package-cves" title="Permanent link">&para;</a></h3>
+<p>OS packages (glibc, libcrypto, bash, curl) are typically managed through the distribution's package manager. Fixes come as <strong>backported patches</strong> — the distro cherry-picks the fix commit onto the existing version without bumping the upstream version.</p>
+<pre><code>RHEL 8: libcurl-7.61.1-34.el8 → libcurl-7.61.1-34.el8_10  (backport)
+Alpine: libcrypto3-3.1.4-r2 → libcrypto3-3.1.4-r3          (backport)
+Ubuntu 22.04: curl-7.81.0-1ubuntu1.18 → 7.81.0-1ubuntu1.19 (backport)
+</code></pre>
+<p>Scanners detect OS fixes by checking the <strong>release field</strong> (the suffix after the version). Trivy, Grype, and Scout all distinguish between the upstream version and the distro-specific release.</p>
+<p><strong>Remediation</strong>: Rebuild the container image with the latest base image tag, or pin to a specific patched version.</p>
+<pre><code class="language-bash"># Find the patched base image
+docker scout recommendations alpine:latest
+
+# Rebuild with specific patched base
+FROM alpine:3.19.3  # instead of alpine:3.19
+</code></pre>
+<h3 id="language-library-cves">Language Library CVEs<a class="headerlink" href="#language-library-cves" title="Permanent link">&para;</a></h3>
+<p>Language ecosystem CVEs (npm, PyPI, Go modules, Maven) are resolved by updating the dependency version in the lockfile or manifest. The scanner identifies the vulnerability through the lockfile's resolution graph.</p>
+<pre><code class="language-json">// package.json before
+&quot;lodash&quot;: &quot;^4.17.20&quot;
+
+// After — lockfile updated via npm audit fix
+&quot;lodash&quot;: &quot;4.17.21&quot;
+</code></pre>
+<p><strong>Remediation</strong>: Update the dependency in the manifest, regenerate the lockfile, and rebuild. For transitive dependencies, tools like <code>npm audit fix --force</code> or <code>go mod tidy</code> handle transitive resolution.</p>
+<h2 id="backport-patches-vs-rebase">Backport Patches vs Rebase<a class="headerlink" href="#backport-patches-vs-rebase" title="Permanent link">&para;</a></h2>
+<p>Understanding the distro's patching strategy is essential for accurate CVE reporting:</p>
+<p><strong>Backport strategy</strong> (RedHat, Debian, Ubuntu, Alpine):
+- Maintain a stable major version (e.g., <code>curl 7.61.1</code> for RHEL 8)
+- Cherry-pick security fixes from upstream
+- Increment the release suffix (e.g., <code>-34.el8</code> → <code>-34.el8_10</code>)
+- Low risk of breaking ABI/API compatibility
+- Scanners report the <strong>release field</strong> to determine fix status</p>
+<p><strong>Rebase strategy</strong> (rolling releases, some language ecosystems):
+- Update to the latest upstream version
+- Includes all features, not just security fixes
+- Higher risk of breaking changes
+- Never use for enterprise — impossible to verify ABI stability</p>
+<p><strong>Interview insight</strong>: A scanner that doesn't understand backport versions will falsely report a CVE as "unfixed" on RHEL. The package version hasn't changed upstream, but the distro has fixed it. This is why scanner quality depends on ecosystem-specific version parsing.</p>
+<h2 id="handling-wont-fix-cves">Handling "Won't Fix" CVEs<a class="headerlink" href="#handling-wont-fix-cves" title="Permanent link">&para;</a></h2>
+<p>Maintainers decline to fix for several reasons:</p>
+<ol>
+<li><strong>End of life</strong>: The package version is no longer supported. Upgrade to a supported major version.</li>
+<li><strong>Low severity</strong>: The CVE requires physical access or unusual conditions. Accept the risk.</li>
+<li><strong>Breaking change</strong>: The fix would break ABI compatibility. Mitigate at runtime.</li>
+<li><strong>Not reproducible</strong>: The maintainer cannot confirm the vulnerability. Monitor for updates.</li>
+</ol>
+<p>When a CVE is wontfix, the scanner should report it distinctly — not as "unfixed" (which implies a fix exists but isn't applied) but as "wontfix" (which implies the maintainer has made a deliberate decision).</p>
+<pre><code class="language-bash"># Trivy shows wontfix separately
+trivy image --show-suppressed alpine:latest
+</code></pre>
+<h2 id="remediation-strategies">Remediation Strategies<a class="headerlink" href="#remediation-strategies" title="Permanent link">&para;</a></h2>
+<p>Ordered by preference:</p>
+<h3 id="1-rebuild-with-patched-base-image">1. Rebuild with Patched Base Image<a class="headerlink" href="#1-rebuild-with-patched-base-image" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker build --pull -t my-app:latest .
+</code></pre>
+<p>If the base image has been updated to include the fix, a simple rebuild resolves all OS-package CVEs.</p>
+<h3 id="2-pin-specific-package-version">2. Pin Specific Package Version<a class="headerlink" href="#2-pin-specific-package-version" title="Permanent link">&para;</a></h3>
+<p>For Alpine, install a specific patched version:</p>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+RUN apk add --no-cache curl=8.5.0-r0
+</code></pre>
+<h3 id="3-apply-upstream-patch">3. Apply Upstream Patch<a class="headerlink" href="#3-apply-upstream-patch" title="Permanent link">&para;</a></h3>
+<p>When no distro backport exists, apply the upstream patch during the build:</p>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+RUN wget https://github.com/curl/curl/commit/abc123.patch \
+  &amp;&amp; patch -p1 &lt; abc123.patch
+</code></pre>
+<h3 id="4-mitigate-at-runtime">4. Mitigate at Runtime<a class="headerlink" href="#4-mitigate-at-runtime" title="Permanent link">&para;</a></h3>
+<p>When no fix exists, reduce the attack surface:</p>
+<pre><code class="language-bash">docker run --security-opt seccomp=block-some-syscalls my-app
+docker run --read-only --tmpfs /tmp my-app
+docker run --cap-drop ALL --cap-add NET_BIND_SERVICE my-app
+</code></pre>
+<h3 id="5-accept-the-risk">5. Accept the Risk<a class="headerlink" href="#5-accept-the-risk" title="Permanent link">&para;</a></h3>
+<p>For low-severity CVEs with no exploit path in your environment, formally accept:</p>
+<pre><code class="language-yaml"># .trivyignore
+CVE-2024-12345 # Low severity, requires physical access, not applicable
+</code></pre>
+<h2 id="real-cve-examples">Real CVE Examples<a class="headerlink" href="#real-cve-examples" title="Permanent link">&para;</a></h2>
+<h3 id="log4j-cve-2021-44228">Log4j (CVE-2021-44228)<a class="headerlink" href="#log4j-cve-2021-44228" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: Language library (Java/Maven)</li>
+<li><strong>Fix status</strong>: Fix available (2.17.0, 2.12.4, 2.3.2)</li>
+<li><strong>Timeline</strong>: CVE published Dec 9, 2021; fix released Dec 13 (4 days)</li>
+<li><strong>Challenge</strong>: Tens of thousands of Java applications needed to update a transitive dependency. Many organizations had no SBOM and couldn't find where Log4j was used.</li>
+<li><strong>Lesson</strong>: SBOM generation is not optional. You cannot remediate what you cannot see.</li>
+</ul>
+<h3 id="runc-cve-2024-21626">runC (CVE-2024-21626)<a class="headerlink" href="#runc-cve-2024-21626" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: OS package (container runtime)</li>
+<li><strong>Fix status</strong>: Backport available (runc 1.1.12)</li>
+<li><strong>Timeline</strong>: CVE published Jan 31, 2024; fix same day</li>
+<li><strong>Challenge</strong>: Container escapes affect the entire host. Mitigation required immediate runtime controls while images were rebuilt.</li>
+<li><strong>Lesson</strong>: Runtime CVEs require both image-level fixes and runtime mitigation. Seccomp, AppArmor, and user namespaces buy you time.</li>
+</ul>
+<h3 id="libcrypto-cve-2023-4807">libcrypto (CVE-2023-4807)<a class="headerlink" href="#libcrypto-cve-2023-4807" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Type</strong>: OS package (Alpine/RHEL)</li>
+<li><strong>Fix status</strong>: Backport available (3.1.4-r3)</li>
+<li><strong>Challenge</strong>: OpenSSL/libcrypto is in nearly every container. A fix here triggers a mass rebuild across all images using Alpine or RHEL base.</li>
+<li><strong>Lesson</strong>: Track your base image inventory. Know which teams use which base image so you can coordinate rebuilds.</li>
+</ul>
+<h2 id="communicating-fix-timelines-to-customers">Communicating Fix Timelines to Customers<a class="headerlink" href="#communicating-fix-timelines-to-customers" title="Permanent link">&para;</a></h2>
+<p>For a Docker Scout product context, customers need clear communication:</p>
+<pre><code>CVE-2024-21626 (runc)
+───────────────────────────────────────────
+Severity:     CRITICAL (CVSS 8.6)
+EPSS:         0.931 (93.1% exploit prob.)
+Fix status:   Fix available in runc 1.1.12
+Affects:      All images with runc &lt; 1.1.12
+Action:       Rebuild images on Docker 25.0+
+Timeline:     Immediate — patch now
+───────────────────────────────────────────
+</code></pre>
+<p>For SLAs with customers:
+- <strong>Critical + fix available</strong>: Patch within 24 hours
+- <strong>Critical + no fix</strong>: Runtime mitigation within 24 hours, patch when available
+- <strong>High + fix available</strong>: Patch within 7 days
+- <strong>High + no fix</strong>: Runtime mitigation within 7 days, reassess weekly
+- <strong>Medium/Low</strong>: Patch within next maintenance window (30-90 days)</p>
+<p>The key interview message: CVE fix categorization is not a technical exercise — it's a <strong>communications and risk management discipline</strong>. The best categorization is useless if teams can't effectively coordinate remediation.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

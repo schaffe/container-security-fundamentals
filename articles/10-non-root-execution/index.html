@@ -1,0 +1,2156 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../09-image-minimization/">
+      
+      
+        <link rel="next" href="../11-linux-capabilities/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Non-root Execution - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#non-root-execution" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Non-root Execution
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-user-directive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The USER Directive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The USER Directive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#without-user-broken-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Without USER (broken pattern)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uidgid-allocation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID/GID Allocation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UID/GID Allocation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uid-10001-application-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID 10001 (Application User)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-65534-nobody" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID 65534 (nobody)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distroless-non-root-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless Non-root Variants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-security-optno-new-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --security-opt=no-new-privileges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#port-binding-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Binding Implications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Port Binding Implications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-non-root-cant-bind-port-80" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem: Non-root can't bind port 80
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-1-use-port-1024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 1: Use port &gt;= 1024
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-2-add-cap_net_bind_service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 2: Add CAP_NET_BIND_SERVICE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-3-port-mapping-at-the-orchestration-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 3: Port mapping at the orchestration layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-issues-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues and Fixes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues and Fixes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-file-permission-on-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: File Permission on Volumes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-applications-that-require-write-access-to-tmp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: Applications That Require Write Access to /tmp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-applications-that-require-a-writable-home-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Applications That Require a Writable Home Directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-4-kubernetes-pod-security-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 4: Kubernetes Pod Security Standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-secure-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Secure Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#the-user-directive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The USER Directive
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The USER Directive">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#without-user-broken-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Without USER (broken pattern)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#uidgid-allocation-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID/GID Allocation Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="UID/GID Allocation Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#uid-10001-application-user" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID 10001 (Application User)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#uid-65534-nobody" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        UID 65534 (nobody)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distroless-non-root-variants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless Non-root Variants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-security-optno-new-privileges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --security-opt=no-new-privileges
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#port-binding-implications" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Port Binding Implications
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Port Binding Implications">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problem-non-root-cant-bind-port-80" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem: Non-root can't bind port 80
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-1-use-port-1024" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 1: Use port &gt;= 1024
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-2-add-cap_net_bind_service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 2: Add CAP_NET_BIND_SERVICE
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#solution-3-port-mapping-at-the-orchestration-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solution 3: Port mapping at the orchestration layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-issues-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues and Fixes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common Issues and Fixes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#issue-1-file-permission-on-volumes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 1: File Permission on Volumes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-2-applications-that-require-write-access-to-tmp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 2: Applications That Require Write Access to /tmp
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-3-applications-that-require-a-writable-home-directory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 3: Applications That Require a Writable Home Directory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#issue-4-kubernetes-pod-security-standards" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Issue 4: Kubernetes Pod Security Standards
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#complete-secure-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Complete Secure Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interview-tips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interview Tips
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="non-root-execution">Non-root Execution<a class="headerlink" href="#non-root-execution" title="Permanent link">&para;</a></h1>
+<p>Running containers as non-root is one of the most impactful container security hardening measures. By default, Docker runs processes as root (UID 0) inside the container, which — when combined with a container breakout — gives an attacker root access on the host. Non-root execution prevents this by ensuring the containerized process has minimal privileges.</p>
+<h2 id="the-user-directive">The USER Directive<a class="headerlink" href="#the-user-directive" title="Permanent link">&para;</a></h2>
+<p>The <code>USER</code> instruction in a Dockerfile sets the UID and GID for subsequent <code>RUN</code>, <code>CMD</code>, and <code>ENTRYPOINT</code> instructions.</p>
+<pre><code class="language-dockerfile">FROM node:20-slim
+# Create a non-root user
+RUN groupadd -r appgroup &amp;&amp; useradd -r -g appgroup -m -d /home/appuser appuser
+USER appuser
+CMD [&quot;node&quot;, &quot;app.js&quot;]
+</code></pre>
+<h3 id="without-user-broken-pattern">Without USER (broken pattern)<a class="headerlink" href="#without-user-broken-pattern" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+# No USER directive — runs as root
+CMD [&quot;/usr/local/bin/myapp&quot;]
+</code></pre>
+<p>If <code>myapp</code> is compromised, the attacker has root in the container. If they find a container escape (e.g., CVE-2019-5736 runc), they have root on the host.</p>
+<h2 id="uidgid-allocation-patterns">UID/GID Allocation Patterns<a class="headerlink" href="#uidgid-allocation-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="uid-10001-application-user">UID 10001 (Application User)<a class="headerlink" href="#uid-10001-application-user" title="Permanent link">&para;</a></h3>
+<p>The most common pattern is creating a dedicated application user with a high UID:</p>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+RUN adduser -D -u 10001 appuser
+USER 10001
+CMD [&quot;/app&quot;]
+</code></pre>
+<pre><code class="language-dockerfile">FROM ubuntu:22.04
+RUN groupadd --gid 10001 appgroup &amp;&amp; \
+    useradd --uid 10001 --gid appgroup --shell /bin/false --no-create-home appuser
+USER appuser
+</code></pre>
+<h3 id="uid-65534-nobody">UID 65534 (nobody)<a class="headerlink" href="#uid-65534-nobody" title="Permanent link">&para;</a></h3>
+<p>The <code>nobody</code> user (UID 65534) exists on all Linux distributions:</p>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+USER 65534
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>There is a significant security concern with <code>65534</code>/<code>nobody</code>: <strong>if multiple containers share the same UID namespace, an attacker in one container can signal or interfere with processes in another container that also run as <code>nobody</code></strong>. Additionally, <code>nobody</code>'s home directory does not exist, which breaks applications that require a writable home.</p>
+<p><strong>Recommendation</strong>: Use a dedicated UID (10001) rather than 65534.</p>
+<h3 id="distroless-non-root-variants">Distroless Non-root Variants<a class="headerlink" href="#distroless-non-root-variants" title="Permanent link">&para;</a></h3>
+<p>Google's distroless images ship with a pre-configured non-root user:</p>
+<pre><code class="language-dockerfile">FROM gcr.io/distroless/base-debian12:nonroot
+# UID 65532 in the nonroot variant
+USER 65532:65532
+CMD [&quot;/app&quot;]
+</code></pre>
+<h2 id="-security-optno-new-privileges">--security-opt=no-new-privileges<a class="headerlink" href="#-security-optno-new-privileges" title="Permanent link">&para;</a></h2>
+<p>Even when running as non-root, processes can gain privileges via setuid binaries or <code>capability</code>-aware programs. The <code>no-new-privileges</code> flag prevents all privilege escalation:</p>
+<pre><code class="language-bash">docker run --security-opt=no-new-privileges --user 10001 myapp
+</code></pre>
+<pre><code class="language-yaml"># Kubernetes equivalent
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  allowPrivilegeEscalation: false
+</code></pre>
+<p>What <code>no-new-privileges</code> prevents:
+- <code>sudo</code> and <code>su</code> (requires setuid)
+- <code>setuid</code> binary exploitation
+- Linux <code>execve</code> gaining new capabilities via <code>ambient</code> capability set
+- Kernel privilege escalation via user namespaces</p>
+<p>The kernel enforces this by setting the <code>NO_NEW_PRIVS</code> flag on the process's <code>task_struct</code>, which the kernel checks before granting any privilege increase via <code>execve()</code>.</p>
+<h2 id="port-binding-implications">Port Binding Implications<a class="headerlink" href="#port-binding-implications" title="Permanent link">&para;</a></h2>
+<p>Non-root users cannot bind to ports below 1024 (privileged ports). The kernel enforces this via <code>CAP_NET_BIND_SERVICE</code> in the default capability set for root only.</p>
+<h3 id="problem-non-root-cant-bind-port-80">Problem: Non-root can't bind port 80<a class="headerlink" href="#problem-non-root-cant-bind-port-80" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM node:20-slim
+RUN useradd -m appuser
+USER appuser
+EXPOSE 80
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+# Error: listen EACCES: permission denied 0.0.0.0:80
+</code></pre>
+<h3 id="solution-1-use-port-1024">Solution 1: Use port &gt;= 1024<a class="headerlink" href="#solution-1-use-port-1024" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">EXPOSE 8080
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
+<h3 id="solution-2-add-cap_net_bind_service">Solution 2: Add CAP_NET_BIND_SERVICE<a class="headerlink" href="#solution-2-add-cap_net_bind_service" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker run --cap-add=NET_BIND_SERVICE --user 10001 myapp
+</code></pre>
+<pre><code class="language-yaml"># Kubernetes
+securityContext:
+  runAsUser: 10001
+  capabilities:
+    add: [&quot;NET_BIND_SERVICE&quot;]
+</code></pre>
+<h3 id="solution-3-port-mapping-at-the-orchestration-layer">Solution 3: Port mapping at the orchestration layer<a class="headerlink" href="#solution-3-port-mapping-at-the-orchestration-layer" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080  # Container runs on 8080
+  selector:
+    app: myapp
+</code></pre>
+<h2 id="common-issues-and-fixes">Common Issues and Fixes<a class="headerlink" href="#common-issues-and-fixes" title="Permanent link">&para;</a></h2>
+<h3 id="issue-1-file-permission-on-volumes">Issue 1: File Permission on Volumes<a class="headerlink" href="#issue-1-file-permission-on-volumes" title="Permanent link">&para;</a></h3>
+<p>When a non-root container mounts a host volume, the UID inside the container most likely doesn't match the UID on the host.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: app
+    image: myapp
+    volumeMounts:
+    - name: data
+      mountPath: /data
+  securityContext:
+    runAsUser: 10001
+  volumes:
+  - name: data
+    hostPath:
+      path: /var/data
+      type: DirectoryOrCreate
+</code></pre>
+<p><strong>Fix</strong>: Set the UID on the host path, or use an <code>initContainer</code>:</p>
+<pre><code class="language-yaml">initContainers:
+- name: volume-permissions
+  image: busybox
+  command: [&quot;chown&quot;, &quot;-R&quot;, &quot;10001:10001&quot;, &quot;/data&quot;]
+  volumeMounts:
+  - name: data
+    mountPath: /data
+  securityContext:
+    runAsUser: 0  # Needs root for chown
+</code></pre>
+<h3 id="issue-2-applications-that-require-write-access-to-tmp">Issue 2: Applications That Require Write Access to /tmp<a class="headerlink" href="#issue-2-applications-that-require-write-access-to-tmp" title="Permanent link">&para;</a></h3>
+<p>Many runtimes (Node.js, Python, JVM) write to <code>/tmp</code>:</p>
+<pre><code class="language-dockerfile">FROM node:20-slim
+RUN useradd -m appuser
+RUN mkdir /tmp &amp;&amp; chown 10001:10001 /tmp
+USER appuser
+</code></pre>
+<p>For read-only filesystems, mount a tmpfs:</p>
+<pre><code class="language-yaml">volumeMounts:
+- name: tmp
+  mountPath: /tmp
+volumes:
+- name: tmp
+  emptyDir:
+    medium: Memory
+</code></pre>
+<h3 id="issue-3-applications-that-require-a-writable-home-directory">Issue 3: Applications That Require a Writable Home Directory<a class="headerlink" href="#issue-3-applications-that-require-a-writable-home-directory" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN useradd -m -d /home/appuser appuser
+# -m creates the home directory
+ENV HOME=/home/appuser
+USER appuser
+</code></pre>
+<h3 id="issue-4-kubernetes-pod-security-standards">Issue 4: Kubernetes Pod Security Standards<a class="headerlink" href="#issue-4-kubernetes-pod-security-standards" title="Permanent link">&para;</a></h3>
+<p>Kubernetes enforces Pod Security Standards (PSS) with three levels:</p>
+<ul>
+<li><strong>Privileged</strong>: Unrestricted (explicit opt-in)</li>
+<li><strong>Baseline</strong>: Minimally restrictive, prevents known escalations</li>
+<li><strong>Restricted</strong>: Heavily restricted, follows Pod Security best practices</li>
+</ul>
+<p>The <strong>Restricted</strong> profile requires non-root:</p>
+<pre><code class="language-yaml">securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+</code></pre>
+<h2 id="complete-secure-example">Complete Secure Example<a class="headerlink" href="#complete-secure-example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-dockerfile">FROM golang:1.21 AS build
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app .
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /app /app
+USER 65532:65532
+EXPOSE 8080
+CMD [&quot;/app&quot;]
+</code></pre>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-app
+spec:
+  securityContext:
+    runAsUser: 65532
+    runAsGroup: 65532
+    fsGroup: 65532
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: myapp:latest
+    ports:
+    - containerPort: 8080
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [&quot;ALL&quot;]
+        add: [&quot;NET_BIND_SERVICE&quot;]
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+  volumes:
+  - name: tmp
+    emptyDir:
+      medium: Memory
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Know the difference between <code>USER</code> in Dockerfile and <code>securityContext.runAsUser</code> in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that <code>runAsNonRoot: true</code> makes the K8s admission controller verify the container image does not run as root (it checks the <code>USER</code> instruction in the image config). Be able to explain the <code>no-new-privileges</code> flag and how it interacts with <code>AllowPrivilegeEscalation: false</code>.</p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

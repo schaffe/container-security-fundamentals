@@ -1,0 +1,2099 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../06-trusted-builds/">
+      
+      
+        <link rel="next" href="../08-distroless-images/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Notary / Docker Content Trust - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#notary-docker-content-trust" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Notary / Docker Content Trust
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuf-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUF Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TUF Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Hierarchy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#targets-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Targets Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshot Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamp-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timestamp Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-verification-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Verification Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-content-trust-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker Content Trust Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker Content Trust Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enabling-dct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling DCT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-with-docker-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing with Docker CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notary-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notary Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notary-v2-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notary v2 Improvements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-docker-invests-in-both-notary-and-sigstore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Docker Invests in Both Notary and Sigstore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tuf-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TUF Framework
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="TUF Framework">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Hierarchy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Hierarchy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#targets-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Targets Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshot Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timestamp-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timestamp Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-verification-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Verification Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-content-trust-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker Content Trust Workflow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker Content Trust Workflow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enabling-dct" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enabling DCT
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#signing-with-docker-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing with Docker CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Management
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notary-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notary Server
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notary-v2-improvements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notary v2 Improvements
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-docker-invests-in-both-notary-and-sigstore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why Docker Invests in Both Notary and Sigstore
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-interview-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Interview Questions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="notary-docker-content-trust">Notary / Docker Content Trust<a class="headerlink" href="#notary-docker-content-trust" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Docker Content Trust (DCT) is Docker's integration of the TUF (The Update Framework) specification to sign and verify container images. Under the hood, DCT uses <strong>Notary</strong> — a TUF-compliant server and client — to manage signing keys, delegations, and metadata.</p>
+<p>Where Sigstore focuses on <strong>per-artifact attestation</strong> (signing individual builds), Notary/TUF focuses on <strong>repository integrity</strong> (ensuring you always get the latest authorized version of an image, never a stale or tampered one).</p>
+<h2 id="tuf-framework">TUF Framework<a class="headerlink" href="#tuf-framework" title="Permanent link">&para;</a></h2>
+<p>TUF is a specification for securing software update systems. It separates trust into four key roles, each with a specific responsibility and — critically — separate signing keys.</p>
+<h3 id="key-hierarchy">Key Hierarchy<a class="headerlink" href="#key-hierarchy" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────┐
+│            Root Key (offline)           │
+│  Signs: root.json, rotates all keys     │
+│  Storage: HSM, paper backup, offline    │
+└────────────┬────────────────────────────┘
+             │
+    ┌────────┴────────┐
+    v                 v
+┌──────────┐  ┌──────────────┐
+│ Targets  │  │  Snapshot     │
+│ (online) │  │  (online)     │
+└──────────┘  └──────┬───────┘
+                     v
+             ┌──────────────┐
+             │  Timestamp   │
+             │  (online)    │
+             └──────────────┘
+</code></pre>
+<h4 id="root-role">Root Role<a class="headerlink" href="#root-role" title="Permanent link">&para;</a></h4>
+<p>The root role is the ultimate trust anchor. It signs a <code>root.json</code> that contains the public keys for all other roles and specifies which keys are authorized to sign which metadata. Root key rotation replaces the entire trust chain.</p>
+<p><strong>Root key compromise requires out-of-band rotation</strong> — distributing a new root.json signed by a backup root key.</p>
+<p>In Docker Content Trust:</p>
+<pre><code class="language-bash"># Root key location (local)
+~/.docker/trust/private/root_keys/
+# Root key on Notary server
+docker trust key load root.pem
+</code></pre>
+<h4 id="targets-role">Targets Role<a class="headerlink" href="#targets-role" title="Permanent link">&para;</a></h4>
+<p>The targets role signs <code>targets.json</code>, which lists the <strong>digests</strong> and <strong>tags</strong> of authorized images. This is the role that says "the image tagged <code>latest</code> should have digest <code>sha256:abc...</code>".</p>
+<p>Delegation allows subdividing target signing. For example, the <code>releases</code> team signs production tags, while <code>ci</code> signs staging tags.</p>
+<pre><code class="language-json">{
+  &quot;signed&quot;: {
+    &quot;_type&quot;: &quot;Targets&quot;,
+    &quot;spec_version&quot;: &quot;1.0&quot;,
+    &quot;version&quot;: 2,
+    &quot;targets&quot;: {
+      &quot;myapp:latest&quot;: {
+        &quot;hashes&quot;: { &quot;sha256&quot;: &quot;abc123...&quot; },
+        &quot;length&quot;: 2048
+      }
+    },
+    &quot;delegations&quot;: {
+      &quot;roles&quot;: [
+        {
+          &quot;name&quot;: &quot;ci&quot;,
+          &quot;keyids&quot;: [&quot;...&quot;],
+          &quot;paths&quot;: [&quot;myapp:ci-*&quot;]
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<h4 id="snapshot-role">Snapshot Role<a class="headerlink" href="#snapshot-role" title="Permanent link">&para;</a></h4>
+<p>The snapshot role signs <code>snapshot.json</code>, which lists the <strong>version numbers</strong> of all current metadata files (root.json, targets.json, and any delegated targets files). This prevents mix-and-match attacks where an attacker presents an old targets.json with a new timestamp.</p>
+<h4 id="timestamp-role">Timestamp Role<a class="headerlink" href="#timestamp-role" title="Permanent link">&para;</a></h4>
+<p>The timestamp role signs <code>timestamp.json</code>, a frequently rotated (often every few hours) metadata file containing the hash and version of the current snapshot.json. This prevents <strong>replay attacks</strong> — an attacker cannot serve a very old snapshot because the timestamp rotation frequency limits the window.</p>
+<p>The timestamp key can be held by the Notary server (it is the least sensitive — if compromised, it can be rotated without affecting the other roles).</p>
+<h3 id="how-verification-works">How Verification Works<a class="headerlink" href="#how-verification-works" title="Permanent link">&para;</a></h3>
+<pre><code>Client requests &quot;myapp:latest&quot;
+  ↓
+Downloads timestamp.json (always fresh)
+  ↓ Has hash of current snapshot.json
+Downloads snapshot.json
+  ↓ Has version + hash of current targets.json
+Downloads targets.json
+  ↓ Has digest of myapp:latest
+Downloads the actual image manifest
+  ↓
+Client checks: does manifest digest match targets.json entry?
+</code></pre>
+<p>Every link in the chain is signed. An attacker cannot substitute a stale or different version at any step.</p>
+<h2 id="docker-content-trust-workflow">Docker Content Trust Workflow<a class="headerlink" href="#docker-content-trust-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="enabling-dct">Enabling DCT<a class="headerlink" href="#enabling-dct" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">export DOCKER_CONTENT_TRUST=1
+
+# Now all push/pull operations check and require signatures
+docker push myorg/myapp:latest   # Must be signed
+docker pull myorg/myapp:latest   # Verifies signature
+</code></pre>
+<p>When <code>DOCKER_CONTENT_TRUST=1</code>, <code>docker push</code> automatically:</p>
+<ol>
+<li>Generates a target hash for the image manifest</li>
+<li>Signs targets metadata with the targets key</li>
+<li>Updates snapshot and timestamp metadata on the Notary server</li>
+<li>Pushes the image manifest and layers to the registry</li>
+</ol>
+<h3 id="signing-with-docker-cli">Signing with Docker CLI<a class="headerlink" href="#signing-with-docker-cli" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Generate keys and sign a repository
+docker trust sign myorg/myapp:latest
+
+# Sign with a specific key
+docker trust sign --key mykey.pem myorg/myapp:latest
+
+# Inspect trust data
+docker trust inspect myorg/myapp:latest
+
+# Revoke a signature
+docker trust revoke myorg/myapp:latest
+
+# Manage delegations
+docker trust signer add --key ci.pem ci myorg/myapp
+docker trust signer remove ci myorg/myapp
+</code></pre>
+<h3 id="key-management">Key Management<a class="headerlink" href="#key-management" title="Permanent link">&para;</a></h3>
+<p>Docker Content Trust maintains two keys per user:</p>
+<ul>
+<li><strong>Root key</strong> (<code>~/.docker/trust/private/root_keys/</code>) — the most sensitive, should be offline</li>
+<li><strong>Repository key</strong> (<code>~/.docker/trust/private/tuf_keys/</code>) — used to sign specific repositories</li>
+</ul>
+<pre><code class="language-bash"># Back up root key
+docker trust key load root.pem  # Load from backup
+</code></pre>
+<h3 id="notary-server">Notary Server<a class="headerlink" href="#notary-server" title="Permanent link">&para;</a></h3>
+<p>The Notary server stores and serves TUF metadata. Docker Hub runs a Notary server at <code>notary.docker.io</code>. Self-hosted registries can run their own:</p>
+<pre><code class="language-bash"># Run Notary server
+docker run -d -p 4443:4443 \
+  -v notary-config:/etc/notary \
+  notary:server \
+  -config=/etc/notary/config.json
+</code></pre>
+<h2 id="notary-v2-improvements">Notary v2 Improvements<a class="headerlink" href="#notary-v2-improvements" title="Permanent link">&para;</a></h2>
+<p>Notary v2 (now part of the <strong>Notary Project</strong> under CNCF) addresses limitations in the original Notary v1:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Notary v1 (DCT)</th>
+<th>Notary v2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signature format</td>
+<td>TUF metadata only</td>
+<td>OCI artifact + TUF metadata</td>
+</tr>
+<tr>
+<td>Signatures stored</td>
+<td>Notary server side-by-side</td>
+<td>OCI registry (referrers API)</td>
+</tr>
+<tr>
+<td>Image format</td>
+<td>Docker V2 manifest</td>
+<td>OCI image spec + referrers</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>Docker CLI only</td>
+<td>Any OCI-compatible tool</td>
+</tr>
+<tr>
+<td>Attestations</td>
+<td>None</td>
+<td>Supports arbitrary attestations</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>N+1 queries per tag</td>
+<td>Single referrers API call</td>
+</tr>
+<tr>
+<td>Delegation</td>
+<td>Complex key management</td>
+<td>Simpler identity-based delegation</td>
+</tr>
+</tbody>
+</table>
+<p>Notary v2 stores signatures and attestations as OCI artifacts using the <strong>referrers API</strong>, so they live in the same registry as the image, not in a separate Notary server. This eliminates the Notary server as a single point of failure and simplifies deployment.</p>
+<h2 id="why-docker-invests-in-both-notary-and-sigstore">Why Docker Invests in Both Notary and Sigstore<a class="headerlink" href="#why-docker-invests-in-both-notary-and-sigstore" title="Permanent link">&para;</a></h2>
+<p>This is a common interview question. The two projects solve complementary problems:</p>
+<table>
+<thead>
+<tr>
+<th>Notary / TUF</th>
+<th>Sigstore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Repository integrity</strong> — always get the latest authorized version</td>
+<td><strong>Artifact attestation</strong> — prove who built an artifact</td>
+</tr>
+<tr>
+<td>Prevents replay, mix-and-match, freeze attacks</td>
+<td>Prevents provenance forgery</td>
+</tr>
+<tr>
+<td>Key hierarchy with delegation</td>
+<td>Ephemeral keys with OIDC binding</td>
+</tr>
+<tr>
+<td>Long-lived offline root keys</td>
+<td>No long-lived keys at all</td>
+</tr>
+<tr>
+<td>Role-based (delegations for teams)</td>
+<td>Identity-based (OIDC email/subject)</td>
+</tr>
+<tr>
+<td>Focus on <strong>update freshness</strong></td>
+<td>Focus on <strong>build integrity</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A complete supply chain security strategy uses both:</p>
+<ol>
+<li><strong>Sigstore</strong> to attest that an artifact was built by a specific CI pipeline from known source (SLSA provenance)</li>
+<li><strong>Notary/TUF</strong> to ensure consumers always pull the latest signed version, preventing rollback attacks and providing delegation for multi-team publishing</li>
+</ol>
+<p>Docker's strategy: Notary secures the <strong>registry-to-consumer</strong> channel (you always get the right image), while Sigstore (via cosign) secures the <strong>builder-to-registry</strong> channel (the image was built correctly). Both are needed.</p>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"How does TUF prevent replay attacks?" — The timestamp role rotates frequently; the timestamp key signs the current snapshot hash. An attacker cannot replay old metadata because the timestamp is too old</li>
+<li>"What does Docker Content Trust add over plain image signing?" — Repository integrity: freshness guarantees, delegation, multi-key management. Plain signing just says "someone signed this"; DCT says "the current authorized version is this"</li>
+<li>"Can you use cosign and DCT together?" — Yes. Cosign attaches in-toto attestations for build provenance; DCT manages tag-to-digest mappings and freshness. They operate at different layers</li>
+<li>"Is Notary v2 a replacement for Sigstore?" — No. Notary v2 handles repository-level trust (freshness, delegation); Sigstore handles per-artifact attestation (provenance, scan results). They are complementary</li>
+<li>"What happens if the Notary server is compromised?" — Root key is offline, so attacker cannot sign new targets. They can serve stale metadata (replay), but timestamp rotation limits the window. In Notary v2, signatures are stored in the OCI registry, eliminating the Notary server as a target</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
