@@ -1,0 +1,48 @@
+site_name: Docker Supply Chain
+site_description: Interview prep articles on container supply chain security
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - toc.follow
+    - search.highlight
+nav:
+  - Home: index.md
+  - Docker Supply Chain Overview: docker-supply-chain.md
+  - Supply Chain Security Theory:
+    - articles/01-slsa-framework.md
+    - articles/02-in-toto-attestations.md
+    - articles/03-sbom.md
+    - articles/04-sigstore.md
+    - articles/05-dependency-management-security.md
+    - articles/06-trusted-builds.md
+    - articles/07-notary-docker-content-trust.md
+  - Container Image Hardening:
+    - articles/08-distroless-images.md
+    - articles/09-image-minimization.md
+    - articles/10-non-root-execution.md
+    - articles/11-linux-capabilities.md
+    - articles/12-seccomp.md
+    - articles/13-apparmor-selinux.md
+    - articles/14-readonly-filesystem.md
+    - articles/15-multi-arch-security.md
+  - Helm Chart Security:
+    - articles/16-securitycontext-vs-podsecuritycontext.md
+    - articles/17-pod-security-standards.md
+    - articles/18-adapting-upstream-helm-charts.md
+    - articles/19-admission-control.md
+  - CVE Lifecycle:
+    - articles/20-scanner-internals.md
+    - articles/21-cve-sources.md
+    - articles/22-cvss-epss.md
+    - articles/23-fix-categorization.md
+    - articles/24-coordinated-disclosure.md
+  - Docker Product & Strategy:
+    - articles/25-docker-scout.md
+    - articles/26-docker-hardened-images.md
+    - articles/27-docker-content-trust.md
+    - articles/28-docker-supply-chain-platform.md
+markdown_extensions:
+  - toc:
+      permalink: true
