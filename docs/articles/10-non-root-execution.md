@@ -288,4 +288,4 @@ spec:
 
 ## Interview Tips
 
-Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `USER` instruction in the image config). Be able to explain the `no-new-privileges` flag and how it interacts with `AllowPrivilegeEscalation: false`.
+Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `USER` instruction in the image config). Be able to explain the `no-new-privileges` flag and how it interacts with `AllowPrivilegeEscalation: false`. For a deeper understanding of how the Docker engine enforces these constraints, see [Docker Architecture](../articles/30-docker-architecture.md).

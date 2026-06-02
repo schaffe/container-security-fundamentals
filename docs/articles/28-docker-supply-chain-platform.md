@@ -253,3 +253,5 @@ Every Docker Desktop installation is a potential Scout activation. Docker Deskto
 - "What's Docker's biggest supply chain security competitor?" (Chainguard — they compete on the same plane (base images + analysis + policy) with an open source foundation. Anchore and Aqua compete at different levels of the stack.)
 - "Where would you invest next if you were leading Docker's supply chain strategy?" (Runtime verification integration — not a full runtime product, but attestation verification at admission control via a Kubernetes admission webhook. Also: AI/ML image support.)
 - "How does Docker's platform strategy benefit a 10-person startup vs. a 10,000-person enterprise?" (Startup: zero-config Scout, free Hub, DHI base images — security out of the box. Enterprise: RBAC, org-level policies, commercial SLA, FIPS images, integration with existing CI/CD.)
+
+For deeper dives into the underlying technologies that power Docker's platform, see [Docker Architecture](../articles/30-docker-architecture.md) and [BuildKit Internals](../articles/32-buildkit-internals.md).

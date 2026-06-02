@@ -127,3 +127,5 @@ Grype typically reports more findings than Trivy due to CPE-based matching, whil
 - Docker Scout is best for **continuous compliance** — enforce policy over time, not just at build.
 
 At Docker, you'll likely work on integrating Scout with customer workflows, improving SBOM accuracy, and building policy evaluation engines that run at scale across millions of images.
+
+For a deeper understanding of how container image layers are constructed and stored — which directly impacts how scanners analyze them — see [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md).

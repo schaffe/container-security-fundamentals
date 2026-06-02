@@ -46,6 +46,14 @@ nav:
     - articles/26-docker-hardened-images.md
     - articles/27-docker-content-trust.md
     - articles/28-docker-supply-chain-platform.md
+  - Docker:
+    - articles/30-docker-architecture.md
+    - articles/31-build-context.md
+    - articles/32-buildkit-internals.md
+    - articles/33-how-docker-builds-images.md
+    - articles/34-image-layers-storage-drivers.md
+    - articles/35-docker-networking.md
+    - articles/36-kaniko-vs-docker-builds.md
 markdown_extensions:
   - toc:
       permalink: true

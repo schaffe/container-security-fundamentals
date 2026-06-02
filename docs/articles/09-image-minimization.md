@@ -167,6 +167,8 @@ RUN apt-get update && apt-get install -y binutils && \
 
 ### UPX Compression
 
+UPX (Ultimate Packer for Executables) is an open-source tool that compresses executable files (EXEs, DLLs, ELF binaries, etc.) using run-time compression — it shrinks file size by compressing the binary, and a small decompression stub unpacks it in memory at runtime. Commonly used to reduce distribution size.
+
 For additional size reduction, UPX compresses the binary:
 
 ```dockerfile
@@ -259,4 +261,4 @@ Smaller images reduce supply chain risk:
 
 ## Interview Tips
 
-Know the **layer model** — each `RUN` creates a writable layer that persists even if files are deleted in subsequent layers. The `COPY --from` is the most important minimization technique to discuss. Be ready to explain why `--squash` isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).
+Know the **layer model** — each `RUN` creates a writable layer that persists even if files are deleted in subsequent layers. See [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md) for a detailed look at how OverlayFS implements copy-on-write. The `COPY --from` is the most important minimization technique to discuss. Be ready to explain why `--squash` isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).

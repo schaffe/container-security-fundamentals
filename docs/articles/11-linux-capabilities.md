@@ -244,4 +244,4 @@ securityContext:
 
 ## Interview Tips
 
-Discuss the **principle of least privilege** for containers. Be ready to explain why `--cap-drop=ALL --cap-add=NET_BIND_SERVICE` is safer than just not dropping capabilities. Understand the difference between capabilities and seccomp — capabilities control "what you are allowed to do" while seccomp controls "what system calls you can make." Know that capabilities don't help if the kernel itself has a vulnerability (they gate access to privileged operations, not the kernel code that implements them).
+Discuss the **principle of least privilege** for containers. Be ready to explain why `--cap-drop=ALL --cap-add=NET_BIND_SERVICE` is safer than just not dropping capabilities. Understand the difference between capabilities and seccomp — capabilities control "what you are allowed to do" while seccomp controls "what system calls you can make." Know that capabilities don't help if the kernel itself has a vulnerability (they gate access to privileged operations, not the kernel code that implements them). For more on how the Docker engine manages capability sets, see [Docker Architecture](../articles/30-docker-architecture.md).

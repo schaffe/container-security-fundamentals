@@ -307,4 +307,4 @@ This is the minimum security baseline for production containers.
 
 ## Interview Tips
 
-Understand that seccomp's primary value is **preventing kernel exploit primitives**. Many famous container escapes (CVE-2019-5736 runc, CVE-2022-0492 cgroup v1) relied on syscalls that the default profile allows. Know which syscalls are most dangerous to allow (`mount`, `ptrace`, `bpf`, `open_by_handle_at`). Be able to explain why `RuntimeDefault` on K8s 1.27+ has finally become the default — it took years because it broke legitimate applications.
+Understand that seccomp's primary value is **preventing kernel exploit primitives**. Many famous container escapes (CVE-2019-5736 runc, CVE-2022-0492 cgroup v1) relied on syscalls that the default profile allows. Know which syscalls are most dangerous to allow (`mount`, `ptrace`, `bpf`, `open_by_handle_at`). Be able to explain why `RuntimeDefault` on K8s 1.27+ has finally become the default — it took years because it broke legitimate applications. For more on how runc and containerd implement seccomp profiles, see [Docker Architecture](../articles/30-docker-architecture.md).

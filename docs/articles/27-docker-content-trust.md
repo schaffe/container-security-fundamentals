@@ -250,3 +250,5 @@ Docker has publicly committed to evolving content trust along these lines:
 - "How do you handle root key compromise?" (Revoke root certificate, publish new root metadata signed by the previous root's revocation key or through out-of-band verification. This is why offline root key storage is critical.)
 - "Why does Docker support both Notation and cosign?" (Notation is the OCI standard for signing; cosign is widely adopted for its OIDC-based ephemeral key model. Docker supports both to meet different customer preferences.)
 - "How does delegation work in a team of 50 developers?" (Using Notation trust policies with a shared CA: each team member has a certificate signed by the org CA; trust policy accepts any certificate from that CA with a specific subject pattern.)
+
+For a complete walkthrough of the build pipeline that produces the images you sign, see [How Docker Builds Images](../articles/33-how-docker-builds-images.md).

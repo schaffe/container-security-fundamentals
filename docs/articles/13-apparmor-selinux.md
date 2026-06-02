@@ -295,4 +295,4 @@ sudo semodule -i mypolicy.pp
 
 ## Interview Tips
 
-Know the distribution binding: **AppArmor = Ubuntu/Debian, SELinux = RHEL/CentOS/Amazon Linux**. Understand that starting from scratch, seccomp + capabilities provides 80% of the value. AppArmor/SELinux add file-level MAC — important for multi-tenant environments where container isolation is critical. Be able to explain why `--privileged` disables all three mechanisms (capabilities, seccomp, and AppArmor/SELinux) and why that's dangerous.
+Know the distribution binding: **AppArmor = Ubuntu/Debian, SELinux = RHEL/CentOS/Amazon Linux**. Understand that starting from scratch, seccomp + capabilities provides 80% of the value. AppArmor/SELinux add file-level MAC — important for multi-tenant environments where container isolation is critical. Be able to explain why `--privileged` disables all three mechanisms (capabilities, seccomp, and AppArmor/SELinux) and why that's dangerous. For a broader view of how these security mechanisms fit into the Docker runtime stack, see [Docker Architecture](../articles/30-docker-architecture.md).

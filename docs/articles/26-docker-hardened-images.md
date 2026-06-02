@@ -199,3 +199,5 @@ DHI competes with:
 - "How do you verify that a DHI image hasn't been tampered with?" (cosign verify + verify-attestation against Docker's public key)
 - "What's the upgrade path for a team using official Postgres moving to DHI Postgres?" (Generally transparent — same env vars, same ports, same data directory structure; non-root may require changes to init scripts)
 - "How does Docker handle zero-day CVEs for DHI images?" (Automated re-scan, assessment, rebuild, publish, notification within defined SLA)
+
+For more on how DHI images are built and signed, see [Docker Architecture](../articles/30-docker-architecture.md) for the runtime stack, [BuildKit Internals](../articles/32-buildkit-internals.md) for the build pipeline, and [How Docker Builds Images](../articles/33-how-docker-builds-images.md) for the end-to-end workflow.

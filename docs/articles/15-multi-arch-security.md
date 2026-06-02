@@ -341,4 +341,4 @@ jobs:
 
 ## Interview Tips
 
-Multi-arch security is an evolving area. Understand that most vulnerability scanners default to amd64 — you must explicitly specify the target platform. Know that SBOM and provenance attestations should be generated per architecture, not just for the manifest list. Be able to discuss the trade-off between QEMU emulation and native cross-compilation for security. Understand that arm64's growing popularity means CVE response times are rapidly converging with amd64 (but s390x/ppc64le remain slower).
+Multi-arch security is an evolving area. Understand that most vulnerability scanners default to amd64 — you must explicitly specify the target platform. Know that SBOM and provenance attestations should be generated per architecture, not just for the manifest list. Be able to discuss the trade-off between QEMU emulation and native cross-compilation for security. Understand that arm64's growing popularity means CVE response times are rapidly converging with amd64 (but s390x/ppc64le remain slower). For the full pipeline of how multi-arch images are built and pushed, see [How Docker Builds Images](../articles/33-how-docker-builds-images.md).

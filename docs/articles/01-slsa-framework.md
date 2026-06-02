@@ -132,3 +132,4 @@ This checks: (1) provenance signature is valid, (2) source URI matches, (3) prov
 - "Can an L4 build use private dependencies?" — Only if the private dependency also meets SLSA L4, or is explicitly enumerated in provenance as an expected dependency
 - "Is SLSA a tool or a standard?" — Both. It's a specification with reference implementations (`slsa-github-generator`, `slsa-verifier`)
 - "How does SLSA relate to in-toto?" — SLSA defines the trust requirements; in-toto defines the attestation format to meet them
+- "What build tools support SLSA L3?" — [BuildKit Internals](../articles/32-buildkit-internals.md) covers BuildKit's SLSA L3 compliance through provenance attestations and hermetic builds

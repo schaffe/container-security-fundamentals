@@ -250,3 +250,5 @@ CMD ["/app"]
 When asked about distroless, emphasize the **supply chain security** angle: distroless removes the "blast radius" after a compromise. Understand the trade-off between debuggability and security. Be ready to discuss monohash-based vulnerability scanning — distroless images have so few packages that scanner false positives drop dramatically.
 
 The [Distroless vs Wolfi vs Docker Hardened Images](#distroless-vs-wolfi-vs-docker-hardened-images) section above covers the architectural differences, CVE remediation speed, attestation models, and decision framework.
+
+For a deeper look at how layers compose into a container's filesystem, see [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md).

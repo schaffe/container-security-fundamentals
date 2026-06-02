@@ -218,3 +218,5 @@ Docker's strategy: Notary secures the **registry-to-consumer** channel (you alwa
 - "Can you use cosign and DCT together?" — Yes. Cosign attaches in-toto attestations for build provenance; DCT manages tag-to-digest mappings and freshness. They operate at different layers
 - "Is Notary v2 a replacement for Sigstore?" — No. Notary v2 handles repository-level trust (freshness, delegation); Sigstore handles per-artifact attestation (provenance, scan results). They are complementary
 - "What happens if the Notary server is compromised?" — Root key is offline, so attacker cannot sign new targets. They can serve stale metadata (replay), but timestamp rotation limits the window. In Notary v2, signatures are stored in the OCI registry, eliminating the Notary server as a target
+
+For a detailed walkthrough of the image build pipeline and where signing fits into the workflow, see [How Docker Builds Images](../articles/33-how-docker-builds-images.md).

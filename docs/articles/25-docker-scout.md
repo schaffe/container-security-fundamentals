@@ -245,3 +245,5 @@ docker push my-app:latest
 - "How would you enforce Scout policies across 50 microservices?" (Central policy file in monorepo or per-repo config; Hub org-level policies)
 - "How does Scout handle images with multiple architectures?" (Scout analyzes each platform variant; policies apply per-variant or aggregate)
 - "What happens when a new CVE is published for a package in a running image?" (Scout re-scans if integrated with Hub; webhook notifications trigger alerts)
+
+For a deeper understanding of how images are built and how Scout integrates with the build pipeline, see [BuildKit Internals](../articles/32-buildkit-internals.md) and [How Docker Builds Images](../articles/33-how-docker-builds-images.md).
