@@ -41,7 +41,7 @@ Output goes to `site/`. Use `--strict` to fail on warnings.
 
 ```bash
 source .venv/bin/activate
-mkdocs gh-deploy --remote <remote-name>
+mkdocs gh-deploy --remote-name <remote-name>
 ```
 
 This builds the site and force-pushes to the `gh-pages` branch. GitHub Pages serves from there.

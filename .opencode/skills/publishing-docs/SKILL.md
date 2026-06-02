@@ -15,7 +15,7 @@ Takes an approved documentation proposal, applies edits to the MkDocs project, v
 2. **Verify** with `mkdocs build --strict`
 3. **Commit** with the proposed commit message
 4. **Push** to `upstream main`
-5. **Deploy** with `mkdocs gh-deploy --remote upstream`
+5. **Deploy** with `mkdocs gh-deploy --remote-name upstream`
 
 ## Dispatch Template
 
@@ -30,7 +30,7 @@ Project at /Users/artur/code/interview-prep
 2. Run `mkdocs build --strict` to verify
 3. Commit with the proposed commit message
 4. Run `git push upstream main`
-5. Run `source .venv/bin/activate && mkdocs gh-deploy --remote upstream`
+5. Run `source .venv/bin/activate && mkdocs gh-deploy --remote-name upstream`
 
 Report back: files changed, build result, and deploy status.
 ```
