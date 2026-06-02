@@ -308,10 +308,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-container-image-hardening" class="md-nav__link">
+  <a href="#2-linux-fundamentals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Container Image Hardening
+        2. Linux Fundamentals
       
     </span>
   </a>
@@ -319,10 +319,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-helm-chart-security-adaptation" class="md-nav__link">
+  <a href="#3-container-image-hardening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Helm Chart Security Adaptation
+        3. Container Image Hardening
       
     </span>
   </a>
@@ -330,10 +330,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-cve-lifecycle" class="md-nav__link">
+  <a href="#4-helm-chart-security-adaptation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. CVE Lifecycle
+        4. Helm Chart Security Adaptation
       
     </span>
   </a>
@@ -341,10 +341,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-docker-product-strategy" class="md-nav__link">
+  <a href="#5-cve-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Docker Product &amp; Strategy
+        5. CVE Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-docker-product-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Docker Product &amp; Strategy
       
     </span>
   </a>
@@ -1602,10 +1613,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-container-image-hardening" class="md-nav__link">
+  <a href="#2-linux-fundamentals" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Container Image Hardening
+        2. Linux Fundamentals
       
     </span>
   </a>
@@ -1613,10 +1624,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-helm-chart-security-adaptation" class="md-nav__link">
+  <a href="#3-container-image-hardening" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Helm Chart Security Adaptation
+        3. Container Image Hardening
       
     </span>
   </a>
@@ -1624,10 +1635,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#4-cve-lifecycle" class="md-nav__link">
+  <a href="#4-helm-chart-security-adaptation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. CVE Lifecycle
+        4. Helm Chart Security Adaptation
       
     </span>
   </a>
@@ -1635,10 +1646,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#5-docker-product-strategy" class="md-nav__link">
+  <a href="#5-cve-lifecycle" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Docker Product &amp; Strategy
+        5. CVE Lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-docker-product-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Docker Product &amp; Strategy
       
     </span>
   </a>
@@ -1701,7 +1723,11 @@
 <li><strong>Trusted builds:</strong> Build platform security. Non-build platform cannot sign. Air-gapped signing, HSM/TEE-backed keys, threshold signing. SLSA's build platform requirements.</li>
 <li><strong>Notary / Docker Content Trust:</strong> TUF (The Update Framework) — root, targets, snapshot, timestamp key hierarchy. Delegation roles. Why Docker is investing in both Notary v2 and Sigstore integration.</li>
 </ul>
-<h3 id="2-container-image-hardening">2. Container Image Hardening<a class="headerlink" href="#2-container-image-hardening" title="Permanent link">&para;</a></h3>
+<h3 id="2-linux-fundamentals">2. Linux Fundamentals<a class="headerlink" href="#2-linux-fundamentals" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>musl vs glibc:</strong> How the two C standard libraries compare (size, POSIX compliance, static linking, CVE history). Compatibility pitfalls: glibc-specific APIs, DNS resolution differences, locale support. Security decision framework for choosing between musl (Alpine) and glibc (Debian, Ubuntu, distroless) base images.</li>
+</ul>
+<h3 id="3-container-image-hardening">3. Container Image Hardening<a class="headerlink" href="#3-container-image-hardening" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Distroless images:</strong> What they exclude (shell, package manager, setuid binaries, common Unix tools — cp, tar, vi). Attack surface comparison: distroless (~5 packages) vs Alpine (~30) vs Ubuntu (~150). When distroless breaks: health checks needing shell, runtime package installs, debugging. Mitigations: debug image variants, static binaries.</li>
 <li><strong>Image minimization:</strong> Multi-stage build patterns. COPY --from for binary-only result. RUN cleanup chains (<code>rm -rf /var/lib/apt/lists/*</code>), layer squash (<code>--squash</code>). Stripping binaries, removing shared libraries not needed at runtime.</li>
@@ -1712,7 +1738,7 @@
 <li><strong>Read-only filesystem:</strong> <code>readOnlyRootFilesystem: true</code> in SecurityContext. Mount tmpfs for write locations (<code>/tmp</code>, <code>/var/run</code>, <code>/var/log</code>, <code>/var/cache/nginx</code>). What applications break (need to write to /etc, /var/lib).</li>
 <li><strong>Multi-arch security:</strong> <code>FROM --platform=$BUILDPLATFORM</code> in multi-stage. Per-arch base images (arm64 vs amd64) have different CVE profiles. Registries with multi-arch manifests, attestation per-architecture.</li>
 </ul>
-<h3 id="3-helm-chart-security-adaptation">3. Helm Chart Security Adaptation<a class="headerlink" href="#3-helm-chart-security-adaptation" title="Permanent link">&para;</a></h3>
+<h3 id="4-helm-chart-security-adaptation">4. Helm Chart Security Adaptation<a class="headerlink" href="#4-helm-chart-security-adaptation" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SecurityContext vs PodSecurityContext:</strong> SecurityContext on container (container-level settings: capabilities, runAsUser, readOnlyRootFS, seccomp). PodSecurityContext on pod (pod-level: fsGroup, runAsNonRoot, supplementalGroups, seLinuxOptions, sysctls). Cascade behavior: pod-level defaults overrideable at container level.</li>
 <li><strong>Pod Security Standards:</strong> Three policies — privileged (no restrictions), baseline (minimal, prevents known privilege escalations), restricted (hardened, follows pod hardening best practices). What each allows/blocks:</li>
@@ -1727,7 +1753,7 @@
 <li><code>securityContext.privileged: true</code> → remove, restructure</li>
 <li><strong>Admission control:</strong> Kyverno <code>verifyImages</code> rule for enforcing signed images. OPA/Gatekeeper constraints for Pod Security Standards. Pod Security Admission (native in K8s 1.23+, GA in 1.25). Enforce vs audit vs warn mode.</li>
 </ul>
-<h3 id="4-cve-lifecycle">4. CVE Lifecycle<a class="headerlink" href="#4-cve-lifecycle" title="Permanent link">&para;</a></h3>
+<h3 id="5-cve-lifecycle">5. CVE Lifecycle<a class="headerlink" href="#5-cve-lifecycle" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Scanner internals:</strong></li>
 <li><strong>Trivy:</strong> OS package DB (Alpine secdb, RedHat OVAL, Debian SSA, Ubuntu USN) + language-specific (npm, pip, gem, go, cargo, maven). Fast, widely adopted.</li>
@@ -1739,7 +1765,7 @@
 <li><strong>Fix categorization:</strong> Fixable (patch available, just upgrade) vs unfixable (upstream won't fix, wontfix, or no patch). OS-package CVEs (libc, openssl) vs language-library CVEs (log4j, lodash). Backport patches (vendor fixes without version bump) vs rebase to latest.</li>
 <li><strong>Coordinated disclosure:</strong> Embargo period, reporter coordination, customer notification. Docker's vulnerability reporting process.</li>
 </ul>
-<h3 id="5-docker-product-strategy">5. Docker Product &amp; Strategy<a class="headerlink" href="#5-docker-product-strategy" title="Permanent link">&para;</a></h3>
+<h3 id="6-docker-product-strategy">6. Docker Product &amp; Strategy<a class="headerlink" href="#6-docker-product-strategy" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Docker Scout:</strong> SBOM generation (<code>docker scout sbom</code>), environment-based policy evaluation (<code>docker scout policy</code>, <code>docker scout recommendations</code>), attestation management (<code>docker scout attestation</code>), integration with Docker Hub and GitHub Actions.</li>
 <li><strong>Docker Hardened Images (DHI):</strong> What's in the catalog (Postgres, Nginx, Redis, Grafana, cert-manager, Kyverno, MongoDB, and more). Build pipeline: SLSA L3, BuildKit, multi-arch, cosign + attestations, regular CVE scanning. How DHI differs from Docker Official Images (stricter hardening, enterprise SLAs, FIPS options).</li>
