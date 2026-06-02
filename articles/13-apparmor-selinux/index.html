@@ -2259,7 +2259,7 @@ sudo aa-status | grep docker
 - Full access to the container's filesystem (<code>/**</code> — all files and directories)
 - Network access (AF_INET, AF_UNIX, AF_NETLINK sockets)
 - Capability checks (controlled by <code>--cap-add</code>/<code>--cap-drop</code>)
-- ptrace on other processes in the same container (with <code>ptrace (trace)</code> peer permission)
+- ptrace on other processes in the same container (with <code>ptrace (trace)</code> peer permission) — see <a href="../12-seccomp/#ptrace">seccomp's ptrace section</a> for why ptrace is dangerous in containers
 - Standard signal delivery</p>
 <p>The profile denies:
 - Writing to <code>/proc/sys/</code> (kernel parameter modification)

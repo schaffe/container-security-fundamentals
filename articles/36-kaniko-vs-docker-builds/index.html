@@ -2739,7 +2739,8 @@ clusters.</p>
 <h3 id="what-kaniko-solves">What Kaniko Solves<a class="headerlink" href="#what-kaniko-solves" title="Permanent link">&para;</a></h3>
 <p>Kaniko runs as a non-privileged container. It does not need <code>/var/run/docker.sock</code>, does not require
 <code>privileged: true</code>, and does not start a daemon. It builds images entirely in userspace using
-kernel features available to any container (chroot, ptrace).</p>
+kernel features available to any container (<a href="../30-docker-architecture/#chroot-and-pivot_root">chroot</a>,
+<a href="../12-seccomp/#ptrace">ptrace</a>).</p>
 <p>See <a href="../30-docker-architecture/">Docker Architecture</a> for why the daemon model requires
 privileged access.</p>
 <hr />
@@ -2790,7 +2791,7 @@ and allows partial progress.</p>
 <hr />
 <h2 id="filesystem-snapshot-mechanics">Filesystem Snapshot Mechanics<a class="headerlink" href="#filesystem-snapshot-mechanics" title="Permanent link">&para;</a></h2>
 <p>Kaniko's core technical challenge is detecting what files changed when a <code>RUN</code> instruction executes.
-Without a union filesystem to diff layers, Kaniko uses an approach based on chroot and ptrace.</p>
+Without a union filesystem to diff layers, Kaniko uses an approach based on chroot and ptrace.wh</p>
 <h3 id="chroot-based-execution">Chroot-Based Execution<a class="headerlink" href="#chroot-based-execution" title="Permanent link">&para;</a></h3>
 <p>For each <code>RUN</code> instruction, Kaniko creates a subprocess that is <code>chroot</code>ed into the target rootfs.
 The command runs inside this chroot, with the filesystem directly accessible at <code>/</code> from the

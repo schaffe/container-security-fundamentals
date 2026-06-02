@@ -1527,6 +1527,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Startup Sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chroot-and-pivot_root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        chroot and pivot_root
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2322,6 +2339,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Startup Sequence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#chroot-and-pivot_root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        chroot and pivot_root
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2763,6 +2797,26 @@ mounts, seccomp, and exec.</p>
 <li>Write UID/GID mappings for user namespaces.</li>
 <li><code>execve</code> the container process.</li>
 </ol>
+<h4 id="chroot-and-pivot_root">chroot and pivot_root<a class="headerlink" href="#chroot-and-pivot_root" title="Permanent link">&para;</a></h4>
+<p><code>chroot</code> changes the apparent root directory for a process and its children. A process
+chrooted to <code>/some/root</code> sees that path as <code>/</code> and cannot access files outside it. It was the
+earliest Unix isolation primitive and a precursor to containers (the first "jail" systems in
+1999 used chroot alone).</p>
+<p>In containers, runc uses <code>pivot_root</code> (preferred) or <code>chroot</code> (fallback) to mount the
+container's root filesystem:</p>
+<ul>
+<li><strong>pivot_root</strong>: Moves the old root mount to a separate directory (<code>put_old</code>), giving the
+  container its own mount namespace root. The host root is still mounted but invisible to the
+  container process. Preferred because the old root remains accessible from other
+  mount namespaces and a correct <code>pivot_root</code> ensures the container can't navigate back to the
+  host filesystem through the mount table.</li>
+<li><strong>chroot</strong>: Simpler, used when pivot_root is unavailable (e.g., containers without a mount
+  namespace, or when the rootfs isn't a mount point). A chroot can be escaped by a privileged
+  process that can <code>mkdir foo; chroot foo; cd ..</code> — which is why runc always combines chroot
+  with a dedicated mount namespace and drops <code>CAP_SYS_CHROOT</code> in the container.</li>
+</ul>
+<p>The OCI spec requires runtimes to call either <code>pivot_root</code> or <code>chroot</code> on the rootfs. This is
+step 2 in the startup sequence above.</p>
 <h3 id="kernel-features">Kernel Features<a class="headerlink" href="#kernel-features" title="Permanent link">&para;</a></h3>
 <h4 id="namespaces">Namespaces<a class="headerlink" href="#namespaces" title="Permanent link">&para;</a></h4>
 <table>

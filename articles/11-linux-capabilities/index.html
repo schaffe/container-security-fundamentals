@@ -2326,7 +2326,7 @@ securityContext:
 </tr>
 <tr>
 <td><strong>SYS_CHROOT</strong></td>
-<td>Use chroot()</td>
+<td>Use chroot() — see <a href="../30-docker-architecture/#chroot-and-pivot_root">chroot and pivot_root</a></td>
 </tr>
 <tr>
 <td><strong>MKNOD</strong></td>
@@ -2366,6 +2366,8 @@ securityContext:
 <p><strong>Never grant SYS_ADMIN in production</strong>. If an application needs it, find a different architecture.</p>
 <h3 id="sys_ptrace">SYS_PTRACE<a class="headerlink" href="#sys_ptrace" title="Permanent link">&para;</a></h3>
 <p>Allows <code>ptrace()</code> system call — the ability to trace and debug any process:</p>
+<p>See <a href="../12-seccomp/#ptrace">seccomp's ptrace section</a> for why ptrace is blocked by
+default and how it enables container escape.</p>
 <pre><code class="language-dockerfile"># Needed for strace, perf, or debug containers
 docker run --cap-add=SYS_PTRACE debugger
 </code></pre>
