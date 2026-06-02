@@ -753,6 +753,78 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#distroless-vs-chainguard-wolfi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless vs Chainguard Wolfi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distroless vs Chainguard Wolfi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cve-remediation-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CVE Remediation Speed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-catalog-attestations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Catalog &amp; Attestations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-docker-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Docker Connection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dockerfile-distroless-vs-alpine-vs-ubuntu" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1704,6 +1776,78 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#distroless-vs-chainguard-wolfi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distroless vs Chainguard Wolfi
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Distroless vs Chainguard Wolfi">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#philosophy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Philosophy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cve-remediation-speed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CVE Remediation Speed
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-catalog-attestations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Catalog &amp; Attestations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decision-framework" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decision Framework
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-docker-connection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The Docker Connection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#dockerfile-distroless-vs-alpine-vs-ubuntu" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1917,6 +2061,95 @@
 <p>Supply chain security engineers should note: <strong>distroless images shrink the "gift" an attacker receives after initial RCE</strong>. If a process gets compromised, the attacker has very limited tools to pivot, escalate, or exfiltrate.</p>
 <h3 id="musl-vs-glibc">musl vs glibc<a class="headerlink" href="#musl-vs-glibc" title="Permanent link">&para;</a></h3>
 <p>See <a href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a> for a full comparison of the two libc implementations and their implications for base image selection.</p>
+<h3 id="distroless-vs-chainguard-wolfi">Distroless vs Chainguard Wolfi<a class="headerlink" href="#distroless-vs-chainguard-wolfi" title="Permanent link">&para;</a></h3>
+<p>The attack surface table above lists both distroless (Google) and Wolfi (Chainguard) under the same category, but their architectures and update philosophies differ fundamentally.</p>
+<h4 id="philosophy">Philosophy<a class="headerlink" href="#philosophy" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Google Distroless</th>
+<th>Chainguard Wolfi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Approach</strong></td>
+<td>Freeze known-good packages; strip aggressively</td>
+<td>Rebuild from source continuously; patch proactively</td>
+</tr>
+<tr>
+<td><strong>Base system</strong></td>
+<td>Debian-derived (glibc + Debian patches)</td>
+<td>Custom-built from scratch (glibc + musl variants)</td>
+</tr>
+<tr>
+<td><strong>Package manager</strong></td>
+<td>None in runtime images</td>
+<td><code>apk</code> available (removable in minimal variants)</td>
+</tr>
+<tr>
+<td><strong>CVE remediation</strong></td>
+<td>Reactive — fix propagates from Debian → Google rebuild</td>
+<td>Proactive — Chainguard patches and rebuilds within hours</td>
+</tr>
+<tr>
+<td><strong>Update cadence</strong></td>
+<td>Periodic, follows Debian stable</td>
+<td>Near-daily rebuilds of entire repo</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cve-remediation-speed">CVE Remediation Speed<a class="headerlink" href="#cve-remediation-speed" title="Permanent link">&para;</a></h4>
+<p>This is the most important operational differentiator. Distroless depends on the Debian patch cycle: CVE disclosed → fixed in Debian unstable → propagates to stable (days to weeks) → Google rebuilds → user pulls. Wolfi bypasses this entirely: CVE disclosed → Chainguard applies minimal patch to Wolfi source → package rebuilt → image rebuilt → user pulls. Wolfi's delay is <strong>hours, not days</strong>.</p>
+<p>In practice: Wolfi images regularly run at 0 unpatched CVEs, while distroless typically carries 2-5 low-severity CVEs awaiting the Debian patch cycle.</p>
+<h4 id="image-catalog-attestations">Image Catalog &amp; Attestations<a class="headerlink" href="#image-catalog-attestations" title="Permanent link">&para;</a></h4>
+<p>Google publishes ~20 image families (static, base, cc, java, python, node, .NET) on <code>gcr.io/distroless</code>. Chainguard publishes ~200+ images on <code>cgr.dev/chainguard</code>, covering not just runtimes but also databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), and security tools (Kyverno, Falco, OPA).</p>
+<p>Chainguard images ship with in-toto attestations (SBOM + SLSA provenance + vulnerability scan) attached to every image. Distroless images include a cosign signature only — no machine-readable metadata about contents or build process.</p>
+<h4 id="decision-framework">Decision Framework<a class="headerlink" href="#decision-framework" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Choose Distroless</th>
+<th>Choose Wolfi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Go/Rust static binary</td>
+<td><code>static-debian12:nonroot</code> (~2 MB)</td>
+<td><code>cgr.dev/chainguard/static</code> (~5 MB, attestations included)</td>
+</tr>
+<tr>
+<td>Zero CVE tolerance</td>
+<td>Good (rare CVEs)</td>
+<td>Better (proactive patching, often 0)</td>
+</tr>
+<tr>
+<td>Need attestations for policy</td>
+<td>Not available by default</td>
+<td>Included (SBOM + provenance + vuln scan)</td>
+</tr>
+<tr>
+<td>Enterprise compliance</td>
+<td>Distroless + separate attestation tooling</td>
+<td>Wolfi + Chainguard Enforce (integrated)</td>
+</tr>
+<tr>
+<td>Custom Dockerfile needs</td>
+<td>Must pre-install everything in build stage</td>
+<td>Can <code>apk add</code> in build stage; apk at runtime</td>
+</tr>
+<tr>
+<td>Must minimize pull size</td>
+<td>Distroless static ~2 MB</td>
+<td>Wolfi static ~5 MB (apk adds overhead)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="the-docker-connection">The Docker Connection<a class="headerlink" href="#the-docker-connection" title="Permanent link">&para;</a></h4>
+<p>Docker Hardened Images (DHI) use Wolfi as their base OS. DHI inherits Wolfi's proactive patching while adding Docker-specific attestations, Docker Hub distribution, and Scout/ Build Cloud integration. See <a href="../26-docker-hardened-images/">Docker Hardened Images</a> for details.</p>
 <h3 id="dockerfile-distroless-vs-alpine-vs-ubuntu">Dockerfile: Distroless vs Alpine vs Ubuntu<a class="headerlink" href="#dockerfile-distroless-vs-alpine-vs-ubuntu" title="Permanent link">&para;</a></h3>
 <pre><code class="language-dockerfile"># === Ubuntu build (baseline) ===
 FROM ubuntu:22.04 AS ubuntu-app
@@ -2033,7 +2266,7 @@ CMD [&quot;/app&quot;]
 </code></pre>
 <h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
 <p>When asked about distroless, emphasize the <strong>supply chain security</strong> angle: distroless removes the "blast radius" after a compromise. Understand the trade-off between debuggability and security. Be ready to discuss monohash-based vulnerability scanning — distroless images have so few packages that scanner false positives drop dramatically.</p>
-<p>Compare distroless to <strong>Chainguard Wolfi images</strong>, which take a more active approach: distroless freezes packages, while Wolfi actively rebuilds from source with minimal patches, achieving similar package counts but with faster CVE remediation.</p>
+<p>The <a href="#distroless-vs-chainguard-wolfi">Distroless vs Chainguard Wolfi</a> section above covers the architectural differences, CVE remediation speed, catalog breadth, and decision framework.</p>
 
 
 
