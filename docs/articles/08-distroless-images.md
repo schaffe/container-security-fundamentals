@@ -43,46 +43,66 @@ Supply chain security engineers should note: **distroless images shrink the "gif
 
 See [musl vs glibc: Choosing a C Standard Library for Containers](29-musl-vs-glibc.md) for a full comparison of the two libc implementations and their implications for base image selection.
 
-### Distroless vs Chainguard Wolfi
+### Distroless vs Wolfi vs Docker Hardened Images
 
-The attack surface table above lists both distroless (Google) and Wolfi (Chainguard) under the same category, but their architectures and update philosophies differ fundamentally.
+The attack surface table above groups Google Distroless, Chainguard Wolfi, and Docker Hardened Images (DHI, which is Wolfi-based) under "distroless-type" images. But their architectures, update models, and target users differ significantly.
 
-#### Philosophy
+#### Philosophy Comparison
 
-| | Google Distroless | Chainguard Wolfi |
-|---|---|---|
-| **Approach** | Freeze known-good packages; strip aggressively | Rebuild from source continuously; patch proactively |
-| **Base system** | Debian-derived (glibc + Debian patches) | Custom-built from scratch (glibc + musl variants) |
-| **Package manager** | None in runtime images | `apk` available (removable in minimal variants) |
-| **CVE remediation** | Reactive — fix propagates from Debian → Google rebuild | Proactive — Chainguard patches and rebuilds within hours |
-| **Update cadence** | Periodic, follows Debian stable | Near-daily rebuilds of entire repo |
+| Dimension | Google Distroless | Chainguard Wolfi | Docker Hardened Images |
+|-----------|------------------|-------------------|----------------------|
+| **Approach** | Freeze known-good Debian packages; strip aggressively | Rebuild from source continuously; patch proactively | Wolfi base + Docker's platform layer (Hub, Scout, Build Cloud) |
+| **Base system** | Debian-derived (glibc + Debian patches) | Custom-built from scratch | Wolfi (same as Chainguard) |
+| **Package manager** | None in runtime | `apk` present (removable) | None in hardened variants |
+| **CVE remediation** | Reactive via Debian patch cycle | Proactive within hours | Proactive (inherits Wolfi) + Docker's own CVE SLA |
+| **Attestations** | Cosign signature only | SBOM + provenance + vuln scan | SBOM + provenance + vuln scan (Docker-signed) |
+| **SLSA level** | Not explicitly targeted | SLSA L3 for Chainguard images | SLSA L3 |
+| **FIPS 140-2/3** | Not available | Not available directly | Optional validated module |
+| **Enterprise SLA** | None | Via Chainguard Enforce | Commercially supported |
+| **Image catalog** | ~20 families (runtimes) | ~200+ (runtimes + middleware + databases + security) | ~25 families (curated runtimes and infrastructure) |
 
 #### CVE Remediation Speed
 
-This is the most important operational differentiator. Distroless depends on the Debian patch cycle: CVE disclosed → fixed in Debian unstable → propagates to stable (days to weeks) → Google rebuilds → user pulls. Wolfi bypasses this entirely: CVE disclosed → Chainguard applies minimal patch to Wolfi source → package rebuilt → image rebuilt → user pulls. Wolfi's delay is **hours, not days**.
+This is the most important operational differentiator:
 
-In practice: Wolfi images regularly run at 0 unpatched CVEs, while distroless typically carries 2-5 low-severity CVEs awaiting the Debian patch cycle.
+- **Distroless** depends on the Debian patch cycle: CVE disclosed → fixed in Debian unstable → propagates to stable (days to weeks) → Google rebuilds → user pulls. Typical delay: **days to weeks**. In practice, distroless carries 2-5 low-severity CVEs awaiting the Debian cycle.
+- **Wolfi** bypasses distributions entirely: CVE disclosed → Chainguard applies minimal patch to Wolfi source → package rebuilt → image rebuilt → user pulls. Typical delay: **hours**.
+- **DHI** inherits Wolfi's proactive patching and adds a Docker-managed SLA for critical CVEs, with automated re-scan, rebuild, and notification to subscribers.
 
 #### Image Catalog & Attestations
 
-Google publishes ~20 image families (static, base, cc, java, python, node, .NET) on `gcr.io/distroless`. Chainguard publishes ~200+ images on `cgr.dev/chainguard`, covering not just runtimes but also databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), and security tools (Kyverno, Falco, OPA).
+Google's `gcr.io/distroless` covers runtimes only: static, base, cc, java, python, node, .NET (~20 families). No middleware or databases. Attestations are limited to a cosign signature.
 
-Chainguard images ship with in-toto attestations (SBOM + SLSA provenance + vulnerability scan) attached to every image. Distroless images include a cosign signature only — no machine-readable metadata about contents or build process.
+Chainguard's `cgr.dev/chainguard` covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.
+
+Docker's `docker/hardened-*` covers ~25 curated images (PostgreSQL, MongoDB, Redis, Nginx, Envoy, Grafana, Prometheus, cert-manager, Kyverno, Python, Node.js, Go, Java). Built on Wolfi, each image carries Docker-signed attestations and is distributed through Docker Hub with Scout integration.
 
 #### Decision Framework
 
-| Scenario | Choose Distroless | Choose Wolfi |
-|---|---|---|
-| Go/Rust static binary | `static-debian12:nonroot` (~2 MB) | `cgr.dev/chainguard/static` (~5 MB, attestations included) |
-| Zero CVE tolerance | Good (rare CVEs) | Better (proactive patching, often 0) |
-| Need attestations for policy | Not available by default | Included (SBOM + provenance + vuln scan) |
-| Enterprise compliance | Distroless + separate attestation tooling | Wolfi + Chainguard Enforce (integrated) |
-| Custom Dockerfile needs | Must pre-install everything in build stage | Can `apk add` in build stage; apk at runtime |
-| Must minimize pull size | Distroless static ~2 MB | Wolfi static ~5 MB (apk adds overhead) |
+| Scenario | Best Choice | Why |
+|----------|-------------|-----|
+| Go/Rust static binary, minimal size | Distroless `static-debian12:nonroot` (~2 MB) | Smallest possible image; no deps needed |
+| Go/Rust static binary + attestations | Wolfi `cgr.dev/chainguard/static` (~5 MB) | Slightly larger but includes SBOM + provenance |
+| Zero CVE tolerance, any runtime | Wolfi or DHI | Proactive patching, often 0 CVEs |
+| Need attestations for policy enforcement | DHI or Wolfi | Distroless lacks machine-readable attestations |
+| FIPS 140-2/3 required | DHI (FIPS variant) | Only option with validated crypto modules |
+| Enterprise compliance + commercial SLA | DHI | Wolfi source + Docker's SLA + Hub/Scout integration |
+| Broad image catalog (databases, middleware) | Wolfi (Chainguard) | 200+ images vs ~25 DHI vs ~20 distroless |
+| Custom Dockerfile, need runtime flexibility | Wolfi | `apk` available; can install tools at runtime |
+| Google Cloud-native deployment | Distroless | Native GCR integration, Google-managed |
 
-#### The Docker Connection
+#### Relationship: Wolfi and DHI
 
-Docker Hardened Images (DHI) use Wolfi as their base OS. DHI inherits Wolfi's proactive patching while adding Docker-specific attestations, Docker Hub distribution, and Scout/ Build Cloud integration. See [Docker Hardened Images](26-docker-hardened-images.md) for details.
+DHI is built **on top** of Wolfi. Wolfi provides the base OS — minimal packages, proactive CVE patching, container-optimized architecture. Docker adds:
+- **Distribution**: Images published to Docker Hub with verified publisher badges
+- **Attestations**: Docker-signed SBOM, provenance, and vulnerability scan (Docker's keychain, not Chainguard's)
+- **Scout integration**: One-click policy evaluation, environment-based recommendations
+- **FIPS modules**: Validated cryptographic libraries for regulated industries
+- **Commercial SLA**: Defined CVE response times, enterprise support
+
+Chainguard and Docker compete at the platform level (Enforce vs Scout) but cooperate at the base image level (DHI uses Wolfi). This is a common pattern in open-source infrastructure — upstream supplier vs integrated platform.
+
+See [Docker Hardened Images](26-docker-hardened-images.md) for a full breakdown of DHI's build pipeline, attestation model, and interview strategy.
 
 ### Dockerfile: Distroless vs Alpine vs Ubuntu
 
@@ -229,4 +249,4 @@ CMD ["/app"]
 
 When asked about distroless, emphasize the **supply chain security** angle: distroless removes the "blast radius" after a compromise. Understand the trade-off between debuggability and security. Be ready to discuss monohash-based vulnerability scanning — distroless images have so few packages that scanner false positives drop dramatically.
 
-The [Distroless vs Chainguard Wolfi](#distroless-vs-chainguard-wolfi) section above covers the architectural differences, CVE remediation speed, catalog breadth, and decision framework.
+The [Distroless vs Wolfi vs Docker Hardened Images](#distroless-vs-wolfi-vs-docker-hardened-images) section above covers the architectural differences, CVE remediation speed, attestation models, and decision framework.
