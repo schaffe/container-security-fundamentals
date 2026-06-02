@@ -2,12 +2,7 @@ site_name: Docker Supply Chain
 site_description: Interview prep articles on container supply chain security
 repo_url: https://github.com/schaffe/container-security-fundamentals
 theme:
-  name: material
-  features:
-    - navigation.sections
-    - navigation.top
-    - toc.follow
-    - search.highlight
+  name: cinder
 nav:
   - Home: index.md
   - Docker Supply Chain Overview: docker-supply-chain.md
