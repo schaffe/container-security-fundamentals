@@ -60,7 +60,7 @@
 - **Docker Hardened Images (DHI):** What's in the catalog (Postgres, Nginx, Redis, Grafana, cert-manager, Kyverno, MongoDB, and more). Build pipeline: SLSA L3, BuildKit, multi-arch, cosign + attestations, regular CVE scanning. How DHI differs from Docker Official Images (stricter hardening, enterprise SLAs, FIPS options).
 - **Docker Content Trust / Notary v2:** Signing workflow, key hierarchy (root key offline, targets key online, snapshot/timestamp keys). Delegation roles for team signing. v2 improvements over v1.
 - **Docker's supply chain platform:** How DHI (hardened images) + Scout (analysis/visibility) + Hub (distribution) + Build Cloud (build platform) form an end-to-end supply chain security platform. Competitive landscape:
-  - **Chainguard:** wolfi-based minimal images, apk package manager, strong community. Direct competitor to DHI.
+  - **Chainguard:** Supply chain security company (founded 2021, ex-Google). Wolfi OS, Chainguard Images (~200+ minimal images), Chainguard Enforce (admission control policy). Direct competitor to DHI, Scout, and Hub; coopetition at Wolfi layer.
   - **Anchore:** Enterprise policy engine, Grype scanner, SBOM management. Competes with Scout.
   - **Aqua Security:** CSPM, CNAPP, runtime protection. Docker competes on developer workflow integration.
   - **Red Hat:** UBI images, Quay registry. Docker competes on ease of use and multi-platform.

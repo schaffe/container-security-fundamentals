@@ -73,7 +73,7 @@ This is the most important operational differentiator:
 
 Google's `gcr.io/distroless` covers runtimes only: static, base, cc, java, python, node, .NET (~20 families). No middleware or databases. Attestations are limited to a cosign signature.
 
-Chainguard's `cgr.dev/chainguard` covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.
+Chainguard's `cgr.dev/chainguard` covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations. (See [Chainguard's platform strategy](28-docker-supply-chain-platform.md#chainguard) for how Wolfi, Chainguard Images, and Enforce connect.)
 
 Docker's `docker/hardened-*` covers ~25 curated images (PostgreSQL, MongoDB, Redis, Nginx, Envoy, Grafana, Prometheus, cert-manager, Kyverno, Python, Node.js, Go, Java). Built on Wolfi, each image carries Docker-signed attestations and is distributed through Docker Hub with Scout integration.
 
