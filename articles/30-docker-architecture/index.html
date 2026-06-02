@@ -520,7 +520,7 @@ step 2 in the startup sequence above.</p>
 </tr>
 </tbody>
 </table>
-<p>User namespaces are covered in <a href="../10-non-root-execution/">Non-Root Execution</a>.</p>
+<p>User namespaces are covered in <a href="../10-non-root-execution/">Non-Root Execution</a>. <strong>They are not enabled by default</strong> — see that article for the trade-offs and rootless Docker as the recommended path.</p>
 <h4 id="cgroups">cgroups<a class="headerlink" href="#cgroups" title="Permanent link">&para;</a></h4>
 <p>Limit CPU, memory, I/O, and PIDs. cgroups v1 uses separate hierarchies under <code>/sys/fs/cgroup/</code>.
 cgroups v2 uses a unified hierarchy (default since systemd 242+).</p>
