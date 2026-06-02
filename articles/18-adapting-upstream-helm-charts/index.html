@@ -69,6 +69,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul>
@@ -299,7 +301,7 @@ livenessProbe:
 <p>If shell is unavoidable, spawn a minimal HTTP health endpoint in the application, or use a dedicated health sidecar.</p>
 <h2 id="breaking-change-6-privileged-containers">Breaking Change 6: Privileged Containers<a class="headerlink" href="#breaking-change-6-privileged-containers" title="Permanent link">&para;</a></h2>
 <p><strong>Symptom:</strong> Chart requires <code>privileged: true</code> for system-level operations.</p>
-<p><strong>Root cause:</strong> The container needs host-level access (e.g., mounting <code>/sys/fs/cgroup</code>, accessing <code>/dev/kmsg</code>, writing to <code>/proc</code>).</p>
+<p><strong>Root cause:</strong> The container needs host-level access (e.g., mounting <code>/sys/fs/cgroup</code>, accessing <code>/dev/kmsg</code>, writing to <a href="../37-proc-container-isolation/#attack-surface-via-proc-in-containers"><code>/proc</code></a>).</p>
 <p><strong>Fix:</strong> Assess if <code>privileged</code> is genuinely necessary. Many cases can be replaced:
 - Mount specific host paths with <code>hostPath</code> volumes and <code>mountPropagation</code>
 - Use a DaemonSet with <code>hostPID: true</code> instead of privileged

@@ -69,6 +69,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul class="current">
@@ -238,11 +240,11 @@ sudo aa-status | grep docker
 - <a href="../12-seccomp/#ptrace">ptrace</a> on other processes in the same container (with <code>ptrace (trace)</code> peer permission)
 - Standard signal delivery</p>
 <p>The profile denies:
-- Writing to <code>/proc/sys/</code> (kernel parameter modification)
+- Writing to <a href="../37-proc-container-isolation/#3-procsys-kernel-parameter-modification"><code>/proc/sys/</code></a> (kernel parameter modification)
 - Writing to <code>/sys/</code> (kernel object modification)
 - Mounting filesystems
-- Access to <code>/proc/kcore</code> (kernel memory)
-- Access to <code>/proc/sched_debug</code>
+- Access to <a href="../37-proc-container-isolation/#2-prockcore-full-kernel-memory"><code>/proc/kcore</code></a> (kernel memory)
+- Access to <a href="../37-proc-container-isolation/#attack-surface-via-proc-in-containers"><code>/proc/sched_debug</code></a>
 - <code>capability sys_admin</code> (even if the capability is granted)</p>
 <pre><code class="language-bash"># Inspect the Docker AppArmor profile
 sudo aa-status

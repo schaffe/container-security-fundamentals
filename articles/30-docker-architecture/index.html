@@ -69,6 +69,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul>
@@ -439,7 +441,7 @@ mounts, seccomp, and exec.</p>
 <li>Mount rootfs (pivot_root or chroot).</li>
 <li>Clone namespaces (<code>CLONE_NEW*</code> flags).</li>
 <li>Write PID to cgroup files.</li>
-<li>Mount /proc, /sys, /dev.</li>
+<li>Mount <a href="../37-proc-container-isolation/#how-docker-virtualizes-proc-via-pid-namespaces">/proc</a>, /sys, /dev.</li>
 <li>Load seccomp BPF filter.</li>
 <li>Drop capabilities (<code>cap_set_proc</code>).</li>
 <li>Write UID/GID mappings for user namespaces.</li>
@@ -610,7 +612,7 @@ child.</p>
     runc init (child) ─── enters new namespaces
          │
          ├── writes PID to cgroup files
-         ├── mounts /proc, /sys, /dev
+          ├── mounts [/proc](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev
          ├── loads seccomp BPF filter
          ├── drops capabilities (cap_set_proc)
          ├── writes UID/GID mappings (user ns)
@@ -631,7 +633,7 @@ Phase 2 — Handoff
 <li><strong>runc (parent)</strong> reads <code>config.json</code>, validates the spec, opens synchronization pipes,
    and forks with <code>CLONE_NEW*</code> flags into the new namespaces.</li>
 <li><strong>runc init (child)</strong> is now inside partially-isolated namespaces. It continues setup:
-   writes the PID to cgroupfs, mounts <code>/proc</code>, <code>/sys</code>, <code>/dev</code>, loads the seccomp BPF
+   writes the PID to cgroupfs, mounts <a href="../37-proc-container-isolation/#how-docker-virtualizes-proc-via-pid-namespaces"><code>/proc</code></a>, <code>/sys</code>, <code>/dev</code>, loads the seccomp BPF
    filter via <code>seccomp(SECCOMP_SET_MODE_FILTER)</code>, drops capabilities, writes user
    namespace mappings, and calls <code>pivot_root</code> (or <code>chroot</code>) into the container rootfs.</li>
 <li><strong>Init</strong> calls <code>execve()</code> on <code>process.args[0]</code> (e.g., <code>/bin/sh</code>). This replaces the

@@ -69,6 +69,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul>
@@ -309,7 +311,7 @@ spec:
 </tr>
 <tr>
 <td><code>procMount</code></td>
-<td>Mount <code>/proc</code> as unmasked (default: DefaultProcMount)</td>
+<td>Mount <a href="../37-proc-container-isolation/#procmount-in-kubernetes"><code>/proc</code></a> as unmasked (default: DefaultProcMount)</td>
 </tr>
 <tr>
 <td><code>seccompProfile</code></td>

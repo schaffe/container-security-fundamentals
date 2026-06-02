@@ -91,6 +91,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../articles/29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul>
@@ -203,6 +205,7 @@
 <h3 id="2-linux-fundamentals">2. Linux Fundamentals<a class="headerlink" href="#2-linux-fundamentals" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>musl vs glibc:</strong> How the two C standard libraries compare (size, POSIX compliance, static linking, CVE history). Compatibility pitfalls: glibc-specific APIs, DNS resolution differences, locale support. Security decision framework for choosing between musl (Alpine) and glibc (Debian, Ubuntu, distroless) base images.</li>
+<li><strong>/proc and container isolation:</strong> What /proc is (pseudo-filesystem), how PID namespaces virtualize /proc per container, the kernel UID-based access check for /proc/PID, attack surface via /proc in containers (CVE-2019-5736, /proc/kcore, /proc/sys), Docker's MaskedPaths and ReadonlyPaths defenses, Kubernetes procMount field and DefaultProcMount requirement in Pod Security Standards.</li>
 </ul>
 <h3 id="3-container-image-hardening">3. Container Image Hardening<a class="headerlink" href="#3-container-image-hardening" title="Permanent link">&para;</a></h3>
 <ul>

@@ -69,6 +69,8 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../29-musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../37-proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul class="current">
@@ -351,7 +353,7 @@ mechanism behind debuggers (gdb, lldb), tracing tools (strace, ltrace), and prof
 <li><strong>Code injection</strong>: A compromised process with <code>CAP_SYS_PTRACE</code> can attach to sibling
   containers in the same namespace, read secrets from memory, and execute arbitrary code in
   another process.</li>
-<li><strong>Container escape</strong>: ptrace was a component in CVE-2019-5736 (runc escape) — the attacker
+<li><strong>Container escape</strong>: ptrace was a component in <a href="../37-proc-container-isolation/#1-cve-2019-5736-procselfexe-race">CVE-2019-5736</a> (runc escape) — the attacker
   used ptrace on <code>/proc/self/exe</code> combined with file-descriptor tricks to overwrite the host's
   <code>runc</code> binary.</li>
 <li><strong>Syscall interception</strong>: The <code>PTRACE_SYSCALL</code> mechanism can intercept every system call a
