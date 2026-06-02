@@ -50,6 +50,10 @@ RUN groupadd --gid 10001 appgroup && \
 USER appuser
 ```
 
+Why a high UID? Low UIDs (0–999) are reserved for system users (daemons like `sshd`, `syslog`, `ntp`) and vary by distribution. A high UID avoids collisions. It also avoids accidental collisions with host users (e.g., UID 1000 often maps to a real developer account), which matters when bind-mounting volumes or during a container escape.
+
+**Caveat — same UID across containers is the same problem as nobody**: If every container in your cluster runs as UID 10001, the cross-container signaling risk (`/proc/PID` access, `kill`, `ptrace`) is identical to using `nobody`. The UID number itself does not provide isolation — only **unique UIDs per workload** or **user namespaces** do. See [User Namespaces](#user-namespaces) below.
+
 ### UID 65534 (nobody)
 
 The `nobody` user (UID 65534) exists on all Linux distributions:
@@ -60,9 +64,41 @@ USER 65534
 CMD ["/app"]
 ```
 
-There is a significant security concern with `65534`/`nobody`: **if multiple containers share the same UID namespace, an attacker in one container can signal or interfere with processes in another container that also run as `nobody`**. Additionally, `nobody`'s home directory does not exist, which breaks applications that require a writable home.
+The concerns with `nobody` are best understood in two categories:
 
-**Recommendation**: Use a dedicated UID (10001) rather than 65534.
+**1. Shared-UID risk (applies to any reused UID)**: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via `/proc/PID` access, `kill`, or `ptrace`. This is not specific to `nobody`; it applies equally to any UID (including 10001) used across multiple containers.
+
+**2. `nobody`-specific issues**:
+- **No home directory**: `nobody`'s home is typically `/nonexistent` or unset. Many runtimes (JVM, Node.js, Python, SSH) require a writable `$HOME` for caches, temp files, or config.
+- **System daemon conflict**: `nobody` is already used by NFS, systemd-mapped services, and other kernel-managed tasks. Using it for an app creates ambiguity — is that process your app or a system daemon?
+- **Unpredictable permissions**: Some kernels and distributions assign `nobody` special treatment in unprivileged user namespaces, leading to inconsistent behavior.
+
+### User Namespaces
+
+Neither `nobody` nor a dedicated UID provides cross-container isolation on their own. **User namespaces** do. With `--userns-remap`, Docker maps each container's UID to a different host UID range:
+
+```
+Container A: UID 10001 → Host UID 100000
+Container B: UID 10001 → Host UID 200000
+```
+
+Now the kernel sees different host UIDs, so `/proc` isolation, signal delivery, and file permissions are enforced. Use a dedicated high UID within the container for application correctness (home dir, audit trail), and rely on user namespaces for cross-container isolation.
+
+```bash
+# Enable in daemon.json:
+{
+  "userns-remap": "default"
+}
+```
+
+```yaml
+# Kubernetes equivalent (pod level):
+securityContext:
+  runAsUser: 10001
+  fsGroup: 10001
+```
+
+**Recommendation**: Use a dedicated high UID (e.g., 10001) per application for correct runtime behavior (home directory, file ownership, audit trail). **Use different UIDs per app or enable user namespaces** to prevent cross-container interference. Prefer `nobody` only when no writable paths are needed and the image provides no other user — but be aware of its limitations.
 
 ### Distroless Non-root Variants
 

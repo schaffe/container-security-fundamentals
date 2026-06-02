@@ -11,18 +11,21 @@ When conversation reveals information worth preserving, capture it in the projec
 
 ## When to Use
 
-**Triggers:**
-- User asks "what is <concept>" — a definitional question about a Linux, container, or Docker
-  concept
-- User asks a follow-up question that deepens a documented topic
-- User's question reveals a topic not yet covered
-- User provides detail, context, or clarification worth recording
-- Conversation exposes a gap or omission in existing docs
+**Hard triggers (fire unconditionally — no judgment call):**
+- User says "update docs", "capture this", "document this", "write this up", or "add this to docs"
+- User says "summarize and update" or "summarize and document"
+- User provides a substantive correction or clarification about content in an existing doc
+- User asks a follow-up question that reveals a gap, omission, or oversimplification in existing
+  docs (e.g., "what about X?" when X is related but absent, or "isn't that the same problem?")
+
+**Soft triggers (fire unless clearly not applicable):**
+- User says "why", "explain", or "dive deep" about a documented topic
+- User asks "what is <concept>" — any definitional question, not just Linux/container topics
+- User provides technical detail, context, or real-world experience worth recording
 
 **Do NOT use for:**
 - Transient debugging context or build-specific quirks
 - Questions where the answer is speculative
-- Information already fully covered in existing docs
 
 ## Workflow
 
