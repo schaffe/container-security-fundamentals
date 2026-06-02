@@ -1,0 +1,3908 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+        <link rel="prev" href="../31-build-context/">
+      
+      
+        <link rel="next" href="../33-how-docker-builds-images/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>BuildKit Internals - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#buildkit-internals" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              BuildKit Internals
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/schaffe/container-security-fundamentals" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/schaffe/container-security-fundamentals" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Fundamentals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux Fundamentals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../29-musl-vs-glibc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    musl vs glibc: Choosing a C Standard Library for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../30-docker-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../31-build-context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BuildKit Internals
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BuildKit Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#history-and-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        History and Motivation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="History and Motivation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problems-with-the-legacy-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problems with the Legacy Builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enter-buildkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enter BuildKit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llb-low-level-build-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLB (Low-Level Build) Definition
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LLB (Low-Level Build) Definition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#protobuf-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protobuf Definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#op-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Op Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llb-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLB Example
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LLB Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visualising-llb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualising LLB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-instructions-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Instructions Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontends
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dockerfilev0-and-dockerfilev1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dockerfile.v0 and dockerfile.v1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gateway-frontends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway Frontends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solver
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Solver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#input-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-addressed-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Content-Addressed Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching Algorithm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching Algorithm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-key-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Key Derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-hit-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Hit Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-invalidation-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Invalidation Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-sharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Sharing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Mounts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache Mounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-apt-with-cache-mount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: APT with Cache Mount
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-lifetimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Lifetimes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ssh-agent-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Agent Forwarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SSH Agent Forwarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-ssh-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple SSH Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buildkit-cache-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit Cache Export
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuildKit Cache Export">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-mode-min-vs-max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Mode: min vs max
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garbage Collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-does-docker-need-buildkit-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Why does Docker need BuildKit?" (Motivation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-buildkit-cache-work-cache-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does BuildKit cache work?" (Cache Architecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-llb-low-level-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What is LLB?" (Low-Level Build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-cache-mounts-differ-from-regular-layers-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do cache mounts differ from regular layers?" (Persistence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-you-handle-secrets-in-buildkit-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do you handle secrets in BuildKit?" (Security)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-multi-stage-build-parallelization-work-dag-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does multi-stage build parallelization work?" (DAG execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../33-how-docker-builds-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How Docker Builds Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../34-image-layers-storage-drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Layers & Storage Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../35-docker-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../36-kaniko-vs-docker-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kaniko vs Docker Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#history-and-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        History and Motivation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="History and Motivation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#problems-with-the-legacy-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problems with the Legacy Builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enter-buildkit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enter BuildKit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#architecture-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Architecture Overview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Architecture Overview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deployment-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deployment Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llb-low-level-build-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLB (Low-Level Build) Definition
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LLB (Low-Level Build) Definition">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#protobuf-definition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Protobuf Definition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#op-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Op Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Metadata
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#llb-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LLB Example
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="LLB Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#visualising-llb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualising LLB
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-instructions-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How Instructions Map
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#frontends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Frontends
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Frontends">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dockerfilev0-and-dockerfilev1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dockerfile.v0 and dockerfile.v1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gateway-frontends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gateway Frontends
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#solver" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Solver
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Solver">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#input-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Processing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parallel-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parallel Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#content-addressed-operations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Content-Addressed Operations
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#caching-algorithm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caching Algorithm
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caching Algorithm">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cache-key-derivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Key Derivation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-hit-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Hit Flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-invalidation-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Invalidation Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-sharing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Sharing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cache-mounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Mounts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cache Mounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-targets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Targets
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-apt-with-cache-mount" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: APT with Cache Mount
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-lifetimes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Lifetimes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#secrets" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secrets
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Secrets">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security Properties
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ssh-agent-forwarding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SSH Agent Forwarding
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="SSH Agent Forwarding">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Usage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiple-ssh-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multiple SSH Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Security
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buildkit-cache-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit Cache Export
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="BuildKit Cache Export">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cache-mode-min-vs-max" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cache Mode: min vs max
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#garbage-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Garbage Collection
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#why-does-docker-need-buildkit-motivation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Why does Docker need BuildKit?" (Motivation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-buildkit-cache-work-cache-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does BuildKit cache work?" (Cache Architecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-llb-low-level-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What is LLB?" (Low-Level Build)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-cache-mounts-differ-from-regular-layers-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do cache mounts differ from regular layers?" (Persistence)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-you-handle-secrets-in-buildkit-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do you handle secrets in BuildKit?" (Security)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-multi-stage-build-parallelization-work-dag-execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does multi-stage build parallelization work?" (DAG execution)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="buildkit-internals">BuildKit Internals<a class="headerlink" href="#buildkit-internals" title="Permanent link">&para;</a></h1>
+<h2 id="history-and-motivation">History and Motivation<a class="headerlink" href="#history-and-motivation" title="Permanent link">&para;</a></h2>
+<p>Before BuildKit, Docker used a <strong>legacy builder</strong> — a monolithic implementation inside <code>dockerd</code>
+that processed Dockerfiles sequentially, one instruction at a time. Each <code>RUN</code>, <code>COPY</code>, and <code>ADD</code>
+instruction created a container, executed a command, committed the filesystem, and moved to the next
+line. The approach worked, but it had fundamental limitations that became painful as container builds
+grew more complex.</p>
+<h3 id="problems-with-the-legacy-builder">Problems with the Legacy Builder<a class="headerlink" href="#problems-with-the-legacy-builder" title="Permanent link">&para;</a></h3>
+<p><strong>No concurrent stage execution.</strong> Multi-stage builds (<code>FROM golang:1.21 AS builder ... FROM alpine</code>)
+ran stages sequentially even when stages had no dependency on each other. The builder never analysed
+the DAG — it just ran instructions top-to-bottom.</p>
+<p><strong>Poor caching.</strong> Cache invalidation was coarse: any change to the Dockerfile, build context, or base
+image busted the entire cache for that line and everything after it. There was no content-addressed
+cache — the builder compared command strings verbatim, so whitespace changes triggered rebuilds.</p>
+<p><strong>No cache mounts.</strong> If a build downloaded packages (<code>apt-get install</code>, <code>pip install</code>), those
+packages were re-downloaded every time the cache missed — even if only an unrelated <code>COPY</code> changed.
+There was no mechanism to persist <code>/var/cache/apt</code> or <code>/root/.cache/pip</code> across builds.</p>
+<p><strong>No secrets support.</strong> Passing credentials to a build meant either baking them into an intermediate
+layer with <code>ENV</code> / <code>ARG</code> (leaking them into the image history) or including them in the build
+context (risking inclusion in production images).</p>
+<p><strong>No SSH agent forwarding.</strong> Cloning private repositories during a build required embedding SSH keys
+in the context or using <code>--build-arg</code> with the key material — both terrible security practices.</p>
+<p><strong>Single-architecture, single output.</strong> The legacy builder built one platform per invocation.
+Producing multi-arch images meant running <code>docker build</code> on each platform and stitching manifests
+manually.</p>
+<h3 id="enter-buildkit">Enter BuildKit<a class="headerlink" href="#enter-buildkit" title="Permanent link">&para;</a></h3>
+<p>BuildKit was introduced as a technical preview in Docker 18.06, became stable in Docker 18.09, and
+replaced the legacy builder as the default in Docker 23.0 (via <code>docker buildx</code>). The <code>DOCKER_BUILDKIT=1</code>
+environment variable enabled it on older versions.</p>
+<p>It was designed from the ground up around a DAG execution model, content-addressed caching, and a
+pluggable architecture:</p>
+<pre><code>Legacy builder:   sequential, monolithic, string-address caching
+BuildKit:         DAG-based, modular, content-address caching
+</code></pre>
+<p>BuildKit's design borrows ideas from Bazel's remote execution API and Nix's store model — build
+steps are pure(ish) functions that can be cached, parallelised, and distributed.</p>
+<p>For the architectural context of where BuildKit fits in the Docker stack, see
+<a href="../30-docker-architecture/">Docker Architecture</a>.</p>
+<hr />
+<h2 id="architecture-overview">Architecture Overview<a class="headerlink" href="#architecture-overview" title="Permanent link">&para;</a></h2>
+<p>BuildKit is not a single binary or daemon — it is a collection of components that can be composed in
+different configurations:</p>
+<pre><code>+-----------+
+| Frontend  |  (e.g., dockerfile.v0, dockerfile.v1, custom gateway)
++-----------+       |
+          v
++-----------+       +-----------+
+| Solver    | ----&gt; |   Cache   |  (content-addressed, pluggable backends)
++-----------+       +-----------+
+    |                       |
+    v                       v
++-----------+       +-----------+
+|  Worker   |       | Exporter  |  (image, local tarball, OCI layout, containerd store)
++-----------+       +-----------+
+    |
+    v
++-----------+       +-----------+
+|  runc /   |       |   LLB     |  (internal IR used by all components)
+| containerd|       |  (DAG)    |
++-----------+       +-----------+
+</code></pre>
+<h3 id="deployment-modes">Deployment Modes<a class="headerlink" href="#deployment-modes" title="Permanent link">&para;</a></h3>
+<p>BuildKit can run in three modes:</p>
+<p><strong>Embedded in dockerd.</strong> Since Docker 23.0, <code>dockerd</code> embeds BuildKit as a library. When you run
+<code>docker build</code>, BuildKit runs as a contained set of goroutines inside the daemon process. No
+separate daemon needed.</p>
+<p><strong>Standalone daemon (<code>buildkitd</code>).</strong> A dedicated process listening on a Unix or TCP socket. This is
+how <code>docker buildx</code> with a remote builder works. The BuildKit daemon can run on a separate machine
+or in a Kubernetes pod.</p>
+<pre><code class="language-bash">buildkitd --config /etc/buildkitd.toml
+</code></pre>
+<p><strong>Client library.</strong> BuildKit's Go packages can be imported directly to construct and execute LLB
+graphs programmatically. This is how tools like <code>earthly</code> and <code>dagger</code> integrate with BuildKit.</p>
+<h3 id="components">Components<a class="headerlink" href="#components" title="Permanent link">&para;</a></h3>
+<p><strong>Frontend</strong> — Converts high-level build instructions (Dockerfile, custom DSL) into LLB. The
+frontend runs inside a container (the "frontend image") and produces LLB protobuf on stdout. The
+solver receives this LLB and executes it.</p>
+<p><strong>Solver</strong> — The core engine. Receives an LLB graph, resolves dependencies, checks the cache,
+parallelises work, and dispatches operations to workers.</p>
+<p><strong>Worker</strong> — Executes individual LLB operations. Two built-in workers:</p>
+<ul>
+<li><code>runc</code> worker: Uses <code>runc</code> via containerd to execute <code>ExecOp</code> instructions in containers.</li>
+<li><code>containerd</code> worker: Uses containerd directly for both exec and snapshot management.</li>
+<li><code>oci</code> worker (experimental): Uses <code>runtime-tools</code> directly.</li>
+</ul>
+<p><strong>Exporter</strong> — Converts the solver's output into a usable artifact. Common exporters:
+<code>image</code> (push to registry), <code>local</code> (write to filesystem), <code>tar</code> (write tarball), <code>oci</code> (OCI image
+layout), <code>containerd</code> (store in containerd's content store), <code>docker</code> (Docker image format).</p>
+<p><strong>Cache backend</strong> — Stores and retrieves cache blobs. Supported backends: local filesystem,
+registry, GitHub Actions cache, S3, Azure Blob Storage.</p>
+<hr />
+<h2 id="llb-low-level-build-definition">LLB (Low-Level Build) Definition<a class="headerlink" href="#llb-low-level-build-definition" title="Permanent link">&para;</a></h2>
+<p>LLB is the intermediate representation (IR) that everything in BuildKit compiles to. It is defined
+as a protobuf message and represents a <strong>directed acyclic graph (DAG)</strong> of operations.</p>
+<h3 id="protobuf-definition">Protobuf Definition<a class="headerlink" href="#protobuf-definition" title="Permanent link">&para;</a></h3>
+<p>The core LLB types live in <code>github.com/moby/buildkit/solver/pb</code>:</p>
+<pre><code class="language-protobuf">message Op {
+  repeated Input inputs = 1;
+  oneof op {
+    SourceOp source = 2;
+    ExecOp exec = 3;
+    FileOp file = 4;
+    BuildOp build = 5;
+  }
+  // Metadata attached to every op
+  OpMetadata metadata = 6;
+}
+
+message Input {
+  string digest = 1;   // content hash of the source op
+  int64 index = 2;     // output index (0 = default)
+}
+</code></pre>
+<h3 id="op-types">Op Types<a class="headerlink" href="#op-types" title="Permanent link">&para;</a></h3>
+<p><strong>SourceOp</strong> — Fetches external data. Three variants:</p>
+<table>
+<thead>
+<tr>
+<th>Source Type</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>containerimage</code></td>
+<td>Pull a container image</td>
+<td><code>FROM alpine:3.19</code></td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td>Read files from build context</td>
+<td><code>COPY . /app</code></td>
+</tr>
+<tr>
+<td><code>git</code></td>
+<td>Clone a git repository</td>
+<td><code>FROM git@github.com/...</code></td>
+</tr>
+</tbody>
+</table>
+<p>An <code>http</code> source also exists for fetching URLs directly.</p>
+<p>SourceOps are leaf nodes — they have no inputs.</p>
+<p><strong>ExecOp</strong> — Runs a command in a container. This is the workhorse: every <code>RUN</code> instruction becomes
+an ExecOp. It specifies:</p>
+<ul>
+<li>Mounts (rootfs, cache mounts, tmpfs, secret mounts, ssh mounts)</li>
+<li>Arguments, environment variables, working directory</li>
+<li>Network mode, security mode</li>
+<li>User, group</li>
+</ul>
+<pre><code class="language-go">// Conceptual Go representation
+execOp := llb.Exec(
+  llb.Args([]string{&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;apk add curl&quot;}),
+  llb.Mount(&quot;rootfs&quot;, baseImage, llb.Readonly),   // the FROM image
+  llb.Mount(&quot;/tmp&quot;, llb.Scratch, llb.Tmpfs),       // ephemeral tmpfs
+)
+</code></pre>
+<p><strong>FileOp</strong> — Filesystem operations without running a container. Sub-ops:</p>
+<table>
+<thead>
+<tr>
+<th>FileAction</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Copy</code></td>
+<td>Copy files between inputs (<code>COPY</code>, <code>ADD</code>)</td>
+</tr>
+<tr>
+<td><code>Mkdir</code></td>
+<td>Create directories</td>
+</tr>
+<tr>
+<td><code>Mkfile</code></td>
+<td>Create files with content</td>
+</tr>
+<tr>
+<td><code>Rm</code></td>
+<td>Remove files or directories</td>
+</tr>
+</tbody>
+</table>
+<p>FileOps are critical for efficiency: they avoid the overhead of creating a container just to copy
+files.</p>
+<p><strong>BuildOp</strong> — Nested LLB execution. Used by frontend gateways and <code>docker buildx</code> for recursive
+builds. A BuildOp takes an LLB definition and executes it as a sub-graph, producing outputs that
+feed into the parent graph.</p>
+<h3 id="metadata">Metadata<a class="headerlink" href="#metadata" title="Permanent link">&para;</a></h3>
+<p>Every Op carries <code>OpMetadata</code>:</p>
+<pre><code class="language-go">type OpMetadata struct {
+  Description map[string]string  // human-readable labels
+  ExportCache  *bool              // whether to cache this op's output
+}
+</code></pre>
+<p>The solver uses metadata for cache control and progress reporting.</p>
+<hr />
+<h2 id="llb-example">LLB Example<a class="headerlink" href="#llb-example" title="Permanent link">&para;</a></h2>
+<p>Consider this Dockerfile:</p>
+<pre><code class="language-dockerfile">FROM alpine:3.19
+RUN apk add curl
+COPY app.sh /app.sh
+CMD [&quot;/app.sh&quot;]
+</code></pre>
+<p>BuildKit's frontend (dockerfile.v0/v1) converts this into an LLB graph. Here is the conceptual
+structure:</p>
+<pre><code>SourceOp(containerimage:alpine:3.19)
+    |
+    v
+ExecOp(run: &quot;apk add curl&quot;)
+  mount: rootfs = SourceOp(containerimage:alpine:3.19)
+  mount: /tmp = tmpfs
+    |
+    v
+FileOp(Copy)
+  input0: SourceOp(local:context)   -- build context
+  input1: output of ExecOp(apk add) -- the working filesystem
+  src: app.sh
+  dest: /app.sh
+    |
+    v
+ExecOp(config: CMD)
+  mount: rootfs = output of FileOp(Copy)
+  args: [&quot;/app.sh&quot;]
+  -- this ExecOp only records the config, no actual runtime execution
+</code></pre>
+<h3 id="visualising-llb">Visualising LLB<a class="headerlink" href="#visualising-llb" title="Permanent link">&para;</a></h3>
+<p>BuildKit includes a tool to dump the LLB graph:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM alpine:3.19 AS base
+RUN apk add curl
+COPY app.sh /app.sh
+</code></pre>
+<pre><code class="language-bash"># Build with LLB dump
+docker build --debug --no-cache .
+</code></pre>
+<p>Or programmatically, using BuildKit's Go SDK:</p>
+<pre><code class="language-go">package main
+
+import (
+  &quot;github.com/moby/buildkit/client/llb&quot;
+  &quot;github.com/moby/buildkit/frontend/dockerfile/dockerfile2llb&quot;
+)
+
+func buildLLB() (*llb.State, error) {
+  // SourceOp: container image
+  base := llb.Image(&quot;alpine:3.19&quot;)
+
+  // ExecOp: run command
+  run := base.Run(
+    llb.Args([]string{&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;apk add curl&quot;}),
+    llb.AddMount(&quot;/tmp&quot;, llb.Scratch, llb.Tmpfs),
+  )
+
+  // FileOp: copy file from context
+  src := llb.Local(&quot;context&quot;)
+  copy := run.File(llb.Copy(src, &quot;app.sh&quot;, &quot;/app.sh&quot;, nil))
+
+  return copy, nil
+}
+</code></pre>
+<p>The output of each LLB op is identified by its <strong>content hash</strong> (digest of the op definition +
+inputs). This is the foundation of BuildKit's caching.</p>
+<h3 id="how-instructions-map">How Instructions Map<a class="headerlink" href="#how-instructions-map" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Dockerfile Instruction</th>
+<th>LLB Op</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FROM image AS stage</code></td>
+<td><code>SourceOp(containerimage)</code></td>
+</tr>
+<tr>
+<td><code>RUN command</code></td>
+<td><code>ExecOp</code> with rootfs mount</td>
+</tr>
+<tr>
+<td><code>COPY src dst</code></td>
+<td><code>FileOp.Copy</code> (or <code>ExecOp</code> with <code>--chmod</code>)</td>
+</tr>
+<tr>
+<td><code>ADD src dst</code></td>
+<td><code>FileOp.Copy</code> (with auto-extract for tarballs/URLs)</td>
+</tr>
+<tr>
+<td><code>WORKDIR /path</code></td>
+<td><code>FileOp.Mkdir</code> + metadata</td>
+</tr>
+<tr>
+<td><code>ENV K=V</code></td>
+<td><code>ExecOp</code> metadata or merged into image config</td>
+</tr>
+<tr>
+<td><code>CMD ["exec"]</code></td>
+<td>Stored in image config, no LLB op</td>
+</tr>
+<tr>
+<td><code>EXPOSE port</code></td>
+<td>Stored in image config, no LLB op</td>
+</tr>
+<tr>
+<td><code>VOLUME /path</code></td>
+<td>Stored in image config, no LLB op</td>
+</tr>
+<tr>
+<td><code>LABEL K=V</code></td>
+<td>Stored in image config, no LLB op</td>
+</tr>
+</tbody>
+</table>
+<p>The frontend produces an <code>llb.State</code> that the solver traverses. See
+<a href="../31-build-context/">Build Context</a> for how the <code>local</code> source type interacts with the
+build context.</p>
+<hr />
+<h2 id="frontends">Frontends<a class="headerlink" href="#frontends" title="Permanent link">&para;</a></h2>
+<p>A frontend is a container image that converts high-level build instructions into an LLB graph (a
+<code>Definition</code> in protobuf). The frontend runs inside a BuildKit worker container, reads the build
+input (Dockerfile or custom format), and outputs LLB to stdout.</p>
+<h3 id="dockerfilev0-and-dockerfilev1">dockerfile.v0 and dockerfile.v1<a class="headerlink" href="#dockerfilev0-and-dockerfilev1" title="Permanent link">&para;</a></h3>
+<p>The two built-in Dockerfile frontends:</p>
+<p><strong>dockerfile.v0</strong> — The original. Converts a Dockerfile to LLB. Syntax directive is limited:
+<code># syntax=docker/dockerfile:1</code>. Stable, well-tested.</p>
+<p><strong>dockerfile.v1</strong> — The current default. Adds support for <code># syntax</code> parser directives, BuildKit-
+specific RUN flags (<code>--mount</code>, <code>--network</code>, <code>--security</code>), and heredoc syntax. Enabled by:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+</code></pre>
+<p>The frontend image is specified by the <code># syntax</code> directive. Common images:</p>
+<ul>
+<li><code>docker/dockerfile:1</code> — latest stable (v1)</li>
+<li><code>docker/dockerfile:1.9</code> — pinned major.minor</li>
+<li><code>docker/dockerfile:1.9.0</code> — pinned full version</li>
+<li><code>docker/dockerfile:labs</code> — experimental features</li>
+</ul>
+<pre><code class="language-bash">docker build --no-cache \
+  -f Dockerfile \
+  --build-arg BUILDKIT_SYNTAX=docker/dockerfile:1.9 \
+  .
+</code></pre>
+<h3 id="gateway-frontends">Gateway Frontends<a class="headerlink" href="#gateway-frontends" title="Permanent link">&para;</a></h3>
+<p>BuildKit supports custom frontends through the <strong>gateway API</strong>. A gateway frontend is any container
+image that implements the LLB gateway protocol — it receives an input (usually a Dockerfile) and
+returns LLB.</p>
+<p>Popular community gateways:</p>
+<ul>
+<li><strong>earthly/earthly</strong> — Earthly's own build DSL compiles down to LLB through BuildKit</li>
+<li><strong>moby/buildkit:master</strong> — Development builds with experimental features</li>
+<li><strong>tonistiigi/xx</strong> — Cross-compilation helpers for multi-platform builds</li>
+</ul>
+<pre><code class="language-dockerfile"># syntax=earthly/earthly
+FROM alpine:3.19
+RUN apk add curl
+</code></pre>
+<p>The gateway architecture allows any build system to target BuildKit's solver without modifying
+BuildKit itself.</p>
+<hr />
+<h2 id="solver">Solver<a class="headerlink" href="#solver" title="Permanent link">&para;</a></h2>
+<p>The solver is the heart of BuildKit. It takes an LLB <code>Definition</code> (a serialised DAG) and executes
+it efficiently.</p>
+<h3 id="input-processing">Input Processing<a class="headerlink" href="#input-processing" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Deserialise</strong> — Parse the LLB protobuf into an in-memory graph of <code>Op</code> nodes.</li>
+<li><strong>Validate</strong> — Check that the DAG has no cycles, all inputs reference existing ops, and all ops
+   have required fields.</li>
+<li><strong>Resolve</strong> — Walk the graph bottom-up, computing cache keys for each op.</li>
+<li><strong>Schedule</strong> — Determine execution order. Ops with no uncompleted dependencies are eligible for
+   immediate execution.</li>
+</ol>
+<h3 id="parallel-execution">Parallel Execution<a class="headerlink" href="#parallel-execution" title="Permanent link">&para;</a></h3>
+<p>The solver maintains a <strong>frontier</strong> of ops whose dependencies are satisfied. As each op completes,
+it may unblock downstream ops, adding them to the frontier. This is classic DAG scheduling.</p>
+<pre><code>    SourceOp(nginx:1.25)      SourceOp(alpine:3.19)
+            |                         |
+            v                         v
+        ExecOp(apt)              SourceOp(golang:1.21)
+            |                         |
+            +-----------+-------------+
+                        |
+                        v
+                  ExecOp(COPY --from)
+</code></pre>
+<p>In this build, <code>SourceOp(nginx:1.25)</code> and <code>SourceOp(alpine:3.19)</code> run in parallel because they are
+independent. Only the final <code>ExecOp(COPY --from)</code> must wait for both.</p>
+<h3 id="content-addressed-operations">Content-Addressed Operations<a class="headerlink" href="#content-addressed-operations" title="Permanent link">&para;</a></h3>
+<p>Each op's output is identified by a <strong>content hash</strong> — the digest of the op's definition + the
+digests of all inputs. This is the same pattern Git uses: the hash of a node commits to the hashes
+of its parents.</p>
+<pre><code>cacheKey(op) = sha256( op.type || op.payload || op.inputs[].digest || op.metadata )
+</code></pre>
+<p>This means if any input or parameter changes, the cache key changes — no ambiguity, no string
+comparison edge cases.</p>
+<hr />
+<h2 id="caching-algorithm">Caching Algorithm<a class="headerlink" href="#caching-algorithm" title="Permanent link">&para;</a></h2>
+<h3 id="cache-key-derivation">Cache Key Derivation<a class="headerlink" href="#cache-key-derivation" title="Permanent link">&para;</a></h3>
+<p>Every LLB operation produces a <strong>cache key</strong> and potentially a <strong>content key</strong>:</p>
+<ul>
+<li><strong>Cache key</strong>: hash of the op definition + input digests. Determines whether the op is a cache
+  hit or miss.</li>
+<li><strong>Content key</strong>: hash of the op output (the actual filesystem / data after execution). Used for
+  content-addressable lookups in the cache store.</li>
+</ul>
+<pre><code>Op: ExecOp(apk add curl)
+Inputs: [SourceOp(alpine:3.19) cacheKey: abc123]
+Metadata: args=[&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;apk add curl&quot;], env=[]
+
+cacheKey = sha256(&quot;ExecOp&quot; + &quot;apk add curl&quot; + &quot;abc123&quot; + &quot;...&quot;)
+</code></pre>
+<h3 id="cache-hit-flow">Cache Hit Flow<a class="headerlink" href="#cache-hit-flow" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Solver computes <code>cacheKey</code> for the op.</li>
+<li>Queries the cache backend: "Do you have a result for cache key <code>X</code>?"</li>
+<li>On hit: Load the cached result (layer snapshots or data blobs) and skip execution.</li>
+<li>On miss: Execute the op, store the result in the cache.</li>
+</ol>
+<h3 id="cache-invalidation-triggers">Cache Invalidation Triggers<a class="headerlink" href="#cache-invalidation-triggers" title="Permanent link">&para;</a></h3>
+<p>Any change to any of these invalidates the cache for the affected op and its transitive dependents:</p>
+<ul>
+<li>Dockerfile instruction text (e.g., <code>RUN apt-get install curl</code> → <code>RUN apt-get install curl jq</code>)</li>
+<li>Base image digest (a new <code>alpine:3.19</code> manifest changes the SourceOp cache key)</li>
+<li>Build context files (modified source code changes the <code>local</code> SourceOp digest)</li>
+<li>Environment variables (<code>--build-arg</code>)</li>
+<li>BuildKit version / frontend version</li>
+<li>Platform (<code>--platform linux/arm64</code> vs <code>linux/amd64</code>)</li>
+<li>Network mode (<code>--network host</code> vs default)</li>
+</ul>
+<h3 id="cache-sharing">Cache Sharing<a class="headerlink" href="#cache-sharing" title="Permanent link">&para;</a></h3>
+<p>Because cache keys are content-hashes, two builds using the same base image and same commands share
+cache — even if they are different projects. This is why CI runners with persistent BuildKit daemons
+see significant speedups after the first build.</p>
+<hr />
+<h2 id="cache-mounts">Cache Mounts<a class="headerlink" href="#cache-mounts" title="Permanent link">&para;</a></h2>
+<p>A cache mount persists a directory across builds without including it in the final image. It is
+enabled by the <code>RUN --mount=type=cache</code> flag:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM ubuntu:22.04
+RUN --mount=type=cache,target=/var/cache/apt \
+  apt-get update &amp;&amp; apt-get install -y curl
+</code></pre>
+<h3 id="how-it-works">How It Works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h3>
+<ol>
+<li>BuildKit creates a persistent snapshot identified by the <strong>cache mount ID</strong> (derived from the
+   mount target path by default, or a custom <code>id=</code>).</li>
+<li>The directory is mounted as a writable overlay on top of the container's rootfs.</li>
+<li>Changes written to the mount are saved after the RUN completes.</li>
+<li>On the next build, the same cache snapshot is mounted — the previous downloads are available.</li>
+</ol>
+<h3 id="common-targets">Common Targets<a class="headerlink" href="#common-targets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Ecosystem</th>
+<th>Cache Target</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Debian/Ubuntu</td>
+<td><code>/var/cache/apt</code></td>
+<td>Avoid re-downloading <code>.deb</code> packages</td>
+</tr>
+<tr>
+<td>Alpine</td>
+<td><code>/var/cache/apk</code></td>
+<td>Avoid re-downloading <code>.apk</code> packages</td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>/root/.cache/pip</code></td>
+<td>Avoid re-downloading wheels</td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code>/go/pkg/mod</code></td>
+<td>Avoid re-downloading Go modules</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code>/usr/local/cargo/registry</code></td>
+<td>Avoid re-downloading crates</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td><code>/root/.npm</code></td>
+<td>Avoid re-downloading npm packages</td>
+</tr>
+<tr>
+<td>Java/Maven</td>
+<td><code>/root/.m2</code></td>
+<td>Avoid re-downloading Maven dependencies</td>
+</tr>
+<tr>
+<td>Java/Gradle</td>
+<td><code>/root/.gradle</code></td>
+<td>Avoid re-downloading Gradle dependencies</td>
+</tr>
+<tr>
+<td>Yarn</td>
+<td><code>/usr/local/share/.cache/yarn</code></td>
+<td>Avoid re-downloading yarn packages</td>
+</tr>
+<tr>
+<td>ccache</td>
+<td><code>/root/.ccache</code></td>
+<td>Speed up C/C++ recompilation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-apt-with-cache-mount">Example: APT with Cache Mount<a class="headerlink" href="#example-apt-with-cache-mount" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM ubuntu:22.04 AS base
+
+# caches apt packages across builds
+RUN \
+  --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt/lists,sharing=locked \
+  apt-get update &amp;&amp; \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg \
+  &amp;&amp; rm -rf /var/lib/apt/lists/*
+</code></pre>
+<p>The <code>sharing=locked</code> flag prevents concurrent builds from corrupting the cache.</p>
+<h3 id="cache-lifetimes">Cache Lifetimes<a class="headerlink" href="#cache-lifetimes" title="Permanent link">&para;</a></h3>
+<p>Cache mounts persist indefinitely by default, but BuildKit's garbage collector removes unused cache
+after a configurable TTL:</p>
+<pre><code class="language-toml"># /etc/buildkitd.toml
+[worker.oci]
+  gc = true
+  gc-keepduration = 86400  # keep unused cache for 24 hours
+  gc-reserved = &quot;10GB&quot;     # keep at least 10 GB free
+</code></pre>
+<p>BuildKit also supports manual cache pruning:</p>
+<pre><code class="language-bash">docker builder prune --filter type=exec.cachemount
+docker buildx prune --filter type=exec.cachemount  # for buildx builders
+</code></pre>
+<hr />
+<h2 id="secrets">Secrets<a class="headerlink" href="#secrets" title="Permanent link">&para;</a></h2>
+<p>BuildKit's <code>RUN --mount=type=secret</code> mounts sensitive data as a tmpfs inside the build container.
+The secret is never written to any layer and is discarded when the RUN instruction completes.</p>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM node:20 AS build
+RUN --mount=type=secret,id=npmrc \
+  cp /run/secrets/npmrc ~/.npmrc &amp;&amp; \
+  npm ci --only=production
+</code></pre>
+<pre><code class="language-bash">docker build --secret id=npmrc,src=.npmrc .
+</code></pre>
+<h3 id="how-it-works_1">How It Works<a class="headerlink" href="#how-it-works_1" title="Permanent link">&para;</a></h3>
+<ol>
+<li>The <code>--secret</code> flag sends the secret data to BuildKit via a <strong>pipe</strong> (not an environment
+   variable — <code>env</code> output will not leak it).</li>
+<li>BuildKit stores the data in memory within the solver process.</li>
+<li>When the <code>ExecOp</code> runs, the secret is mounted as a tmpfs at <code>/run/secrets/&lt;id&gt;</code> (or a custom
+   <code>target=</code> path).</li>
+<li>The tmpfs is visible only to that specific container process.</li>
+<li>After the <code>ExecOp</code> completes, the tmpfs is unmounted and the memory is freed.</li>
+</ol>
+<h3 id="security-properties">Security Properties<a class="headerlink" href="#security-properties" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Not in layers</strong>: The secret never touches the snapshotter. It is a pure tmpfs mount.</li>
+<li><strong>Not in build history</strong>: The secret value does not appear in <code>docker history</code>.</li>
+<li><strong>Not in build context</strong>: The secret file is never included in the context tarball.</li>
+<li><strong>Not in daemon logs</strong>: BuildKit does not log the secret contents.</li>
+</ul>
+<h3 id="common-use-cases">Common Use Cases<a class="headerlink" href="#common-use-cases" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Secret</th>
+<th>Mount ID</th>
+<th>Typical Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>npm token</td>
+<td><code>npmrc</code></td>
+<td><code>~/.npmrc</code></td>
+</tr>
+<tr>
+<td>Maven settings</td>
+<td><code>m2-settings</code></td>
+<td><code>~/.m2/settings.xml</code></td>
+</tr>
+<tr>
+<td>pip credentials</td>
+<td><code>pip-conf</code></td>
+<td><code>~/.config/pip/pip.conf</code></td>
+</tr>
+<tr>
+<td>Docker Hub token</td>
+<td><code>docker-config</code></td>
+<td><code>~/.docker/config.json</code></td>
+</tr>
+<tr>
+<td>Private SSH key</td>
+<td><code>ssh-key</code></td>
+<td><code>~/.ssh/id_ed25519</code></td>
+</tr>
+</tbody>
+</table>
+<p>Compare with sending secrets through the build context — see the security risks discussed in
+<a href="../31-build-context/">Build Context</a>.</p>
+<hr />
+<h2 id="ssh-agent-forwarding">SSH Agent Forwarding<a class="headerlink" href="#ssh-agent-forwarding" title="Permanent link">&para;</a></h2>
+<p><code>RUN --mount=type=ssh</code> forwards the host's SSH agent socket into the build container. This is
+essential for cloning private repositories during a build.</p>
+<h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM golang:1.22 AS builder
+RUN --mount=type=ssh \
+  git clone git@github.com:myorg/private-repo.git /src
+</code></pre>
+<pre><code class="language-bash">docker build --ssh default .
+</code></pre>
+<h3 id="how-it-works_2">How It Works<a class="headerlink" href="#how-it-works_2" title="Permanent link">&para;</a></h3>
+<ol>
+<li>BuildKit creates an SSH agent socket in the build container.</li>
+<li>The host's SSH agent (<code>$SSH_AUTH_SOCK</code>) is forwarded to the build container via a Unix domain
+   socket.</li>
+<li>Commands inside the container that use SSH (e.g., <code>git clone</code>, <code>scp</code>) transparently use the
+   forwarded agent.</li>
+<li>No SSH keys ever enter the build context or image layers.</li>
+</ol>
+<h3 id="multiple-ssh-keys">Multiple SSH Keys<a class="headerlink" href="#multiple-ssh-keys" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN --mount=type=ssh,id=github \
+  git clone git@github.com:myorg/repo.git /src
+RUN --mount=type=ssh,id=gitlab \
+  git clone git@gitlab.com:myorg/other.git /src2
+</code></pre>
+<pre><code class="language-bash">docker build \
+  --ssh github=$HOME/.ssh/id_ed25519 \
+  --ssh gitlab=$HOME/.ssh/gitlab_ed25519 \
+  .
+</code></pre>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The socket is available only during the <code>RUN</code> instruction.</li>
+<li>The agent only signs challenges — the private key stays on the host.</li>
+<li>Use <code>$SSH_AUTH_SOCK</code> within the build to set git's SSH command:</li>
+</ul>
+<pre><code class="language-dockerfile">RUN --mount=type=ssh \
+  export GIT_SSH_COMMAND=&quot;ssh -o StrictHostKeyChecking=accept-new&quot; &amp;&amp; \
+  git clone git@github.com:myorg/repo.git /src
+</code></pre>
+<hr />
+<h2 id="buildkit-cache-export">BuildKit Cache Export<a class="headerlink" href="#buildkit-cache-export" title="Permanent link">&para;</a></h2>
+<p>BuildKit can export its cache to external backends, enabling <strong>cache sharing across CI runs</strong> and
+<strong>distributed builds</strong>.</p>
+<h3 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
+<p><strong>Inline</strong> — Cache data is embedded in the image manifest as an additional layer:</p>
+<pre><code class="language-bash">docker buildx build \
+  --cache-to type=inline \
+  --cache-from type=registry,ref=myapp:cache \
+  -t myapp:latest \
+  --push \
+  .
+</code></pre>
+<p>Pros: No separate cache image to manage. Cons: Increases image size; only the final stage is cached.</p>
+<p><strong>Registry</strong> — Cache is stored as a separate manifest in a container registry:</p>
+<pre><code class="language-bash">docker buildx build \
+  --cache-to type=registry,ref=myorg/myapp:cache \
+  --cache-from type=registry,ref=myorg/myapp:cache \
+  -t myapp:latest \
+  --push \
+  .
+</code></pre>
+<p>The cache manifest uses a special media type: <code>application/vnd.buildkit.cacheconfig.v0</code>. It
+references cache layers as regular blobs in the registry.</p>
+<p><strong>GHA (GitHub Actions)</strong> — Cache is stored in GitHub Actions' native cache service:</p>
+<pre><code class="language-yaml">- name: Build with BuildKit cache
+  uses: docker/build-push-action@v5
+  with:
+    cache-from: type=gha
+    cache-to: type=gha,mode=max
+</code></pre>
+<p><strong>Local filesystem</strong> — Cache is written to a local directory:</p>
+<pre><code class="language-bash">docker buildx build \
+  --cache-to type=local,dest=/tmp/buildkit-cache \
+  --cache-from type=local,src=/tmp/buildkit-cache \
+  -t myapp:latest \
+  .
+</code></pre>
+<p><strong>S3 / Azure Blob</strong> — Cache stored in cloud object storage:</p>
+<pre><code class="language-bash">docker buildx build \
+  --cache-to type=s3,region=us-east-1,bucket=my-cache,name=myapp \
+  --cache-from type=s3,region=us-east-1,bucket=my-cache,name=myapp \
+  -t myapp:latest \
+  .
+</code></pre>
+<h3 id="cache-mode-min-vs-max">Cache Mode: min vs max<a class="headerlink" href="#cache-mode-min-vs-max" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>mode=min</code> (default): Only cache the final stage's output. Faster export, but intermediate layer
+  cache hits are limited.</li>
+<li><code>mode=max</code>: Cache all stages, including intermediate layers. More cache export overhead but
+  better hit rates across different builds.</li>
+</ul>
+<pre><code class="language-bash">docker buildx build \
+  --cache-to type=registry,ref=myapp:cache,mode=max \
+  --cache-from type=registry,ref=myapp:cache \
+  -t myapp:latest \
+  --push \
+  .
+</code></pre>
+<h3 id="garbage-collection">Garbage Collection<a class="headerlink" href="#garbage-collection" title="Permanent link">&para;</a></h3>
+<p>Standalone <code>buildkitd</code> runs a GC policy based on disk usage:</p>
+<pre><code class="language-toml"># /etc/buildkitd.toml
+[worker.oci]
+  gc = true
+  gc-keepduration = 3600         # keep unused cache for 1 hour
+  gc-reserved = &quot;5GB&quot;            # minimum free disk space
+  gc-minfree = &quot;10GB&quot;            # start GC when free &lt; 10GB
+  gckeep = 10                    # minimum cache layers to keep
+
+[[worker.oci.gcpolicy]]
+  keep = &quot;10GB&quot;
+  all = true
+  filters = [&quot;type==source.local&quot;, &quot;type==exec.cachemount&quot;]
+</code></pre>
+<p>GC runs periodically and when disk usage exceeds thresholds. It removes cache blobs that are no
+longer referenced by any build.</p>
+<hr />
+<h2 id="strategic-analysis-for-interview">Strategic Analysis for Interview<a class="headerlink" href="#strategic-analysis-for-interview" title="Permanent link">&para;</a></h2>
+<h3 id="why-does-docker-need-buildkit-motivation">"Why does Docker need BuildKit?" (Motivation)<a class="headerlink" href="#why-does-docker-need-buildkit-motivation" title="Permanent link">&para;</a></h3>
+<p>The legacy builder processed Dockerfiles sequentially with no DAG analysis — no parallel execution,
+no cache mounts, no secrets support. BuildKit brings content-addressed caching, parallel stage
+execution, secure build features (secrets, SSH), plugable frontends and workers, and cache export
+for CI.</p>
+<h3 id="how-does-buildkit-cache-work-cache-architecture">"How does BuildKit cache work?" (Cache Architecture)<a class="headerlink" href="#how-does-buildkit-cache-work-cache-architecture" title="Permanent link">&para;</a></h3>
+<p>Each LLB op has a deterministic cache key = hash(op type + parameters + input hashes + metadata).
+On cache hit, the solver loads the cached output instead of re-executing. Changes to the Dockerfile,
+base image, context, or environment invalidate the affected ops. Cache can be exported to registries
+(GHA, S3) for distributed CI reuse.</p>
+<h3 id="what-is-llb-low-level-build">"What is LLB?" (Low-Level Build)<a class="headerlink" href="#what-is-llb-low-level-build" title="Permanent link">&para;</a></h3>
+<p>LLB is a protobuf-defined DAG of operations: SourceOp (fetch), ExecOp (run), FileOp (copy/mkdir/rm),
+BuildOp (nested sub-build). A Dockerfile frontend compiles Dockerfile instructions → LLB → solver
+executes it. LLB is content-addressed: each op's output is identified by its hash.</p>
+<h3 id="how-do-cache-mounts-differ-from-regular-layers-persistence">"How do cache mounts differ from regular layers?" (Persistence)<a class="headerlink" href="#how-do-cache-mounts-differ-from-regular-layers-persistence" title="Permanent link">&para;</a></h3>
+<p>Cache mounts persist data across builds but never appear in the final image layers. They are
+identified by an ID, stored in BuildKit's cache store, and garbage-collected based on TTL/disk
+pressure. Regular layers are immutable and become part of the exported image.</p>
+<h3 id="how-do-you-handle-secrets-in-buildkit-security">"How do you handle secrets in BuildKit?" (Security)<a class="headerlink" href="#how-do-you-handle-secrets-in-buildkit-security" title="Permanent link">&para;</a></h3>
+<p><code>RUN --mount=type=secret</code> mounts secret data as a tmpfs available only to that specific RUN
+instruction. The data is passed via pipe from the client, never written to a layer, and freed after
+execution. <code>RUN --mount=type=ssh</code> forwards the host SSH agent socket, keeping private keys on the
+host.</p>
+<h3 id="how-does-multi-stage-build-parallelization-work-dag-execution">"How does multi-stage build parallelization work?" (DAG execution)<a class="headerlink" href="#how-does-multi-stage-build-parallelization-work-dag-execution" title="Permanent link">&para;</a></h3>
+<p>BuildKit analyses the LLB DAG to find independent subgraphs. Stages with no dependency on each
+other execute in parallel. For example, <code>FROM golang:1.21 AS builder</code> and <code>FROM alpine:3.19 AS
+runtime</code> in the same Dockerfile run concurrently if <code>runtime</code> does not reference <code>builder</code> until
+the <code>COPY --from=builder</code> step.</p>
+<h3 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../30-docker-architecture/">Docker Architecture</a> — how BuildKit relates to
+  dockerd/containerd</li>
+<li><a href="../31-build-context/">Build Context</a> — context handling in BuildKit</li>
+<li><a href="../33-how-docker-builds-images/">How Docker Builds Images</a> — pipeline integration</li>
+<li><a href="../26-docker-hardened-images/">Docker Hardened Images</a> — SLSA L3 with BuildKit</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

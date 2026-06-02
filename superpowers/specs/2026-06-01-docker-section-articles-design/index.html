@@ -11,25 +11,21 @@
       
       
       
-        <link rel="prev" href="../19-admission-control/">
-      
-      
-        <link rel="next" href="../21-cve-sources/">
       
       
         
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout) - Docker Supply Chain</title>
+        <title>Docker Section — Article Design - Docker Supply Chain</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
       
       
 
@@ -48,7 +44,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -66,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-vulnerability-scanner-internals" class="md-skip">
+        <a href="#docker-section-article-design" class="md-skip">
           Skip to content
         </a>
       
@@ -82,7 +78,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+    <a href="../../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -102,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+              Docker Section — Article Design
             
           </span>
         </div>
@@ -192,7 +188,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+    <a href="../../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -222,7 +218,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../.." class="md-nav__link">
         
   
   
@@ -249,7 +245,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../docker-supply-chain/" class="md-nav__link">
+      <a href="../../../docker-supply-chain/" class="md-nav__link">
         
   
   
@@ -328,7 +324,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../01-slsa-framework/" class="md-nav__link">
+      <a href="../../../articles/01-slsa-framework/" class="md-nav__link">
         
   
   
@@ -356,7 +352,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../02-in-toto-attestations/" class="md-nav__link">
+      <a href="../../../articles/02-in-toto-attestations/" class="md-nav__link">
         
   
   
@@ -384,7 +380,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../03-sbom/" class="md-nav__link">
+      <a href="../../../articles/03-sbom/" class="md-nav__link">
         
   
   
@@ -412,7 +408,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../04-sigstore/" class="md-nav__link">
+      <a href="../../../articles/04-sigstore/" class="md-nav__link">
         
   
   
@@ -440,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../05-dependency-management-security/" class="md-nav__link">
+      <a href="../../../articles/05-dependency-management-security/" class="md-nav__link">
         
   
   
@@ -468,7 +464,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../06-trusted-builds/" class="md-nav__link">
+      <a href="../../../articles/06-trusted-builds/" class="md-nav__link">
         
   
   
@@ -496,7 +492,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../07-notary-docker-content-trust/" class="md-nav__link">
+      <a href="../../../articles/07-notary-docker-content-trust/" class="md-nav__link">
         
   
   
@@ -583,7 +579,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../29-musl-vs-glibc/" class="md-nav__link">
+      <a href="../../../articles/29-musl-vs-glibc/" class="md-nav__link">
         
   
   
@@ -670,7 +666,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../08-distroless-images/" class="md-nav__link">
+      <a href="../../../articles/08-distroless-images/" class="md-nav__link">
         
   
   
@@ -698,7 +694,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../09-image-minimization/" class="md-nav__link">
+      <a href="../../../articles/09-image-minimization/" class="md-nav__link">
         
   
   
@@ -726,7 +722,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../10-non-root-execution/" class="md-nav__link">
+      <a href="../../../articles/10-non-root-execution/" class="md-nav__link">
         
   
   
@@ -754,7 +750,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../11-linux-capabilities/" class="md-nav__link">
+      <a href="../../../articles/11-linux-capabilities/" class="md-nav__link">
         
   
   
@@ -782,7 +778,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../12-seccomp/" class="md-nav__link">
+      <a href="../../../articles/12-seccomp/" class="md-nav__link">
         
   
   
@@ -810,7 +806,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../13-apparmor-selinux/" class="md-nav__link">
+      <a href="../../../articles/13-apparmor-selinux/" class="md-nav__link">
         
   
   
@@ -838,7 +834,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../14-readonly-filesystem/" class="md-nav__link">
+      <a href="../../../articles/14-readonly-filesystem/" class="md-nav__link">
         
   
   
@@ -866,7 +862,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../15-multi-arch-security/" class="md-nav__link">
+      <a href="../../../articles/15-multi-arch-security/" class="md-nav__link">
         
   
   
@@ -953,7 +949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+      <a href="../../../articles/16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
         
   
   
@@ -981,7 +977,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../17-pod-security-standards/" class="md-nav__link">
+      <a href="../../../articles/17-pod-security-standards/" class="md-nav__link">
         
   
   
@@ -1009,7 +1005,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../18-adapting-upstream-helm-charts/" class="md-nav__link">
+      <a href="../../../articles/18-adapting-upstream-helm-charts/" class="md-nav__link">
         
   
   
@@ -1037,7 +1033,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../19-admission-control/" class="md-nav__link">
+      <a href="../../../articles/19-admission-control/" class="md-nav__link">
         
   
   
@@ -1069,8 +1065,6 @@
       
   
   
-    
-  
   
   
     
@@ -1083,11 +1077,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
@@ -1108,7 +1102,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1123,37 +1117,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../articles/20-scanner-internals/" class="md-nav__link">
         
   
   
@@ -1169,92 +1136,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Trivy (Aqua Security)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Grype (Anchore)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker Scout
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparison Table
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scanning the Same Image: Output Comparison
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Interview Points
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1267,7 +1148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../21-cve-sources/" class="md-nav__link">
+      <a href="../../../articles/21-cve-sources/" class="md-nav__link">
         
   
   
@@ -1295,7 +1176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../22-cvss-epss/" class="md-nav__link">
+      <a href="../../../articles/22-cvss-epss/" class="md-nav__link">
         
   
   
@@ -1323,7 +1204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../23-fix-categorization/" class="md-nav__link">
+      <a href="../../../articles/23-fix-categorization/" class="md-nav__link">
         
   
   
@@ -1351,7 +1232,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../24-coordinated-disclosure/" class="md-nav__link">
+      <a href="../../../articles/24-coordinated-disclosure/" class="md-nav__link">
         
   
   
@@ -1438,7 +1319,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../25-docker-scout/" class="md-nav__link">
+      <a href="../../../articles/25-docker-scout/" class="md-nav__link">
         
   
   
@@ -1466,7 +1347,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../26-docker-hardened-images/" class="md-nav__link">
+      <a href="../../../articles/26-docker-hardened-images/" class="md-nav__link">
         
   
   
@@ -1494,7 +1375,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../27-docker-content-trust/" class="md-nav__link">
+      <a href="../../../articles/27-docker-content-trust/" class="md-nav__link">
         
   
   
@@ -1522,7 +1403,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+      <a href="../../../articles/28-docker-supply-chain-platform/" class="md-nav__link">
         
   
   
@@ -1609,7 +1490,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../30-docker-architecture/" class="md-nav__link">
+      <a href="../../../articles/30-docker-architecture/" class="md-nav__link">
         
   
   
@@ -1637,7 +1518,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../31-build-context/" class="md-nav__link">
+      <a href="../../../articles/31-build-context/" class="md-nav__link">
         
   
   
@@ -1665,7 +1546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../32-buildkit-internals/" class="md-nav__link">
+      <a href="../../../articles/32-buildkit-internals/" class="md-nav__link">
         
   
   
@@ -1693,7 +1574,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../33-how-docker-builds-images/" class="md-nav__link">
+      <a href="../../../articles/33-how-docker-builds-images/" class="md-nav__link">
         
   
   
@@ -1721,7 +1602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../34-image-layers-storage-drivers/" class="md-nav__link">
+      <a href="../../../articles/34-image-layers-storage-drivers/" class="md-nav__link">
         
   
   
@@ -1749,7 +1630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../35-docker-networking/" class="md-nav__link">
+      <a href="../../../articles/35-docker-networking/" class="md-nav__link">
         
   
   
@@ -1777,7 +1658,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../36-kaniko-vs-docker-builds/" class="md-nav__link">
+      <a href="../../../articles/36-kaniko-vs-docker-builds/" class="md-nav__link">
         
   
   
@@ -1832,10 +1713,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
+  <a href="#purpose" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Trivy (Aqua Security)
+        Purpose
       
     </span>
   </a>
@@ -1843,10 +1724,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
+  <a href="#articles" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grype (Anchore)
+        Articles
       
     </span>
   </a>
@@ -1854,10 +1735,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
+  <a href="#navigation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker Scout
+        Navigation
       
     </span>
   </a>
@@ -1865,10 +1746,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
+  <a href="#writing-conventions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison Table
+        Writing Conventions
       
     </span>
   </a>
@@ -1876,10 +1757,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
+  <a href="#cross-reference-updates-existing-new" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scanning the Same Image: Output Comparison
+        Cross-Reference Updates (Existing → New)
       
     </span>
   </a>
@@ -1887,10 +1768,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
+  <a href="#cross-reference-updates-new-existing" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Interview Points
+        Cross-Reference Updates (New → Existing)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance Criteria
       
     </span>
   </a>
@@ -1917,167 +1809,231 @@
   
 
 
-<h1 id="container-vulnerability-scanner-internals">Container Vulnerability Scanner Internals<a class="headerlink" href="#container-vulnerability-scanner-internals" title="Permanent link">&para;</a></h1>
-<p>Modern container vulnerability scanners differ fundamentally in how they resolve dependencies, match CVEs, and present risk. Understanding these internals is critical for a Senior Supply Chain Security Engineer role at Docker — you'll need to evaluate scanners, build integrations, and explain tradeoffs to customers.</p>
-<h2 id="trivy-aqua-security">Trivy (Aqua Security)<a class="headerlink" href="#trivy-aqua-security" title="Permanent link">&para;</a></h2>
-<p>Trivy is the fastest widely-used scanner, optimized for CI/CD pipelines. Its architecture has two phases:</p>
-<ol>
-<li><strong>SBOM extraction</strong>: Trivy reads the filesystem layers of a container image, identifies OS package databases (<code>/var/lib/dpkg/status</code>, <code>/var/lib/rpm/Packages</code>, <code>/lib/apk/db/installed</code>) and language-specific lockfiles (<code>package-lock.json</code>, <code>go.sum</code>, <code>Gemfile.lock</code>, <code>Cargo.lock</code>, <code>pom.xml</code>).</li>
-<li><strong>CVE matching</strong>: It cross-references extracted package names + versions against a local vulnerability database (downloaded from <code>ghcr.io/aquasecurity/trivy-db</code>, updated every 6 hours).</li>
-</ol>
-<p>Trivy resolves dependencies <strong>heuristically</strong> — for OS packages it uses the exact version string from the package manager. For language ecosystems, it parses the lockfile resolution graph. This means Trivy can miss vulnerabilities in transitive dependencies if only the top-level manifest is present (e.g., a <code>package.json</code> without a lockfile).</p>
-<pre><code class="language-bash"># Scan a single image
-trivy image docker.io/library/node:20-alpine
-
-# Scan with severity filter and output format
-trivy image --severity CRITICAL,HIGH --format json docker.io/library/node:20-alpine
-
-# Scan using a local Docker archive
-docker save node:20-alpine -o node.tar
-trivy image --input node.tar
-</code></pre>
-<p>Trivy's strength is speed — it decompresses layers once and processes them in a single pass. A typical scan completes in 5-15 seconds.</p>
-<h2 id="grype-anchore">Grype (Anchore)<a class="headerlink" href="#grype-anchore" title="Permanent link">&para;</a></h2>
-<p>Grype takes a deeper, library-matching approach. Instead of relying on lockfile heuristics, Grype uses <strong>Syft</strong> (its sibling tool) to generate a comprehensive SBOM first, then matches against Grype's vulnerability database.</p>
-<pre><code class="language-bash"># Generate SBOM, then scan
-syft docker.io/library/node:20-alpine -o json &gt; sbom.json
-grype sbom.json
-
-# Direct scan (syft runs internally)
-grype docker.io/library/node:20-alpine
-</code></pre>
-<p>Grype's database is sourced from:
-- Alpine SecDB
-- Amazon Linux ALAS
-- Debian Linux CVE Tracker
-- GitHub Advisory Database (GHSA)
-- National Vulnerability Database (NVD)
-- Oracle Linux OVAL
-- RedHat OVAL
-- Ubuntu CVE Tracker</p>
-<p>The key architectural difference: Grype matches CVEs using <strong>package correlation</strong> rather than exact version matching. It uses Syft's CPE (Common Platform Enumeration) generation to find vulnerabilities even when the exact package name doesn't match the CVE entry. This catches more vulnerabilities but produces more false positives.</p>
-<pre><code class="language-bash"># Grype with explicit CPE matching
-grype docker.io/library/node:20-alpine --only-fixed
-</code></pre>
-<h2 id="docker-scout">Docker Scout<a class="headerlink" href="#docker-scout" title="Permanent link">&para;</a></h2>
-<p>Docker Scout takes an <strong>SBOM-first, policy-based</strong> approach. It was designed to integrate with Docker Hub and Docker Desktop, providing continuous evaluation rather than point-in-time scans.</p>
-<pre><code class="language-bash"># Enable Scout on a repo
-docker scout repo enable &lt;namespace&gt;/&lt;repo&gt;
-
-# Analyze an image
-docker scout quickview docker.io/library/node:20-alpine
-
-# Full CVE listing
-docker scout cves docker.io/library/node:20-alpine
-
-# Policy evaluation
-docker scout policy docker.io/library/node:20-alpine
-</code></pre>
-<p>Scout's architecture:
-1. <strong>SBOM generation</strong> using Syft (same engine as Grype)
-2. <strong>SBOM upload</strong> to Docker's backend for continuous monitoring
-3. <strong>Policy evaluation</strong> against user-defined rules (e.g., "no critical CVEs with fix available")
-4. <strong>Diff analysis</strong> comparing two images or an image against a baseline</p>
-<p>Scout's differentiator is <strong>continuous monitoring</strong> — it stores SBOMs and re-evaluates them as new CVEs are published, without requiring a rescan.</p>
-<h2 id="comparison-table">Comparison Table<a class="headerlink" href="#comparison-table" title="Permanent link">&para;</a></h2>
+<h1 id="docker-section-article-design">Docker Section — Article Design<a class="headerlink" href="#docker-section-article-design" title="Permanent link">&para;</a></h1>
+<h2 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h2>
+<p>Add a new "Docker" section to the container security interview prep site covering Docker fundamentals that underpin the existing security-focused articles. This fills a gap — the site has 29 security articles but no dedicated content on how Docker itself works.</p>
+<h2 id="articles">Articles<a class="headerlink" href="#articles" title="Permanent link">&para;</a></h2>
+<p>Seven articles in <code>docs/articles/</code>, numbered from 30:</p>
 <table>
 <thead>
 <tr>
-<th>Feature</th>
-<th>Trivy</th>
-<th>Grype</th>
-<th>Docker Scout</th>
+<th>#</th>
+<th>File</th>
+<th>H1</th>
+<th>Topics</th>
+<th>Target length</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Scan speed</td>
-<td>Fastest (5-15s)</td>
-<td>Moderate (15-30s)</td>
-<td>Moderate + upload time</td>
+<td>30</td>
+<td><code>30-docker-architecture.md</code></td>
+<td>Docker Architecture</td>
+<td>Client-server model, dockerd ↔ containerd ↔ containerd-shim ↔ runc, OCI runtime &amp; image specs, Docker vs containerd vs CRI</td>
+<td>~400 lines</td>
 </tr>
 <tr>
-<td>CVE matching</td>
-<td>Exact version</td>
-<td>CPE + correlation</td>
-<td>CPE + correlation</td>
+<td>31</td>
+<td><code>31-build-context.md</code></td>
+<td>Build Context</td>
+<td>What is the build context, <code>.dockerignore</code>, context size impact, how context is sent to the daemon/BuildKit</td>
+<td>~250 lines</td>
 </tr>
 <tr>
-<td>False positives</td>
-<td>Low</td>
-<td>Medium</td>
-<td>Low-Medium</td>
+<td>32</td>
+<td><code>32-buildkit-internals.md</code></td>
+<td>BuildKit Internals</td>
+<td>LLB (Low-Level Build), solver, parallelization, caching, <code>--secret</code>, <code>--ssh</code>, <code>--mount=type=cache</code>, frontends (dockerfile.v0)</td>
+<td>~500 lines</td>
 </tr>
 <tr>
-<td>False negatives</td>
-<td>Higher (misses transitive)</td>
-<td>Lower</td>
-<td>Lower</td>
+<td>33</td>
+<td><code>33-how-docker-builds-images.md</code></td>
+<td>How Docker Builds Images</td>
+<td>Full pipeline: Dockerfile → parser → AST → LLB → solver → layer export → image manifest → push</td>
+<td>~500 lines</td>
 </tr>
 <tr>
-<td>DB update frequency</td>
-<td>6 hours</td>
-<td>4-6 hours</td>
-<td>Real-time (server-side)</td>
+<td>34</td>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+<td>Image Layers &amp; Storage Drivers</td>
+<td>OverlayFS, layer graph, CoW, image vs container layers, layer sharing, garbage collection</td>
+<td>~350 lines</td>
 </tr>
 <tr>
-<td>CI/CD native</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Via Docker Hub</td>
+<td>35</td>
+<td><code>35-docker-networking.md</code></td>
+<td>Docker Networking</td>
+<td>CNM, bridge/none/host/overlay/macvlan/ipvlan, iptables, DNS resolution, container-to-container</td>
+<td>~300 lines</td>
 </tr>
 <tr>
-<td>Policy engine</td>
-<td>Via config</td>
-<td>Via SARIF</td>
-<td>Built-in</td>
-</tr>
-<tr>
-<td>License scanning</td>
-<td>Built-in</td>
-<td>Via Syft</td>
-<td>Separate</td>
-</tr>
-<tr>
-<td>SBOM storage</td>
-<td>Ephemeral</td>
-<td>Ephemeral</td>
-<td>Persistent</td>
+<td>36</td>
+<td><code>36-kaniko-vs-docker-builds.md</code></td>
+<td>Kaniko vs Docker Builds</td>
+<td>Kaniko architecture (rootless, no daemon), comparison with Docker/BuildKit, trade-offs for CI/CD</td>
+<td>~300 lines</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scanning-the-same-image-output-comparison">Scanning the Same Image: Output Comparison<a class="headerlink" href="#scanning-the-same-image-output-comparison" title="Permanent link">&para;</a></h2>
-<pre><code class="language-bash">$ trivy image docker.io/library/node:20-alpine | head -5
-Total: 284 (UNKNOWN: 0, LOW: 12, MEDIUM: 156, HIGH: 93, CRITICAL: 23)
-
-$ grype docker.io/library/node:20-alpine | head -5
-NAME          INSTALLED      FIXED-IN     TYPE      VULNERABILITY   SEVERITY
-bash          5.2.15         (no fix)     apk       CVE-2022-3715   Medium
-libcrypto3    3.1.4          3.1.4-r3     apk       CVE-2023-4807   High
-
-$ docker scout cves docker.io/library/node:20-alpine | head -5
-  ✓ SBOM cached
-  ✓ No vulnerable packages detected for critical severity
-  ✓ 2 policies evaluated, 1 warning
+<h2 id="navigation">Navigation<a class="headerlink" href="#navigation" title="Permanent link">&para;</a></h2>
+<p>Insert after the "Docker Product &amp; Strategy" section in <code>mkdocs.yml</code>:</p>
+<pre><code class="language-yaml">  - Docker:
+    - articles/30-docker-architecture.md
+    - articles/31-build-context.md
+    - articles/32-buildkit-internals.md
+    - articles/33-how-docker-builds-images.md
+    - articles/34-image-layers-storage-drivers.md
+    - articles/35-docker-networking.md
+    - articles/36-kaniko-vs-docker-builds.md
 </code></pre>
-<p>Grype typically reports more findings than Trivy due to CPE-based matching, while Scout under-reports until its server-side database catches up with recent CVEs.</p>
-<h2 id="key-interview-points">Key Interview Points<a class="headerlink" href="#key-interview-points" title="Permanent link">&para;</a></h2>
+<h2 id="writing-conventions">Writing Conventions<a class="headerlink" href="#writing-conventions" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Trivy is best for <strong>fast CI gatekeeping</strong> — fail builds on critical CVEs with fixes.</li>
-<li>Grype is best for <strong>deep audit</strong> — find every possible CVE, then triage false positives.</li>
-<li>Docker Scout is best for <strong>continuous compliance</strong> — enforce policy over time, not just at build.</li>
+<li>Target lengths as specified above. BuildKit Internals and How Docker Builds Images are the two deepest dives (~500 lines each).</li>
+<li>Interview-prep tone: thorough but accessible, explain "why" not just "what"</li>
+<li>Two-way cross-referencing: when new articles reference concepts from existing articles, link to them. And when existing articles mention Docker fundamentals now covered by new articles, update them with links.</li>
 </ul>
-<p>At Docker, you'll likely work on integrating Scout with customer workflows, improving SBOM accuracy, and building policy evaluation engines that run at scale across millions of images.</p>
-<p>For a deeper understanding of how container image layers are constructed and stored — which directly impacts how scanners analyze them — see <a href="../34-image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a>.</p>
+<h2 id="cross-reference-updates-existing-new">Cross-Reference Updates (Existing → New)<a class="headerlink" href="#cross-reference-updates-existing-new" title="Permanent link">&para;</a></h2>
+<p>These existing articles mention Docker concepts that new articles cover. Add hyperlinks:</p>
+<table>
+<thead>
+<tr>
+<th>Existing Article</th>
+<th>Concept Mentioned</th>
+<th>Link To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>01-slsa-framework.md</code></td>
+<td>BuildKit SLSA L3 compliance</td>
+<td><code>32-buildkit-internals.md</code></td>
+</tr>
+<tr>
+<td><code>07-notary-docker-content-trust.md</code></td>
+<td>Image signing flow</td>
+<td><code>33-how-docker-builds-images.md</code> (manifest section)</td>
+</tr>
+<tr>
+<td><code>08-distroless-images.md</code></td>
+<td>Image layers, Dockerfile examples</td>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+</tr>
+<tr>
+<td><code>09-image-minimization.md</code></td>
+<td>Layer minimization strategies</td>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+</tr>
+<tr>
+<td><code>10-non-root-execution.md</code></td>
+<td>Container runtime, user namespaces</td>
+<td><code>30-docker-architecture.md</code></td>
+</tr>
+<tr>
+<td><code>11-linux-capabilities.md</code></td>
+<td>Container runtime</td>
+<td><code>30-docker-architecture.md</code></td>
+</tr>
+<tr>
+<td><code>12-seccomp.md</code></td>
+<td>Container runtime</td>
+<td><code>30-docker-architecture.md</code></td>
+</tr>
+<tr>
+<td><code>13-apparmor-selinux.md</code></td>
+<td>Container runtime</td>
+<td><code>30-docker-architecture.md</code></td>
+</tr>
+<tr>
+<td><code>14-readonly-filesystem.md</code></td>
+<td>Container filesystem layers</td>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+</tr>
+<tr>
+<td><code>15-multi-arch-security.md</code></td>
+<td>Image manifests, OCI spec</td>
+<td><code>33-how-docker-builds-images.md</code></td>
+</tr>
+<tr>
+<td><code>20-scanner-internals.md</code></td>
+<td>Image layer analysis</td>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+</tr>
+<tr>
+<td><code>25-docker-scout.md</code></td>
+<td>BuildKit, Docker builds</td>
+<td><code>32-buildkit-internals.md</code>, <code>33-how-docker-builds-images.md</code></td>
+</tr>
+<tr>
+<td><code>26-docker-hardened-images.md</code></td>
+<td>BuildKit SLSA L3 pipeline</td>
+<td><code>32-buildkit-internals.md</code>, <code>33-how-docker-builds-images.md</code>, <code>30-docker-architecture.md</code></td>
+</tr>
+<tr>
+<td><code>27-docker-content-trust.md</code></td>
+<td>Image signing, manifests</td>
+<td><code>33-how-docker-builds-images.md</code></td>
+</tr>
+<tr>
+<td><code>28-docker-supply-chain-platform.md</code></td>
+<td>Docker ecosystem, Build Cloud</td>
+<td><code>30-docker-architecture.md</code>, <code>32-buildkit-internals.md</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="cross-reference-updates-new-existing">Cross-Reference Updates (New → Existing)<a class="headerlink" href="#cross-reference-updates-new-existing" title="Permanent link">&para;</a></h2>
+<p>Each new article should link back to relevant existing articles (partial list):</p>
+<table>
+<thead>
+<tr>
+<th>New Article</th>
+<th>Link To Existing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>30-docker-architecture.md</code></td>
+<td><code>10-non-root-execution.md</code> (user namespaces), <code>11-linux-capabilities.md</code>, <code>12-seccomp.md</code>, <code>13-apparmor-selinux.md</code>, <code>26-docker-hardened-images.md</code></td>
+</tr>
+<tr>
+<td><code>31-build-context.md</code></td>
+<td>(few existing links — mostly new topic)</td>
+</tr>
+<tr>
+<td><code>32-buildkit-internals.md</code></td>
+<td><code>26-docker-hardened-images.md</code> (SLSA L3 builds with BuildKit), <code>33-how-docker-builds-images.md</code></td>
+</tr>
+<tr>
+<td><code>33-how-docker-builds-images.md</code></td>
+<td><code>27-docker-content-trust.md</code> (image signing), <code>15-multi-arch-security.md</code> (multi-arch manifests), <code>32-buildkit-internals.md</code> (LLB/caching), <code>34-image-layers-storage-drivers.md</code></td>
+</tr>
+<tr>
+<td><code>34-image-layers-storage-drivers.md</code></td>
+<td><code>08-distroless-images.md</code>, <code>09-image-minimization.md</code>, <code>14-readonly-filesystem.md</code></td>
+</tr>
+<tr>
+<td><code>35-docker-networking.md</code></td>
+<td>(few existing links — mostly new topic)</td>
+</tr>
+<tr>
+<td><code>36-kaniko-vs-docker-builds.md</code></td>
+<td><code>30-docker-architecture.md</code> (why no daemon matters)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="acceptance-criteria">Acceptance Criteria<a class="headerlink" href="#acceptance-criteria" title="Permanent link">&para;</a></h2>
+<ul>
+<li><code>mkdocs build --strict</code> passes with no warnings</li>
+<li>All 7 articles render correctly with expected headings</li>
+<li>Internal cross-references use relative links (<code>../articles/nn-topic.md</code>)</li>
+<li>All 15 existing articles updated with appropriate links</li>
+</ul>
 
 
 
 
 
 
-
-  
-  
 
 
 
@@ -2127,10 +2083,10 @@ $ docker scout cves docker.io/library/node:20-alpine | head -5
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

@@ -1,0 +1,2288 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Interview prep articles on container supply chain security">
+      
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Docker Section Articles Implementation Plan - Docker Supply Chain</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#docker-section-articles-implementation-plan" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="Docker Supply Chain" class="md-header__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Docker Supply Chain
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Docker Section Articles Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/schaffe/container-security-fundamentals" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Docker Supply Chain" class="md-nav__button md-logo" aria-label="Docker Supply Chain" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Docker Supply Chain
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/schaffe/container-security-fundamentals" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../docker-supply-chain/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Supply Chain Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supply Chain Security Theory
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supply Chain Security Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/01-slsa-framework/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SLSA Framework (Supply-chain Levels for Software Artifacts)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/02-in-toto-attestations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    In-toto Attestations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/03-sbom/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Software Bill of Materials (SBOM)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/04-sigstore/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Sigstore (cosign, Fulcio, Rekor)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/05-dependency-management-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dependency Management Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/06-trusted-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Trusted Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/07-notary-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Notary / Docker Content Trust
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Fundamentals
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Linux Fundamentals
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/29-musl-vs-glibc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    musl vs glibc: Choosing a C Standard Library for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Image Hardening
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Container Image Hardening
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/08-distroless-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distroless Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/09-image-minimization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Minimization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/10-non-root-execution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Non-root Execution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/11-linux-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Linux Capabilities in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/12-seccomp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Seccomp Profiles for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/13-apparmor-selinux/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AppArmor and SELinux for Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/14-readonly-filesystem/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Read-only Filesystems in Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/15-multi-arch-security/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Multi-architecture Container Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Helm Chart Security
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Helm Chart Security
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/16-securitycontext-vs-podsecuritycontext/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SecurityContext vs PodSecurityContext in Kubernetes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/17-pod-security-standards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pod Security Standards (PSS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/18-adapting-upstream-helm-charts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Adapting Upstream Helm Charts for Hardened Environments
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/19-admission-control/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Admission Control for Supply Chain Security
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Lifecycle
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CVE Lifecycle
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/20-scanner-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/21-cve-sources/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Data Sources
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/22-cvss-epss/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVSS and EPSS for Vulnerability Prioritization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/23-fix-categorization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CVE Fix Categorization and Strategies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/24-coordinated-disclosure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Coordinated Vulnerability Disclosure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Product & Strategy
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker Product & Strategy
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/25-docker-scout/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Scout
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/26-docker-hardened-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Hardened Images (DHI)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/27-docker-content-trust/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Content Trust and Notary v2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/30-docker-architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/31-build-context/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Context
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/32-buildkit-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BuildKit Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/33-how-docker-builds-images/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How Docker Builds Images
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/34-image-layers-storage-drivers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Image Layers & Storage Drivers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/35-docker-networking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Networking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../articles/36-kaniko-vs-docker-builds/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kaniko vs Docker Builds
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-create-docsarticles30-docker-architecturemd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Create docs/articles/30-docker-architecture.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-create-docsarticles31-build-contextmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Create docs/articles/31-build-context.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-create-docsarticles32-buildkit-internalsmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Create docs/articles/32-buildkit-internals.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-create-docsarticles33-how-docker-builds-imagesmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Create docs/articles/33-how-docker-builds-images.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-create-docsarticles34-image-layers-storage-driversmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Create docs/articles/34-image-layers-storage-drivers.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-create-docsarticles35-docker-networkingmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Create docs/articles/35-docker-networking.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-create-docsarticles36-kaniko-vs-docker-buildsmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Create docs/articles/36-kaniko-vs-docker-builds.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-8-update-mkdocsyml-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Update mkdocs.yml navigation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-9-update-cross-references-in-existing-articles-new-existing-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: Update cross-references in existing articles (New → Existing links)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-10-update-cross-references-in-existing-articles-existing-new-links" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: Update cross-references in existing articles (Existing → New links)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-11-build-and-verify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: Build and verify
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="docker-section-articles-implementation-plan">Docker Section Articles Implementation Plan<a class="headerlink" href="#docker-section-articles-implementation-plan" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add a new "Docker" section of 7 articles to the interview-prep MkDocs site, with two-way cross-references to existing articles.</p>
+<p><strong>Architecture:</strong> 7 new markdown files under <code>docs/articles/</code>, plus updates to 15 existing articles to add cross-reference links. Modify <code>mkdocs.yml</code> nav. No code changes.</p>
+<p><strong>Tech Stack:</strong> MkDocs, Markdown</p>
+<hr />
+<h3 id="task-1-create-docsarticles30-docker-architecturemd">Task 1: Create <code>docs/articles/30-docker-architecture.md</code><a class="headerlink" href="#task-1-create-docsarticles30-docker-architecturemd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/30-docker-architecture.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~400 lines)</strong></li>
+</ul>
+<p>Title: <code># Docker Architecture</code></p>
+<p>Content covering:
+- <strong>Client-server model</strong>: <code>docker</code> CLI communicates with dockerd via REST API on <code>/var/run/docker.sock</code> (Unix socket) — also available over TCP (TLS-secured)
+- <strong>dockerd</strong>: long-running daemon process, responsible for image management, container lifecycle, volumes, networking. Calls into containerd for container operations.
+- <strong>containerd</strong>: industry-standard container runtime (graduated to CNCF). Manages image pull/storage, container lifecycle (create/start/stop/delete), and provides gRPC API. Uses containerd-shim per container.
+- <strong>containerd-shim</strong>: per-container process that keeps the container's STDIN/STDOUT open even if the daemon restarts. Acts as bridge between containerd and the OCI runtime.
+- <strong>runc</strong>: OCI-compliant low-level runtime. Creates the container from config.json + rootfs. Uses Linux kernel features: namespaces (pid, net, mnt, user, uts, ipc), cgroups (v1/v2), seccomp, capabilities, SELinux/AppArmor.
+- <strong>OCI Runtime Spec</strong>: config.json structure (process, root, mounts, linux.namespaces, linux.devices, linux.resources, linux.seccomp, linux.capabilities, linux.maskedPaths, linux.readonlyPaths)
+- <strong>OCI Image Spec</strong>: manifest (json, media type, config reference, layer list), config (architecture, OS, rootfs, history, exposedPorts, env, entrypoint, cmd, volumes, workingDir, labels, user), layer tarballs
+- <strong>Docker vs containerd vs CRI</strong>: containerd implements CRI (Container Runtime Interface) for Kubernetes via <code>cri</code> plugin. Docker sits above containerd. CRI-O is an alternative CRI-compliant runtime.
+- <strong>Docker in rootless mode</strong>: dockerd-rootless.sh, user namespaces, fuse-overlayfs, slirp4netns
+- <strong>Cross-references</strong>: link to <code>10-non-root-execution.md</code> (user namespaces), <code>11-linux-capabilities.md</code>, <code>12-seccomp.md</code>, <code>13-apparmor-selinux.md</code>, <code>26-docker-hardened-images.md</code></p>
+<p>~400 lines, H2 sections, code blocks (docker ps, ps auxf, ctr commands, runc spec examples, manifest JSON).</p>
+<hr />
+<h3 id="task-2-create-docsarticles31-build-contextmd">Task 2: Create <code>docs/articles/31-build-context.md</code><a class="headerlink" href="#task-2-create-docsarticles31-build-contextmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/31-build-context.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~250 lines)</strong></li>
+</ul>
+<p>Title: <code># Build Context</code></p>
+<p>Content covering:
+- <strong>What is the build context</strong>: all files and directories sent to Docker daemon/BuildKit when running <code>docker build</code>
+- <strong>Default context</strong>: <code>.</code> (current directory). <code>docker build -f docker/Dockerfile .</code> still sends everything in <code>.</code> not just <code>docker/</code>
+- <strong><code>.dockerignore</code> syntax</strong>: <code>*</code>, <code>**/</code>, <code>!</code> negation, <code>!</code> cannot override a parent ignore (must match parent), <code>.dockerignore</code> is relative to build context root
+- <strong>Impact on build performance</strong>: large context = long <code>Sending build context to Docker daemon</code> phase. BuildKit shows this as progress bars.
+- <strong>Context as tarball</strong>: Docker client tars the context, sends via HTTP to daemon API
+- <strong><code>.dockerignore</code> as security boundary</strong>: don't send <code>.env</code>, <code>node_modules/</code>, <code>.git/</code>, <code>target/</code>, <code>__pycache__/</code>, <code>*.log</code>, <code>secrets/</code>
+- <strong>Remote contexts</strong>: <code>docker build https://github.com/user/repo.git#branch:dir</code> — clones the repo as context. Also <code>docker build -</code> to stream context from stdin.
+- <strong>BuildKit's <code>local</code> source</strong>: how BuildKit represents the context internally as a <code>local</code> source op in LLB
+- <strong>Practical <code>.dockerignore</code> examples</strong>: Node.js, Go, Python, Java projects
+- <strong>Cross-references</strong>: link to <code>32-buildkit-internals.md</code> (LLB), <code>33-how-docker-builds-images.md</code> (pipeline)</p>
+<p>~250 lines, H2 sections, code blocks with Dockerfiles and .dockerignore files.</p>
+<hr />
+<h3 id="task-3-create-docsarticles32-buildkit-internalsmd">Task 3: Create <code>docs/articles/32-buildkit-internals.md</code><a class="headerlink" href="#task-3-create-docsarticles32-buildkit-internalsmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/32-buildkit-internals.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~500 lines)</strong></li>
+</ul>
+<p>Title: <code># BuildKit Internals</code></p>
+<p>Content covering:
+- <strong>History and motivation</strong>: why BuildKit replaced the legacy builder. Problems: no concurrent stage execution, poor caching, no cache mounts, no secrets, no SSH.
+- <strong>Architecture overview</strong>: BuildKit can run embedded in dockerd, as a standalone daemon (<code>buildkitd</code>), or as a contained process. Components: frontend, solver, worker, exporter.
+- <strong>LLB (Low-Level Build) definition</strong>: protobuf-based DAG. Ops: <code>SourceOp</code> (fetch base image, local directory, git repo), <code>ExecOp</code> (run a command), <code>FileOp</code> (copy, mkdir, rm), <code>BuildOp</code> (nested LLB). Each op has inputs, outputs, metadata.
+- <strong>LLB example</strong>: show what a simple Dockerfile translates to in LLB. Dockerfile:
+  <code>dockerfile
+  FROM alpine:3.19
+  RUN apk add curl
+  COPY app.sh /app.sh
+  CMD ["/app.sh"]</code>
+  Produces: SourceOp(alpine:3.19) → ExecOp(apk add curl) → CopyOp(app.sh → /app.sh) → ExecOp(CMD)
+- <strong>Frontends</strong>: <code>dockerfile.v0</code> and <code>dockerfile.v1</code>. How Dockerfile instructions map to LLB ops. Each <code>RUN</code> → <code>ExecOp</code>, each <code>COPY</code>/<code>ADD</code> → <code>FileOp.Copy</code>, each <code>FROM</code> → <code>SourceOp</code>. Gateways allow custom frontends (e.g., <code>sonatype/ray</code>).
+- <strong>Solver</strong>: core of BuildKit. Takes LLB DAG, resolves dependencies, determines execution order. Uses content-addressed caching (each op output is identified by a content hash). Parallel execution: ops without dependencies execute concurrently (e.g., multi-stage builds with independent <code>FROM</code> bases).
+- <strong>Caching algorithm</strong>: each op's cache key = hash(function + inputs + metadata). On cache hit, op is skipped (output loaded from cache). Cache invalidation: any change to Dockerfile, base image, build context, or env vars busts the cache for affected ops.
+- <strong>Cache mounts</strong> (<code>RUN --mount=type=cache</code>): persistent directories shared across builds. Common targets: <code>/var/cache/apt</code>, <code>/root/.cache/pip</code>, <code>/go/pkg/mod</code>, <code>/root/.m2</code>. Cache lifetime: BuildKit uses TTL-based garbage collection.
+- <strong>Secrets</strong> (<code>RUN --mount=type=secret</code>): mounted as tmpfs (never stored in image layers). Used for private repo access, npm tokens, etc. BuildKit's <code>--secret</code> flag passes secret data via pipe (not env var).
+- <strong>SSH</strong> (<code>RUN --mount=type=ssh</code>): forwards SSH agent socket into build. Used for cloning private repos during build.
+- <strong>BuildKit cache export</strong>: cache can be exported to a registry (<code>--cache-to</code>/<code>--cache-from</code>) for CI reuse. Modes: <code>inline</code> (in image), <code>registry</code> (separate cache manifest), <code>gha</code> (GitHub Actions cache).
+- <strong>Cross-references</strong>: link to <code>26-docker-hardened-images.md</code> (SLSA L3/attestations with BuildKit), <code>33-how-docker-builds-images.md</code> (pipeline integration)</p>
+<p>~500 lines, H2 sections, code blocks with LLB JSON examples, buildctl commands, BuildKit daemon config, Dockerfile examples.</p>
+<hr />
+<h3 id="task-4-create-docsarticles33-how-docker-builds-imagesmd">Task 4: Create <code>docs/articles/33-how-docker-builds-images.md</code><a class="headerlink" href="#task-4-create-docsarticles33-how-docker-builds-imagesmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/33-how-docker-builds-images.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~500 lines)</strong></li>
+</ul>
+<p>Title: <code># How Docker Builds Images</code></p>
+<p>Content covering the full end-to-end pipeline:</p>
+<p><strong>Stage 1 — Dockerfile Parsing</strong>:
+- Dockerfile lexer/parser (pkg/dockerfile/parser in moby/buildkit). Tokenizes instructions: <code>FROM</code>, <code>RUN</code>, <code>CMD</code>, <code>LABEL</code>, <code>MAINTAINER</code>, <code>EXPOSE</code>, <code>ENV</code>, <code>ADD</code>, <code>COPY</code>, <code>ENTRYPOINT</code>, <code>VOLUME</code>, <code>USER</code>, <code>WORKDIR</code>, <code>ARG</code>, <code>ONBUILD</code>, <code>STOPSIGNAL</code>, <code>HEALTHCHECK</code>, <code>SHELL</code>.
+- Parses heredocs (BuildKit supports heredoc syntax in RUN). Produces AST: <code>*parser.Node</code> with <code>Value</code>, <code>Next</code>, <code>Children</code> fields.
+- Shows example AST output for a simple Dockerfile (simplified JSON representation).</p>
+<p><strong>Stage 2 — Frontend Translation (Dockerfile → LLB)</strong>:
+- <code>dockerfile.v1</code> frontend (reimplemented in Go, replaces older cabal-based <code>dockerfile.v0</code>).
+- Translation rules: <code>FROM</code> → <code>SourceOp</code> (pull base image from registry or use local). <code>RUN</code> → <code>ExecOp</code> (run command in intermediate container, capture diff). <code>COPY</code> → <code>FileOp.Copy</code> (copy from context or previous stage). <code>ENV</code>/<code>WORKDIR</code>/<code>USER</code> → metadata on ExecOp (not separate layers).
+- Multi-stage builds: each <code>FROM</code> starts a new sub-graph. Final stage defined by last <code>FROM</code> or <code>--target</code> flag. Unused stages are skipped (BuildKit prunes unreachable ops).</p>
+<p><strong>Stage 3 — LLB Graph Resolution</strong>:
+- Solver builds the DAG, resolves cache keys for each op. Content-hash includes: command text, environment variables, working directory, user, base image digest, build args.
+- Cache hit → skip op entirely (use cached result). Cache miss → schedule op for execution.
+- Independent ops run in parallel: e.g., <code>FROM golang:1.22 AS builder</code> and <code>FROM alpine:3.19 AS runtime</code> pull in parallel if they have no dependency.</p>
+<p><strong>Stage 4 — Solver Execution</strong>:
+- For <code>ExecOp</code>: BuildKit creates a temporary container (via runc/containerd), runs the command, captures the filesystem diff. Uses snapshotters (overlayfs) to track changes efficiently.
+- For <code>FileOp.Copy</code>: BuildKit copies files from one snapshot to another (optimized for handling large context tarballs).
+- Execution traces: <code>BUILDKIT_PROGRESS=plain</code> shows each op's status. Example output showing parallel downloads.</p>
+<p><strong>Stage 5 — Layer Export</strong>:
+- Each <code>ExecOp</code> produces a layer: tar archive of filesystem changes (created by differ — walks the diff between before/after snapshots using overlayfs whiteout files).
+- Whiteout files: <code>.wh.</code> prefix for deleted files, <code>.wh..wh..opq</code> for opaque directory (all children deleted).
+- Layers are content-addressed: digest = sha256 of layer tar. Reusable from cache.
+- <code>FROM</code> layers are not re-exported — they reference the base image's existing layers in the manifest.</p>
+<p><strong>Stage 6 — Image Manifest Assembly</strong>:
+- <code>config.json</code>: architecture, OS, rootfs.diff_ids (list of layer digests), history (list of commands), exposedPorts, env, entrypoint, cmd, volumes, workingDir, labels. Diff_ids are the uncompresssed layer digests.
+- <code>manifest.json</code>: schemaVersion, mediaType, config (reference to config.json digest), layers (list of layer blob digests). Layer digests are the compressed tar digests.
+- How <code>docker history --no-trunc</code> shows the config's history entries.</p>
+<p><strong>Stage 7 — Push</strong>:
+- Layers pushed in parallel to registry (concurrent goroutines with retry logic). Each blob uploaded via POST/PUT.
+- Manifest pushed last (atomic update). Registry stores manifest by tag reference.
+- BuildKit's <code>--push</code> flag handles this automatically. Output types: <code>type=image</code>, <code>type=docker</code>, <code>type=oci</code>, <code>type=local</code>, <code>type=tar</code>.</p>
+<p><strong>Cross-references</strong>: link to <code>27-docker-content-trust.md</code> (image signing/Notary), <code>15-multi-arch-security.md</code> (multi-arch manifests), <code>32-buildkit-internals.md</code> (LLB/caching deep dive), <code>34-image-layers-storage-drivers.md</code> (layer storage), <code>26-docker-hardened-images.md</code> (attestations), <code>31-build-context.md</code> (context handling)</p>
+<p>~500 lines, H2 sections, code blocks with Dockerfile AST, LLB JSON, manifest JSON, config JSON, shell output.</p>
+<hr />
+<h3 id="task-5-create-docsarticles34-image-layers-storage-driversmd">Task 5: Create <code>docs/articles/34-image-layers-storage-drivers.md</code><a class="headerlink" href="#task-5-create-docsarticles34-image-layers-storage-driversmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/34-image-layers-storage-drivers.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~350 lines)</strong></li>
+</ul>
+<p>Title: <code># Image Layers &amp; Storage Drivers</code></p>
+<p>Content covering:
+- <strong>Layer concept</strong>: each Dockerfile instruction creates a layer (except <code>ENV</code>, <code>WORKDIR</code>, <code>USER</code>, <code>VOLUME</code>, <code>EXPOSE</code>, <code>CMD</code>, <code>ENTRYPOINT</code>, <code>LABEL</code>, <code>SHELL</code>, <code>MAINTAINER</code>, <code>ARG</code>). Layer = tar of filesystem diff. Shows <code>docker history</code> output.
+- <strong>Layer graph</strong>: content-addressable storage. Each layer references its parent. Chain of layers → image. <code>docker image inspect</code> shows <code>RootFS.Layers</code> (list of layer digests).
+- <strong>Layer sharing</strong>: images sharing base layers (e.g., Ubuntu-based images) share the same layer blobs on disk. Only unique layers consume additional space. <code>docker system df</code> shows shared/unique layer sizes.
+- <strong>OverlayFS theory</strong>: lowerdir (multiple read-only layers), upperdir (writable layer), merged (union view). Reads: check upper first, fall through to lower. Writes: copy-up from lower to upper, then modify (CoW). Deletes: create whiteout in upper.
+- <strong>OverlayFS in Docker</strong>: <code>lowerdir</code> = image layers (read-only, stacked), <code>upperdir</code> = container's writable layer (thin, ~0 bytes), <code>merged</code> = what the container sees. <code>workdir</code> = scratch for atomic operations. <code>cat /proc/self/mountinfo</code> shows the overlay mount.
+- <strong>Copy-on-write</strong>: reading from upper shadows lower. Writing to a lower-layer file triggers copy-up (read from lower, write to upper), then modify. First write to a file is slower due to copy-up.
+- <strong>Container layer lifecycle</strong>: created on <code>docker run</code>, destroyed on <code>docker rm</code> (unless the container is committed). Thin writable layer limits how much data a container can write (use volumes for large writes).
+- <strong>Storage drivers</strong>: overlay2 (default since Docker 18.09+), fuse-overlayfs (rootless mode). Older: aufs, devicemapper, overlay, vfs. Why overlay2 wins: inode-efficient, page cache sharing (kernel shares cached pages across layers), performance.
+- <strong>Garbage collection</strong>: <code>docker image prune</code>, <code>docker builder prune</code>, <code>docker system prune</code>. BuildKit GC: LRU-based, configurable policies (<code>keepStorage</code>, <code>maxUsedPercent</code>, <code>minCacheDuration</code>).
+- <strong><code>docker save</code>/<code>docker load</code></strong>: export/import images as tarballs (preserves layer structure).
+- <strong>Cross-references</strong>: link to <code>08-distroless-images.md</code> (base image size), <code>09-image-minimization.md</code> (layer reduction techniques), <code>14-readonly-filesystem.md</code> (read-only rootfs), <code>20-scanner-internals.md</code> (layer analysis during scanning)</p>
+<p>~350 lines, H2 sections, code blocks with overlayfs mounts, docker history, docker inspect, layer walk diagrams.</p>
+<hr />
+<h3 id="task-6-create-docsarticles35-docker-networkingmd">Task 6: Create <code>docs/articles/35-docker-networking.md</code><a class="headerlink" href="#task-6-create-docsarticles35-docker-networkingmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/35-docker-networking.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~300 lines)</strong></li>
+</ul>
+<p>Title: <code># Docker Networking</code></p>
+<p>Content covering:
+- <strong>CNM (Container Network Model)</strong>: three building blocks — Sandbox (network namespace, <code>netns</code>), Endpoint (virtual ethernet — veth pair), Network (bridge — software switch). Docker's libnetwork implements CNM.
+- <strong><code>--network bridge</code> (default)</strong>: <code>docker0</code> bridge created by dockerd. Containers get veth pairs: one end in container netns (eth0), one plugged into docker0. NAT via iptables MASQUERADE (Source NAT). <code>-p 8080:80</code> adds DNAT rule (<code>PREROUTING</code> chain). Show <code>iptables -t nat -L -n</code>.
+- <strong>User-defined bridge</strong>: created with <code>docker network create mynet</code>. Better isolation (only containers on same bridge can communicate). Built-in DNS resolution by container name (embedded DNS at 127.0.0.11).
+- <strong><code>--network host</code></strong>: container shares host network namespace. No veth pair, no netns, no NAT. Performance benefit (no bridge hop) but zero isolation. Process management conflicts (both container and host can bind same port). Security risk.
+- <strong><code>--network none</code></strong>: loopback only (lo interface). No external connectivity. Used for security testing or when only Unix sockets are needed.
+- <strong><code>--network overlay</code></strong>: VXLAN encapsulation (UDP 4789). Used by Docker Swarm. Each overlay network gets its own VNI. Spoof protection via VXLAN headers. IPsec encryption optional.
+- <strong><code>--network macvlan</code>/<code>ipvlan</code></strong>: containers get real MAC/IP on physical network. No NAT, bypasses docker0. macvlan: each container has unique MAC (switch port limits). ipvlan L2/L3 modes: containers share parent MAC (avoids MAC flooding).
+- <strong>DNS resolution</strong>: embedded DNS resolver at 127.0.0.11 (inside container). For user-defined networks, resolves container names to IPs. Falls through to host DNS for external resolution. Custom DNS via <code>--dns</code>.
+- <strong>Container-to-container communication</strong>: on same bridge — direct L2. Across bridges — need routing. Across hosts — overlay or macvlan. iptables FORWARD chain controls inter-container traffic (DOCKER-USER chain for custom rules).
+- <strong>Network security</strong>: <code>--network host</code> bypasses isolation. User-defined bridge provides DNS-based service discovery (no <code>--link</code> needed). Network policies (Docker EE/UCP, now Mirantis). <code>iptables -D</code> is not persistent.
+- <strong>Cross-references</strong>: (few existing links — mostly new terrain in this project)</p>
+<p>~300 lines, H2 sections, code blocks with docker network commands, iptables output, netns inspection.</p>
+<hr />
+<h3 id="task-7-create-docsarticles36-kaniko-vs-docker-buildsmd">Task 7: Create <code>docs/articles/36-kaniko-vs-docker-builds.md</code><a class="headerlink" href="#task-7-create-docsarticles36-kaniko-vs-docker-buildsmd" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Create: <code>docs/articles/36-kaniko-vs-docker-builds.md</code></p>
+<ul>
+<li>[ ] <strong>Write the article (~300 lines)</strong></li>
+</ul>
+<p>Title: <code># Kaniko vs Docker Builds</code></p>
+<p>Content covering:
+- <strong>What is Kaniko</strong>: Google's open-source tool for building container images in Kubernetes without Docker daemon or privileged access. Part of Google's container tools ecosystem.
+- <strong>Why Kaniko exists</strong>: Docker daemon requires root/socket access. In Kubernetes, mounting <code>/var/run/docker.sock</code> is insecure (gives pod node-level access). Kaniko runs without any daemon.
+- <strong>Kaniko architecture</strong>: runs as a container (usually <code>gcr.io/kaniko-project/executor</code>). Extracts base image to rootfs. Executes each Dockerfile command in userspace using: <code>chroot</code> to the target rootfs, <code>ptrace</code> to snapshot filesystem changes after each command. Builds new layers from the filesystem diff.
+- <strong>Detailed pipeline</strong>: 
+  1. Parse Dockerfile
+  2. Pull base image (to <code>/kaniko/</code>)
+  3. For each instruction: apply chroot, run command, snapshot filesystem (via ptrace + tar), push layer to registry (or cache)
+  4. After all instructions, push final manifest
+- <strong>Comparison table</strong>: </p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Docker BuildKit</th>
+<th>Kaniko</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture</td>
+<td>Daemon-based (containerd)</td>
+<td>Standalone binary (userspace)</td>
+</tr>
+<tr>
+<td>Root requirement</td>
+<td>Needs root/privileged</td>
+<td>Can run as non-root</td>
+</tr>
+<tr>
+<td>Layer caching</td>
+<td>Content-hash, shared across builds</td>
+<td>Only remote registry caching (--cache=true)</td>
+</tr>
+<tr>
+<td>Cache mounts</td>
+<td>Full support (--mount=type=cache)</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>--secret, --ssh, --mount=type=secret</td>
+<td>Via Kubernetes secrets (mounted files)</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>Full support + parallel stages</td>
+<td>Full support (sequential)</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Fast (parallel, cached)</td>
+<td>Slower (sequential, no cache mounts)</td>
+</tr>
+<tr>
+<td>Dockerfile compat</td>
+<td>Full + extended (heredocs, --mount)</td>
+<td>High (limited --mount support)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Dev machines, CI with Docker socket</td>
+<td>Kubernetes CI (no Docker socket)</td>
+</tr>
+<tr>
+<td>Debugging</td>
+<td>Rich (buildctl, buildx inspect)</td>
+<td>Limited (--verbosity debug)</td>
+</tr>
+<tr>
+<td>Push method</td>
+<td>Direct (parallel blob uploads)</td>
+<td>Direct (sequential by default)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>When to use which</strong>: BuildKit for speed + feature set, Kaniko for secure K8s CI (GitLab CI, Tekton, Argo Workflows). Also: BuildKit can run rootless with <code>buildkitd</code> for a middle ground.</li>
+<li><strong>Alternatives</strong>: Buildah (part of Podman ecosystem, uses overlayfs in userspace), img (BuildKit wrapper), makisu (Uber's in-cluster builder, uses overlayfs)</li>
+<li><strong>Cross-references</strong>: link to <code>30-docker-architecture.md</code> (why no daemon matters for security), <code>32-buildkit-internals.md</code> (BuildKit features), <code>33-how-docker-builds-images.md</code> (how Docker builds differ)</li>
+</ul>
+<p>~300 lines, H2 sections, code blocks with Kaniko commands, Kubernetes pod specs, comparison tables.</p>
+<hr />
+<h3 id="task-8-update-mkdocsyml-navigation">Task 8: Update <code>mkdocs.yml</code> navigation<a class="headerlink" href="#task-8-update-mkdocsyml-navigation" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Modify: <code>mkdocs.yml</code></p>
+<ul>
+<li>[ ] <strong>Add Docker section to nav</strong></li>
+</ul>
+<p>Insert after the <code>Docker Product &amp; Strategy:</code> nav block (after line 48, before <code>extra_css:</code> on line 49):</p>
+<pre><code class="language-yaml">  - Docker:
+    - articles/30-docker-architecture.md
+    - articles/31-build-context.md
+    - articles/32-buildkit-internals.md
+    - articles/33-how-docker-builds-images.md
+    - articles/34-image-layers-storage-drivers.md
+    - articles/35-docker-networking.md
+    - articles/36-kaniko-vs-docker-builds.md
+</code></pre>
+<hr />
+<h3 id="task-9-update-cross-references-in-existing-articles-new-existing-links">Task 9: Update cross-references in existing articles (New → Existing links)<a class="headerlink" href="#task-9-update-cross-references-in-existing-articles-new-existing-links" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Modify: existing articles as needed</p>
+<ul>
+<li>[ ] <strong>Verify new articles link to existing articles</strong></li>
+</ul>
+<p>The new articles already have cross-reference links embedded (specified in Tasks 1-7). Verify each new article's links are correct relative paths (<code>../articles/nn-topic.md</code>).</p>
+<hr />
+<h3 id="task-10-update-cross-references-in-existing-articles-existing-new-links">Task 10: Update cross-references in existing articles (Existing → New links)<a class="headerlink" href="#task-10-update-cross-references-in-existing-articles-existing-new-links" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/articles/01-slsa-framework.md</code>
+- Modify: <code>docs/articles/07-notary-docker-content-trust.md</code>
+- Modify: <code>docs/articles/08-distroless-images.md</code>
+- Modify: <code>docs/articles/09-image-minimization.md</code>
+- Modify: <code>docs/articles/10-non-root-execution.md</code>
+- Modify: <code>docs/articles/11-linux-capabilities.md</code>
+- Modify: <code>docs/articles/12-seccomp.md</code>
+- Modify: <code>docs/articles/13-apparmor-selinux.md</code>
+- Modify: <code>docs/articles/14-readonly-filesystem.md</code>
+- Modify: <code>docs/articles/15-multi-arch-security.md</code>
+- Modify: <code>docs/articles/20-scanner-internals.md</code>
+- Modify: <code>docs/articles/25-docker-scout.md</code>
+- Modify: <code>docs/articles/26-docker-hardened-images.md</code>
+- Modify: <code>docs/articles/27-docker-content-trust.md</code>
+- Modify: <code>docs/articles/28-docker-supply-chain-platform.md</code></p>
+<ul>
+<li>
+<p>[ ] <strong>Update <code>01-slsa-framework.md</code></strong>: Where BuildKit SLSA L3 is mentioned, add link to <code>32-buildkit-internals.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>07-notary-docker-content-trust.md</code></strong>: Where image flow/manifest is discussed, add link to <code>33-how-docker-builds-images.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>08-distroless-images.md</code></strong>: Where image layers are discussed, add link to <code>34-image-layers-storage-drivers.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>09-image-minimization.md</code></strong>: Where layer minimization is discussed, add link to <code>34-image-layers-storage-drivers.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>10-non-root-execution.md</code></strong>: Where container runtime/user namespaces are discussed, add link to <code>30-docker-architecture.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>11-linux-capabilities.md</code></strong>: Where container runtime context is discussed, add link to <code>30-docker-architecture.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>12-seccomp.md</code></strong>: Where container runtime/seccomp profile loading is discussed, add link to <code>30-docker-architecture.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>13-apparmor-selinux.md</code></strong>: Where container runtime is discussed, add link to <code>30-docker-architecture.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>14-readonly-filesystem.md</code></strong>: Where container filesystem layers are discussed, add link to <code>34-image-layers-storage-drivers.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>15-multi-arch-security.md</code></strong>: Where image manifests/OCI spec is discussed, add link to <code>33-how-docker-builds-images.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>20-scanner-internals.md</code></strong>: Where image layer analysis is discussed, add link to <code>34-image-layers-storage-drivers.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>25-docker-scout.md</code></strong>: Where BuildKit/Docker builds are discussed, add links to <code>32-buildkit-internals.md</code> and <code>33-how-docker-builds-images.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>26-docker-hardened-images.md</code></strong>: Where BuildKit SLSA L3 pipeline is discussed, add links to <code>30-docker-architecture.md</code>, <code>32-buildkit-internals.md</code>, and <code>33-how-docker-builds-images.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>27-docker-content-trust.md</code></strong>: Where image signing/manifests are discussed, add link to <code>33-how-docker-builds-images.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>Update <code>28-docker-supply-chain-platform.md</code></strong>: Where Docker ecosystem/Build Cloud is discussed, add links to <code>30-docker-architecture.md</code> and <code>32-buildkit-internals.md</code>.</p>
+</li>
+</ul>
+<hr />
+<h3 id="task-11-build-and-verify">Task 11: Build and verify<a class="headerlink" href="#task-11-build-and-verify" title="Permanent link">&para;</a></h3>
+<p><strong>Files:</strong>
+- None</p>
+<ul>
+<li>[ ] <strong>Run <code>mkdocs build --strict</code></strong></li>
+</ul>
+<pre><code class="language-bash">source .venv/bin/activate &amp;&amp; mkdocs build --strict
+</code></pre>
+<p>Expected output: no errors or warnings, build succeeds.</p>
+<ul>
+<li>[ ] <strong>Verify navigation renders correctly</strong></li>
+</ul>
+<p>Open the built site or check <code>site/index.html</code> for the new Docker section with all 7 articles listed.</p>
+<hr />
+<h3 id="self-review">Self-Review<a class="headerlink" href="#self-review" title="Permanent link">&para;</a></h3>
+<p><strong>Spec coverage:</strong>
+- 7 new articles cover all specified topics with target line counts
+- Cross-reference mapping covers all 15 existing articles that mention relevant Docker concepts
+- Two-way linking: new articles link to existing, existing articles link to new</p>
+<p><strong>Placeholder scan:</strong> No TODOs, TBDs, or incomplete sections. Every step has complete content.</p>
+<p><strong>Consistency check:</strong> Article numbering (30-36) matches file names. Nav entries match file names. Cross-reference targets match real file paths.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.sections", "navigation.top", "toc.follow", "search.highlight"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../19-admission-control/">
+        <link rel="prev" href="../34-image-layers-storage-drivers/">
       
       
-        <link rel="next" href="../21-cve-sources/">
+        <link rel="next" href="../36-kaniko-vs-docker-builds/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout) - Docker Supply Chain</title>
+        <title>Docker Networking - Docker Supply Chain</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-vulnerability-scanner-internals" class="md-skip">
+        <a href="#docker-networking" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+              Docker Networking
             
           </span>
         </div>
@@ -1069,8 +1069,6 @@
       
   
   
-    
-  
   
   
     
@@ -1083,11 +1081,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
@@ -1108,7 +1106,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1123,37 +1121,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
         
   
   
@@ -1169,92 +1140,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Trivy (Aqua Security)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Grype (Anchore)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker Scout
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparison Table
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scanning the Same Image: Output Comparison
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Interview Points
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1554,8 +1439,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1566,11 +1453,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
@@ -1591,7 +1478,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1746,10 +1633,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../35-docker-networking/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker Networking
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1765,6 +1679,219 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#cnm-container-network-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CNM (Container Network Model)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-bridge-docker0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Bridge (docker0)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-defined-bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User-Defined Bridge
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-network-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --network host
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#-network-none" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --network none
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#overlay-networks-swarm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overlay Networks (Swarm)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macvlan-ipvlan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        macvlan / ipvlan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dns-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS Resolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#container-to-container-communication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Container-to-Container Communication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-docker-networking-work-under-the-hood-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does Docker networking work under the hood?" (Core)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-bridge-vs-user-defined-bridge-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Default bridge vs. user-defined bridge?" (Comparison)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-network-host-use-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "When to use --network host?" (Use case)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-containers-on-different-hosts-communicate-multi-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do containers on different hosts communicate?" (Multi-host)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-docker-user-for-firewall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What is DOCKER-USER for?" (Firewall)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1832,10 +1959,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
+  <a href="#cnm-container-network-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Trivy (Aqua Security)
+        CNM (Container Network Model)
       
     </span>
   </a>
@@ -1843,10 +1970,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
+  <a href="#default-bridge-docker0" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grype (Anchore)
+        Default Bridge (docker0)
       
     </span>
   </a>
@@ -1854,10 +1981,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
+  <a href="#user-defined-bridge" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker Scout
+        User-Defined Bridge
       
     </span>
   </a>
@@ -1865,10 +1992,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
+  <a href="#-network-host" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison Table
+        --network host
       
     </span>
   </a>
@@ -1876,10 +2003,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
+  <a href="#-network-none" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scanning the Same Image: Output Comparison
+        --network none
       
     </span>
   </a>
@@ -1887,10 +2014,137 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
+  <a href="#overlay-networks-swarm" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Interview Points
+        Overlay Networks (Swarm)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#macvlan-ipvlan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        macvlan / ipvlan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dns-resolution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS Resolution
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#container-to-container-communication" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Container-to-Container Communication
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Network Security
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-docker-networking-work-under-the-hood-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does Docker networking work under the hood?" (Core)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#default-bridge-vs-user-defined-bridge-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "Default bridge vs. user-defined bridge?" (Comparison)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use-network-host-use-case" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "When to use --network host?" (Use case)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-do-containers-on-different-hosts-communicate-multi-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How do containers on different hosts communicate?" (Multi-host)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-is-docker-user-for-firewall" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What is DOCKER-USER for?" (Firewall)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
       
     </span>
   </a>
@@ -1917,158 +2171,207 @@
   
 
 
-<h1 id="container-vulnerability-scanner-internals">Container Vulnerability Scanner Internals<a class="headerlink" href="#container-vulnerability-scanner-internals" title="Permanent link">&para;</a></h1>
-<p>Modern container vulnerability scanners differ fundamentally in how they resolve dependencies, match CVEs, and present risk. Understanding these internals is critical for a Senior Supply Chain Security Engineer role at Docker — you'll need to evaluate scanners, build integrations, and explain tradeoffs to customers.</p>
-<h2 id="trivy-aqua-security">Trivy (Aqua Security)<a class="headerlink" href="#trivy-aqua-security" title="Permanent link">&para;</a></h2>
-<p>Trivy is the fastest widely-used scanner, optimized for CI/CD pipelines. Its architecture has two phases:</p>
+<h1 id="docker-networking">Docker Networking<a class="headerlink" href="#docker-networking" title="Permanent link">&para;</a></h1>
+<p>Every running container needs a network stack — an interface, an IP, routes, and DNS. Docker's
+libnetwork implements the Container Network Model (CNM) to manage these stacks. This article covers
+the CNM building blocks, bridge modes, overlays, macvlan/ipvlan, DNS, inter-container
+communication, and network security.</p>
+<hr />
+<h2 id="cnm-container-network-model">CNM (Container Network Model)<a class="headerlink" href="#cnm-container-network-model" title="Permanent link">&para;</a></h2>
+<p>CNM defines three abstractions:</p>
+<ul>
+<li><strong>Sandbox</strong>: A container's network namespace, holding interfaces, routes, and DNS configuration.</li>
+<li><strong>Endpoint</strong>: A veth pair connecting the sandbox to a network — one end in the container (<code>eth0</code>),
+  the other plugged into the bridge.</li>
+<li><strong>Network</strong>: A group of endpoints that can communicate directly — implemented as a Linux bridge or
+  VXLAN tunnel.</li>
+</ul>
+<p>Docker's <strong>libnetwork</strong> implements CNM with a pluggable driver model. <code>docker network create</code>
+selects a driver (bridge, overlay, macvlan, ipvlan) which creates the corresponding kernel objects.
+Third-party drivers (Calico, Weave, Flannel) register with libnetwork and provide alternative
+backends.</p>
+<hr />
+<h2 id="default-bridge-docker0">Default Bridge (docker0)<a class="headerlink" href="#default-bridge-docker0" title="Permanent link">&para;</a></h2>
+<p>dockerd creates a Linux bridge named <strong>docker0</strong> at startup (default subnet 172.17.0.0/16).
+Containers started without <code>--network</code> attach here.</p>
+<p>Each container gets a <strong>veth pair</strong>: <code>eth0</code> lives in the container's netns, <code>vethXXXXX</code> is plugged
+into docker0. Outbound traffic is SNATed via iptables MASQUERADE so container IPs reach the outside
+world:</p>
+<pre><code class="language-bash">$ iptables -t nat -L -n
+Chain POSTROUTING
+MASQUERADE  all  --  172.17.0.0/16  0.0.0.0/0
+</code></pre>
+<p><code>docker run -p 8080:80</code> adds a DNAT rule redirecting host port 8080 to the container's IP:80:</p>
+<pre><code class="language-bash">$ iptables -t nat -L DOCKER -n
+DNAT       tcp  --  0.0.0.0/0  0.0.0.0/0  tcp dpt:8080 to:172.17.0.2:80
+</code></pre>
+<p>Docker also inserts FORWARD rules (ACCEPT for related/established and for the bridge subnet) and
+uses <code>DOCKER-USER</code> / <code>DOCKER-ISOLATION</code> chains to preserve custom firewall rules across restarts.</p>
+<p><strong>Limitations:</strong> No DNS resolution by container name (requires deprecated <code>--link</code>), flat topology
+with no isolation between groups.</p>
+<hr />
+<h2 id="user-defined-bridge">User-Defined Bridge<a class="headerlink" href="#user-defined-bridge" title="Permanent link">&para;</a></h2>
+<p>Created with <code>docker network create my-net</code>. Containers on the same user-defined bridge get:</p>
+<ul>
+<li><strong>DNS resolution by container name</strong> — embedded DNS server at <code>127.0.0.11</code> resolves container
+  names automatically. No <code>--link</code> needed.</li>
+<li><strong>Isolation</strong> — each bridge is a separate L2 domain; containers on different bridges cannot
+  communicate unless explicitly routed.</li>
+<li><strong><code>--net-alias</code></strong> — containers can register alternative names for round-robin resolution.</li>
+</ul>
+<pre><code class="language-bash">docker network create my-net
+docker run -d --name web --network my-net nginx
+docker run -it --name client --network my-net alpine ping web  # resolves by name
+</code></pre>
+<p>Containers can attach to multiple networks via <code>docker network connect</code>, getting an interface on
+each. This enables multi-tier patterns where the web tier is exposed but the database tier is
+isolated.</p>
+<hr />
+<h2 id="-network-host">--network host<a class="headerlink" href="#-network-host" title="Permanent link">&para;</a></h2>
+<p>The container shares the host's network namespace — no veth pair, no netns, no NAT. The container
+process binds directly to the host's IP and ports:</p>
+<pre><code class="language-bash">docker run --rm --network host nginx  # binds to host's port 80
+</code></pre>
+<p><strong>Benefits:</strong> Zero overhead from bridge/veth copy, maximum throughput (5–15% improvement for
+network-bound workloads).</p>
+<p><strong>Risks:</strong> Zero isolation — the container can bind any port, modify host network config, and (if
+privileged) sniff traffic. Use only when performance is critical or the container manages the host's
+network.</p>
+<hr />
+<h2 id="-network-none">--network none<a class="headerlink" href="#-network-none" title="Permanent link">&para;</a></h2>
+<p>Loopback only — no <code>eth0</code>, no external connectivity, no DNS:</p>
+<pre><code class="language-bash">docker run --rm --network none alpine ip addr
+1: lo: &lt;LOOPBACK,UP,LOWER_UP&gt; mtu 65536
+    inet 127.0.0.1/8 scope host lo
+</code></pre>
+<p>Used for security testing (prevent data exfiltration), offline batch jobs, and network diagnostics
+in isolation.</p>
+<hr />
+<h2 id="overlay-networks-swarm">Overlay Networks (Swarm)<a class="headerlink" href="#overlay-networks-swarm" title="Permanent link">&para;</a></h2>
+<p>Overlay networks connect containers across hosts using <strong>VXLAN</strong> encapsulation (UDP 4789). Each
+overlay gets a 24-bit VNI. When a container sends a packet to another host:</p>
 <ol>
-<li><strong>SBOM extraction</strong>: Trivy reads the filesystem layers of a container image, identifies OS package databases (<code>/var/lib/dpkg/status</code>, <code>/var/lib/rpm/Packages</code>, <code>/lib/apk/db/installed</code>) and language-specific lockfiles (<code>package-lock.json</code>, <code>go.sum</code>, <code>Gemfile.lock</code>, <code>Cargo.lock</code>, <code>pom.xml</code>).</li>
-<li><strong>CVE matching</strong>: It cross-references extracted package names + versions against a local vulnerability database (downloaded from <code>ghcr.io/aquasecurity/trivy-db</code>, updated every 6 hours).</li>
+<li>The frame reaches the local VTEP (Linux <code>vxlan</code> interface).</li>
+<li>VXLAN header (VNI) + outer UDP header + destination host IP are prepended.</li>
+<li>The remote VTEP decapsulates and delivers to the destination container.</li>
 </ol>
-<p>Trivy resolves dependencies <strong>heuristically</strong> — for OS packages it uses the exact version string from the package manager. For language ecosystems, it parses the lockfile resolution graph. This means Trivy can miss vulnerabilities in transitive dependencies if only the top-level manifest is present (e.g., a <code>package.json</code> without a lockfile).</p>
-<pre><code class="language-bash"># Scan a single image
-trivy image docker.io/library/node:20-alpine
-
-# Scan with severity filter and output format
-trivy image --severity CRITICAL,HIGH --format json docker.io/library/node:20-alpine
-
-# Scan using a local Docker archive
-docker save node:20-alpine -o node.tar
-trivy image --input node.tar
+<pre><code class="language-bash">docker swarm init
+docker network create -d overlay my-overlay
+docker service create --name web --network my-overlay nginx
 </code></pre>
-<p>Trivy's strength is speed — it decompresses layers once and processes them in a single pass. A typical scan completes in 5-15 seconds.</p>
-<h2 id="grype-anchore">Grype (Anchore)<a class="headerlink" href="#grype-anchore" title="Permanent link">&para;</a></h2>
-<p>Grype takes a deeper, library-matching approach. Instead of relying on lockfile heuristics, Grype uses <strong>Syft</strong> (its sibling tool) to generate a comprehensive SBOM first, then matches against Grype's vulnerability database.</p>
-<pre><code class="language-bash"># Generate SBOM, then scan
-syft docker.io/library/node:20-alpine -o json &gt; sbom.json
-grype sbom.json
-
-# Direct scan (syft runs internally)
-grype docker.io/library/node:20-alpine
+<p>The <strong>docker_gwbridge</strong> provides external NAT for overlay-attached containers. Encryption is
+available with <code>--opt encrypted</code> (IPsec, ~10% CPU overhead). Swarm's routing mesh forwards
+published ports on any node to a container on any node.</p>
+<hr />
+<h2 id="macvlan-ipvlan">macvlan / ipvlan<a class="headerlink" href="#macvlan-ipvlan" title="Permanent link">&para;</a></h2>
+<p>Containers get direct physical network access — no NAT, no docker0.</p>
+<p><strong>macvlan:</strong> Each container gets a unique MAC. The host interface runs in promiscuous mode. The
+container appears as a directly connected device on the LAN:</p>
+<pre><code class="language-bash">docker network create -d macvlan --subnet=192.168.1.0/24 \
+  --gateway=192.168.1.1 -o parent=eth0 my-macvlan
 </code></pre>
-<p>Grype's database is sourced from:
-- Alpine SecDB
-- Amazon Linux ALAS
-- Debian Linux CVE Tracker
-- GitHub Advisory Database (GHSA)
-- National Vulnerability Database (NVD)
-- Oracle Linux OVAL
-- RedHat OVAL
-- Ubuntu CVE Tracker</p>
-<p>The key architectural difference: Grype matches CVEs using <strong>package correlation</strong> rather than exact version matching. It uses Syft's CPE (Common Platform Enumeration) generation to find vulnerabilities even when the exact package name doesn't match the CVE entry. This catches more vulnerabilities but produces more false positives.</p>
-<pre><code class="language-bash"># Grype with explicit CPE matching
-grype docker.io/library/node:20-alpine --only-fixed
+<p>Limitations: host cannot reach container on same interface, switch MAC tables may be stressed.</p>
+<p><strong>ipvlan L2:</strong> All containers share the parent interface's MAC but get unique IPs. Avoids switch
+MAC table pressure.</p>
+<p><strong>ipvlan L3:</strong> Containers on different subnets. The kernel routes between them. No promiscuous
+mode, no broadcast overhead.</p>
+<hr />
+<h2 id="dns-resolution">DNS Resolution<a class="headerlink" href="#dns-resolution" title="Permanent link">&para;</a></h2>
+<p>Docker runs an embedded DNS resolver at <code>127.0.0.11</code> injected via <code>/etc/resolv.conf</code>:</p>
+<ul>
+<li>Queries a container name on the same user-defined network → returns that container's IP.</li>
+<li>Queries a Swarm service name → returns one or more replica IPs (round-robin).</li>
+<li>Queries an unknown name → forwarded to the host's upstream DNS.</li>
+<li><code>--dns 8.8.8.8</code> overrides the upstream resolver.</li>
+</ul>
+<pre><code class="language-bash">$ docker run --rm alpine cat /etc/resolv.conf
+nameserver 127.0.0.11
+options ndots:0
 </code></pre>
-<h2 id="docker-scout">Docker Scout<a class="headerlink" href="#docker-scout" title="Permanent link">&para;</a></h2>
-<p>Docker Scout takes an <strong>SBOM-first, policy-based</strong> approach. It was designed to integrate with Docker Hub and Docker Desktop, providing continuous evaluation rather than point-in-time scans.</p>
-<pre><code class="language-bash"># Enable Scout on a repo
-docker scout repo enable &lt;namespace&gt;/&lt;repo&gt;
-
-# Analyze an image
-docker scout quickview docker.io/library/node:20-alpine
-
-# Full CVE listing
-docker scout cves docker.io/library/node:20-alpine
-
-# Policy evaluation
-docker scout policy docker.io/library/node:20-alpine
+<hr />
+<h2 id="container-to-container-communication">Container-to-Container Communication<a class="headerlink" href="#container-to-container-communication" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Same bridge (L2):</strong> Direct Ethernet forwarding between veth ports on the bridge. No iptables
+  inspection on user-defined bridges.</li>
+<li><strong>Across bridges (L3):</strong> Traffic must route through the host stack. Requires
+  <code>net.ipv4.ip_forward=1</code>. Different bridges are isolated by default.</li>
+<li><strong>Across hosts:</strong> Requires overlay, macvlan, or ipvlan. Default/user-defined bridges are
+  single-host only.</li>
+</ul>
+<p>The <code>DOCKER-USER</code> chain in iptables is preserved across Docker restarts — the correct place for
+custom firewall policies:</p>
+<pre><code class="language-bash">iptables -I DOCKER-USER -p tcp --dport 80 -s 10.0.0.0/8 -j ACCEPT
+iptables -I DOCKER-USER -p tcp --dport 80 -j DROP
 </code></pre>
-<p>Scout's architecture:
-1. <strong>SBOM generation</strong> using Syft (same engine as Grype)
-2. <strong>SBOM upload</strong> to Docker's backend for continuous monitoring
-3. <strong>Policy evaluation</strong> against user-defined rules (e.g., "no critical CVEs with fix available")
-4. <strong>Diff analysis</strong> comparing two images or an image against a baseline</p>
-<p>Scout's differentiator is <strong>continuous monitoring</strong> — it stores SBOMs and re-evaluates them as new CVEs are published, without requiring a rescan.</p>
-<h2 id="comparison-table">Comparison Table<a class="headerlink" href="#comparison-table" title="Permanent link">&para;</a></h2>
+<hr />
+<h2 id="network-security">Network Security<a class="headerlink" href="#network-security" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Host mode</strong> removes namespace isolation — never use in multi-tenant environments.</li>
+<li><strong>User-defined bridges</strong> provide network-level isolation between groups. Use <code>--internal</code> to
+  create bridges with no external egress.</li>
+<li><strong><code>DOCKER-USER</code></strong> implements basic ingress/egress policy on a single host.</li>
+<li><strong>Multi-host policy</strong> requires a CNI plugin (Calico, Cilium) or third-party libnetwork driver.</li>
+<li><strong>Swarm encryption</strong> uses IPsec for overlay data when <code>--opt encrypted</code> is set.</li>
+</ul>
+<hr />
+<h2 id="strategic-analysis-for-interview">Strategic Analysis for Interview<a class="headerlink" href="#strategic-analysis-for-interview" title="Permanent link">&para;</a></h2>
+<h3 id="how-does-docker-networking-work-under-the-hood-core">"How does Docker networking work under the hood?" (Core)<a class="headerlink" href="#how-does-docker-networking-work-under-the-hood-core" title="Permanent link">&para;</a></h3>
+<p>CNM → libnetwork → driver creates namespace, veth pair, bridge. Default bridge uses MASQUERADE +
+DNAT. User-defined bridge adds DNS. Overlay adds VXLAN.</p>
+<h3 id="default-bridge-vs-user-defined-bridge-comparison">"Default bridge vs. user-defined bridge?" (Comparison)<a class="headerlink" href="#default-bridge-vs-user-defined-bridge-comparison" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>Feature</th>
-<th>Trivy</th>
-<th>Grype</th>
-<th>Docker Scout</th>
+<th>Default Bridge</th>
+<th>User-Defined Bridge</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Scan speed</td>
-<td>Fastest (5-15s)</td>
-<td>Moderate (15-30s)</td>
-<td>Moderate + upload time</td>
-</tr>
-<tr>
-<td>CVE matching</td>
-<td>Exact version</td>
-<td>CPE + correlation</td>
-<td>CPE + correlation</td>
-</tr>
-<tr>
-<td>False positives</td>
-<td>Low</td>
-<td>Medium</td>
-<td>Low-Medium</td>
-</tr>
-<tr>
-<td>False negatives</td>
-<td>Higher (misses transitive)</td>
-<td>Lower</td>
-<td>Lower</td>
-</tr>
-<tr>
-<td>DB update frequency</td>
-<td>6 hours</td>
-<td>4-6 hours</td>
-<td>Real-time (server-side)</td>
-</tr>
-<tr>
-<td>CI/CD native</td>
+<td>DNS by name</td>
+<td>No (needs --link)</td>
 <td>Yes</td>
+</tr>
+<tr>
+<td>Isolation</td>
+<td>Single flat network</td>
+<td>Multiple isolated nets</td>
+</tr>
+<tr>
+<td>--net-alias</td>
+<td>No</td>
 <td>Yes</td>
-<td>Via Docker Hub</td>
 </tr>
 <tr>
-<td>Policy engine</td>
-<td>Via config</td>
-<td>Via SARIF</td>
-<td>Built-in</td>
-</tr>
-<tr>
-<td>License scanning</td>
-<td>Built-in</td>
-<td>Via Syft</td>
-<td>Separate</td>
-</tr>
-<tr>
-<td>SBOM storage</td>
-<td>Ephemeral</td>
-<td>Ephemeral</td>
-<td>Persistent</td>
+<td>Configuration</td>
+<td>None</td>
+<td>Subnet, gateway, MTU</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scanning-the-same-image-output-comparison">Scanning the Same Image: Output Comparison<a class="headerlink" href="#scanning-the-same-image-output-comparison" title="Permanent link">&para;</a></h2>
-<pre><code class="language-bash">$ trivy image docker.io/library/node:20-alpine | head -5
-Total: 284 (UNKNOWN: 0, LOW: 12, MEDIUM: 156, HIGH: 93, CRITICAL: 23)
-
-$ grype docker.io/library/node:20-alpine | head -5
-NAME          INSTALLED      FIXED-IN     TYPE      VULNERABILITY   SEVERITY
-bash          5.2.15         (no fix)     apk       CVE-2022-3715   Medium
-libcrypto3    3.1.4          3.1.4-r3     apk       CVE-2023-4807   High
-
-$ docker scout cves docker.io/library/node:20-alpine | head -5
-  ✓ SBOM cached
-  ✓ No vulnerable packages detected for critical severity
-  ✓ 2 policies evaluated, 1 warning
-</code></pre>
-<p>Grype typically reports more findings than Trivy due to CPE-based matching, while Scout under-reports until its server-side database catches up with recent CVEs.</p>
-<h2 id="key-interview-points">Key Interview Points<a class="headerlink" href="#key-interview-points" title="Permanent link">&para;</a></h2>
+<h3 id="when-to-use-network-host-use-case">"When to use --network host?" (Use case)<a class="headerlink" href="#when-to-use-network-host-use-case" title="Permanent link">&para;</a></h3>
+<p>When container performance must match bare metal — proxies, packet processors, network tools.
+Accepts zero isolation.</p>
+<h3 id="how-do-containers-on-different-hosts-communicate-multi-host">"How do containers on different hosts communicate?" (Multi-host)<a class="headerlink" href="#how-do-containers-on-different-hosts-communicate-multi-host" title="Permanent link">&para;</a></h3>
+<p>Overlay (VXLAN) or macvlan/ipvlan. Swarm creates the overlay automatically; standalone requires
+<code>docker network create -d overlay</code>.</p>
+<h3 id="what-is-docker-user-for-firewall">"What is DOCKER-USER for?" (Firewall)<a class="headerlink" href="#what-is-docker-user-for-firewall" title="Permanent link">&para;</a></h3>
+<p>Preserving custom iptables rules across Docker restarts. Rules there are evaluated before Docker's
+own FORWARD rules and are never overwritten.</p>
+<hr />
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Trivy is best for <strong>fast CI gatekeeping</strong> — fail builds on critical CVEs with fixes.</li>
-<li>Grype is best for <strong>deep audit</strong> — find every possible CVE, then triage false positives.</li>
-<li>Docker Scout is best for <strong>continuous compliance</strong> — enforce policy over time, not just at build.</li>
+<li><a href="../30-docker-architecture/">Docker Architecture</a> — daemon stack that manages networks
+  (dockerd → libnetwork → kernel).</li>
+<li><a href="../11-linux-capabilities/">Linux Capabilities</a> — CAP_NET_RAW and CAP_NET_ADMIN
+  control raw socket and interface manipulation inside containers.</li>
+<li><a href="../12-seccomp/">Seccomp</a> — seccomp profiles restrict socket-related syscalls.</li>
+<li><a href="../14-readonly-filesystem/">Read-only Filesystem</a> — combining RO root with network
+  isolation for immutable container patterns.</li>
+<li><a href="../16-securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext</a> —
+  Kubernetes network-level security through NetworkPolicies and CNI plugins.</li>
 </ul>
-<p>At Docker, you'll likely work on integrating Scout with customer workflows, improving SBOM accuracy, and building policy evaluation engines that run at scale across millions of images.</p>
-<p>For a deeper understanding of how container image layers are constructed and stored — which directly impacts how scanners analyze them — see <a href="../34-image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a>.</p>
 
 
 

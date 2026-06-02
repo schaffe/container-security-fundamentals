@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../27-docker-content-trust/">
+        <link rel="prev" href="../28-docker-supply-chain-platform/">
       
       
-        <link rel="next" href="../30-docker-architecture/">
+        <link rel="next" href="../31-build-context/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Docker's Supply Chain Platform Strategy - Docker Supply Chain</title>
+        <title>Docker Architecture - Docker Supply Chain</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dockers-supply-chain-platform-strategy" class="md-skip">
+        <a href="#docker-architecture" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Docker's Supply Chain Platform Strategy
+              Docker Architecture
             
           </span>
         </div>
@@ -1268,8 +1268,6 @@
       
   
   
-    
-  
   
   
     
@@ -1282,11 +1280,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
           <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
@@ -1307,7 +1305,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1406,6 +1404,95 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../28-docker-supply-chain-platform/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker's Supply Chain Platform Strategy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Docker
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Docker
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
     
   
   
@@ -1425,7 +1512,7 @@
   <span class="md-ellipsis">
     
   
-    Docker's Supply Chain Platform Strategy
+    Docker Architecture
   
 
     
@@ -1443,7 +1530,7 @@
   <span class="md-ellipsis">
     
   
-    Docker's Supply Chain Platform Strategy
+    Docker Architecture
   
 
     
@@ -1480,22 +1567,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-pillars-connect" class="md-nav__link">
+  <a href="#client-server-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How the Pillars Connect
+        Client-Server Model
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="How the Pillars Connect">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockerd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dockerd
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="dockerd">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-integrated-workflow" class="md-nav__link">
+  <a href="#responsibilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Integrated Workflow
+        Responsibilities
       
     </span>
   </a>
@@ -1503,10 +1601,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-docker-native-advantage" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The "Docker-Native" Advantage
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Storage
       
     </span>
   </a>
@@ -1519,22 +1628,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#competitive-landscape" class="md-nav__link">
+  <a href="#containerd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Competitive Landscape
+        containerd
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Competitive Landscape">
+    <nav class="md-nav" aria-label="containerd">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chainguard" class="md-nav__link">
+  <a href="#subsystems" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chainguard
+        Subsystems
       
     </span>
   </a>
@@ -1542,32 +1651,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#anchore" class="md-nav__link">
+  <a href="#containerd-vs-docker" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anchore
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aqua-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aqua Security
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#red-hat" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Red Hat
+        containerd vs. Docker
       
     </span>
   </a>
@@ -1580,22 +1667,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dockers-differentiation" class="md-nav__link">
+  <a href="#containerd-shim" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker's Differentiation
+        containerd-shim
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Docker&#39;s Differentiation">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runc
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="runc">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-developer-workflow-integration" class="md-nav__link">
+  <a href="#startup-sequence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Developer Workflow Integration
+        Startup Sequence
       
     </span>
   </a>
@@ -1603,10 +1701,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-ease-of-use" class="md-nav__link">
+  <a href="#kernel-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Ease of Use
+        Kernel Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namespaces
       
     </span>
   </a>
@@ -1614,10 +1724,98 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-multi-platform-build" class="md-nav__link">
+  <a href="#cgroups" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Multi-Platform Build
+        cgroups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccomp-capabilities-mac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seccomp, Capabilities, MAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-runtime-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Runtime Spec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-image-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Image Spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OCI Image Spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-architecture-image-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Architecture (Image Index)
       
     </span>
   </a>
@@ -1630,22 +1828,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#strategic-challenges" class="md-nav__link">
+  <a href="#docker-vs-containerd-vs-cri" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Strategic Challenges
+        Docker vs. containerd vs. CRI
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Strategic Challenges">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-in-rootless-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker in Rootless Mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker in Rootless Mode">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#challenge-1-platform-lock-in-perception" class="md-nav__link">
+  <a href="#mechanisms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Challenge 1: Platform Lock-In Perception
+        Mechanisms
       
     </span>
   </a>
@@ -1653,32 +1862,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#challenge-2-runtime-security-gap" class="md-nav__link">
+  <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Challenge 2: Runtime Security Gap
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#challenge-3-open-source-competition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Challenge 3: Open Source Competition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#challenge-4-enterprise-trust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Challenge 4: Enterprise Trust
+        Limitations
       
     </span>
   </a>
@@ -1691,22 +1878,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opportunities" class="md-nav__link">
+  <a href="#container-startup-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunities
+        Container Startup Flow
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Opportunities">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#opportunity-1-supply-chain-regulations" class="md-nav__link">
+  <a href="#explain-the-docker-architecture-standard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 1: Supply Chain Regulations
+        "Explain the Docker architecture" (Standard)
       
     </span>
   </a>
@@ -1714,10 +1912,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opportunity-2-aiml-image-security" class="md-nav__link">
+  <a href="#why-did-kubernetes-remove-dockershim-architecture-depth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 2: AI/ML Image Security
+        "Why did Kubernetes remove dockershim?" (Architecture Depth)
       
     </span>
   </a>
@@ -1725,10 +1923,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opportunity-3-the-docker-desktop-distribution-channel" class="md-nav__link">
+  <a href="#what-happens-when-the-daemon-crashes-resilience" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 3: The "Docker Desktop" Distribution Channel
+        "What happens when the daemon crashes?" (Resilience)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-the-difference-between-docker-and-containerd-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What's the difference between Docker and containerd?" (Scope)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-rootless-docker-work-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does rootless Docker work?" (Security)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
       
     </span>
   </a>
@@ -1737,17 +1968,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#likely-interview-questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Likely Interview Questions
-      
-    </span>
-  </a>
   
 </li>
       
@@ -1755,93 +1975,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
-        
-          
-          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Docker
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_9">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Docker
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../30-docker-architecture/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Docker Architecture
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2060,22 +2193,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#how-the-pillars-connect" class="md-nav__link">
+  <a href="#client-server-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        How the Pillars Connect
+        Client-Server Model
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="How the Pillars Connect">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockerd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        dockerd
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="dockerd">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#the-integrated-workflow" class="md-nav__link">
+  <a href="#responsibilities" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The Integrated Workflow
+        Responsibilities
       
     </span>
   </a>
@@ -2083,10 +2227,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#the-docker-native-advantage" class="md-nav__link">
+  <a href="#configuration" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The "Docker-Native" Advantage
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#image-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Image Storage
       
     </span>
   </a>
@@ -2099,22 +2254,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#competitive-landscape" class="md-nav__link">
+  <a href="#containerd" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Competitive Landscape
+        containerd
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Competitive Landscape">
+    <nav class="md-nav" aria-label="containerd">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#chainguard" class="md-nav__link">
+  <a href="#subsystems" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chainguard
+        Subsystems
       
     </span>
   </a>
@@ -2122,32 +2277,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#anchore" class="md-nav__link">
+  <a href="#containerd-vs-docker" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anchore
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#aqua-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Aqua Security
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#red-hat" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Red Hat
+        containerd vs. Docker
       
     </span>
   </a>
@@ -2160,22 +2293,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#dockers-differentiation" class="md-nav__link">
+  <a href="#containerd-shim" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker's Differentiation
+        containerd-shim
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Docker&#39;s Differentiation">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#runc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        runc
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="runc">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-developer-workflow-integration" class="md-nav__link">
+  <a href="#startup-sequence" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. Developer Workflow Integration
+        Startup Sequence
       
     </span>
   </a>
@@ -2183,10 +2327,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-ease-of-use" class="md-nav__link">
+  <a href="#kernel-features" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Ease of Use
+        Kernel Features
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Kernel Features">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namespaces
       
     </span>
   </a>
@@ -2194,10 +2350,98 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-multi-platform-build" class="md-nav__link">
+  <a href="#cgroups" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Multi-Platform Build
+        cgroups
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#seccomp-capabilities-mac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seccomp, Capabilities, MAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-runtime-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Runtime Spec
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#oci-image-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCI Image Spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="OCI Image Spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multi-architecture-image-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Multi-Architecture (Image Index)
       
     </span>
   </a>
@@ -2210,22 +2454,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#strategic-challenges" class="md-nav__link">
+  <a href="#docker-vs-containerd-vs-cri" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Strategic Challenges
+        Docker vs. containerd vs. CRI
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Strategic Challenges">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docker-in-rootless-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker in Rootless Mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Docker in Rootless Mode">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#challenge-1-platform-lock-in-perception" class="md-nav__link">
+  <a href="#mechanisms" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Challenge 1: Platform Lock-In Perception
+        Mechanisms
       
     </span>
   </a>
@@ -2233,32 +2488,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#challenge-2-runtime-security-gap" class="md-nav__link">
+  <a href="#limitations" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Challenge 2: Runtime Security Gap
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#challenge-3-open-source-competition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Challenge 3: Open Source Competition
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#challenge-4-enterprise-trust" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Challenge 4: Enterprise Trust
+        Limitations
       
     </span>
   </a>
@@ -2271,22 +2504,33 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opportunities" class="md-nav__link">
+  <a href="#container-startup-flow" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunities
+        Container Startup Flow
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Opportunities">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#strategic-analysis-for-interview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Strategic Analysis for Interview
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Strategic Analysis for Interview">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#opportunity-1-supply-chain-regulations" class="md-nav__link">
+  <a href="#explain-the-docker-architecture-standard" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 1: Supply Chain Regulations
+        "Explain the Docker architecture" (Standard)
       
     </span>
   </a>
@@ -2294,10 +2538,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opportunity-2-aiml-image-security" class="md-nav__link">
+  <a href="#why-did-kubernetes-remove-dockershim-architecture-depth" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 2: AI/ML Image Security
+        "Why did Kubernetes remove dockershim?" (Architecture Depth)
       
     </span>
   </a>
@@ -2305,10 +2549,43 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#opportunity-3-the-docker-desktop-distribution-channel" class="md-nav__link">
+  <a href="#what-happens-when-the-daemon-crashes-resilience" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opportunity 3: The "Docker Desktop" Distribution Channel
+        "What happens when the daemon crashes?" (Resilience)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-the-difference-between-docker-and-containerd-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "What's the difference between Docker and containerd?" (Scope)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-does-rootless-docker-work-security" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        "How does rootless Docker work?" (Security)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-References
       
     </span>
   </a>
@@ -2317,17 +2594,6 @@
         
       </ul>
     </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#likely-interview-questions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Likely Interview Questions
-      
-    </span>
-  </a>
   
 </li>
       
@@ -2351,265 +2617,430 @@
   
 
 
-<h1 id="dockers-supply-chain-platform-strategy">Docker's Supply Chain Platform Strategy<a class="headerlink" href="#dockers-supply-chain-platform-strategy" title="Permanent link">&para;</a></h1>
+<h1 id="docker-architecture">Docker Architecture<a class="headerlink" href="#docker-architecture" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Docker is assembling the components of an end-to-end supply chain security platform. The thesis is that security must be embedded into every stage of the container lifecycle — from build to distribution to runtime — and that most organizations lack an integrated platform to achieve this. Docker's strategy is to provide that platform, deeply integrated with the developer workflow that made Docker ubiquitous.</p>
-<p>The four pillars of the strategy are:</p>
-<table>
-<thead>
-<tr>
-<th>Pillar</th>
-<th>Product</th>
-<th>Function</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Build</strong></td>
-<td>Docker Build Cloud</td>
-<td>Fast, secure, multi-architecture builds</td>
-</tr>
-<tr>
-<td><strong>Distribution</strong></td>
-<td>Docker Hub</td>
-<td>Image storage, organization management, access control</td>
-</tr>
-<tr>
-<td><strong>Hardening</strong></td>
-<td>Docker Hardened Images (DHI)</td>
-<td>Trusted, attested base images</td>
-</tr>
-<tr>
-<td><strong>Analysis</strong></td>
-<td>Docker Scout</td>
-<td>SBOM, vulnerability scanning, policy evaluation</td>
-</tr>
-</tbody>
-</table>
+<p>Docker is a layered stack of cooperating components: the CLI, the daemon, container runtimes, and
+kernel primitives. This article breaks down each layer — <code>docker</code> CLI, <code>dockerd</code>, <code>containerd</code>,
+<code>containerd-shim</code>, and <code>runc</code> — and explains the OCI specifications that make the stack portable.</p>
 <hr />
-<h2 id="how-the-pillars-connect">How the Pillars Connect<a class="headerlink" href="#how-the-pillars-connect" title="Permanent link">&para;</a></h2>
-<p>The platform strategy is not about four separate products — it's about how they work together to create a cohesive supply chain.</p>
-<h3 id="the-integrated-workflow">The Integrated Workflow<a class="headerlink" href="#the-integrated-workflow" title="Permanent link">&para;</a></h3>
-<pre><code>Developer → Dockerfile → Build Cloud → Docker Hub → Scout Analysis → Policy Gate → Production
-                              │                              │
-                              ↓                              ↓
-                         DHI Base Image               Attestations + SBOM
+<h2 id="client-server-model">Client-Server Model<a class="headerlink" href="#client-server-model" title="Permanent link">&para;</a></h2>
+<p>The <code>docker</code> CLI communicates with <code>dockerd</code> over a REST API. By default, the daemon listens on a
+local Unix socket at <code>/var/run/docker.sock</code>. The socket is owned by <code>root</code>; users in the <code>docker</code>
+group can issue any API call, so group membership is effectively root access.</p>
+<pre><code class="language-bash"># The CLI resolves the socket path automatically
+docker ps
+
+# Equivalent curl
+curl --unix-socket /var/run/docker.sock \
+  http://localhost/v1.46/containers/json
 </code></pre>
+<p>For remote access, the daemon can listen on TCP — port <code>2376</code> for TLS, <code>2375</code> for unencrypted.
+Production deployments must enable TLS:</p>
+<pre><code class="language-bash">dockerd --tlsverify \
+  --tlscacert=ca.pem --tlscert=server-cert.pem --tlskey=server-key.pem \
+  -H=0.0.0.0:2376
+</code></pre>
+<p>The API is versioned. The daemon supports multiple versions simultaneously:</p>
+<pre><code class="language-bash">DOCKER_API_VERSION=1.39 docker ps
+</code></pre>
+<hr />
+<h2 id="dockerd">dockerd<a class="headerlink" href="#dockerd" title="Permanent link">&para;</a></h2>
+<p><code>dockerd</code> is the persistent daemon managing images, containers, networks, and volumes.</p>
+<h3 id="responsibilities">Responsibilities<a class="headerlink" href="#responsibilities" title="Permanent link">&para;</a></h3>
 <ol>
-<li><strong>Developer starts with a DHI base image</strong> — trusted, hardened, attested, with known provenance</li>
-<li><strong>Build Cloud compiles the image</strong> — multi-architecture, with provenance and SBOM attestations attached during the build</li>
-<li><strong>Image is pushed to Docker Hub</strong> — stored in private or org repository with access controls</li>
-<li><strong>Scout analyzes the image</strong> — generates SBOM, cross-references CVEs, evaluates against environment policies</li>
-<li><strong>Policy gate decides</strong> — if the image passes, it's tagged for production; if it fails, the deployment is blocked and the developer receives remediation guidance</li>
-<li><strong>Runtime verification</strong> — Scout continues to monitor images in production, alerting on new CVEs</li>
+<li><strong>API server</strong>: Listens on the configured socket, parses REST requests, dispatches to handlers.</li>
+<li><strong>Image management</strong>: Pull, store, tag, delete images. Delegates to containerd.</li>
+<li><strong>Container lifecycle</strong>: Create, start, stop, remove containers. Delegates to containerd.</li>
+<li><strong>Volume management</strong>: Create and mount volumes via volume drivers (local, NFS, cloud plugins).</li>
+<li><strong>Network management</strong>: Create networks, manage DNS and port publishing.</li>
+<li><strong>Build engine</strong>: Run <code>docker build</code> via BuildKit (since Docker 23.0).</li>
 </ol>
-<h3 id="the-docker-native-advantage">The "Docker-Native" Advantage<a class="headerlink" href="#the-docker-native-advantage" title="Permanent link">&para;</a></h3>
-<pre><code class="language-bash"># A single workflow that touches all four pillars
-
-# 1. Build from hardened base image
-FROM docker/hardened-node:20
-COPY . .
-RUN npm ci --omit=dev
-
-# 2. Build with Build Cloud (multi-arch + attestations)
-docker buildx build \
-  --builder cloud-org-builder \
-  --platform linux/amd64,linux/arm64 \
-  --sbom=true \
-  --attest type=provenance,mode=max \
-  -t myorg/my-app:latest \
-  --push \
-  .
-
-# 3. Hub stores and distributes the image
-# 4. Scout auto-analyzes (integrated with Hub)
-# 5. Policy evaluation gates deployment
-docker scout policy --env production myorg/my-app:latest
+<h3 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h3>
+<p>The daemon reads <code>/etc/docker/daemon.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;storage-driver&quot;: &quot;overlay2&quot;,
+  &quot;exec-opts&quot;: [&quot;native.cgroupdriver=systemd&quot;],
+  &quot;live-restore&quot;: true,
+  &quot;log-opts&quot;: { &quot;max-size&quot;: &quot;10m&quot;, &quot;max-file&quot;: &quot;3&quot; }
+}
 </code></pre>
-<p>The integration is the product. No separate scanner setup, no external registry configuration, no additional signing infrastructure — it all works because Docker controls the entire pipeline.</p>
+<h3 id="image-storage">Image Storage<a class="headerlink" href="#image-storage" title="Permanent link">&para;</a></h3>
+<p>Data lives under <code>/var/lib/docker/</code>:</p>
+<pre><code>/var/lib/docker/
+├── containers/   # Container metadata
+├── image/        # Image metadata
+├── overlay2/     # Layer data
+├── volumes/      # Volume data
+├── network/      # Network state
+└── plugins/      # Plugin data
+</code></pre>
+<p>With <code>overlay2</code>, layers are stored as directories under <code>overlay2/</code>, each identified by its DiffID
+(sha256 of the uncompressed layer tarball).</p>
 <hr />
-<h2 id="competitive-landscape">Competitive Landscape<a class="headerlink" href="#competitive-landscape" title="Permanent link">&para;</a></h2>
-<p>Docker's strategy must be understood in the context of its competitors, each of which approaches supply chain security from a different angle.</p>
-<h3 id="chainguard">Chainguard<a class="headerlink" href="#chainguard" title="Permanent link">&para;</a></h3>
-<p>Chainguard is a supply chain security company founded in 2021 by former Google engineers (Dan Lorenc, Kim Lewandowski, Ville Aikas, Matt Moore) who built Sigstore, SLSA, in-toto, and distroless while at Google. The company's mission is to make software supply chain security available to every organization by building a complete, open-core platform for container image security.</p>
-<p><strong>Product Stack:</strong></p>
+<h2 id="containerd">containerd<a class="headerlink" href="#containerd" title="Permanent link">&para;</a></h2>
+<p>containerd is the industry-standard container runtime Docker uses under the hood. Originally
+extracted from Docker's internals and donated to the CNCF, it graduated as an incubating project in
+2019. Docker, Kubernetes (via CRI), Nomad, and others embed it.</p>
+<h3 id="subsystems">Subsystems<a class="headerlink" href="#subsystems" title="Permanent link">&para;</a></h3>
+<p>containerd runs as a daemon exposing a gRPC API on <code>/run/containerd/containerd.sock</code>:</p>
+<ul>
+<li><strong>Content store</strong>: Blob storage addressed by digest (content-addressable).</li>
+<li><strong>Snapshotter</strong>: Filesystem snapshots for container rootfs (overlayfs, native, devmapper).</li>
+<li><strong>Metadata store</strong>: BoltDB-backed image and container metadata.</li>
+<li><strong>Image service</strong>: Pull, push, authenticate, traverse image indexes.</li>
+<li><strong>Container service</strong>: Create, start, stop, delete containers.</li>
+<li><strong>Task service</strong>: Manage running processes — each task has a PID and a corresponding shim.</li>
+</ul>
+<h3 id="containerd-vs-docker">containerd vs. Docker<a class="headerlink" href="#containerd-vs-docker" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
-<th>Layer</th>
-<th>Product</th>
-<th>Description</th>
-<th>Business Model</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>OS</strong></td>
-<td>Wolfi</td>
-<td>A Linux distribution designed from scratch for containers. Custom-built from source, rebuilt near-daily. Proactive CVE patching — patches vulnerable packages rather than waiting for upstream. Uses <code>apk</code> (Alpine's package manager).</td>
-<td>Open source (Apache 2.0)</td>
-</tr>
-<tr>
-<td><strong>Images</strong></td>
-<td>Chainguard Images</td>
-<td>~200+ minimal, distroless container images built on Wolfi — runtimes (Python, Go, Node.js, Java), databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.</td>
-<td>Free tier (public pull, rate-limited) + commercial subscription (unlimited pull, enterprise SLA)</td>
-</tr>
-<tr>
-<td><strong>Policy</strong></td>
-<td>Chainguard Enforce</td>
-<td>A Kubernetes admission controller and policy engine that verifies image attestations at deploy time. Enforces SLSA levels, required attestation types, allowed registries, and vulnerability thresholds. Provides a continuous audit trail of what images run where.</td>
-<td>Commercial (SaaS + self-hosted)</td>
-</tr>
-</tbody>
-</table>
-<p><strong>How the layers connect:</strong></p>
-<pre><code>Wolfi (OS) ──builds──→ Chainguard Images (200+ pre-built images)
-                            │
-                            ↓
-                     Kubernetes cluster
-                            │
-                    Chainguard Enforce (admission control)
-                     - Verifies attestations
-                     - Enforces policies
-                     - Audits runtime
-</code></pre>
-<p>Wolfi is the foundation: a minimal, continuously-patched OS that produces zero-CVE base images. Chainguard Images are the packaged product: ready-to-use containers built from Wolfi with signed attestations. Chainguard Enforce is the platform layer: it checks those attestations at admission time, ensuring only approved images with valid provenance and acceptable CVEs reach production.</p>
-<p><strong>Relationship to Docker's platform:</strong></p>
-<p>Docker and Chainguard compete at multiple layers of the stack, but also cooperate at the OS layer:</p>
-<table>
-<thead>
-<tr>
-<th>Layer</th>
+<th>Concern</th>
 <th>Docker</th>
-<th>Chainguard</th>
-<th>Relationship</th>
+<th>containerd</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>OS</strong></td>
-<td>Wolfi (via DHI)</td>
-<td>Wolfi</td>
-<td><strong>Coopetition</strong>: Both use Wolfi. Docker doesn't maintain Wolfi — Chainguard does. Docker gets Wolfi's security posture without running an OS team.</td>
+<td>API style</td>
+<td>REST (HTTP)</td>
+<td>gRPC (protobuf)</td>
 </tr>
 <tr>
-<td><strong>Images</strong></td>
-<td>Docker Hardened Images (~25 curated)</td>
-<td>Chainguard Images (~200+)</td>
-<td><strong>Competition</strong>: DHI has a smaller catalog with tighter Docker integration. Chainguard has breadth.</td>
+<td>Image building</td>
+<td>Yes (BuildKit)</td>
+<td>No</td>
 </tr>
 <tr>
-<td><strong>Analysis</strong></td>
-<td>Docker Scout</td>
-<td>Chainguard Enforce</td>
-<td><strong>Competition</strong>: Both do SBOM-based policy evaluation. Scout is CLI/Hub-integrated; Enforce is admission-control-native.</td>
+<td>Volume / Network mgmt</td>
+<td>Yes</td>
+<td>No</td>
 </tr>
 <tr>
-<td><strong>Registry</strong></td>
-<td>Docker Hub</td>
-<td>cgr.dev</td>
-<td><strong>Competition</strong>: Hub has massive distribution; cgr.dev is smaller but purpose-built for Chainguard Images.</td>
+<td>CLI</td>
+<td><code>docker</code></td>
+<td><code>ctr</code>, <code>nerdctl</code></td>
 </tr>
 <tr>
-<td><strong>Build</strong></td>
-<td>Docker Build Cloud</td>
-<td>None</td>
-<td><strong>No equivalent</strong>: Chainguard has no managed build service. Build Cloud is a Docker-exclusive differentiator.</td>
+<td>Kubernetes</td>
+<td>Via dockershim (removed 1.24)</td>
+<td>Directly via CRI plugin</td>
 </tr>
 </tbody>
 </table>
-<p>The coopetition at the OS layer is notable: Docker Hardened Images are built on Wolfi (Chainguard's OS), yet the two companies compete at the image and policy layers. This mirrors the open-source pattern where upstream suppliers and platform integrators have overlapping but distinct roles — Chainguard maintains the raw materials, Docker integrates them into a developer workflow.</p>
-<p><strong>Approach</strong>: Build a better base image and toolchain (Wolfi, apk, Chainguard Images, Chainguard Enforce)</p>
-<p><strong>Strengths</strong>:
-- <strong>Image catalog breadth</strong>: Chainguard has more language runtimes and middleware images than DHI
-- <strong>OS ownership</strong>: Chainguard controls Wolfi end-to-end. CVE remediation happens in hours, not days
-- <strong>Open core</strong>: Wolfi is Apache 2.0, apk is open source. Community contributions to Wolfi packages</p>
-<p><strong>Weaknesses</strong>:
-- <strong>Distribution</strong>: cgr.dev has minimal traffic compared to Docker Hub. Most developers have never pulled from cgr.dev
-- <strong>Developer workflow</strong>: Chainguard's tooling is Kubernetes/admission-controller focused. Docker has better CLI and IDE integration
-- <strong>Brand recognition</strong>: Docker is a household name in containers; Chainguard is unknown outside security teams
-- <strong>Build service</strong>: No managed build platform. Customers must use their own CI or a third-party build service</p>
-<p><strong>Docker's response</strong>: DHI uses Wolfi as its base OS, coopetition with Chainguard. Docker integrates Wolfi's security posture with Docker's distribution and developer experience advantages.</p>
-<h3 id="anchore">Anchore<a class="headerlink" href="#anchore" title="Permanent link">&para;</a></h3>
-<p><strong>Approach</strong>: Vulnerability scanning and policy engine (Grype, Syft, Anchore Enterprise)</p>
-<p><strong>Strengths</strong>:
-- <strong>Grype/Syft are the most widely used open source scanner/SBOM tool</strong>
-- <strong>Policy engine is mature</strong>: Fine-grained, flexible policy definitions with multiple control points
-- <strong>Vendor-neutral</strong>: Works with any registry, any build system, any orchestrator
-- <strong>Enterprise features</strong>: RBAC, audit logging, compliance reporting</p>
-<p><strong>Weaknesses</strong>:
-- No image registry, no build platform, no base images — pure analysis layer
-- Developer experience is CLI-first, not pipeline-integrated
-- Policy authoring requires YAML expertise; less accessible than Scout's environment-based model</p>
-<p><strong>Docker's response</strong>: Scout competes with Anchore Enterprise but is differentiated by being embedded in the Docker workflow. Scout policies are simpler to configure; the trade-off is less flexibility.</p>
-<h3 id="aqua-security">Aqua Security<a class="headerlink" href="#aqua-security" title="Permanent link">&para;</a></h3>
-<p><strong>Approach</strong>: Cloud-native application protection platform (CNAPP) covering full lifecycle</p>
-<p><strong>Strengths</strong>:
-- <strong>Broadest product scope</strong>: Image scanning, runtime protection, IaC scanning, Kubernetes security, vulnerability management
-- <strong>Enterprise maturity</strong>: Role-based access control, SIEM integration, compliance reporting, incident response workflows
-- <strong>Deep runtime protection</strong>: Not just pre-deployment scanning — Aqua monitors container behavior at runtime</p>
-<p><strong>Weaknesses</strong>:
-- <strong>Complexity</strong>: CNAPP platforms require significant setup, configuration, and ongoing management
-- <strong>Developer friction</strong>: Security gates are enforced by security teams, not developers
-- <strong>Cost</strong>: Enterprise CNAPP licensing is expensive; overkill for smaller teams</p>
-<p><strong>Docker's response</strong>: Docker focuses on developer-friendly, pre-deployment security. Docker doesn't compete at the runtime level (no Kubernetes admission controller, no runtime monitoring). The strategy is to be the best-in-class supply chain platform for the build-to-deploy window, then integrate with runtime security providers.</p>
-<h3 id="red-hat">Red Hat<a class="headerlink" href="#red-hat" title="Permanent link">&para;</a></h3>
-<p><strong>Approach</strong>: Enterprise container platform (UBI, Quay.io, OpenShift, ACS)</p>
-<p><strong>Strengths</strong>:
-- <strong>UBI is well-established</strong>: RHEL-based, commercially supported, familiar to enterprise ops teams
-- <strong>Quay is a mature registry</strong>: Geo-replication, security scanning, image mirroring
-- <strong>OpenShift integration</strong>: End-to-end platform from build to orchestration
-- <strong>Red Hat Advanced Cluster Security (ACS)</strong>: StackRox-based runtime security</p>
-<p><strong>Weaknesses</strong>:
-- <strong>RHEL dependency</strong>: UBI images are larger and have a different CVE surface than Wolfi or Alpine
-- <strong>Cost center</strong>: Red Hat subscriptions are expensive; UBI requires a Red Hat account for some features
-- <strong>Developer experience</strong>: OpenShift and Quay are enterprise-focused; less accessible for individual developers</p>
-<p><strong>Docker's response</strong>: Docker competes on developer experience and lower cost. Docker Hub is free for public images and inexpensive for private; Build Cloud is consumption-based; DHI is commercially supported but doesn't require a platform subscription. Docker's bet is that developers will choose the path of least resistance.</p>
+<pre><code class="language-bash">ctr images list
+ctr images pull docker.io/library/alpine:latest
+ctr run docker.io/library/alpine:latest my-alpine sh
+</code></pre>
 <hr />
-<h2 id="dockers-differentiation">Docker's Differentiation<a class="headerlink" href="#dockers-differentiation" title="Permanent link">&para;</a></h2>
-<h3 id="1-developer-workflow-integration">1. Developer Workflow Integration<a class="headerlink" href="#1-developer-workflow-integration" title="Permanent link">&para;</a></h3>
-<p>Docker's single strongest advantage is that developers already use Docker. Scout commands use the same <code>docker</code> CLI they run daily. DHI images are pulled with the same <code>docker pull</code> command. There's no new tooling, no new workflows, no new login credentials. The security layer is invisible until it needs to be visible (policy violation, CVE alert).</p>
-<h3 id="2-ease-of-use">2. Ease of Use<a class="headerlink" href="#2-ease-of-use" title="Permanent link">&para;</a></h3>
+<h2 id="containerd-shim">containerd-shim<a class="headerlink" href="#containerd-shim" title="Permanent link">&para;</a></h2>
+<p><code>containerd-shim</code> is a per-container process bridging containerd and the OCI runtime. It solves a
+critical problem: <strong>container processes must survive daemon restarts</strong>. If containerd crashes, the
+shim keeps stdio open and tracks exit status. When containerd comes back, it reconnects.</p>
+<pre><code>dockerd → containerd → containerd-shim (per container) → runc → container process
+</code></pre>
+<p>Each container gets its own shim. A crash in one shim does not affect others. Shim variants include
+<code>containerd-shim-runc-v1</code>, <code>containerd-shim-runc-v2</code> (current standard), and custom shims for
+Kata Containers or gVisor.</p>
+<pre><code class="language-bash">ps aux | grep containerd-shim
+# /usr/bin/containerd-shim-runc-v2
+#   -namespace moby -id abc123... -address /run/containerd/containerd.sock
+</code></pre>
+<hr />
+<h2 id="runc">runc<a class="headerlink" href="#runc" title="Permanent link">&para;</a></h2>
+<p><code>runc</code> is the OCI-compliant low-level runtime that creates the container — namespaces, cgroups,
+mounts, seccomp, and exec.</p>
+<p>Given a bundle with <code>config.json</code> and <code>rootfs/</code>:</p>
+<pre><code class="language-bash">runc run my-container
+</code></pre>
+<h3 id="startup-sequence">Startup Sequence<a class="headerlink" href="#startup-sequence" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Read <code>config.json</code>.</li>
+<li>Mount rootfs (pivot_root or chroot).</li>
+<li>Clone namespaces (<code>CLONE_NEW*</code> flags).</li>
+<li>Write PID to cgroup files.</li>
+<li>Mount /proc, /sys, /dev.</li>
+<li>Load seccomp BPF filter.</li>
+<li>Drop capabilities (<code>cap_set_proc</code>).</li>
+<li>Write UID/GID mappings for user namespaces.</li>
+<li><code>execve</code> the container process.</li>
+</ol>
+<h3 id="kernel-features">Kernel Features<a class="headerlink" href="#kernel-features" title="Permanent link">&para;</a></h3>
+<h4 id="namespaces">Namespaces<a class="headerlink" href="#namespaces" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Isolates</th>
+<th>Kernel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pid</code></td>
+<td>Process IDs</td>
+<td>3.8+</td>
+</tr>
+<tr>
+<td><code>net</code></td>
+<td>Network stack</td>
+<td>2.6.29+</td>
+</tr>
+<tr>
+<td><code>mnt</code></td>
+<td>Mount points</td>
+<td>2.4.19+</td>
+</tr>
+<tr>
+<td><code>user</code></td>
+<td>UID/GID mappings</td>
+<td>3.8+</td>
+</tr>
+<tr>
+<td><code>uts</code></td>
+<td>Hostname</td>
+<td>2.6.19+</td>
+</tr>
+<tr>
+<td><code>ipc</code></td>
+<td>System V IPC</td>
+<td>2.6.19+</td>
+</tr>
+<tr>
+<td><code>cgroup</code></td>
+<td>Cgroup root view</td>
+<td>4.6+</td>
+</tr>
+<tr>
+<td><code>time</code></td>
+<td>System time</td>
+<td>5.6+</td>
+</tr>
+</tbody>
+</table>
+<p>User namespaces are covered in <a href="../10-non-root-execution/">Non-Root Execution</a>.</p>
+<h4 id="cgroups">cgroups<a class="headerlink" href="#cgroups" title="Permanent link">&para;</a></h4>
+<p>Limit CPU, memory, I/O, and PIDs. cgroups v1 uses separate hierarchies under <code>/sys/fs/cgroup/</code>.
+cgroups v2 uses a unified hierarchy (default since systemd 242+).</p>
+<pre><code class="language-json">&quot;linux&quot;: {
+  &quot;resources&quot;: {
+    &quot;memory&quot;: { &quot;limit&quot;: 536870912, &quot;swap&quot;: 1073741824 },
+    &quot;cpu&quot;: { &quot;shares&quot;: 512, &quot;quota&quot;: 100000, &quot;cpus&quot;: &quot;0-3&quot; },
+    &quot;pids&quot;: { &quot;limit&quot;: 100 }
+  }
+}
+</code></pre>
+<h4 id="seccomp-capabilities-mac">Seccomp, Capabilities, MAC<a class="headerlink" href="#seccomp-capabilities-mac" title="Permanent link">&para;</a></h4>
 <ul>
-<li>Scout policies are environment-based (<code>--env production</code>), not complex Rego rules</li>
-<li>DHI images follow the same interface as official images (same env vars, same ports, same entrypoints)</li>
-<li>Build Cloud works with the existing <code>docker buildx</code> command</li>
-<li>Hub organization management is familiar to anyone who has used GitHub organizations</li>
+<li><strong>Seccomp</strong>: Filters syscalls. Blocks ~50 dangerous, allows ~300+. See
+  <a href="../12-seccomp/">Seccomp</a>.</li>
+<li><strong>Capabilities</strong>: Divides root privileges into discrete units. Dropped by default. See
+  <a href="../11-linux-capabilities/">Linux Capabilities</a>.</li>
+<li><strong>MAC</strong>: SELinux and AppArmor profiles. See
+  <a href="../13-apparmor-selinux/">AppArmor / SELinux</a>.</li>
 </ul>
-<h3 id="3-multi-platform-build">3. Multi-Platform Build<a class="headerlink" href="#3-multi-platform-build" title="Permanent link">&para;</a></h3>
-<p>Build Cloud's ability to build for <code>linux/amd64</code>, <code>linux/arm64</code>, and <code>linux/arm/v7</code> in parallel is a genuine differentiator. No other supply chain platform offers native multi-architecture build infrastructure integrated with signing and analysis.</p>
 <hr />
-<h2 id="strategic-challenges">Strategic Challenges<a class="headerlink" href="#strategic-challenges" title="Permanent link">&para;</a></h2>
-<h3 id="challenge-1-platform-lock-in-perception">Challenge 1: Platform Lock-In Perception<a class="headerlink" href="#challenge-1-platform-lock-in-perception" title="Permanent link">&para;</a></h3>
-<p>Docker's strategy only works if customers use multiple Docker products. A customer using Chainguard Images, Harbor registry, and Grype scanning is using none of Docker's platform. Docker needs to convince customers to consolidate.</p>
-<p><strong>Mitigation</strong>: Docker makes individual products valuable standalone (DHI without Scout, Scout without Hub). The platform value is additive, not gated.</p>
-<h3 id="challenge-2-runtime-security-gap">Challenge 2: Runtime Security Gap<a class="headerlink" href="#challenge-2-runtime-security-gap" title="Permanent link">&para;</a></h3>
-<p>Docker's platform stops at deployment. For runtime security, customers need Aqua, Sysdig, Falco, or a Kubernetes admission controller. Docker doesn't offer admission control, runtime monitoring, or incident response.</p>
-<p><strong>Mitigation</strong>: Docker positions itself as the build-to-deploy layer and partners with runtime security providers. The OCI standard for attestations enables runtime tools to verify Docker-signed images.</p>
-<h3 id="challenge-3-open-source-competition">Challenge 3: Open Source Competition<a class="headerlink" href="#challenge-3-open-source-competition" title="Permanent link">&para;</a></h3>
-<p>Grype/Syft (Anchore), Trivy (Aqua), cosign (Sigstore), and Wolfi (Chainguard) are all open source and widely adopted. Docker's products are proprietary (with some open source components). Open source tools are free, community-supported, and vendor-neutral.</p>
-<p><strong>Mitigation</strong>: Docker competes on integration, usability, and support. The open source tools are powerful but require assembly. Docker provides a pre-assembled, supported platform.</p>
-<h3 id="challenge-4-enterprise-trust">Challenge 4: Enterprise Trust<a class="headerlink" href="#challenge-4-enterprise-trust" title="Permanent link">&para;</a></h3>
-<p>Docker has a history of pricing changes (Docker Desktop licensing in 2021) that eroded enterprise trust. Security platform adoption requires trust. Enterprises worry about vendor lock-in, pricing changes, and long-term commitment.</p>
-<p><strong>Mitigation</strong>: Docker is building enterprise features (RBAC, audit logging, commercial SLAs) and communicating a clear product roadmap. DHI's enterprise SLA is a concrete example.</p>
-<hr />
-<h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
-<h3 id="opportunity-1-supply-chain-regulations">Opportunity 1: Supply Chain Regulations<a class="headerlink" href="#opportunity-1-supply-chain-regulations" title="Permanent link">&para;</a></h3>
-<p>Regulatory pressure is increasing: US Executive Order 14028, EU Cyber Resilience Act, FDA pre-market cybersecurity requirements. Organizations need to demonstrate supply chain security. Docker's platform provides attestation evidence that directly maps to regulatory requirements.</p>
-<h3 id="opportunity-2-aiml-image-security">Opportunity 2: AI/ML Image Security<a class="headerlink" href="#opportunity-2-aiml-image-security" title="Permanent link">&para;</a></h3>
-<p>As organizations deploy AI models in containers, they need the same supply chain guarantees. Docker can extend Scout to scan model files, Python dependencies, and CUDA toolkits. DHI can provide hardened base images for ML workflows (TensorFlow, PyTorch, NVIDIA CUDA).</p>
-<h3 id="opportunity-3-the-docker-desktop-distribution-channel">Opportunity 3: The "Docker Desktop" Distribution Channel<a class="headerlink" href="#opportunity-3-the-docker-desktop-distribution-channel" title="Permanent link">&para;</a></h3>
-<p>Every Docker Desktop installation is a potential Scout activation. Docker Desktop already includes Scout integration; expanding this to include DHI recommendations and Build Cloud integration creates a distribution channel that competitors can't match.</p>
-<hr />
-<h2 id="likely-interview-questions">Likely Interview Questions<a class="headerlink" href="#likely-interview-questions" title="Permanent link">&para;</a></h2>
+<h2 id="oci-runtime-spec">OCI Runtime Spec<a class="headerlink" href="#oci-runtime-spec" title="Permanent link">&para;</a></h2>
+<p>The OCI Runtime Specification defines <code>config.json</code> structure and runtime behavior.</p>
+<pre><code class="language-json">{
+  &quot;ociVersion&quot;: &quot;1.1.0&quot;,
+  &quot;process&quot;: {
+    &quot;user&quot;: { &quot;uid&quot;: 0, &quot;gid&quot;: 0 },
+    &quot;args&quot;: [&quot;/bin/sh&quot;],
+    &quot;env&quot;: [&quot;PATH=/usr/local/sbin:...&quot;],
+    &quot;cwd&quot;: &quot;/&quot;,
+    &quot;noNewPrivileges&quot;: true
+  },
+  &quot;root&quot;: { &quot;path&quot;: &quot;rootfs&quot;, &quot;readonly&quot;: true },
+  &quot;mounts&quot;: [
+    { &quot;destination&quot;: &quot;/proc&quot;, &quot;type&quot;: &quot;proc&quot;, &quot;source&quot;: &quot;proc&quot; }
+  ],
+  &quot;linux&quot;: {
+    &quot;namespaces&quot;: [
+      { &quot;type&quot;: &quot;pid&quot; }, { &quot;type&quot;: &quot;network&quot; }, { &quot;type&quot;: &quot;mount&quot; },
+      { &quot;type&quot;: &quot;ipc&quot; }, { &quot;type&quot;: &quot;uts&quot; }, { &quot;type&quot;: &quot;cgroup&quot; }
+    ],
+    &quot;maskedPaths&quot;: [
+      &quot;/proc/kcore&quot;, &quot;/proc/keys&quot;, &quot;/proc/latency_stats&quot;,
+      &quot;/proc/timer_list&quot;, &quot;/proc/sched_debug&quot;, &quot;/sys/firmware&quot;
+    ],
+    &quot;readonlyPaths&quot;: [
+      &quot;/proc/bus&quot;, &quot;/proc/fs&quot;, &quot;/proc/irq&quot;, &quot;/proc/sys&quot;
+    ]
+  }
+}
+</code></pre>
+<p>Key fields:</p>
 <ul>
-<li>"How would you convince an organization using Chainguard Images + Harbor + Trivy to switch to Docker's platform?" (Focus on integration: one CLI, one registry, one analysis platform. The switch is from "assembling best-of-breed" to "running an integrated platform." Demonstrate Scout policy evaluation speed and Build Cloud build times.)</li>
-<li>"What's Docker's biggest supply chain security competitor?" (Chainguard — they compete on the same plane (base images + analysis + policy) with an open source foundation. Anchore and Aqua compete at different levels of the stack.)</li>
-<li>"Where would you invest next if you were leading Docker's supply chain strategy?" (Runtime verification integration — not a full runtime product, but attestation verification at admission control via a Kubernetes admission webhook. Also: AI/ML image support.)</li>
-<li>"How does Docker's platform strategy benefit a 10-person startup vs. a 10,000-person enterprise?" (Startup: zero-config Scout, free Hub, DHI base images — security out of the box. Enterprise: RBAC, org-level policies, commercial SLA, FIPS images, integration with existing CI/CD.)</li>
+<li><strong><code>process</code></strong>: Executable, args, env, cwd, capabilities, rlimits, security labels.</li>
+<li><strong><code>root</code></strong>: Rootfs path and readonly flag.</li>
+<li><strong><code>mounts</code></strong>: Filesystem mounts inside the container.</li>
+<li><strong><code>linux.namespaces</code></strong>: Which kernel namespaces to create.</li>
+<li><strong><code>linux.resources</code></strong>: cgroup resource limits.</li>
+<li><strong><code>linux.seccomp</code></strong>: BPF syscall filter.</li>
+<li><strong><code>linux.maskedPaths</code></strong>: Paths overmounted with empty tmpfs to hide kernel interfaces.</li>
+<li><strong><code>linux.readonlyPaths</code></strong>: Paths bind-mounted read-only.</li>
 </ul>
-<p>For deeper dives into the underlying technologies that power Docker's platform, see <a href="../30-docker-architecture/">Docker Architecture</a> and <a href="../32-buildkit-internals/">BuildKit Internals</a>.</p>
+<hr />
+<h2 id="oci-image-spec">OCI Image Spec<a class="headerlink" href="#oci-image-spec" title="Permanent link">&para;</a></h2>
+<p>A container image is a <strong>manifest</strong>, a <strong>config</strong> JSON, and <strong>layer tarballs</strong>.</p>
+<h3 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 2,
+  &quot;mediaType&quot;: &quot;application/vnd.docker.distribution.manifest.v2+json&quot;,
+  &quot;config&quot;: { &quot;digest&quot;: &quot;sha256:b5b2b2c...&quot;, &quot;size&quot;: 7023 },
+  &quot;layers&quot;: [
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.docker.image.rootfs.diff.tar.gzip&quot;,
+      &quot;size&quot;: 32654,
+      &quot;digest&quot;: &quot;sha256:e692418e...&quot;
+    }
+  ]
+}
+</code></pre>
+<h3 id="config">Config<a class="headerlink" href="#config" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;architecture&quot;: &quot;amd64&quot;,
+  &quot;os&quot;: &quot;linux&quot;,
+  &quot;rootfs&quot;: {
+    &quot;type&quot;: &quot;layers&quot;,
+    &quot;diff_ids&quot;: [&quot;sha256:e692418e...&quot;, &quot;sha256:3c3a4604...&quot;]
+  },
+  &quot;config&quot;: {
+    &quot;User&quot;: &quot;1000:1000&quot;,
+    &quot;ExposedPorts&quot;: { &quot;8080/tcp&quot;: {} },
+    &quot;Env&quot;: [&quot;PATH=/usr/local/bin:...&quot;, &quot;APP_ENV=production&quot;],
+    &quot;Entrypoint&quot;: [&quot;/usr/bin/python3&quot;],
+    &quot;Cmd&quot;: [&quot;app.py&quot;],
+    &quot;WorkingDir&quot;: &quot;/app&quot;,
+    &quot;Labels&quot;: { &quot;version&quot;: &quot;1.0.0&quot; }
+  }
+}
+</code></pre>
+<h3 id="layers">Layers<a class="headerlink" href="#layers" title="Permanent link">&para;</a></h3>
+<p>Each layer is a tar archive — the filesystem diff between layers. Layers are content-addressable
+(identified by digest), immutable, and shared across images.</p>
+<pre><code class="language-bash">docker history alpine:latest
+# IMAGE          CREATED       CREATED BY                     SIZE
+# 85f9be67a7e4   2 weeks ago   CMD [&quot;/bin/sh&quot;]                0B
+# fa1e6bfe381c   2 weeks ago   ADD file:abc... in /           7.05MB
+</code></pre>
+<p>The <code>diff_ids</code> in the config are sha256 of <strong>uncompressed</strong> layers. The manifest digest references
+the <strong>compressed</strong> blob. containerd verifies both at pull time.</p>
+<h3 id="multi-architecture-image-index">Multi-Architecture (Image Index)<a class="headerlink" href="#multi-architecture-image-index" title="Permanent link">&para;</a></h3>
+<p>The OCI Image Index maps a tag to platform-specific manifests:</p>
+<pre><code class="language-json">{
+  &quot;mediaType&quot;: &quot;application/vnd.docker.distribution.manifest.list.v2+json&quot;,
+  &quot;manifests&quot;: [
+    { &quot;digest&quot;: &quot;sha256:abc...&quot;, &quot;platform&quot;: { &quot;architecture&quot;: &quot;amd64&quot;, &quot;os&quot;: &quot;linux&quot; } },
+    { &quot;digest&quot;: &quot;sha256:def...&quot;, &quot;platform&quot;: { &quot;architecture&quot;: &quot;arm64&quot;, &quot;os&quot;: &quot;linux&quot; } }
+  ]
+}
+</code></pre>
+<p>When pulling <code>python:3.12</code>, the client selects the manifest matching its <code>runtime.GOARCH</code> and
+downloads only that image's layers.</p>
+<hr />
+<h2 id="docker-vs-containerd-vs-cri">Docker vs. containerd vs. CRI<a class="headerlink" href="#docker-vs-containerd-vs-cri" title="Permanent link">&para;</a></h2>
+<p>The Container Runtime Interface (CRI) is a Kubernetes gRPC protocol that lets kubelet use any
+runtime. Before Kubernetes 1.24, kubelet translated CRI to Docker's API via <code>dockershim</code>:</p>
+<pre><code>kubelet → dockershim → dockerd → containerd → runc
+</code></pre>
+<p>After dockershim was removed:</p>
+<pre><code>kubelet → containerd (cri plugin) → runc
+</code></pre>
+<p>containerd has a built-in CRI plugin implementing the CRI gRPC service. <strong>CRI-O</strong> is an
+alternative purpose-built for Kubernetes — it only speaks CRI, has no Docker-compatible API, and
+is the default in OpenShift. Industry adoption: Kind, Minikube, GKE, EKS, AKS use containerd.</p>
+<hr />
+<h2 id="docker-in-rootless-mode">Docker in Rootless Mode<a class="headerlink" href="#docker-in-rootless-mode" title="Permanent link">&para;</a></h2>
+<p>Rootless mode runs <code>dockerd</code> and containers without root privileges (stable since Docker 20.10).</p>
+<h3 id="mechanisms">Mechanisms<a class="headerlink" href="#mechanisms" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>User namespaces</strong>: The daemon maps its UID to root inside the namespace; the host sees an
+   unprivileged user.</li>
+<li><strong>fuse-overlayfs</strong>: Replaces <code>overlay2</code> (needs <code>mount()</code> syscalls) with a FUSE filesystem.</li>
+<li><strong>slirp4netns</strong>: Userspace network stack instead of kernel bridges and iptables.</li>
+<li><strong><code>dockerd-rootless.sh</code></strong>: Script to set up and start the rootless daemon.</li>
+</ol>
+<pre><code class="language-bash">dockerd-rootless-setuptool.sh install
+dockerd-rootless.sh
+</code></pre>
+<h3 id="limitations">Limitations<a class="headerlink" href="#limitations" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Rootful</th>
+<th>Rootless</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage driver</td>
+<td>overlay2</td>
+<td>fuse-overlayfs (slower)</td>
+</tr>
+<tr>
+<td>Network performance</td>
+<td>Native (iptables)</td>
+<td>slirp4netns (~10-20% slower)</td>
+</tr>
+<tr>
+<td>Privileged ports (&lt;1024)</td>
+<td>Works</td>
+<td>Requires <code>setcap</code> or proxy</td>
+</tr>
+<tr>
+<td>BPF networking</td>
+<td>Works</td>
+<td>Not available</td>
+</tr>
+<tr>
+<td>Cgroups</td>
+<td>Full</td>
+<td>Limited (cgroup v2 only)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="container-startup-flow">Container Startup Flow<a class="headerlink" href="#container-startup-flow" title="Permanent link">&para;</a></h2>
+<p>When you run <code>docker run nginx:latest</code>:</p>
+<pre><code>1. docker CLI → POST /containers/create via /var/run/docker.sock
+2. dockerd → resolve image, call containerd to pull
+3. containerd → pull layers, unpack via snapshotter, launch shim
+4. containerd-shim → open stdio pipes, write OCI bundle, invoke runc
+5. runc → read config.json; clone namespaces; set cgroups; mount /proc/sys/dev;
+   load seccomp; drop caps; write UID/GID mappings; pivot_root; execve
+</code></pre>
+<p>If <code>dockerd</code> crashes: containerd and the shim keep running, the nginx process continues serving
+traffic, stdio is buffered by the shim. On restart, dockerd reconnects via containerd.</p>
+<hr />
+<h2 id="strategic-analysis-for-interview">Strategic Analysis for Interview<a class="headerlink" href="#strategic-analysis-for-interview" title="Permanent link">&para;</a></h2>
+<h3 id="explain-the-docker-architecture-standard">"Explain the Docker architecture" (Standard)<a class="headerlink" href="#explain-the-docker-architecture-standard" title="Permanent link">&para;</a></h3>
+<p>Walk the call chain: CLI → REST → dockerd → containerd → shim → runc. The shim enables daemon
+restarts without killing containers. End with kernel features: namespaces, cgroups, seccomp,
+capabilities.</p>
+<h3 id="why-did-kubernetes-remove-dockershim-architecture-depth">"Why did Kubernetes remove dockershim?" (Architecture Depth)<a class="headerlink" href="#why-did-kubernetes-remove-dockershim-architecture-depth" title="Permanent link">&para;</a></h3>
+<p>Docker added an extra hop: dockershim → dockerd → containerd → runc. containerd's native CRI
+plugin shortens this to containerd → runc, removing a translation layer and reducing latency.</p>
+<h3 id="what-happens-when-the-daemon-crashes-resilience">"What happens when the daemon crashes?" (Resilience)<a class="headerlink" href="#what-happens-when-the-daemon-crashes-resilience" title="Permanent link">&para;</a></h3>
+<p>The per-container shim holds stdio and tracks exit status. When the daemon restarts, it reconnects
+via the shim's socket. The container never notices.</p>
+<h3 id="whats-the-difference-between-docker-and-containerd-scope">"What's the difference between Docker and containerd?" (Scope)<a class="headerlink" href="#whats-the-difference-between-docker-and-containerd-scope" title="Permanent link">&para;</a></h3>
+<p>Docker is a developer platform (build, volumes, networks, Compose, CLI). containerd is an embedded
+runtime (pull, snapshot, lifecycle) — it does not build images, manage networks, or provide a
+user-facing CLI.</p>
+<h3 id="how-does-rootless-docker-work-security">"How does rootless Docker work?" (Security)<a class="headerlink" href="#how-does-rootless-docker-work-security" title="Permanent link">&para;</a></h3>
+<p>User namespaces, fuse-overlayfs, and slirp4netns replace kernel-level features with userspace
+equivalents — no <code>sudo</code> or setuid required.</p>
+<h3 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../10-non-root-execution/">Non-Root Execution</a></li>
+<li><a href="../11-linux-capabilities/">Linux Capabilities</a></li>
+<li><a href="../12-seccomp/">Seccomp</a></li>
+<li><a href="../13-apparmor-selinux/">AppArmor / SELinux</a></li>
+<li><a href="../26-docker-hardened-images/">Docker Hardened Images</a></li>
+</ul>
 
 
 

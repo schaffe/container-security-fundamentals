@@ -11,10 +11,10 @@
       
       
       
-        <link rel="prev" href="../19-admission-control/">
+        <link rel="prev" href="../30-docker-architecture/">
       
       
-        <link rel="next" href="../21-cve-sources/">
+        <link rel="next" href="../32-buildkit-internals/">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout) - Docker Supply Chain</title>
+        <title>Build Context - Docker Supply Chain</title>
       
     
     
@@ -66,7 +66,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#container-vulnerability-scanner-internals" class="md-skip">
+        <a href="#build-context" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
+              Build Context
             
           </span>
         </div>
@@ -1069,8 +1069,6 @@
       
   
   
-    
-  
   
   
     
@@ -1083,11 +1081,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
           <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
@@ -1108,7 +1106,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1123,37 +1121,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../20-scanner-internals/" class="md-nav__link">
         
   
   
@@ -1169,92 +1140,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Trivy (Aqua Security)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Grype (Anchore)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Docker Scout
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Comparison Table
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scanning the Same Image: Output Comparison
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Interview Points
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1554,8 +1439,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -1566,11 +1453,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_9" checked>
         
           
           <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="">
@@ -1591,7 +1478,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_9">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1634,10 +1521,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../31-build-context/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Context
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1653,6 +1567,298 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-the-build-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Is the Build Context
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#default-context-behaviour" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Default Context Behaviour
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockerignore-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .dockerignore Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=".dockerignore Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#negation-gotcha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negation Gotcha
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relative-to-context-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relative to Context Root
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impact-on-build-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact on Build Performance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Impact on Build Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buildkit-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit Progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timing-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context-as-tarball" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context as Tarball
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dockerignore-as-security-boundary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        .dockerignore as Security Boundary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=".dockerignore as Security Boundary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-build-secrets-the-right-way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker Build Secrets (The Right Way)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Contexts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remote Contexts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stdin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stdin
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buildkits-local-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit's local Source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-dockerignore-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical .dockerignore Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical .dockerignore Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodejs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node.js
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java-maven-gradle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java (Maven / Gradle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1832,10 +2038,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#trivy-aqua-security" class="md-nav__link">
+  <a href="#what-is-the-build-context" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Trivy (Aqua Security)
+        What Is the Build Context
       
     </span>
   </a>
@@ -1843,10 +2049,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#grype-anchore" class="md-nav__link">
+  <a href="#default-context-behaviour" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Grype (Anchore)
+        Default Context Behaviour
       
     </span>
   </a>
@@ -1854,10 +2060,88 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#docker-scout" class="md-nav__link">
+  <a href="#dockerignore-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Docker Scout
+        .dockerignore Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=".dockerignore Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#negation-gotcha" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Negation Gotcha
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#relative-to-context-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Relative to Context Root
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impact-on-build-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Impact on Build Performance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Impact on Build Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#buildkit-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit Progress
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timing-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timing Comparison
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#context-as-tarball" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Context as Tarball
       
     </span>
   </a>
@@ -1865,10 +2149,77 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#comparison-table" class="md-nav__link">
+  <a href="#dockerignore-as-security-boundary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Comparison Table
+        .dockerignore as Security Boundary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=".dockerignore as Security Boundary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#docker-build-secrets-the-right-way" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docker Build Secrets (The Right Way)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#remote-contexts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Remote Contexts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Remote Contexts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#git-repositories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Git Repositories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stdin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stdin
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#buildkits-local-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BuildKit's local Source
       
     </span>
   </a>
@@ -1876,10 +2227,71 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#scanning-the-same-image-output-comparison" class="md-nav__link">
+  <a href="#practical-dockerignore-examples" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scanning the Same Image: Output Comparison
+        Practical .dockerignore Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Practical .dockerignore Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#nodejs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Node.js
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Go
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#java-maven-gradle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Java (Maven / Gradle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practices
       
     </span>
   </a>
@@ -1887,10 +2299,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-interview-points" class="md-nav__link">
+  <a href="#summary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Interview Points
+        Summary
       
     </span>
   </a>
@@ -1917,158 +2329,362 @@
   
 
 
-<h1 id="container-vulnerability-scanner-internals">Container Vulnerability Scanner Internals<a class="headerlink" href="#container-vulnerability-scanner-internals" title="Permanent link">&para;</a></h1>
-<p>Modern container vulnerability scanners differ fundamentally in how they resolve dependencies, match CVEs, and present risk. Understanding these internals is critical for a Senior Supply Chain Security Engineer role at Docker — you'll need to evaluate scanners, build integrations, and explain tradeoffs to customers.</p>
-<h2 id="trivy-aqua-security">Trivy (Aqua Security)<a class="headerlink" href="#trivy-aqua-security" title="Permanent link">&para;</a></h2>
-<p>Trivy is the fastest widely-used scanner, optimized for CI/CD pipelines. Its architecture has two phases:</p>
-<ol>
-<li><strong>SBOM extraction</strong>: Trivy reads the filesystem layers of a container image, identifies OS package databases (<code>/var/lib/dpkg/status</code>, <code>/var/lib/rpm/Packages</code>, <code>/lib/apk/db/installed</code>) and language-specific lockfiles (<code>package-lock.json</code>, <code>go.sum</code>, <code>Gemfile.lock</code>, <code>Cargo.lock</code>, <code>pom.xml</code>).</li>
-<li><strong>CVE matching</strong>: It cross-references extracted package names + versions against a local vulnerability database (downloaded from <code>ghcr.io/aquasecurity/trivy-db</code>, updated every 6 hours).</li>
-</ol>
-<p>Trivy resolves dependencies <strong>heuristically</strong> — for OS packages it uses the exact version string from the package manager. For language ecosystems, it parses the lockfile resolution graph. This means Trivy can miss vulnerabilities in transitive dependencies if only the top-level manifest is present (e.g., a <code>package.json</code> without a lockfile).</p>
-<pre><code class="language-bash"># Scan a single image
-trivy image docker.io/library/node:20-alpine
-
-# Scan with severity filter and output format
-trivy image --severity CRITICAL,HIGH --format json docker.io/library/node:20-alpine
-
-# Scan using a local Docker archive
-docker save node:20-alpine -o node.tar
-trivy image --input node.tar
+<h1 id="build-context">Build Context<a class="headerlink" href="#build-context" title="Permanent link">&para;</a></h1>
+<h2 id="what-is-the-build-context">What Is the Build Context<a class="headerlink" href="#what-is-the-build-context" title="Permanent link">&para;</a></h2>
+<p>When you run <code>docker build</code>, the Docker client gathers all files and directories specified as the
+<strong>build context</strong> and sends them to the Docker daemon (or directly to BuildKit). The daemon uses
+this context as the source of files that <code>COPY</code>, <code>ADD</code>, and other instructions reference.</p>
+<pre><code class="language-bash">docker build -t my-app:latest .
 </code></pre>
-<p>Trivy's strength is speed — it decompresses layers once and processes them in a single pass. A typical scan completes in 5-15 seconds.</p>
-<h2 id="grype-anchore">Grype (Anchore)<a class="headerlink" href="#grype-anchore" title="Permanent link">&para;</a></h2>
-<p>Grype takes a deeper, library-matching approach. Instead of relying on lockfile heuristics, Grype uses <strong>Syft</strong> (its sibling tool) to generate a comprehensive SBOM first, then matches against Grype's vulnerability database.</p>
-<pre><code class="language-bash"># Generate SBOM, then scan
-syft docker.io/library/node:20-alpine -o json &gt; sbom.json
-grype sbom.json
-
-# Direct scan (syft runs internally)
-grype docker.io/library/node:20-alpine
+<p>The final argument (<code>.</code>) is the build context path. Everything under that directory gets packed up
+and shipped to the daemon — your Dockerfile, source code, configs, and unfortunately also your
+<code>node_modules</code>, <code>.git</code>, <code>.env</code>, build artifacts, and anything else in that tree.</p>
+<hr />
+<h2 id="default-context-behaviour">Default Context Behaviour<a class="headerlink" href="#default-context-behaviour" title="Permanent link">&para;</a></h2>
+<p>The context is always a directory, <strong>not</strong> a Dockerfile location. This is a common pitfall:</p>
+<pre><code class="language-bash">docker build -f docker/Dockerfile.prod .
 </code></pre>
-<p>Grype's database is sourced from:
-- Alpine SecDB
-- Amazon Linux ALAS
-- Debian Linux CVE Tracker
-- GitHub Advisory Database (GHSA)
-- National Vulnerability Database (NVD)
-- Oracle Linux OVAL
-- RedHat OVAL
-- Ubuntu CVE Tracker</p>
-<p>The key architectural difference: Grype matches CVEs using <strong>package correlation</strong> rather than exact version matching. It uses Syft's CPE (Common Platform Enumeration) generation to find vulnerabilities even when the exact package name doesn't match the CVE entry. This catches more vulnerabilities but produces more false positives.</p>
-<pre><code class="language-bash"># Grype with explicit CPE matching
-grype docker.io/library/node:20-alpine --only-fixed
+<p>Even though the Dockerfile lives in <code>docker/</code>, the context is still <code>.</code> — the entire project
+directory gets tarred and sent to the daemon. The <code>-f</code> flag only tells the daemon where to find the
+Dockerfile <em>inside</em> the context; it does not change what gets sent.</p>
+<p>To send only the <code>docker/</code> directory you must explicitly point context there:</p>
+<pre><code class="language-bash">docker build -f docker/Dockerfile.prod docker/
 </code></pre>
-<h2 id="docker-scout">Docker Scout<a class="headerlink" href="#docker-scout" title="Permanent link">&para;</a></h2>
-<p>Docker Scout takes an <strong>SBOM-first, policy-based</strong> approach. It was designed to integrate with Docker Hub and Docker Desktop, providing continuous evaluation rather than point-in-time scans.</p>
-<pre><code class="language-bash"># Enable Scout on a repo
-docker scout repo enable &lt;namespace&gt;/&lt;repo&gt;
-
-# Analyze an image
-docker scout quickview docker.io/library/node:20-alpine
-
-# Full CVE listing
-docker scout cves docker.io/library/node:20-alpine
-
-# Policy evaluation
-docker scout policy docker.io/library/node:20-alpine
-</code></pre>
-<p>Scout's architecture:
-1. <strong>SBOM generation</strong> using Syft (same engine as Grype)
-2. <strong>SBOM upload</strong> to Docker's backend for continuous monitoring
-3. <strong>Policy evaluation</strong> against user-defined rules (e.g., "no critical CVEs with fix available")
-4. <strong>Diff analysis</strong> comparing two images or an image against a baseline</p>
-<p>Scout's differentiator is <strong>continuous monitoring</strong> — it stores SBOMs and re-evaluates them as new CVEs are published, without requiring a rescan.</p>
-<h2 id="comparison-table">Comparison Table<a class="headerlink" href="#comparison-table" title="Permanent link">&para;</a></h2>
+<p>But then path references in the Dockerfile must be relative to <code>docker/</code>, which often means you
+cannot access source files in parent directories — a design tradeoff that <code>.dockerignore</code> exists to
+solve.</p>
+<hr />
+<h2 id="dockerignore-syntax">.dockerignore Syntax<a class="headerlink" href="#dockerignore-syntax" title="Permanent link">&para;</a></h2>
+<p>A <code>.dockerignore</code> file lives at the root of the build context and tells the daemon which files to
+exclude from the context tarball. The syntax follows Go's <code>filepath.Match</code> rules with some
+extensions:</p>
 <table>
 <thead>
 <tr>
-<th>Feature</th>
-<th>Trivy</th>
-<th>Grype</th>
-<th>Docker Scout</th>
+<th>Pattern</th>
+<th>Behaviour</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Scan speed</td>
-<td>Fastest (5-15s)</td>
-<td>Moderate (15-30s)</td>
-<td>Moderate + upload time</td>
+<td><code>*</code></td>
+<td>Matches any sequence of non-separator characters in a single path element</td>
 </tr>
 <tr>
-<td>CVE matching</td>
-<td>Exact version</td>
-<td>CPE + correlation</td>
-<td>CPE + correlation</td>
+<td><code>?</code></td>
+<td>Matches any single non-separator character</td>
 </tr>
 <tr>
-<td>False positives</td>
-<td>Low</td>
-<td>Medium</td>
-<td>Low-Medium</td>
+<td><code>**/</code></td>
+<td>Matches zero or more directories (recursive)</td>
 </tr>
 <tr>
-<td>False negatives</td>
-<td>Higher (misses transitive)</td>
-<td>Lower</td>
-<td>Lower</td>
+<td><code>**</code></td>
+<td>Matches everything (files and directories recursively)</td>
 </tr>
 <tr>
-<td>DB update frequency</td>
-<td>6 hours</td>
-<td>4-6 hours</td>
-<td>Real-time (server-side)</td>
+<td><code>!pattern</code></td>
+<td>Negation — re-include a previously excluded file</td>
 </tr>
 <tr>
-<td>CI/CD native</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Via Docker Hub</td>
+<td><code># comment</code></td>
+<td>Ignored line</td>
 </tr>
 <tr>
-<td>Policy engine</td>
-<td>Via config</td>
-<td>Via SARIF</td>
-<td>Built-in</td>
-</tr>
-<tr>
-<td>License scanning</td>
-<td>Built-in</td>
-<td>Via Syft</td>
-<td>Separate</td>
-</tr>
-<tr>
-<td>SBOM storage</td>
-<td>Ephemeral</td>
-<td>Ephemeral</td>
-<td>Persistent</td>
+<td>Leading whitespace</td>
+<td>Trimmed</td>
 </tr>
 </tbody>
 </table>
-<h2 id="scanning-the-same-image-output-comparison">Scanning the Same Image: Output Comparison<a class="headerlink" href="#scanning-the-same-image-output-comparison" title="Permanent link">&para;</a></h2>
-<pre><code class="language-bash">$ trivy image docker.io/library/node:20-alpine | head -5
-Total: 284 (UNKNOWN: 0, LOW: 12, MEDIUM: 156, HIGH: 93, CRITICAL: 23)
-
-$ grype docker.io/library/node:20-alpine | head -5
-NAME          INSTALLED      FIXED-IN     TYPE      VULNERABILITY   SEVERITY
-bash          5.2.15         (no fix)     apk       CVE-2022-3715   Medium
-libcrypto3    3.1.4          3.1.4-r3     apk       CVE-2023-4807   High
-
-$ docker scout cves docker.io/library/node:20-alpine | head -5
-  ✓ SBOM cached
-  ✓ No vulnerable packages detected for critical severity
-  ✓ 2 policies evaluated, 1 warning
+<h3 id="negation-gotcha">Negation Gotcha<a class="headerlink" href="#negation-gotcha" title="Permanent link">&para;</a></h3>
+<p>Once a directory is excluded, <code>!</code> cannot re-include files inside it. The parent must be
+re-included first:</p>
+<pre><code>node_modules
+!node_modules/important-module
 </code></pre>
-<p>Grype typically reports more findings than Trivy due to CPE-based matching, while Scout under-reports until its server-side database catches up with recent CVEs.</p>
-<h2 id="key-interview-points">Key Interview Points<a class="headerlink" href="#key-interview-points" title="Permanent link">&para;</a></h2>
+<p>This does <strong>not</strong> work because <code>node_modules</code> is fully excluded. You need:</p>
+<pre><code>node_modules/*
+!node_modules/important-module
+</code></pre>
+<p>This excludes only the contents of <code>node_modules</code>, then re-includes the specific subdirectory.</p>
+<h3 id="relative-to-context-root">Relative to Context Root<a class="headerlink" href="#relative-to-context-root" title="Permanent link">&para;</a></h3>
+<p><code>.dockerignore</code> paths are relative to the build context root, not the Dockerfile location. If your
+context is <code>..</code> (parent directory), patterns reference paths from there.</p>
+<hr />
+<h2 id="impact-on-build-performance">Impact on Build Performance<a class="headerlink" href="#impact-on-build-performance" title="Permanent link">&para;</a></h2>
+<p>A large context directly increases build time. The client must:</p>
+<ol>
+<li>Read every file from disk</li>
+<li>Tar the entire tree</li>
+<li>Send the tarball over HTTP to the daemon API</li>
+</ol>
+<p>The "Sending build context to Docker daemon" message shows the size:</p>
+<pre><code class="language-bash">$ docker build -t big-app .
+Sending build context to Docker daemon  842.6MB
+</code></pre>
+<p>With a ~800 MB context (hello, <code>node_modules</code> + build artifacts), the upload alone can take 10–30
+seconds over a local socket and much longer over a remote daemon.</p>
+<h3 id="buildkit-progress">BuildKit Progress<a class="headerlink" href="#buildkit-progress" title="Permanent link">&para;</a></h3>
+<p>BuildKit (default since Docker 23.0) replaces the "Sending build context" line with inline progress
+bars. It still sends the full context, but the progress display is different:</p>
+<pre><code>#1 [internal] load build context
+#1 transferring context: 842.6MB 15.3s
+</code></pre>
+<p>The underlying mechanism is the same — BuildKit just shows progress more granularly.</p>
+<h3 id="timing-comparison">Timing Comparison<a class="headerlink" href="#timing-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Context Size</th>
+<th>Transfer Time (local socket)</th>
+<th>Transfer Time (remote daemon)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 KB</td>
+<td>&lt; 0.1 s</td>
+<td>&lt; 0.1 s</td>
+</tr>
+<tr>
+<td>10 MB</td>
+<td>~0.2 s</td>
+<td>~0.5 s</td>
+</tr>
+<tr>
+<td>100 MB</td>
+<td>~2 s</td>
+<td>~5–10 s</td>
+</tr>
+<tr>
+<td>1 GB</td>
+<td>~20 s</td>
+<td>~1–2 minutes</td>
+</tr>
+</tbody>
+</table>
+<p>Remote daemons (CI runners, cloud builders) make the penalty worse — every byte crosses the
+network. A proper <code>.dockerignore</code> often cuts context size by 10–100×.</p>
+<hr />
+<h2 id="context-as-tarball">Context as Tarball<a class="headerlink" href="#context-as-tarball" title="Permanent link">&para;</a></h2>
+<p>The Docker client does not stream files individually. It creates a tar archive of the entire context
+on disk, then sends it to the daemon's <code>/build</code> API endpoint:</p>
+<pre><code class="language-bash"># This is roughly what the CLI does internally
+tar cf - . | curl -X POST \
+  --data-binary @- \
+  --unix-socket /var/run/docker.sock \
+  http://localhost/v1.46/build?t=my-app
+</code></pre>
+<p>The daemon receives the tarball, extracts it into a temporary directory (or, with BuildKit, passes
+it as a <code>local</code> source to the LLB graph), and makes the files available to <code>COPY</code> / <code>ADD</code>
+instructions.</p>
+<p>This means <strong>every file</strong> in the context gets read from disk and compressed, even files the
+Dockerfile never uses. The <code>.dockerignore</code> is the only filter.</p>
+<hr />
+<h2 id="dockerignore-as-security-boundary">.dockerignore as Security Boundary<a class="headerlink" href="#dockerignore-as-security-boundary" title="Permanent link">&para;</a></h2>
+<p>Perhaps the most overlooked role of <code>.dockerignore</code> is <strong>security</strong>. Files sent to the daemon end up
+in the layer cache, exported tarballs, and potentially in production images if a build step leaks
+them. Common things that must never appear in a build context:</p>
+<pre><code>.env
+.env.*
+node_modules/
+.git/
+.gitignore
+target/
+build/
+dist/
+__pycache__/
+*.pyc
+*.log
+secrets/
+*.pem
+*.key
+id_rsa*
+.aws/
+.gcloud/
+.terraform/
+*.tfstate
+</code></pre>
+<p>Each of these reveals something about the development environment, credentials, or infrastructure
+that a production image should never contain. Even if the Dockerfile does not <code>COPY</code> these files,
+they travel over the socket and sit in the daemon's temp directory — and anyone with access to the
+daemon or the build cache can retrieve them.</p>
+<h3 id="docker-build-secrets-the-right-way">Docker Build Secrets (The Right Way)<a class="headerlink" href="#docker-build-secrets-the-right-way" title="Permanent link">&para;</a></h3>
+<p>Instead of sending secrets in the context, use BuildKit's <code>--secret</code> flag:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+RUN --mount=type=secret,id=api_key \
+  cat /run/secrets/api_key &gt; /app/config.toml
+</code></pre>
+<pre><code class="language-bash">docker build --secret id=api_key,src=.env.prod .
+</code></pre>
+<p>The secret never enters the context, never lands in a layer, and is only available to the specific
+<code>RUN</code> instruction that mounts it.</p>
+<hr />
+<h2 id="remote-contexts">Remote Contexts<a class="headerlink" href="#remote-contexts" title="Permanent link">&para;</a></h2>
+<p>Docker supports sourcing the build context from remote locations:</p>
+<h3 id="git-repositories">Git Repositories<a class="headerlink" href="#git-repositories" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker build https://github.com/user/repo.git#main:src/app
+</code></pre>
+<p>This clones the repository (or fetches a specific commit/branch), checks out the subdirectory
+<code>src/app</code>, and uses that as the context. The Dockerfile must exist inside that subdirectory unless
+<code>-f</code> provides a path relative to it.</p>
+<p>Under the hood, Docker delegates to <code>git clone --depth=1</code> and pipes the checkout as the context
+tarball.</p>
+<h3 id="stdin">Stdin<a class="headerlink" href="#stdin" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker build - &lt; context.tar.gz
+</code></pre>
+<p>Useful in CI pipelines where the context is produced by a previous step. Docker reads the tarball
+from stdin and passes it directly to the daemon.</p>
+<pre><code class="language-bash">tar czf - src/ Dockerfile | docker build -t my-app -
+</code></pre>
+<p>The <code>-</code> signals "context from stdin." The daemon receives the tarball as-is — no <code>.dockerignore</code>
+processing happens because the client never walks the filesystem.</p>
+<hr />
+<h2 id="buildkits-local-source">BuildKit's <code>local</code> Source<a class="headerlink" href="#buildkits-local-source" title="Permanent link">&para;</a></h2>
+<p>Internally, BuildKit represents the build context as a <strong><code>local</code> source</strong> in its LLB (low-level
+builder) graph. When you run <code>docker build</code>, BuildKit creates an LLB operation that reads from a
+local directory:</p>
+<pre><code class="language-go">// Conceptual LLB representation
+sourceOp := llb.Local(&quot;context&quot;, llb.IncludePattern(&quot;src/**&quot;),
+  llb.ExcludePattern(&quot;node_modules/**&quot;),
+  llb.SharedKeyHint(&quot;my-app&quot;))
+</code></pre>
+<p>The <code>local</code> source type means:</p>
 <ul>
-<li>Trivy is best for <strong>fast CI gatekeeping</strong> — fail builds on critical CVEs with fixes.</li>
-<li>Grype is best for <strong>deep audit</strong> — find every possible CVE, then triage false positives.</li>
-<li>Docker Scout is best for <strong>continuous compliance</strong> — enforce policy over time, not just at build.</li>
+<li>Files are served from the client side (mounted via FUSE or preloaded via tarball)</li>
+<li>BuildKit applies include/exclude patterns (derived from <code>.dockerignore</code>)</li>
+<li>The local source is cacheable — if the same directory is used in multiple builds, BuildKit skips
+  re-uploading if nothing changed</li>
 </ul>
-<p>At Docker, you'll likely work on integrating Scout with customer workflows, improving SBOM accuracy, and building policy evaluation engines that run at scale across millions of images.</p>
-<p>For a deeper understanding of how container image layers are constructed and stored — which directly impacts how scanners analyze them — see <a href="../34-image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a>.</p>
+<p>This is a significant difference from the classic builder, which re-sends the entire context every
+time. BuildKit's session-based architecture streams the context once per session, and subsequent
+builds reuse it if the session is still alive (e.g., <code>docker buildx build</code> with the same builder
+instance).</p>
+<p>The LLB representation allows BuildKit to parallelize context loading with other build operations.
+For details on LLB, see <a href="../32-buildkit-internals/">BuildKit Internals</a>.</p>
+<hr />
+<h2 id="practical-dockerignore-examples">Practical .dockerignore Examples<a class="headerlink" href="#practical-dockerignore-examples" title="Permanent link">&para;</a></h2>
+<h3 id="nodejs">Node.js<a class="headerlink" href="#nodejs" title="Permanent link">&para;</a></h3>
+<pre><code>node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.*
+.git
+.gitignore
+coverage/
+.nyc_output/
+dist/
+.next/
+*.ts
+!src/**/*.ts
+</code></pre>
+<p>The <code>!src/**/*.ts</code> pattern keeps TypeScript source files (for <code>ts-node</code> or build step) while
+excluding root-level <code>.ts</code> files like configs.</p>
+<h3 id="go">Go<a class="headerlink" href="#go" title="Permanent link">&para;</a></h3>
+<pre><code>.git/
+.env
+*.exe
+*.test
+*.out
+vendor/
+</code></pre>
+<p>Go binaries are statically linked; the <code>vendor/</code> directory is only needed if you use it and your
+Dockerfile copies it explicitly. Otherwise, exclude it — it adds tens of thousands of files.</p>
+<h3 id="python">Python<a class="headerlink" href="#python" title="Permanent link">&para;</a></h3>
+<pre><code>__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.env
+.git/
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.tox/
+.coverage
+htmlcov/
+.pytest_cache/
+</code></pre>
+<p>Python projects accumulate cache directories rapidly. <code>__pycache__</code> alone can have tens of thousands
+of files in a large monorepo.</p>
+<h3 id="java-maven-gradle">Java (Maven / Gradle)<a class="headerlink" href="#java-maven-gradle" title="Permanent link">&para;</a></h3>
+<pre><code>.git/
+.env
+target/
+build/
+*.class
+*.jar
+!target/*.jar
+.gradle/
+.local/
+.idea/
+*.iml
+*.ipr
+*.iws
+</code></pre>
+<p>The <code>!target/*.jar</code> pattern keeps the built artifact if your Dockerfile copies it from <code>target/</code>,
+while excluding the rest of the build directory.</p>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>Put <code>.dockerignore</code> at the context root</strong>, not next to the Dockerfile. They are unrelated
+   paths — the context root determines where <code>.dockerignore</code> is read from.</p>
+</li>
+<li>
+<p><strong>Start with a broad exclude list</strong> and open only what you need:</p>
+</li>
+</ol>
+<p><code>*
+   !src/
+   !requirements.txt
+   !Dockerfile</code></p>
+<p>This "deny-all" approach is explicit about what enters the build.</p>
+<ol>
+<li>
+<p><strong>Run <code>docker build</code> from a clean context directory</strong> — ideally a CI checkout or a dedicated
+   build directory rather than a developer's full working tree.</p>
+</li>
+<li>
+<p><strong>Check context size</strong> before building:</p>
+</li>
+</ol>
+<p><code>bash
+   docker build -t test . --no-cache 2&gt;&amp;1 | head -5
+   # or use buildx inspect
+   docker buildx du</code></p>
+<ol>
+<li><strong>Use <code>COPY --link</code> with BuildKit</strong> to avoid re-sending context when only files change:</li>
+</ol>
+<p><code>dockerfile
+   COPY --link src/ /app/src/</code></p>
+<p>The <code>--link</code> flag uses content-addressed snapshots so unchanged files do not invalidate the
+   cache for subsequent build stages.</p>
+<ol>
+<li>
+<p><strong>Never send secrets through the context.</strong> Use BuildKit's <code>--secret</code> or <code>--ssh</code> flags, or
+   multi-stage builds that copy credentials into an intermediate stage and discard it.</p>
+</li>
+<li>
+<p><strong>Keep the context small by design.</strong> A project with a 10 KB context builds faster, caches more
+   reliably, and has a smaller attack surface than one with 500 MB of cruft. The <code>.dockerignore</code> is
+   not a workaround for a poorly structured repository — it is a guardrail.</p>
+</li>
+</ol>
+<p>For a deeper look at how the build pipeline processes the context from Dockerfile to layer diff,
+see <a href="../33-how-docker-builds-images/">How Docker Builds Images</a>.</p>
+<hr />
+<h2 id="summary">Summary<a class="headerlink" href="#summary" title="Permanent link">&para;</a></h2>
+<p>The build context is the set of files shipped to the Docker daemon for every build. It is tarred,
+sent over HTTP, and extracted — and whatever you include stays in the daemon's cache. A well-crafted
+<code>.dockerignore</code> is the single most effective optimisation for build speed, cache efficiency, and
+security. Understand what your context contains, measure it, and exclude everything that does not
+belong in the build.</p>
 
 
 
