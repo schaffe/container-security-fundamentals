@@ -82,23 +82,69 @@ Container A: UID 10001 → Host UID 100000
 Container B: UID 10001 → Host UID 200000
 ```
 
-Now the kernel sees different host UIDs, so [`/proc` isolation](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), signal delivery, and file permissions are enforced. Use a dedicated high UID within the container for application correctness (home dir, audit trail), and rely on user namespaces for cross-container isolation.
+Now the kernel sees different host UIDs, so [`/proc` isolation](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), signal delivery, and file permissions are enforced.
 
-```bash
-# Enable in daemon.json:
+#### Not Enabled by Default
+
+**User namespaces are OFF by default in Docker.** The container shares the host's UID namespace — the container's root is host root, and UID 10001 in the container is host UID 10001. This is why the cross-container `/proc` signaling risk is real: the kernel sees the same UID across containers.
+
+Why off by default? User namespaces break common workflows:
+
+| Problem | Cause | Example |
+|---|---|---|
+| **Volume permissions** | Container "root" maps to a high host UID, not UID 0. Host files owned by your user (UID 501) are inaccessible. | `docker run -v /home/user/data:/data` → permission denied |
+| **Privileged containers** | `--privileged` doesn't grant `CAP_SYS_ADMIN` in a non-initial user namespace. Some privileged operations fail. | `--privileged` containers that manipulate kernel modules |
+| **Port binding** | Binding ports <1024 needs special capability management. | `docker run -p 80:80` → permission denied |
+| **Ping/ICMP** | `ping` needs `CAP_NET_RAW` in the user namespace — extra flags required. | `docker run alpine ping 8.8.8.8` → permission denied |
+
+Docker prioritized zero-config compatibility over security by default. Every one of these breakages would generate a support ticket. Fixing them (rootless mode) took years of kernel and tooling maturation.
+
+#### Enable in Rootful Docker
+
+```json
+// /etc/docker/daemon.json
 {
   "userns-remap": "default"
 }
 ```
 
-```yaml
-# Kubernetes equivalent (pod level):
-securityContext:
-  runAsUser: 10001
-  fsGroup: 10001
+This maps each container's UID 0 to a unique host range (usually starting at 100000). Docker creates `/etc/subuid` and `/etc/subgid` entries automatically with `default`.
+
+#### Rootless Docker: The Better Path
+
+Rootless Docker (stable since 20.10) runs the **entire daemon** as a non-root user. It enables user namespaces by default and solves the volume/network problems transparently:
+
+| Mechanism | What It Does |
+|---|---|
+| **User namespaces** | Maps daemon UID → root inside containers |
+| **fuse-overlayfs** | Replaces `overlay2` (needs `mount()` syscall) with FUSE filesystem — UID mapping happens in userspace |
+| **slirp4netns** | Userspace network stack instead of kernel bridges and iptables — port forwarding is NAT-based |
+| **dockerd-rootless-setuptool.sh** | One-command setup |
+
+```bash
+dockerd-rootless-setuptool.sh install
 ```
 
-**Recommendation**: Use a dedicated high UID (e.g., 10001) per application for correct runtime behavior (home directory, file ownership, audit trail). **Use different UIDs per app or enable user namespaces** to prevent cross-container interference. Prefer `nobody` only when no writable paths are needed and the image provides no other user — but be aware of its limitations.
+Rootless mode handles the volume permissions issue because writes go through `fuse-overlayfs`, which maps UIDs in userspace. The container's root can write to directories owned by your host user because the FUSE layer translates UIDs.
+
+#### Kubernetes: Pod-Level User Namespaces (K8s 1.27+, beta in 1.25)
+
+Kubernetes supports per-pod user namespaces, mapping the container's UID 0 to a non-root host UID:
+
+```yaml
+apiVersion: v1
+kind: Pod
+spec:
+  hostUsers: false  # Enable user namespace for this pod
+  containers:
+  - name: app
+    securityContext:
+      runAsNonRoot: true
+```
+
+Note the Kubernetes securityContext `runAsUser` field (lines 95-99) sets the UID *inside* the container, not the user namespace mapping. This is orthogonal to user namespaces.
+
+**Recommendation**: Use a dedicated high UID (e.g., 10001) per application for correct runtime behavior (home directory, file ownership, audit trail). **Use different UIDs per app or enable user namespaces (prefer rootless Docker)** to prevent cross-container interference. If user namespaces aren't feasible, different UIDs per workload is the next best option. Prefer `nobody` only when no writable paths are needed and the image provides no other user — but be aware of its limitations.
 
 ### Distroless Non-root Variants
 
