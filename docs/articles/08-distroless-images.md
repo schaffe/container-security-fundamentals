@@ -43,6 +43,47 @@ Supply chain security engineers should note: **distroless images shrink the "gif
 
 See [musl vs glibc: Choosing a C Standard Library for Containers](29-musl-vs-glibc.md) for a full comparison of the two libc implementations and their implications for base image selection.
 
+### Distroless vs Chainguard Wolfi
+
+The attack surface table above lists both distroless (Google) and Wolfi (Chainguard) under the same category, but their architectures and update philosophies differ fundamentally.
+
+#### Philosophy
+
+| | Google Distroless | Chainguard Wolfi |
+|---|---|---|
+| **Approach** | Freeze known-good packages; strip aggressively | Rebuild from source continuously; patch proactively |
+| **Base system** | Debian-derived (glibc + Debian patches) | Custom-built from scratch (glibc + musl variants) |
+| **Package manager** | None in runtime images | `apk` available (removable in minimal variants) |
+| **CVE remediation** | Reactive — fix propagates from Debian → Google rebuild | Proactive — Chainguard patches and rebuilds within hours |
+| **Update cadence** | Periodic, follows Debian stable | Near-daily rebuilds of entire repo |
+
+#### CVE Remediation Speed
+
+This is the most important operational differentiator. Distroless depends on the Debian patch cycle: CVE disclosed → fixed in Debian unstable → propagates to stable (days to weeks) → Google rebuilds → user pulls. Wolfi bypasses this entirely: CVE disclosed → Chainguard applies minimal patch to Wolfi source → package rebuilt → image rebuilt → user pulls. Wolfi's delay is **hours, not days**.
+
+In practice: Wolfi images regularly run at 0 unpatched CVEs, while distroless typically carries 2-5 low-severity CVEs awaiting the Debian patch cycle.
+
+#### Image Catalog & Attestations
+
+Google publishes ~20 image families (static, base, cc, java, python, node, .NET) on `gcr.io/distroless`. Chainguard publishes ~200+ images on `cgr.dev/chainguard`, covering not just runtimes but also databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), and security tools (Kyverno, Falco, OPA).
+
+Chainguard images ship with in-toto attestations (SBOM + SLSA provenance + vulnerability scan) attached to every image. Distroless images include a cosign signature only — no machine-readable metadata about contents or build process.
+
+#### Decision Framework
+
+| Scenario | Choose Distroless | Choose Wolfi |
+|---|---|---|
+| Go/Rust static binary | `static-debian12:nonroot` (~2 MB) | `cgr.dev/chainguard/static` (~5 MB, attestations included) |
+| Zero CVE tolerance | Good (rare CVEs) | Better (proactive patching, often 0) |
+| Need attestations for policy | Not available by default | Included (SBOM + provenance + vuln scan) |
+| Enterprise compliance | Distroless + separate attestation tooling | Wolfi + Chainguard Enforce (integrated) |
+| Custom Dockerfile needs | Must pre-install everything in build stage | Can `apk add` in build stage; apk at runtime |
+| Must minimize pull size | Distroless static ~2 MB | Wolfi static ~5 MB (apk adds overhead) |
+
+#### The Docker Connection
+
+Docker Hardened Images (DHI) use Wolfi as their base OS. DHI inherits Wolfi's proactive patching while adding Docker-specific attestations, Docker Hub distribution, and Scout/ Build Cloud integration. See [Docker Hardened Images](26-docker-hardened-images.md) for details.
+
 ### Dockerfile: Distroless vs Alpine vs Ubuntu
 
 ```dockerfile
@@ -188,4 +229,4 @@ CMD ["/app"]
 
 When asked about distroless, emphasize the **supply chain security** angle: distroless removes the "blast radius" after a compromise. Understand the trade-off between debuggability and security. Be ready to discuss monohash-based vulnerability scanning — distroless images have so few packages that scanner false positives drop dramatically.
 
-Compare distroless to **Chainguard Wolfi images**, which take a more active approach: distroless freezes packages, while Wolfi actively rebuilds from source with minimal patches, achieving similar package counts but with faster CVE remediation.
+The [Distroless vs Chainguard Wolfi](#distroless-vs-chainguard-wolfi) section above covers the architectural differences, CVE remediation speed, catalog breadth, and decision framework.

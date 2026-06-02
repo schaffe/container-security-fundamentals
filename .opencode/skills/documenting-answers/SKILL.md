@@ -46,6 +46,12 @@ Currently documented topics (from mkdocs.yml nav):
 
 Read the docs relevant to this follow-up, then produce a written proposal.
 
+STRICT priority — only move to the next option if the previous one doesn't fit:
+1. **Expand an existing section with new detail** — prefer this 90% of the time
+2. **Add a new section to an existing article** — only if the content is too large or tangential for an existing section
+3. **Create a new article in an existing nav group** — requires strong justification: must be a substantial topic (>300 lines) that doesn't fit any existing article. When in doubt, expand an existing section instead.
+4. **Create a new nav group** — almost never. Only when the topic genuinely doesn't fit any existing group and represents a new category.
+
 Your proposal must include:
 - **What file(s) to change** (relative path)
 - **Where in each file** (after which section or at what anchor point)
@@ -54,6 +60,7 @@ Your proposal must include:
 - **Whether docs/index.md needs updating** (new entry in Topics list)
 - **Whether docs/docker-supply-chain.md needs updating** (new entry in Topic Map)
 - **A git commit message** for the change
+- **Priority level justification** — which of the 4 priorities above, and why
 
 Do NOT edit any files. Only report the proposal back.
 ```
@@ -90,7 +97,8 @@ Wait for the user's response. Only proceed to Apply & Publish on explicit approv
 - **Duplicating content:** Check if info already exists first. Merge rather than duplicate.
 - **Forgetting nav updates:** New articles must be added to `mkdocs.yml` nav. The build check catches this.
 - **Forgetting index and topic map:** New nav groups must be added to both `docs/index.md` (Topics list) and `docs/docker-supply-chain.md` (Topic Map sections). These are not checked by the build.
-- **Over-organizing:** New groups are rare. Only create one when the topic genuinely doesn't fit any existing group.
+- **Creating articles too eagerly:** Always try to expand an existing section first. New articles are rarely needed — the content almost always fits inside an existing article. Only suggest a new article when the topic is truly standalone and can't be merged.
+- **Over-organizing:** New groups are almost never needed. Topics almost always fit into an existing nav group.
 - **Racing the user:** Show the proposal before applying. Let the user decide what's worth capturing.
 - **Skipping the deploy:** Always use the **publishing-docs** skill for the apply + deploy step. Don't skip it.
 
