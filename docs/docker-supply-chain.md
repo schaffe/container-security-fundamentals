@@ -12,7 +12,11 @@
 - **Trusted builds:** Build platform security. Non-build platform cannot sign. Air-gapped signing, HSM/TEE-backed keys, threshold signing. SLSA's build platform requirements.
 - **Notary / Docker Content Trust:** TUF (The Update Framework) — root, targets, snapshot, timestamp key hierarchy. Delegation roles. Why Docker is investing in both Notary v2 and Sigstore integration.
 
-### 2. Container Image Hardening
+### 2. Linux Fundamentals
+
+- **musl vs glibc:** How the two C standard libraries compare (size, POSIX compliance, static linking, CVE history). Compatibility pitfalls: glibc-specific APIs, DNS resolution differences, locale support. Security decision framework for choosing between musl (Alpine) and glibc (Debian, Ubuntu, distroless) base images.
+
+### 3. Container Image Hardening
 
 - **Distroless images:** What they exclude (shell, package manager, setuid binaries, common Unix tools — cp, tar, vi). Attack surface comparison: distroless (~5 packages) vs Alpine (~30) vs Ubuntu (~150). When distroless breaks: health checks needing shell, runtime package installs, debugging. Mitigations: debug image variants, static binaries.
 - **Image minimization:** Multi-stage build patterns. COPY --from for binary-only result. RUN cleanup chains (`rm -rf /var/lib/apt/lists/*`), layer squash (`--squash`). Stripping binaries, removing shared libraries not needed at runtime.
@@ -23,7 +27,7 @@
 - **Read-only filesystem:** `readOnlyRootFilesystem: true` in SecurityContext. Mount tmpfs for write locations (`/tmp`, `/var/run`, `/var/log`, `/var/cache/nginx`). What applications break (need to write to /etc, /var/lib).
 - **Multi-arch security:** `FROM --platform=$BUILDPLATFORM` in multi-stage. Per-arch base images (arm64 vs amd64) have different CVE profiles. Registries with multi-arch manifests, attestation per-architecture.
 
-### 3. Helm Chart Security Adaptation
+### 4. Helm Chart Security Adaptation
 
 - **SecurityContext vs PodSecurityContext:** SecurityContext on container (container-level settings: capabilities, runAsUser, readOnlyRootFS, seccomp). PodSecurityContext on pod (pod-level: fsGroup, runAsNonRoot, supplementalGroups, seLinuxOptions, sysctls). Cascade behavior: pod-level defaults overrideable at container level.
 - **Pod Security Standards:** Three policies — privileged (no restrictions), baseline (minimal, prevents known privilege escalations), restricted (hardened, follows pod hardening best practices). What each allows/blocks:
@@ -38,7 +42,7 @@
   - `securityContext.privileged: true` → remove, restructure
 - **Admission control:** Kyverno `verifyImages` rule for enforcing signed images. OPA/Gatekeeper constraints for Pod Security Standards. Pod Security Admission (native in K8s 1.23+, GA in 1.25). Enforce vs audit vs warn mode.
 
-### 4. CVE Lifecycle
+### 5. CVE Lifecycle
 
 - **Scanner internals:**
   - **Trivy:** OS package DB (Alpine secdb, RedHat OVAL, Debian SSA, Ubuntu USN) + language-specific (npm, pip, gem, go, cargo, maven). Fast, widely adopted.
@@ -50,7 +54,7 @@
 - **Fix categorization:** Fixable (patch available, just upgrade) vs unfixable (upstream won't fix, wontfix, or no patch). OS-package CVEs (libc, openssl) vs language-library CVEs (log4j, lodash). Backport patches (vendor fixes without version bump) vs rebase to latest.
 - **Coordinated disclosure:** Embargo period, reporter coordination, customer notification. Docker's vulnerability reporting process.
 
-### 5. Docker Product & Strategy
+### 6. Docker Product & Strategy
 
 - **Docker Scout:** SBOM generation (`docker scout sbom`), environment-based policy evaluation (`docker scout policy`, `docker scout recommendations`), attestation management (`docker scout attestation`), integration with Docker Hub and GitHub Actions.
 - **Docker Hardened Images (DHI):** What's in the catalog (Postgres, Nginx, Redis, Grafana, cert-manager, Kyverno, MongoDB, and more). Build pipeline: SLSA L3, BuildKit, multi-arch, cosign + attestations, regular CVE scanning. How DHI differs from Docker Official Images (stricter hardening, enterprise SLAs, FIPS options).

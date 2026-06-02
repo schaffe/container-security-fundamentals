@@ -41,3 +41,4 @@ Report back: files changed, build result, and deploy status.
 - **Wrong remote:** The remote is `upstream`, not `origin`. Check with `git remote -v` if unsure.
 - **Wrong branch:** The default branch is `main`. Confirm before pushing.
 - **Committing without verifying:** Build first, commit second.
+- **Missing supporting pages:** The proposal may include changes to `docs/index.md` (Topics list) or `docs/docker-supply-chain.md` (Topic Map). These won't fail the build but must be applied.

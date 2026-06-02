@@ -50,7 +50,9 @@ Your proposal must include:
 - **What file(s) to change** (relative path)
 - **Where in each file** (after which section or at what anchor point)
 - **What content to add** (full markdown)
-- **Whether mkdocs.yml needs updating**
+- **Whether mkdocs.yml needs updating** (new nav entry or new group)
+- **Whether docs/index.md needs updating** (new entry in Topics list)
+- **Whether docs/docker-supply-chain.md needs updating** (new entry in Topic Map)
 - **A git commit message** for the change
 
 Do NOT edit any files. Only report the proposal back.
@@ -87,6 +89,7 @@ Wait for the user's response. Only proceed to Apply & Publish on explicit approv
 - **Documenting everything:** Only capture information with lasting relevance. Not every answer belongs in docs.
 - **Duplicating content:** Check if info already exists first. Merge rather than duplicate.
 - **Forgetting nav updates:** New articles must be added to `mkdocs.yml` nav. The build check catches this.
+- **Forgetting index and topic map:** New nav groups must be added to both `docs/index.md` (Topics list) and `docs/docker-supply-chain.md` (Topic Map sections). These are not checked by the build.
 - **Over-organizing:** New groups are rare. Only create one when the topic genuinely doesn't fit any existing group.
 - **Racing the user:** Show the proposal before applying. Let the user decide what's worth capturing.
 - **Skipping the deploy:** Always use the **publishing-docs** skill for the apply + deploy step. Don't skip it.
