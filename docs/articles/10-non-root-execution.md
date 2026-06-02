@@ -305,22 +305,11 @@ USER appuser
 
 ### Issue 4: Kubernetes Pod Security Standards
 
-Kubernetes enforces Pod Security Standards (PSS) with three levels:
+Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The **Restricted** profile requires `runAsNonRoot: true`. See [Pod Security Standards](../articles/17-pod-security-standards.md) for the full profile requirements and enforcement via Pod Security Admission.
 
-- **Privileged**: Unrestricted (explicit opt-in)
-- **Baseline**: Minimally restrictive, prevents known escalations
-- **Restricted**: Heavily restricted, follows Pod Security best practices
+## Applying Non-Root in Kubernetes
 
-The **Restricted** profile requires non-root:
-
-```yaml
-securityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-```
-
-## Kubernetes SecurityContext Best Practices
+This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see [SecurityContext vs PodSecurityContext](../articles/16-securitycontext-vs-podsecuritycontext.md).
 
 ### runAsNonRoot Admission Check
 
@@ -341,65 +330,7 @@ Scenarios where `runAsNonRoot` saves you:
 - Base image switches from Debian to Alpine with different user resolution — pod won't deploy
 - Attacker swaps the image tag — admission re-checks every time
 
-### Pod vs Container SecurityContext
-
-SecurityContext fields are split between pod and container level. The pod level sets defaults that containers inherit unless overridden:
-
-| Setting | Pod level | Container level |
-|---|---|---|
-| `runAsUser` | ✅ (default) | ✅ (overrides) |
-| `runAsGroup` | ✅ (default) | ✅ (overrides) |
-| `runAsNonRoot` | ✅ only | ❌ |
-| `fsGroup` | ✅ only | ❌ |
-| `supplementalGroups` | ✅ only | ❌ |
-| `seLinuxOptions` | ✅ (default) | ✅ (overrides) |
-| `seccompProfile` | ✅ (default) | ✅ (overrides) |
-| `allowPrivilegeEscalation` | ❌ | ✅ |
-| `capabilities` | ❌ | ✅ |
-| `readOnlyRootFilesystem` | ❌ | ✅ |
-
-Key rules:
-- `runAsNonRoot` can only be set at the pod level — it applies to all containers
-- `allowPrivilegeEscalation`, `capabilities`, and `readOnlyRootFilesystem` are container-only
-- The pod-level `runAsUser`/`runAsGroup` is the default; container-level overrides it
-
-### Pod Security Admission (PSA) Enforcement
-
-The modern way to enforce PSS is through Pod Security Admission, using namespace labels:
-
-```yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    pod-security.kubernetes.io/enforce: restricted
-    pod-security.kubernetes.io/enforce-version: latest
-    pod-security.kubernetes.io/warn: restricted
-    pod-security.kubernetes.io/audit: restricted
-```
-
-Three modes:
-- **enforce**: Rejects pods that violate the profile
-- **warn**: Admission accepts the pod but returns a warning
-- **audit**: Logs violations to the audit log without interrupting admission
-
-Best practice for adoption:
-1. Start with `warn` + `audit` on `restricted` to identify violations
-2. Fix workloads that fail
-3. Switch to `enforce: baseline` to catch obvious issues
-4. Move to `enforce: restricted` once compliant
-
-For the Restricted profile specifically, your pod must satisfy:
-
-| Requirement | Configuration |
-|---|---|
-| **Not running as root** | `runAsNonRoot: true` or image has non-root USER |
-| **No privilege escalation** | `allowPrivilegeEscalation: false` |
-| **Seccomp** | `seccompProfile.type: RuntimeDefault` |
-| **Capabilities** | `capabilities.drop: ["ALL"]` (only `NET_BIND_SERVICE` may be added) |
-| **Read-only root** | `readOnlyRootFilesystem: true` (recommended, not required) |
-
-### Common Kubernetes Anti-Patterns
+### Common Anti-Patterns
 
 **Anti-pattern 1: Relying only on Dockerfile USER**
 ```yaml
@@ -407,7 +338,7 @@ For the Restricted profile specifically, your pod must satisfy:
 securityContext:
   runAsUser: 10001
 ```
-If someone rebuilds the image without `USER`, the pod runs as root silently. Always set `runAsNonRoot: true`.
+If someone rebuilds the image without `USER`, the pod runs as root silently.
 
 **Anti-pattern 2: Setting runAsUser: 0**
 ```yaml
@@ -415,7 +346,7 @@ If someone rebuilds the image without `USER`, the pod runs as root silently. Alw
 securityContext:
   runAsUser: 0
 ```
-This is common when debugging ("it works locally as root") and accidentally left in production manifests.
+Common when debugging and accidentally left in production manifests.
 
 **Anti-pattern 3: Not dropping ALL capabilities**
 ```yaml
@@ -428,30 +359,9 @@ Non-root doesn't mean capability-free. Always `drop: ["ALL"]`, then add back onl
 **Anti-pattern 4: Inconsistent securityContext per container**
 A pod can have 10 containers but only 2 with `runAsNonRoot: true` — the others run unrestricted. Pod-level `runAsNonRoot` prevents this.
 
-### Mutating Webhooks for Non-Root Injection
+### Admission Control and Webhooks
 
-When you can't control the upstream image's USER, use a mutating webhook or Kyverno policy to inject securityContext:
-
-```yaml
-# Kyverno — auto-inject runAsNonRoot into every pod
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: require-non-root
-spec:
-  rules:
-  - name: auto-inject-runAsNonRoot
-    match:
-      any:
-      - resources:
-          kinds:
-          - Pod
-    mutate:
-      patchStrategicMerge:
-        spec:
-          securityContext:
-            +(runAsNonRoot): true
-```
+For enforcing non-root across your cluster, see [Admission Control](../articles/19-admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../articles/18-adapting-upstream-helm-charts.md).
 
 ## Complete Secure Example
 
@@ -503,4 +413,4 @@ spec:
 
 ## Interview Tips
 
-Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `USER` instruction in the image config). Be able to explain the `no-new-privileges` flag and how it interacts with `AllowPrivilegeEscalation: false`. Know the Pod Security Standards three profiles and how Pod Security Admission enforces them via namespace labels. Understand why `runAsNonRoot` at the pod level is critical — it catches tag swaps and Dockerfile regressions that a container-level `runAsUser` alone would miss. For a deeper understanding of how the Docker engine enforces these constraints, see [Docker Architecture](../articles/30-docker-architecture.md).
+Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `Config.User` field in the image manifest). Be able to explain the `no-new-privileges` flag and how it interacts with `allowPrivilegeEscalation: false`. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see [Pod Security Standards](../articles/17-pod-security-standards.md) for the full breakdown. Understand the pod vs container SecurityContext split — see [SecurityContext vs PodSecurityContext](../articles/16-securitycontext-vs-podsecuritycontext.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../articles/18-adapting-upstream-helm-charts.md). For admission control and policy enforcement, see [Admission Control](../articles/19-admission-control.md). For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see [Docker Architecture](../articles/30-docker-architecture.md).
