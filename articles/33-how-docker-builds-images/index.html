@@ -2773,7 +2773,7 @@ lives in <code>moby/buildkit/solver</code>. The solver does three things:</p>
    re-execution. If the key is absent, the op is <strong>cache miss</strong> and must be executed.</p>
 </li>
 <li>
-<p><strong>Schedules execution.</strong> Cache-miss ops are dispatched to workers (runc, containerd) for
+<p><strong>Schedules execution.</strong> Cache-miss ops are dispatched to workers (<a href="../30-docker-architecture/#architecture">runc</a>, containerd) for
    execution. Independent ops (e.g. two <code>FROM</code> pulls for different stages) run in parallel.</p>
 </li>
 </ol>
@@ -2811,7 +2811,7 @@ other.</p>
 <p>When the solver schedules an <code>ExecOp</code>, BuildKit:</p>
 <ol>
 <li>
-<p><strong>Creates a temporary container</strong> from the current snapshot using the configured worker (runc or
+<p><strong>Creates a temporary container</strong> from the current snapshot using the configured worker (<a href="../30-docker-architecture/#architecture">runc</a> or
    containerd). The snapshot is a read-only mount; BuildKit adds a writable overlay on top.</p>
 </li>
 <li>

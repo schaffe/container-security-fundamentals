@@ -2264,7 +2264,7 @@ CMD [&quot;node&quot;, &quot;app.js&quot;]
 # No USER directive — runs as root
 CMD [&quot;/usr/local/bin/myapp&quot;]
 </code></pre>
-<p>If <code>myapp</code> is compromised, the attacker has root in the container. If they find a container escape (e.g., CVE-2019-5736 runc), they have root on the host.</p>
+<p>If <code>myapp</code> is compromised, the attacker has root in the container. If they find a container escape (e.g., <a href="../30-docker-architecture/#cves">CVE-2019-5736 runc</a>), they have root on the host.</p>
 <h2 id="uidgid-allocation-patterns">UID/GID Allocation Patterns<a class="headerlink" href="#uidgid-allocation-patterns" title="Permanent link">&para;</a></h2>
 <h3 id="uid-10001-application-user">UID 10001 (Application User)<a class="headerlink" href="#uid-10001-application-user" title="Permanent link">&para;</a></h3>
 <p>The most common pattern is creating a dedicated application user with a high UID:</p>

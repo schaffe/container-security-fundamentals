@@ -3152,7 +3152,7 @@ solver receives this LLB and executes it.</p>
 parallelises work, and dispatches operations to workers.</p>
 <p><strong>Worker</strong> — Executes individual LLB operations. Two built-in workers:</p>
 <ul>
-<li><code>runc</code> worker: Uses <code>runc</code> via containerd to execute <code>ExecOp</code> instructions in containers.</li>
+<li><code>runc</code> worker: Uses <a href="../30-docker-architecture/#architecture"><code>runc</code></a> via containerd to execute <code>ExecOp</code> instructions in containers.</li>
 <li><code>containerd</code> worker: Uses containerd directly for both exec and snapshot management.</li>
 <li><code>oci</code> worker (experimental): Uses <code>runtime-tools</code> directly.</li>
 </ul>
