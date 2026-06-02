@@ -56,6 +56,33 @@ Key blocked syscalls and their exploit relevance:
 | `process_vm_readv` / `process_vm_writev` | Cross-process memory access |
 | `nfsservctl` | NFS server inside container |
 
+### ptrace
+
+`ptrace` is a Linux system call that lets one process observe and control another — read and
+write memory and registers, intercept syscalls, and single-step execution. It is the
+mechanism behind debuggers (gdb, lldb), tracing tools (strace, ltrace), and profiling tools.
+
+In containers, ptrace is dangerous because:
+
+- **Code injection**: A compromised process with `CAP_SYS_PTRACE` can attach to sibling
+  containers in the same namespace, read secrets from memory, and execute arbitrary code in
+  another process.
+- **Container escape**: ptrace was a component in CVE-2019-5736 (runc escape) — the attacker
+  used ptrace on `/proc/self/exe` combined with file-descriptor tricks to overwrite the host's
+  `runc` binary.
+- **Syscall interception**: The `PTRACE_SYSCALL` mechanism can intercept every system call a
+  process makes. This is both useful (e.g., Kaniko uses ptrace to snapshot filesystem changes
+  during image builds) and exploitable (a malicious process can monitor all syscalls of
+  another process).
+
+Docker's default seccomp profile blocks ptrace. The kernel cannot distinguish between
+"benign use" (a user debugging their own process) and "malicious use" (injecting code into
+another container), so it's denied entirely. For debugging, use ephemeral debug containers
+with `CAP_SYS_PTRACE` explicitly added rather than disabling the seccomp profile.
+
+See also [Linux Capabilities: CAP_SYS_PTRACE](../articles/11-linux-capabilities.md) and
+[Kaniko's ptrace-based change detection](../articles/36-kaniko-vs-docker-builds.md#change-detection-via-ptrace).
+
 ### Docker Default Profile Location
 
 ```bash

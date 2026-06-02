@@ -34,7 +34,7 @@ The `docker-default` profile allows:
 - Full access to the container's filesystem (`/**` — all files and directories)
 - Network access (AF_INET, AF_UNIX, AF_NETLINK sockets)
 - Capability checks (controlled by `--cap-add`/`--cap-drop`)
-- ptrace on other processes in the same container (with `ptrace (trace)` peer permission)
+- ptrace on other processes in the same container (with `ptrace (trace)` peer permission) — see [seccomp's ptrace section](../articles/12-seccomp.md#ptrace) for why ptrace is dangerous in containers
 - Standard signal delivery
 
 The profile denies:

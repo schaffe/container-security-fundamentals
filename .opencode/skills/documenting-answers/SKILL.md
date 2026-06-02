@@ -12,6 +12,7 @@ When conversation reveals information worth preserving, capture it in the projec
 ## When to Use
 
 **Triggers:**
+- User asks "what is <concept>" — a definitional question about a Linux, container, or Docker concept
 - User asks a follow-up question that deepens a documented topic
 - User's question reveals a topic not yet covered
 - User provides detail, context, or clarification worth recording
@@ -24,72 +25,41 @@ When conversation reveals information worth preserving, capture it in the projec
 
 ## Workflow
 
+Two modes depending on the trigger:
+
+### Mode A: "What is <concept>" questions
+
+1. **Answer:** Answer the user's question directly and concisely
+2. **Find & create:** Determine the best home for the concept explanation (see priority rules below). Create the content.
+3. **Cross-reference:** Find every existing mention of the concept across all `docs/articles/*.md` and update those mentions to link to the new canonical explanation
+4. **Verify:** Run `mkdocs build --strict`
+5. **Publish:** Commit, push, and deploy (see verification + publish steps below)
+
+### Mode B: Other follow-up questions
+
 1. **Answer:** Answer the user's question directly
 2. **Propose:** Launch a subagent to read relevant docs and produce a written proposal of what to change (no edits yet)
 3. **Present:** Print the proposed changes to the user
 4. **Approve:** Ask the user to approve the proposal
 5. **Publish:** On approval, dispatch **publishing-docs** subagent to apply, verify, commit, push, and deploy
 
-## Subagent: Research & Propose
+## Where to Document Concepts (Priority Order)
 
-Dispatch a subagent to determine what docs need updating and produce a concrete proposal. The subagent should **read only** — no edits.
+When documenting a "what is <concept>" answer, the concept is a detail within a broader topic. Find the broader topic first, then fit the concept into it.
 
-```markdown
-The user just asked: "<question>"
+STRICT priority:
 
-I answered with: "<answer>"
+1. **Expand the existing article that covers the broader topic the concept belongs to** — preferred 90% of the time. The concept is a detail within a larger subject (e.g., chroot → container isolation in Docker Architecture; ptrace → syscall filtering in seccomp). Add a subsection within the relevant section.
+2. **Create a new article for the broader topic** — only when the broader topic itself is missing from the docs. The concept becomes one section within the new article. Don't create "concepts reference" articles; create topic articles (e.g., "Linux Namespaces" rather than "Key Linux Concepts").
 
-The project at <project-root> is an MkDocs site.
+## Cross-Reference Update Rule
 
-Currently documented topics (from mkdocs.yml nav):
-<list nav sections and their articles>
+After adding the concept explanation, find every existing reference to the concept in `docs/articles/*.md` and add a relative link to the new canonical location. Examples:
 
-Read the docs relevant to this follow-up, then produce a written proposal.
+- `chroot` → `../articles/NN-key-concepts.md#chroot` or the relevant anchor
+- `ptrace` → `../articles/NN-key-concepts.md#ptrace` or the relevant anchor
 
-STRICT priority — only move to the next option if the previous one doesn't fit:
-1. **Expand an existing section with new detail** — prefer this 90% of the time
-2. **Add a new section to an existing article** — only if the content is too large or tangential for an existing section
-3. **Create a new article in an existing nav group** — requires strong justification: must be a substantial topic (>300 lines) that doesn't fit any existing article. When in doubt, expand an existing section instead.
-4. **Create a new nav group** — almost never. Only when the topic genuinely doesn't fit any existing group and represents a new category.
-
-Your proposal must include:
-- **What file(s) to change** (relative path)
-- **Where in each file** (after which section or at what anchor point)
-- **What content to add** (full markdown)
-- **Whether mkdocs.yml needs updating** (new nav entry or new group)
-- **Whether docs/index.md needs updating** (new entry in Topics list)
-- **Whether docs/docker-supply-chain.md needs updating** (new entry in Topic Map)
-- **A git commit message** for the change
-- **Priority level justification** — which of the 4 priorities above, and why
-
-Do NOT edit any files. Only report the proposal back.
-```
-
-## Subagent: Publish (uses publishing-docs)
-
-After the user approves, dispatch a subagent using the **publishing-docs** skill to apply the approved proposal, verify, commit, push, and deploy. See `.opencode/skills/publishing-docs/SKILL.md`.
-
-## Approval Prompt Template
-
-After the proposal comes back, present it to the user:
-
-```
-This follow-up adds information that should be captured in the docs.
-
-Proposed changes:
-- <file>: <description of change> (e.g. "add musl vs glibc section after 'Why Distroless Reduces CVEs'")
-
-Proposed content:
-```markdown
-<full markdown of proposed addition>
-```
-
-Commit message: <proposed message>
-
-Apply these changes? (yes/no)
-```
-
-Wait for the user's response. Only proceed to Apply & Publish on explicit approval.
+Use `replaceAll` when the concept name appears as a plain word and should link every time. Use targeted edits when only specific mentions should link. When the mention is already part of a link, leave it unchanged.
 
 ## Common Mistakes
 
@@ -99,8 +69,9 @@ Wait for the user's response. Only proceed to Apply & Publish on explicit approv
 - **Forgetting index and topic map:** New nav groups must be added to both `docs/index.md` (Topics list) and `docs/docker-supply-chain.md` (Topic Map sections). These are not checked by the build.
 - **Creating articles too eagerly:** Always try to expand an existing section first. New articles are rarely needed — the content almost always fits inside an existing article. Only suggest a new article when the topic is truly standalone and can't be merged.
 - **Over-organizing:** New groups are almost never needed. Topics almost always fit into an existing nav group.
-- **Racing the user:** Show the proposal before applying. Let the user decide what's worth capturing.
-- **Skipping the deploy:** Always use the **publishing-docs** skill for the apply + deploy step. Don't skip it.
+- **Racing the user:** For Mode B, show the proposal before applying. Let the user decide what's worth capturing.
+- **Skipping cross-references:** For Mode A, grepping all articles for the concept name and adding links is mandatory. A concept documented in one place but referenced in five others without links is half-done.
+- **Skipping the deploy:** Always run the full commit, push, and deploy cycle. Don't stop after editing.
 
 ## Verification
 

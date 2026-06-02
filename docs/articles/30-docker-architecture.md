@@ -171,6 +171,29 @@ runc run my-container
 8. Write UID/GID mappings for user namespaces.
 9. `execve` the container process.
 
+#### chroot and pivot_root
+
+`chroot` changes the apparent root directory for a process and its children. A process
+chrooted to `/some/root` sees that path as `/` and cannot access files outside it. It was the
+earliest Unix isolation primitive and a precursor to containers (the first "jail" systems in
+1999 used chroot alone).
+
+In containers, runc uses `pivot_root` (preferred) or `chroot` (fallback) to mount the
+container's root filesystem:
+
+- **pivot_root**: Moves the old root mount to a separate directory (`put_old`), giving the
+  container its own mount namespace root. The host root is still mounted but invisible to the
+  container process. Preferred because the old root remains accessible from other
+  mount namespaces and a correct `pivot_root` ensures the container can't navigate back to the
+  host filesystem through the mount table.
+- **chroot**: Simpler, used when pivot_root is unavailable (e.g., containers without a mount
+  namespace, or when the rootfs isn't a mount point). A chroot can be escaped by a privileged
+  process that can `mkdir foo; chroot foo; cd ..` — which is why runc always combines chroot
+  with a dedicated mount namespace and drops `CAP_SYS_CHROOT` in the container.
+
+The OCI spec requires runtimes to call either `pivot_root` or `chroot` on the rootfs. This is
+step 2 in the startup sequence above.
+
 ### Kernel Features
 
 #### Namespaces

@@ -81,7 +81,8 @@ clusters.
 
 Kaniko runs as a non-privileged container. It does not need `/var/run/docker.sock`, does not require
 `privileged: true`, and does not start a daemon. It builds images entirely in userspace using
-kernel features available to any container (chroot, ptrace).
+kernel features available to any container ([chroot](../articles/30-docker-architecture.md#chroot-and-pivot_root),
+[ptrace](../articles/12-seccomp.md#ptrace)).
 
 See [Docker Architecture](../articles/30-docker-architecture.md) for why the daemon model requires
 privileged access.
@@ -144,7 +145,7 @@ and allows partial progress.
 ## Filesystem Snapshot Mechanics
 
 Kaniko's core technical challenge is detecting what files changed when a `RUN` instruction executes.
-Without a union filesystem to diff layers, Kaniko uses an approach based on chroot and ptrace.
+Without a union filesystem to diff layers, Kaniko uses an approach based on chroot and ptrace.wh
 
 ### Chroot-Based Execution
 
