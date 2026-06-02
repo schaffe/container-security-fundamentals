@@ -98,7 +98,7 @@ server. When the Kaniko executor starts, it follows this sequence:
 2. **Pull the base image** — Download the base image manifest and layers from the registry.
 3. **Extract the base image** — Unpack layers into the target root filesystem.
 4. **Execute each instruction** — For each Dockerfile instruction:
-   - Apply a `chroot` to the target rootfs.
+   - Apply a [`chroot`](../articles/30-docker-architecture.md#chroot-and-pivot_root) to the target rootfs.
    - Run the command (for `RUN`), copy files (for `COPY`/`ADD`), or apply metadata.
    - Snapshot the filesystem to detect changes.
    - Package changed files as a tar layer.
@@ -134,7 +134,7 @@ not require setup scripts. Simpler to deploy, no daemon crashes to handle.
 
 **Userspace filesystem operations.** Kaniko does not use overlayfs, device-mapper, or any kernel
 union filesystem. It manages the filesystem by extracting layers into a directory tree and using
-ptrace to snapshot changes.
+[ptrace](../articles/12-seccomp.md#ptrace) to snapshot changes.
 
 **Push-as-you-go.** By default, Kaniko pushes each layer to the registry as it is built, rather
 than assembling all layers locally and pushing at the end. This reduces local disk requirements
@@ -145,13 +145,17 @@ and allows partial progress.
 ## Filesystem Snapshot Mechanics
 
 Kaniko's core technical challenge is detecting what files changed when a `RUN` instruction executes.
-Without a union filesystem to diff layers, Kaniko uses an approach based on chroot and ptrace.wh
+Without a union filesystem to diff layers, Kaniko uses an approach based on
+[chroot](../articles/30-docker-architecture.md#chroot-and-pivot_root) and
+[ptrace](../articles/12-seccomp.md#ptrace).
 
 ### Chroot-Based Execution
 
-For each `RUN` instruction, Kaniko creates a subprocess that is `chroot`ed into the target rootfs.
-The command runs inside this chroot, with the filesystem directly accessible at `/` from the
-subprocess's perspective.
+For each `RUN` instruction, Kaniko creates a subprocess that is
+[`chroot`ed](../articles/30-docker-architecture.md#chroot-and-pivot_root) into the target rootfs.
+The command runs inside this
+[chroot](../articles/30-docker-architecture.md#chroot-and-pivot_root), with the filesystem
+directly accessible at `/` from the subprocess's perspective.
 
 ```bash
 # Kaniko's chroot equivalent (simplified)
@@ -160,7 +164,7 @@ chroot /kaniko/root /bin/sh -c "apt-get install -y curl"
 
 ### Change Detection via Ptrace
 
-Kaniko uses `ptrace` (the `PTRACE_SYSCALL` mechanism) to intercept filesystem-related system calls
+Kaniko uses [`ptrace`](../articles/12-seccomp.md#ptrace) (the `PTRACE_SYSCALL` mechanism) to intercept filesystem-related system calls
 made by the build process and its children:
 
 - `open()`, `creat()`, `unlink()`, `rename()`, `link()`, `symlink()`, `mkdir()`, `rmdir()`,
@@ -376,7 +380,7 @@ buildah bud -t myapp .
 Key differences from Kaniko:
 
 - **Overlayfs-based diff**: Buildah mounts layers as overlayfs lowerdirs and uses the upperdir to
-  detect changes. This is much faster than Kaniko's ptrace approach — no syscall interception
+  detect changes. This is much faster than Kaniko's [ptrace](../articles/12-seccomp.md#ptrace) approach — no syscall interception
   overhead.
 - **User namespace support**: Buildah can run in a user namespace, mapping a non-root UID to root
   inside the namespace. This gives it filesystem capabilities without `CAP_SYS_ADMIN`.
@@ -406,7 +410,7 @@ security concerns Kaniko avoids.
 Makisu is Uber's in-cluster image builder. It uses overlayfs mounts in a user namespace for
 change detection, similar to Buildah:
 
-- **Overlayfs-based**: Faster than Kaniko's ptrace.
+- **Overlayfs-based**: Faster than Kaniko's [ptrace](../articles/12-seccomp.md#ptrace).
 - **Registry-level caching**: Makisu computes content-hash cache keys and stores cache manifests in
   the registry, like BuildKit's `--cache-to type=registry`.
 - **Parallel layer uploads**: Pushes multiple layers concurrently.
@@ -441,14 +445,14 @@ containers (required for DinD) are similarly dangerous and often blocked by admi
 
 ### "How does Kaniko detect filesystem changes without overlayfs?" (Architecture)
 
-Kaniko uses `ptrace` to intercept filesystem-modifying syscalls (`open`, `creat`, `unlink`,
+Kaniko uses [`ptrace`](../articles/12-seccomp.md#ptrace) to intercept filesystem-modifying syscalls (`open`, `creat`, `unlink`,
 `rename`, `mkdir`, `rmdir`) during a `RUN` instruction. After the command completes, it has a
 precise list of changed files. It then creates a tar archive of those files — this is the new
 layer. No kernel union filesystem is required, which is why Kaniko runs without privileges.
 
 ### "What is the main performance bottleneck in Kaniko?" (Performance)
 
-The ptrace-based change detection. Every filesystem-modifying syscall from the build process and
+The [ptrace](../articles/12-seccomp.md#ptrace)-based change detection. Every filesystem-modifying syscall from the build process and
 its children is intercepted and evaluated by Kaniko's tracer process. For `RUN` instructions
 that touch thousands of files (e.g., `npm install`, `pip install`, `apt-get install`), this
 syscall interception overhead dominates build time. BuildKit and overlayfs-based builders compute
