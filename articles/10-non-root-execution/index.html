@@ -134,17 +134,13 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#kubernetes-securitycontext-best-practices">Kubernetes SecurityContext Best Practices</a>
+    <li class="toctree-l2"><a class="reference internal" href="#applying-non-root-in-kubernetes">Applying Non-Root in Kubernetes</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#runasnonroot-admission-check">runAsNonRoot Admission Check</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#pod-vs-container-securitycontext">Pod vs Container SecurityContext</a>
+    <li class="toctree-l3"><a class="reference internal" href="#common-anti-patterns">Common Anti-Patterns</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#pod-security-admission-psa-enforcement">Pod Security Admission (PSA) Enforcement</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#common-kubernetes-anti-patterns">Common Kubernetes Anti-Patterns</a>
-    </li>
-    <li class="toctree-l3"><a class="reference internal" href="#mutating-webhooks-for-non-root-injection">Mutating Webhooks for Non-Root Injection</a>
+    <li class="toctree-l3"><a class="reference internal" href="#admission-control-and-webhooks">Admission Control and Webhooks</a>
     </li>
         </ul>
     </li>
@@ -490,19 +486,9 @@ ENV HOME=/home/appuser
 USER appuser
 </code></pre>
 <h3 id="issue-4-kubernetes-pod-security-standards">Issue 4: Kubernetes Pod Security Standards<a class="headerlink" href="#issue-4-kubernetes-pod-security-standards" title="Permanent link">&para;</a></h3>
-<p>Kubernetes enforces Pod Security Standards (PSS) with three levels:</p>
-<ul>
-<li><strong>Privileged</strong>: Unrestricted (explicit opt-in)</li>
-<li><strong>Baseline</strong>: Minimally restrictive, prevents known escalations</li>
-<li><strong>Restricted</strong>: Heavily restricted, follows Pod Security best practices</li>
-</ul>
-<p>The <strong>Restricted</strong> profile requires non-root:</p>
-<pre><code class="language-yaml">securityContext:
-  runAsNonRoot: true
-  seccompProfile:
-    type: RuntimeDefault
-</code></pre>
-<h2 id="kubernetes-securitycontext-best-practices">Kubernetes SecurityContext Best Practices<a class="headerlink" href="#kubernetes-securitycontext-best-practices" title="Permanent link">&para;</a></h2>
+<p>Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The <strong>Restricted</strong> profile requires <code>runAsNonRoot: true</code>. See <a href="../17-pod-security-standards/">Pod Security Standards</a> for the full profile requirements and enforcement via Pod Security Admission.</p>
+<h2 id="applying-non-root-in-kubernetes">Applying Non-Root in Kubernetes<a class="headerlink" href="#applying-non-root-in-kubernetes" title="Permanent link">&para;</a></h2>
+<p>This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see <a href="../16-securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext</a>.</p>
 <h3 id="runasnonroot-admission-check">runAsNonRoot Admission Check<a class="headerlink" href="#runasnonroot-admission-check" title="Permanent link">&para;</a></h3>
 <p>Setting <code>runAsNonRoot: true</code> makes the K8s admission controller verify the container image does not run as root before admitting the pod:</p>
 <table>
@@ -546,137 +532,19 @@ USER appuser
 - Developer accidentally removes <code>USER</code> from Dockerfile — pod won't deploy
 - Base image switches from Debian to Alpine with different user resolution — pod won't deploy
 - Attacker swaps the image tag — admission re-checks every time</p>
-<h3 id="pod-vs-container-securitycontext">Pod vs Container SecurityContext<a class="headerlink" href="#pod-vs-container-securitycontext" title="Permanent link">&para;</a></h3>
-<p>SecurityContext fields are split between pod and container level. The pod level sets defaults that containers inherit unless overridden:</p>
-<table>
-<thead>
-<tr>
-<th>Setting</th>
-<th>Pod level</th>
-<th>Container level</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>runAsUser</code></td>
-<td>✅ (default)</td>
-<td>✅ (overrides)</td>
-</tr>
-<tr>
-<td><code>runAsGroup</code></td>
-<td>✅ (default)</td>
-<td>✅ (overrides)</td>
-</tr>
-<tr>
-<td><code>runAsNonRoot</code></td>
-<td>✅ only</td>
-<td>❌</td>
-</tr>
-<tr>
-<td><code>fsGroup</code></td>
-<td>✅ only</td>
-<td>❌</td>
-</tr>
-<tr>
-<td><code>supplementalGroups</code></td>
-<td>✅ only</td>
-<td>❌</td>
-</tr>
-<tr>
-<td><code>seLinuxOptions</code></td>
-<td>✅ (default)</td>
-<td>✅ (overrides)</td>
-</tr>
-<tr>
-<td><code>seccompProfile</code></td>
-<td>✅ (default)</td>
-<td>✅ (overrides)</td>
-</tr>
-<tr>
-<td><code>allowPrivilegeEscalation</code></td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td><code>capabilities</code></td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td><code>readOnlyRootFilesystem</code></td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-</tbody>
-</table>
-<p>Key rules:
-- <code>runAsNonRoot</code> can only be set at the pod level — it applies to all containers
-- <code>allowPrivilegeEscalation</code>, <code>capabilities</code>, and <code>readOnlyRootFilesystem</code> are container-only
-- The pod-level <code>runAsUser</code>/<code>runAsGroup</code> is the default; container-level overrides it</p>
-<h3 id="pod-security-admission-psa-enforcement">Pod Security Admission (PSA) Enforcement<a class="headerlink" href="#pod-security-admission-psa-enforcement" title="Permanent link">&para;</a></h3>
-<p>The modern way to enforce PSS is through Pod Security Admission, using namespace labels:</p>
-<pre><code class="language-yaml">apiVersion: v1
-kind: Namespace
-metadata:
-  labels:
-    pod-security.kubernetes.io/enforce: restricted
-    pod-security.kubernetes.io/enforce-version: latest
-    pod-security.kubernetes.io/warn: restricted
-    pod-security.kubernetes.io/audit: restricted
-</code></pre>
-<p>Three modes:
-- <strong>enforce</strong>: Rejects pods that violate the profile
-- <strong>warn</strong>: Admission accepts the pod but returns a warning
-- <strong>audit</strong>: Logs violations to the audit log without interrupting admission</p>
-<p>Best practice for adoption:
-1. Start with <code>warn</code> + <code>audit</code> on <code>restricted</code> to identify violations
-2. Fix workloads that fail
-3. Switch to <code>enforce: baseline</code> to catch obvious issues
-4. Move to <code>enforce: restricted</code> once compliant</p>
-<p>For the Restricted profile specifically, your pod must satisfy:</p>
-<table>
-<thead>
-<tr>
-<th>Requirement</th>
-<th>Configuration</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Not running as root</strong></td>
-<td><code>runAsNonRoot: true</code> or image has non-root USER</td>
-</tr>
-<tr>
-<td><strong>No privilege escalation</strong></td>
-<td><code>allowPrivilegeEscalation: false</code></td>
-</tr>
-<tr>
-<td><strong>Seccomp</strong></td>
-<td><code>seccompProfile.type: RuntimeDefault</code></td>
-</tr>
-<tr>
-<td><strong>Capabilities</strong></td>
-<td><code>capabilities.drop: ["ALL"]</code> (only <code>NET_BIND_SERVICE</code> may be added)</td>
-</tr>
-<tr>
-<td><strong>Read-only root</strong></td>
-<td><code>readOnlyRootFilesystem: true</code> (recommended, not required)</td>
-</tr>
-</tbody>
-</table>
-<h3 id="common-kubernetes-anti-patterns">Common Kubernetes Anti-Patterns<a class="headerlink" href="#common-kubernetes-anti-patterns" title="Permanent link">&para;</a></h3>
+<h3 id="common-anti-patterns">Common Anti-Patterns<a class="headerlink" href="#common-anti-patterns" title="Permanent link">&para;</a></h3>
 <p><strong>Anti-pattern 1: Relying only on Dockerfile USER</strong></p>
 <pre><code class="language-yaml"># Bad — runAsNonRoot not set; a tag swap bypasses USER
 securityContext:
   runAsUser: 10001
 </code></pre>
-<p>If someone rebuilds the image without <code>USER</code>, the pod runs as root silently. Always set <code>runAsNonRoot: true</code>.</p>
+<p>If someone rebuilds the image without <code>USER</code>, the pod runs as root silently.</p>
 <p><strong>Anti-pattern 2: Setting runAsUser: 0</strong></p>
 <pre><code class="language-yaml"># Bad — explicitly runs as root, bypassing any USER directive
 securityContext:
   runAsUser: 0
 </code></pre>
-<p>This is common when debugging ("it works locally as root") and accidentally left in production manifests.</p>
+<p>Common when debugging and accidentally left in production manifests.</p>
 <p><strong>Anti-pattern 3: Not dropping ALL capabilities</strong></p>
 <pre><code class="language-yaml"># Bad — inherits default capabilities, many unneeded
 securityContext:
@@ -685,27 +553,8 @@ securityContext:
 <p>Non-root doesn't mean capability-free. Always <code>drop: ["ALL"]</code>, then add back only what's needed.</p>
 <p><strong>Anti-pattern 4: Inconsistent securityContext per container</strong>
 A pod can have 10 containers but only 2 with <code>runAsNonRoot: true</code> — the others run unrestricted. Pod-level <code>runAsNonRoot</code> prevents this.</p>
-<h3 id="mutating-webhooks-for-non-root-injection">Mutating Webhooks for Non-Root Injection<a class="headerlink" href="#mutating-webhooks-for-non-root-injection" title="Permanent link">&para;</a></h3>
-<p>When you can't control the upstream image's USER, use a mutating webhook or Kyverno policy to inject securityContext:</p>
-<pre><code class="language-yaml"># Kyverno — auto-inject runAsNonRoot into every pod
-apiVersion: kyverno.io/v1
-kind: ClusterPolicy
-metadata:
-  name: require-non-root
-spec:
-  rules:
-  - name: auto-inject-runAsNonRoot
-    match:
-      any:
-      - resources:
-          kinds:
-          - Pod
-    mutate:
-      patchStrategicMerge:
-        spec:
-          securityContext:
-            +(runAsNonRoot): true
-</code></pre>
+<h3 id="admission-control-and-webhooks">Admission Control and Webhooks<a class="headerlink" href="#admission-control-and-webhooks" title="Permanent link">&para;</a></h3>
+<p>For enforcing non-root across your cluster, see <a href="../19-admission-control/">Admission Control</a>. For adapting Helm charts to pass Restricted profile checks, see <a href="../18-adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a>.</p>
 <h2 id="complete-secure-example">Complete Secure Example<a class="headerlink" href="#complete-secure-example" title="Permanent link">&para;</a></h2>
 <pre><code class="language-dockerfile">FROM golang:1.21 AS build
 WORKDIR /src
@@ -750,7 +599,7 @@ spec:
       medium: Memory
 </code></pre>
 <h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
-<p>Know the difference between <code>USER</code> in Dockerfile and <code>securityContext.runAsUser</code> in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that <code>runAsNonRoot: true</code> makes the K8s admission controller verify the container image does not run as root (it checks the <code>USER</code> instruction in the image config). Be able to explain the <code>no-new-privileges</code> flag and how it interacts with <code>AllowPrivilegeEscalation: false</code>. Know the Pod Security Standards three profiles and how Pod Security Admission enforces them via namespace labels. Understand why <code>runAsNonRoot</code> at the pod level is critical — it catches tag swaps and Dockerfile regressions that a container-level <code>runAsUser</code> alone would miss. For a deeper understanding of how the Docker engine enforces these constraints, see <a href="../30-docker-architecture/">Docker Architecture</a>.</p>
+<p>Know the difference between <code>USER</code> in Dockerfile and <code>securityContext.runAsUser</code> in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that <code>runAsNonRoot: true</code> makes the K8s admission controller verify the container image does not run as root (it checks the <code>Config.User</code> field in the image manifest). Be able to explain the <code>no-new-privileges</code> flag and how it interacts with <code>allowPrivilegeEscalation: false</code>. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see <a href="../17-pod-security-standards/">Pod Security Standards</a> for the full breakdown. Understand the pod vs container SecurityContext split — see <a href="../16-securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext</a>. For adapting Helm charts to pass Restricted profile checks, see <a href="../18-adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a>. For admission control and policy enforcement, see <a href="../19-admission-control/">Admission Control</a>. For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see <a href="../30-docker-architecture/">Docker Architecture</a>.</p>
               
             </div>
           </div><footer>
