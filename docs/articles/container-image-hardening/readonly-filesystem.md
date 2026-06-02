@@ -297,7 +297,7 @@ Common hidden write paths:
 /var/db/mtab
 # Shared memory
 /dev/shm
-[/proc/self/exe](../articles/37-proc-container-isolation.md#1-cve-2019-5736--procselfexe-race)
+[/proc/self/exe](../linux-fundamentals/proc-container-isolation.md#1-cve-2019-5736--procselfexe-race)
 # Lock files
 /var/lock/
 # .cache directories
@@ -371,4 +371,4 @@ spec:
 
 ## Interview Tips
 
-Know that `readOnlyRootFilesystem: true` is part of the **K8s Restricted Pod Security Standard**. Understand that most containers break with this setting initially — identifying the minimum set of writable directories is the key skill. Be able to explain why read-only filesystems prevent entire classes of container escape (write-based overlay exploits, binary injection, cron/init persistence). Understand that `emptyDir` with `medium: Memory` uses the container's memory limit, so proper resource limits are essential. For a deeper look at how OverlayFS implements writable upperdirs over a read-only lower layer, see [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md).
+Know that `readOnlyRootFilesystem: true` is part of the **K8s Restricted Pod Security Standard**. Understand that most containers break with this setting initially — identifying the minimum set of writable directories is the key skill. Be able to explain why read-only filesystems prevent entire classes of container escape (write-based overlay exploits, binary injection, cron/init persistence). Understand that `emptyDir` with `medium: Memory` uses the container's memory limit, so proper resource limits are essential. For a deeper look at how OverlayFS implements writable upperdirs over a read-only lower layer, see [Image Layers & Storage Drivers](../docker/image-layers-storage-drivers.md).

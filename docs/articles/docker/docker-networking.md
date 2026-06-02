@@ -240,12 +240,12 @@ own FORWARD rules and are never overwritten.
 
 ## Cross-References
 
-- [Docker Architecture](../articles/30-docker-architecture.md) — daemon stack that manages networks
+- [Docker Architecture](docker-architecture.md) — daemon stack that manages networks
   (dockerd → libnetwork → kernel).
-- [Linux Capabilities](../articles/11-linux-capabilities.md) — CAP_NET_RAW and CAP_NET_ADMIN
+- [Linux Capabilities](../container-image-hardening/linux-capabilities.md) — CAP_NET_RAW and CAP_NET_ADMIN
   control raw socket and interface manipulation inside containers.
-- [Seccomp](../articles/12-seccomp.md) — seccomp profiles restrict socket-related syscalls.
-- [Read-only Filesystem](../articles/14-readonly-filesystem.md) — combining RO root with network
+- [Seccomp](../container-image-hardening/seccomp.md) — seccomp profiles restrict socket-related syscalls.
+- [Read-only Filesystem](../container-image-hardening/readonly-filesystem.md) — combining RO root with network
   isolation for immutable container patterns.
-- [SecurityContext vs PodSecurityContext](../articles/16-securitycontext-vs-podsecuritycontext.md) —
+- [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md) —
   Kubernetes network-level security through NetworkPolicies and CNI plugins.

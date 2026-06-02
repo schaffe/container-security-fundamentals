@@ -34,15 +34,15 @@ The `docker-default` profile allows:
 - Full access to the container's filesystem (`/**` — all files and directories)
 - Network access (AF_INET, AF_UNIX, AF_NETLINK sockets)
 - Capability checks (controlled by `--cap-add`/`--cap-drop`)
-- [ptrace](../articles/12-seccomp.md#ptrace) on other processes in the same container (with `ptrace (trace)` peer permission)
+- [ptrace](seccomp.md#ptrace) on other processes in the same container (with `ptrace (trace)` peer permission)
 - Standard signal delivery
 
 The profile denies:
-- Writing to [`/proc/sys/`](../articles/37-proc-container-isolation.md#3-procsys-kernel-parameter-modification) (kernel parameter modification)
+- Writing to [`/proc/sys/`](../linux-fundamentals/proc-container-isolation.md#3-procsys-kernel-parameter-modification) (kernel parameter modification)
 - Writing to `/sys/` (kernel object modification)
 - Mounting filesystems
-- Access to [`/proc/kcore`](../articles/37-proc-container-isolation.md#2-prockcore-full-kernel-memory) (kernel memory)
-- Access to [`/proc/sched_debug`](../articles/37-proc-container-isolation.md#attack-surface-via-proc-in-containers)
+- Access to [`/proc/kcore`](../linux-fundamentals/proc-container-isolation.md#2-prockcore-full-kernel-memory) (kernel memory)
+- Access to [`/proc/sched_debug`](../linux-fundamentals/proc-container-isolation.md#attack-surface-via-proc-in-containers)
 - `capability sys_admin` (even if the capability is granted)
 
 ```bash
@@ -295,4 +295,4 @@ sudo semodule -i mypolicy.pp
 
 ## Interview Tips
 
-Know the distribution binding: **AppArmor = Ubuntu/Debian, SELinux = RHEL/CentOS/Amazon Linux**. Understand that starting from scratch, seccomp + capabilities provides 80% of the value. AppArmor/SELinux add file-level MAC — important for multi-tenant environments where container isolation is critical. Be able to explain why `--privileged` disables all three mechanisms (capabilities, seccomp, and AppArmor/SELinux) and why that's dangerous. For a broader view of how these security mechanisms fit into the Docker runtime stack, see [Docker Architecture](../articles/30-docker-architecture.md).
+Know the distribution binding: **AppArmor = Ubuntu/Debian, SELinux = RHEL/CentOS/Amazon Linux**. Understand that starting from scratch, seccomp + capabilities provides 80% of the value. AppArmor/SELinux add file-level MAC — important for multi-tenant environments where container isolation is critical. Be able to explain why `--privileged` disables all three mechanisms (capabilities, seccomp, and AppArmor/SELinux) and why that's dangerous. For a broader view of how these security mechanisms fit into the Docker runtime stack, see [Docker Architecture](../docker/docker-architecture.md).

@@ -251,4 +251,4 @@ Docker has publicly committed to evolving content trust along these lines:
 - "Why does Docker support both Notation and cosign?" (Notation is the OCI standard for signing; cosign is widely adopted for its OIDC-based ephemeral key model. Docker supports both to meet different customer preferences.)
 - "How does delegation work in a team of 50 developers?" (Using Notation trust policies with a shared CA: each team member has a certificate signed by the org CA; trust policy accepts any certificate from that CA with a specific subject pattern.)
 
-For a complete walkthrough of the build pipeline that produces the images you sign, see [How Docker Builds Images](../articles/33-how-docker-builds-images.md).
+For a complete walkthrough of the build pipeline that produces the images you sign, see [How Docker Builds Images](../how-docker-builds-images.md).

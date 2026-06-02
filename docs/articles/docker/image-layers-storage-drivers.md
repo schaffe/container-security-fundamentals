@@ -470,13 +470,13 @@ a container.
 
 ## Cross-References
 
-- [Distroless Images](../articles/08-distroless-images.md) — how minimal base images shrink the
+- [Distroless Images](../container-image-hardening/distroless-images.md) — how minimal base images shrink the
   layer footprint and reduce attack surface.
-- [Image Minimization](../articles/09-image-minimization.md) — techniques for reducing layer count
+- [Image Minimization](../container-image-hardening/image-minimization.md) — techniques for reducing layer count
   and size through multi-stage builds and layer squashing.
-- [Read-only Filesystems](../articles/14-readonly-filesystem.md) — how read-only root works with
+- [Read-only Filesystems](../container-image-hardening/readonly-filesystem.md) — how read-only root works with
   overlay upperdir and what it prevents.
-- [Scanner Internals](../articles/20-scanner-internals.md) — how vulnerability scanners decompress
+- [Scanner Internals](../cve-lifecycle/scanner-internals.md) — how vulnerability scanners decompress
   and analyse image layers to extract package databases.
-- [How Docker Builds Images](../articles/33-how-docker-builds-images.md) — the layer export pipeline
+- [How Docker Builds Images](how-docker-builds-images.md) — the layer export pipeline
   from the differ through content-addressed storage to manifest assembly.

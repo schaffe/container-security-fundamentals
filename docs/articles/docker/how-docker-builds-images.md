@@ -237,7 +237,7 @@ lives in `moby/buildkit/solver`. The solver does three things:
    a remote cache (e.g. a registry cache), the op is **cache hit** and its output is reused without
    re-execution. If the key is absent, the op is **cache miss** and must be executed.
 
-3. **Schedules execution.** Cache-miss ops are dispatched to workers ([runc](../articles/30-docker-architecture.md#architecture), containerd) for
+3. **Schedules execution.** Cache-miss ops are dispatched to workers ([runc](docker-architecture.md#architecture), containerd) for
    execution. Independent ops (e.g. two `FROM` pulls for different stages) run in parallel.
 
 ### Cache Key Computation
@@ -283,7 +283,7 @@ other.
 
 When the solver schedules an `ExecOp`, BuildKit:
 
-1. **Creates a temporary container** from the current snapshot using the configured worker ([runc](../articles/30-docker-architecture.md#architecture) or
+1. **Creates a temporary container** from the current snapshot using the configured worker ([runc](docker-architecture.md#architecture) or
    containerd). The snapshot is a read-only mount; BuildKit adds a writable overlay on top.
 
 2. **Sets up the execution environment:** mounts, environment variables, working directory, user,
@@ -591,15 +591,15 @@ buildctl build \
 
 ## Cross-References
 
-- [BuildKit Internals](../articles/32-buildkit-internals.md) — LLB deep dive, cache mounts, and
+- [BuildKit Internals](buildkit-internals.md) — LLB deep dive, cache mounts, and
   advanced caching strategies.
-- [Build Context](../articles/31-build-context.md) — how the build context is tarred, shipped, and
+- [Build Context](build-context.md) — how the build context is tarred, shipped, and
   filtered by `.dockerignore`.
-- [Image Layers and Storage Drivers](../articles/34-image-layers-storage-drivers.md) — how layers
+- [Image Layers and Storage Drivers](image-layers-storage-drivers.md) — how layers
   are stored on disk and mounted by overlayfs, devicemapper, and btrfs.
-- [Docker Content Trust](../articles/27-docker-content-trust.md) — how Notary signs image manifests
+- [Docker Content Trust](product-strategy/docker-content-trust.md) — how Notary signs image manifests
   for tamper-proof distribution.
-- [Docker Hardened Images](../articles/26-docker-hardened-images.md) — attestations, SBOM
+- [Docker Hardened Images](product-strategy/docker-hardened-images.md) — attestations, SBOM
   generation, and SLSA provenance during builds.
-- [Multi-Architecture and Security](../articles/15-multi-arch-security.md) — multi-arch manifests
+- [Multi-Architecture and Security](../container-image-hardening/multi-arch-security.md) — multi-arch manifests
   and platform-aware image references.

@@ -67,7 +67,7 @@ In containers, ptrace is dangerous because:
 - **Code injection**: A compromised process with `CAP_SYS_PTRACE` can attach to sibling
   containers in the same namespace, read secrets from memory, and execute arbitrary code in
   another process.
-- **Container escape**: ptrace was a component in [CVE-2019-5736](../articles/37-proc-container-isolation.md#1-cve-2019-5736-procselfexe-race) (runc escape) — the attacker
+- **Container escape**: ptrace was a component in [CVE-2019-5736](../linux-fundamentals/proc-container-isolation.md#1-cve-2019-5736-procselfexe-race) (runc escape) — the attacker
   used ptrace on `/proc/self/exe` combined with file-descriptor tricks to overwrite the host's
   `runc` binary.
 - **Syscall interception**: The `PTRACE_SYSCALL` mechanism can intercept every system call a
@@ -80,8 +80,8 @@ Docker's default seccomp profile blocks ptrace. The kernel cannot distinguish be
 another container), so it's denied entirely. For debugging, use ephemeral debug containers
 with `CAP_SYS_PTRACE` explicitly added rather than disabling the seccomp profile.
 
-See also [Linux Capabilities: CAP_SYS_PTRACE](../articles/11-linux-capabilities.md) and
-[Kaniko's ptrace-based change detection](../articles/36-kaniko-vs-docker-builds.md#change-detection-via-ptrace).
+See also [Linux Capabilities: CAP_SYS_PTRACE](linux-capabilities.md) and
+[Kaniko's ptrace-based change detection](../docker/kaniko-vs-docker-builds.md#change-detection-via-ptrace).
 
 ### Docker Default Profile Location
 
@@ -334,4 +334,4 @@ This is the minimum security baseline for production containers.
 
 ## Interview Tips
 
-Understand that seccomp's primary value is **preventing kernel exploit primitives**. Many famous container escapes ([CVE-2019-5736 runc](../articles/30-docker-architecture.md#cves), CVE-2022-0492 cgroup v1) relied on syscalls that the default profile allows. Know which syscalls are most dangerous to allow (`mount`, `ptrace`, `bpf`, `open_by_handle_at`). Be able to explain why `RuntimeDefault` on K8s 1.27+ has finally become the default — it took years because it broke legitimate applications. For more on how runc and containerd implement seccomp profiles, see [Docker Architecture](../articles/30-docker-architecture.md).
+Understand that seccomp's primary value is **preventing kernel exploit primitives**. Many famous container escapes ([CVE-2019-5736 runc](../docker/docker-architecture.md#cves), CVE-2022-0492 cgroup v1) relied on syscalls that the default profile allows. Know which syscalls are most dangerous to allow (`mount`, `ptrace`, `bpf`, `open_by_handle_at`). Be able to explain why `RuntimeDefault` on K8s 1.27+ has finally become the default — it took years because it broke legitimate applications. For more on how runc and containerd implement seccomp profiles, see [Docker Architecture](../docker/docker-architecture.md).

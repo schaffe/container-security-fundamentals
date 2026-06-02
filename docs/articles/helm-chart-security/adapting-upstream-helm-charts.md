@@ -159,7 +159,7 @@ If shell is unavoidable, spawn a minimal HTTP health endpoint in the application
 
 **Symptom:** Chart requires `privileged: true` for system-level operations.
 
-**Root cause:** The container needs host-level access (e.g., mounting `/sys/fs/cgroup`, accessing `/dev/kmsg`, writing to [`/proc`](../articles/37-proc-container-isolation.md#attack-surface-via-proc-in-containers)).
+**Root cause:** The container needs host-level access (e.g., mounting `/sys/fs/cgroup`, accessing `/dev/kmsg`, writing to [`/proc`](../linux-fundamentals/proc-container-isolation.md#attack-surface-via-proc-in-containers)).
 
 **Fix:** Assess if `privileged` is genuinely necessary. Many cases can be replaced:
 - Mount specific host paths with `hostPath` volumes and `mountPropagation`

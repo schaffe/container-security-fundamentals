@@ -261,4 +261,4 @@ Smaller images reduce supply chain risk:
 
 ## Interview Tips
 
-Know the **layer model** — each `RUN` creates a writable layer that persists even if files are deleted in subsequent layers. See [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md) for a detailed look at how OverlayFS implements copy-on-write. The `COPY --from` is the most important minimization technique to discuss. Be ready to explain why `--squash` isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).
+Know the **layer model** — each `RUN` creates a writable layer that persists even if files are deleted in subsequent layers. See [Image Layers & Storage Drivers](../docker/image-layers-storage-drivers.md) for a detailed look at how OverlayFS implements copy-on-write. The `COPY --from` is the most important minimization technique to discuss. Be ready to explain why `--squash` isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).

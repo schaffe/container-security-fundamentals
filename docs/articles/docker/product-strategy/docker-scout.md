@@ -246,4 +246,4 @@ docker push my-app:latest
 - "How does Scout handle images with multiple architectures?" (Scout analyzes each platform variant; policies apply per-variant or aggregate)
 - "What happens when a new CVE is published for a package in a running image?" (Scout re-scans if integrated with Hub; webhook notifications trigger alerts)
 
-For a deeper understanding of how images are built and how Scout integrates with the build pipeline, see [BuildKit Internals](../articles/32-buildkit-internals.md) and [How Docker Builds Images](../articles/33-how-docker-builds-images.md).
+For a deeper understanding of how images are built and how Scout integrates with the build pipeline, see [BuildKit Internals](../buildkit-internals.md) and [How Docker Builds Images](../how-docker-builds-images.md).

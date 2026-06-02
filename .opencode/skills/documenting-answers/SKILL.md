@@ -55,16 +55,16 @@ STRICT priority:
 ## Cross-Reference Update Rule
 
 When the answer introduces or clarifies a concept: find every existing reference to the concept
-in `docs/articles/*.md` and make the concept name itself an inline hyperlink to the new
+in `docs/articles/**/*.md` and make the concept name itself an inline hyperlink to the new
 canonical location. No "see also" footnotes — the concept word **is** the link.
 
 ### Good (inline hypertext):
 ```markdown
-The command runs inside this [chroot](../articles/30-docker-architecture.md#chroot-and-pivot_root).
+The command runs inside this [chroot](../articles/docker/docker-architecture.md#chroot-and-pivot_root).
 ```
 
 ```markdown
-...why [ptrace](../articles/12-seccomp.md#ptrace) is dangerous...
+...why [ptrace](../articles/container-image-hardening/seccomp.md#ptrace) is dangerous...
 ```
 
 ### Bad (separate "see also"):
@@ -116,7 +116,7 @@ Your proposal must include:
 - **Priority level justification** — which of the 4 priorities above, and why
 
 If the answer introduces or clarifies a concept, also grep for all existing mentions across
-docs/articles/*.md and include a cross-reference update plan:
+docs/articles/**/*.md and include a cross-reference update plan:
 - **All files that mention the concept** (grep output)
 - **Which mentions should become inline hypertext** and what anchor to link to
 - **Which mentions should stay as-is** (already part of a link, or in a context where

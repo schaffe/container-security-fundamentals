@@ -57,7 +57,7 @@ BuildKit's design borrows ideas from Bazel's remote execution API and Nix's stor
 steps are pure(ish) functions that can be cached, parallelised, and distributed.
 
 For the architectural context of where BuildKit fits in the Docker stack, see
-[Docker Architecture](../articles/30-docker-architecture.md).
+[Docker Architecture](docker-architecture.md).
 
 ---
 
@@ -117,7 +117,7 @@ parallelises work, and dispatches operations to workers.
 
 **Worker** — Executes individual LLB operations. Two built-in workers:
 
-- `runc` worker: Uses [`runc`](../articles/30-docker-architecture.md#architecture) via containerd to execute `ExecOp` instructions in containers.
+- `runc` worker: Uses [`runc`](docker-architecture.md#architecture) via containerd to execute `ExecOp` instructions in containers.
 - `containerd` worker: Uses containerd directly for both exec and snapshot management.
 - `oci` worker (experimental): Uses `runtime-tools` directly.
 
@@ -319,7 +319,7 @@ inputs). This is the foundation of BuildKit's caching.
 | `LABEL K=V` | Stored in image config, no LLB op |
 
 The frontend produces an `llb.State` that the solver traverses. See
-[Build Context](../articles/31-build-context.md) for how the `local` source type interacts with the
+[Build Context](build-context.md) for how the `local` source type interacts with the
 build context.
 
 ---
@@ -600,7 +600,7 @@ docker build --secret id=npmrc,src=.npmrc .
 | Private SSH key | `ssh-key` | `~/.ssh/id_ed25519` |
 
 Compare with sending secrets through the build context — see the security risks discussed in
-[Build Context](../articles/31-build-context.md).
+[Build Context](build-context.md).
 
 ---
 
@@ -809,8 +809,8 @@ the `COPY --from=builder` step.
 
 ### Cross-References
 
-- [Docker Architecture](../articles/30-docker-architecture.md) — how BuildKit relates to
+- [Docker Architecture](docker-architecture.md) — how BuildKit relates to
   dockerd/containerd
-- [Build Context](../articles/31-build-context.md) — context handling in BuildKit
-- [How Docker Builds Images](../articles/33-how-docker-builds-images.md) — pipeline integration
-- [Docker Hardened Images](../articles/26-docker-hardened-images.md) — SLSA L3 with BuildKit
+- [Build Context](build-context.md) — context handling in BuildKit
+- [How Docker Builds Images](how-docker-builds-images.md) — pipeline integration
+- [Docker Hardened Images](product-strategy/docker-hardened-images.md) — SLSA L3 with BuildKit

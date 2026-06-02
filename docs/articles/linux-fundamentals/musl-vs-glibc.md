@@ -35,5 +35,5 @@ musl's strictness is a double-edged sword: it catches portability bugs at compil
 
 ## See Also
 
-- [Distroless Images](08-distroless-images.md) — distroless provides both glibc and musl variants
-- [Image Minimization](09-image-minimization.md) — Alpine is a common choice for small images
+- [Distroless Images](../container-image-hardening/distroless-images.md) — distroless provides both glibc and musl variants
+- [Image Minimization](../container-image-hardening/image-minimization.md) — Alpine is a common choice for small images

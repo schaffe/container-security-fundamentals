@@ -7,49 +7,49 @@ nav:
   - Home: index.md
   - Docker Supply Chain Overview: docker-supply-chain.md
   - Supply Chain Security Theory:
-    - articles/01-slsa-framework.md
-    - articles/02-in-toto-attestations.md
-    - articles/03-sbom.md
-    - articles/04-sigstore.md
-    - articles/05-dependency-management-security.md
-    - articles/06-trusted-builds.md
-    - articles/07-notary-docker-content-trust.md
+    - articles/supply-chain-security/slsa-framework.md
+    - articles/supply-chain-security/in-toto-attestations.md
+    - articles/supply-chain-security/sbom.md
+    - articles/supply-chain-security/sigstore.md
+    - articles/supply-chain-security/dependency-management-security.md
+    - articles/supply-chain-security/trusted-builds.md
+    - articles/supply-chain-security/notary-docker-content-trust.md
   - Linux Fundamentals:
-    - articles/29-musl-vs-glibc.md
-    - articles/37-proc-container-isolation.md
+    - articles/linux-fundamentals/musl-vs-glibc.md
+    - articles/linux-fundamentals/proc-container-isolation.md
   - Container Image Hardening:
-    - articles/08-distroless-images.md
-    - articles/09-image-minimization.md
-    - articles/10-non-root-execution.md
-    - articles/11-linux-capabilities.md
-    - articles/12-seccomp.md
-    - articles/13-apparmor-selinux.md
-    - articles/14-readonly-filesystem.md
-    - articles/15-multi-arch-security.md
+    - articles/container-image-hardening/distroless-images.md
+    - articles/container-image-hardening/image-minimization.md
+    - articles/container-image-hardening/non-root-execution.md
+    - articles/container-image-hardening/linux-capabilities.md
+    - articles/container-image-hardening/seccomp.md
+    - articles/container-image-hardening/apparmor-selinux.md
+    - articles/container-image-hardening/readonly-filesystem.md
+    - articles/container-image-hardening/multi-arch-security.md
   - Helm Chart Security:
-    - articles/16-securitycontext-vs-podsecuritycontext.md
-    - articles/17-pod-security-standards.md
-    - articles/18-adapting-upstream-helm-charts.md
-    - articles/19-admission-control.md
+    - articles/helm-chart-security/securitycontext-vs-podsecuritycontext.md
+    - articles/helm-chart-security/pod-security-standards.md
+    - articles/helm-chart-security/adapting-upstream-helm-charts.md
+    - articles/helm-chart-security/admission-control.md
   - CVE Lifecycle:
-    - articles/20-scanner-internals.md
-    - articles/21-cve-sources.md
-    - articles/22-cvss-epss.md
-    - articles/23-fix-categorization.md
-    - articles/24-coordinated-disclosure.md
+    - articles/cve-lifecycle/scanner-internals.md
+    - articles/cve-lifecycle/cve-sources.md
+    - articles/cve-lifecycle/cvss-epss.md
+    - articles/cve-lifecycle/fix-categorization.md
+    - articles/cve-lifecycle/coordinated-disclosure.md
   - Docker:
-    - articles/30-docker-architecture.md
-    - articles/31-build-context.md
-    - articles/32-buildkit-internals.md
-    - articles/33-how-docker-builds-images.md
-    - articles/34-image-layers-storage-drivers.md
-    - articles/35-docker-networking.md
-    - articles/36-kaniko-vs-docker-builds.md
+    - articles/docker/docker-architecture.md
+    - articles/docker/build-context.md
+    - articles/docker/buildkit-internals.md
+    - articles/docker/how-docker-builds-images.md
+    - articles/docker/image-layers-storage-drivers.md
+    - articles/docker/docker-networking.md
+    - articles/docker/kaniko-vs-docker-builds.md
     - Docker Product & Strategy:
-      - articles/25-docker-scout.md
-      - articles/26-docker-hardened-images.md
-      - articles/27-docker-content-trust.md
-      - articles/28-docker-supply-chain-platform.md
+      - articles/docker/product-strategy/docker-scout.md
+      - articles/docker/product-strategy/docker-hardened-images.md
+      - articles/docker/product-strategy/docker-content-trust.md
+      - articles/docker/product-strategy/docker-supply-chain-platform.md
 markdown_extensions:
   - toc:
       permalink: true

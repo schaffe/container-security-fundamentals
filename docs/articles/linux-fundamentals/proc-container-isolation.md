@@ -350,10 +350,10 @@ What a container **cannot** access even as root inside the container:
 
 ## Further Reading
 
-- [Docker Architecture: runc startup sequence](../articles/30-docker-architecture.md)
-- [Non-Root Execution: UID allocation and cross-container /proc risk](../articles/10-non-root-execution.md)
-- [Seccomp: ptrace filtering and /proc/self/exe](../articles/12-seccomp.md)
-- [AppArmor/SELinux: /proc path deny rules](../articles/13-apparmor-selinux.md)
-- [Pod Security Standards: DefaultProcMount requirement](../articles/17-pod-security-standards.md)
-- [SecurityContext vs PodSecurityContext: procMount field](../articles/16-securitycontext-vs-podsecuritycontext.md)
-- [Read-only Filesystem: /proc/self/exe as hidden write path](../articles/14-readonly-filesystem.md)
+- [Docker Architecture: runc startup sequence](../docker/docker-architecture.md)
+- [Non-Root Execution: UID allocation and cross-container /proc risk](../container-image-hardening/non-root-execution.md)
+- [Seccomp: ptrace filtering and /proc/self/exe](../container-image-hardening/seccomp.md)
+- [AppArmor/SELinux: /proc path deny rules](../container-image-hardening/apparmor-selinux.md)
+- [Pod Security Standards: DefaultProcMount requirement](../helm-chart-security/pod-security-standards.md)
+- [SecurityContext vs PodSecurityContext: procMount field](../helm-chart-security/securitycontext-vs-podsecuritycontext.md)
+- [Read-only Filesystem: /proc/self/exe as hidden write path](../container-image-hardening/readonly-filesystem.md)

@@ -56,7 +56,7 @@ By default, Docker containers receive these capabilities (this is the `--cap-def
 | **SETGID** | Change GID |
 | **SETUID** | Change UID |
 | **SETPCAP** | Set process capabilities |
-| **SYS_CHROOT** | Use [chroot()](../articles/30-docker-architecture.md#chroot-and-pivot_root) |
+| **SYS_CHROOT** | Use [chroot()](../docker/docker-architecture.md#chroot-and-pivot_root) |
 | **MKNOD** | Create device nodes |
 | **AUDIT_WRITE** | Write to kernel audit log |
 | **SETFCAP** | Set file capabilities |
@@ -98,7 +98,7 @@ The most dangerous capability — it's essentially root. This capability enables
 
 ### SYS_PTRACE
 
-Allows [ptrace()](../articles/12-seccomp.md#ptrace) system call — the ability to trace and debug
+Allows [ptrace()](seccomp.md#ptrace) system call — the ability to trace and debug
 any process:
 
 ```dockerfile
@@ -204,7 +204,7 @@ docker run --rm --cap-drop=ALL --cap-add=NET_RAW myapp           # try 2
 
 ### Auditing Capabilities with tini
 
-A minimal init ([tini](../articles/30-docker-architecture.md#init-process-in-containers)) solves a practical problem when locking down capabilities: **the application must handle signals correctly** after you drop capabilities. Without tini, the application runs as PID 1 and Linux PID 1 ignores `SIGTERM`/`SIGINT` unless the app explicitly handles them. With `--cap-drop=ALL`, the app has no privileges to work around this — it either handles signals or gets `SIGKILL` after the 10s timeout.
+A minimal init ([tini](../docker/docker-architecture.md#init-process-in-containers)) solves a practical problem when locking down capabilities: **the application must handle signals correctly** after you drop capabilities. Without tini, the application runs as PID 1 and Linux PID 1 ignores `SIGTERM`/`SIGINT` unless the app explicitly handles them. With `--cap-drop=ALL`, the app has no privileges to work around this — it either handles signals or gets `SIGKILL` after the 10s timeout.
 
 ```bash
 # Tini as entrypoint + minimal capabilities = best practice
@@ -219,7 +219,7 @@ Without `--init`, the application as PID 1 must be trusted to:
 
 With `--init`, tini handles both, decoupling init behavior from the application code — critical when you've dropped all capabilities and can't rely on workarounds.
 
-See [Init Process in Containers](../articles/30-docker-architecture.md#init-process-in-containers) for detailed mechanics of tini, dumb-init, and when an init process is unnecessary.
+See [Init Process in Containers](../docker/docker-architecture.md#init-process-in-containers) for detailed mechanics of tini, dumb-init, and when an init process is unnecessary.
 
 ## Common Capability Mappings by Application
 
@@ -255,4 +255,4 @@ securityContext:
 
 ## Interview Tips
 
-Discuss the **principle of least privilege** for containers. Be ready to explain why `--cap-drop=ALL --cap-add=NET_BIND_SERVICE` is safer than just not dropping capabilities. Understand the difference between capabilities and seccomp — capabilities control "what you are allowed to do" while seccomp controls "what system calls you can make." Know that capabilities don't help if the kernel itself has a vulnerability (they gate access to privileged operations, not the kernel code that implements them). For more on how the Docker engine manages capability sets, see [Docker Architecture](../articles/30-docker-architecture.md).
+Discuss the **principle of least privilege** for containers. Be ready to explain why `--cap-drop=ALL --cap-add=NET_BIND_SERVICE` is safer than just not dropping capabilities. Understand the difference between capabilities and seccomp — capabilities control "what you are allowed to do" while seccomp controls "what system calls you can make." Know that capabilities don't help if the kernel itself has a vulnerability (they gate access to privileged operations, not the kernel code that implements them). For more on how the Docker engine manages capability sets, see [Docker Architecture](../docker/docker-architecture.md).

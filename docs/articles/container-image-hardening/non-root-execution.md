@@ -28,7 +28,7 @@ FROM alpine:3.19
 CMD ["/usr/local/bin/myapp"]
 ```
 
-If `myapp` is compromised, the attacker has root in the container. If they find a container escape (e.g., [CVE-2019-5736 runc](../articles/30-docker-architecture.md#cves)), they have root on the host.
+If `myapp` is compromised, the attacker has root in the container. If they find a container escape (e.g., [CVE-2019-5736 runc](../docker/docker-architecture.md#cves)), they have root on the host.
 
 ## UID/GID Allocation Patterns
 
@@ -52,7 +52,7 @@ USER appuser
 
 Why a high UID? Low UIDs (0–999) are reserved for system users (daemons like `sshd`, `syslog`, `ntp`) and vary by distribution. A high UID avoids collisions. It also avoids accidental collisions with host users (e.g., UID 1000 often maps to a real developer account), which matters when bind-mounting volumes or during a container escape.
 
-**Caveat — same UID across containers is the same problem as nobody**: If every container in your cluster runs as UID 10001, the cross-container signaling risk ([`/proc/PID` access](../articles/37-proc-container-isolation.md#the-kernel-access-check), `kill`, `ptrace`) is identical to using `nobody`. The UID number itself does not provide isolation — only **unique UIDs per workload** or **user namespaces** do. See [User Namespaces](#user-namespaces) below.
+**Caveat — same UID across containers is the same problem as nobody**: If every container in your cluster runs as UID 10001, the cross-container signaling risk ([`/proc/PID` access](../linux-fundamentals/proc-container-isolation.md#the-kernel-access-check), `kill`, `ptrace`) is identical to using `nobody`. The UID number itself does not provide isolation — only **unique UIDs per workload** or **user namespaces** do. See [User Namespaces](#user-namespaces) below.
 
 ### UID 65534 (nobody)
 
@@ -66,7 +66,7 @@ CMD ["/app"]
 
 The concerns with `nobody` are best understood in two categories:
 
-**1. Shared-UID risk (applies to any reused UID)**: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via [`/proc/PID` access](../articles/37-proc-container-isolation.md#the-kernel-access-check), `kill`, or `ptrace`. This is not specific to `nobody`; it applies equally to any UID (including 10001) used across multiple containers.
+**1. Shared-UID risk (applies to any reused UID)**: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via [`/proc/PID` access](../linux-fundamentals/proc-container-isolation.md#the-kernel-access-check), `kill`, or `ptrace`. This is not specific to `nobody`; it applies equally to any UID (including 10001) used across multiple containers.
 
 **2. `nobody`-specific issues**:
 - **No home directory**: `nobody`'s home is typically `/nonexistent` or unset. Many runtimes (JVM, Node.js, Python, SSH) require a writable `$HOME` for caches, temp files, or config.
@@ -82,7 +82,7 @@ Container A: UID 10001 → Host UID 100000
 Container B: UID 10001 → Host UID 200000
 ```
 
-Now the kernel sees different host UIDs, so [`/proc` isolation](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), signal delivery, and file permissions are enforced.
+Now the kernel sees different host UIDs, so [`/proc` isolation](../linux-fundamentals/proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), signal delivery, and file permissions are enforced.
 
 #### Not Enabled by Default
 
@@ -305,11 +305,11 @@ USER appuser
 
 ### Issue 4: Kubernetes Pod Security Standards
 
-Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The **Restricted** profile requires `runAsNonRoot: true`. See [Pod Security Standards](../articles/17-pod-security-standards.md) for the full profile requirements and enforcement via Pod Security Admission.
+Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The **Restricted** profile requires `runAsNonRoot: true`. See [Pod Security Standards](../helm-chart-security/pod-security-standards.md) for the full profile requirements and enforcement via Pod Security Admission.
 
 ## Applying Non-Root in Kubernetes
 
-This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see [SecurityContext vs PodSecurityContext](../articles/16-securitycontext-vs-podsecuritycontext.md).
+This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md).
 
 ### runAsNonRoot Admission Check
 
@@ -361,7 +361,7 @@ A pod can have 10 containers but only 2 with `runAsNonRoot: true` — the others
 
 ### Admission Control and Webhooks
 
-For enforcing non-root across your cluster, see [Admission Control](../articles/19-admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../articles/18-adapting-upstream-helm-charts.md).
+For enforcing non-root across your cluster, see [Admission Control](../helm-chart-security/admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../helm-chart-security/adapting-upstream-helm-charts.md).
 
 ## Complete Secure Example
 
@@ -413,4 +413,4 @@ spec:
 
 ## Interview Tips
 
-Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `Config.User` field in the image manifest). Be able to explain the `no-new-privileges` flag and how it interacts with `allowPrivilegeEscalation: false`. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see [Pod Security Standards](../articles/17-pod-security-standards.md) for the full breakdown. Understand the pod vs container SecurityContext split — see [SecurityContext vs PodSecurityContext](../articles/16-securitycontext-vs-podsecuritycontext.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../articles/18-adapting-upstream-helm-charts.md). For admission control and policy enforcement, see [Admission Control](../articles/19-admission-control.md). For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see [Docker Architecture](../articles/30-docker-architecture.md).
+Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `Config.User` field in the image manifest). Be able to explain the `no-new-privileges` flag and how it interacts with `allowPrivilegeEscalation: false`. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see [Pod Security Standards](../helm-chart-security/pod-security-standards.md) for the full breakdown. Understand the pod vs container SecurityContext split — see [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../helm-chart-security/adapting-upstream-helm-charts.md). For admission control and policy enforcement, see [Admission Control](../helm-chart-security/admission-control.md). For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see [Docker Architecture](../docker/docker-architecture.md).

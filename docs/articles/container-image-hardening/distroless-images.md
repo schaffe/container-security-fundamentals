@@ -41,7 +41,7 @@ Supply chain security engineers should note: **distroless images shrink the "gif
 
 ### musl vs glibc
 
-See [musl vs glibc: Choosing a C Standard Library for Containers](29-musl-vs-glibc.md) for a full comparison of the two libc implementations and their implications for base image selection.
+See [musl vs glibc: Choosing a C Standard Library for Containers](../linux-fundamentals/musl-vs-glibc.md) for a full comparison of the two libc implementations and their implications for base image selection.
 
 ### Distroless vs Wolfi vs Docker Hardened Images
 
@@ -73,7 +73,7 @@ This is the most important operational differentiator:
 
 Google's `gcr.io/distroless` covers runtimes only: static, base, cc, java, python, node, .NET (~20 families). No middleware or databases. Attestations are limited to a cosign signature.
 
-Chainguard's `cgr.dev/chainguard` covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations. (See [Chainguard's platform strategy](28-docker-supply-chain-platform.md#chainguard) for how Wolfi, Chainguard Images, and Enforce connect.)
+Chainguard's `cgr.dev/chainguard` covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations. (See [Chainguard's platform strategy](../docker/product-strategy/docker-supply-chain-platform.md#chainguard) for how Wolfi, Chainguard Images, and Enforce connect.)
 
 Docker's `docker/hardened-*` covers ~25 curated images (PostgreSQL, MongoDB, Redis, Nginx, Envoy, Grafana, Prometheus, cert-manager, Kyverno, Python, Node.js, Go, Java). Built on Wolfi, each image carries Docker-signed attestations and is distributed through Docker Hub with Scout integration.
 
@@ -102,7 +102,7 @@ DHI is built **on top** of Wolfi. Wolfi provides the base OS — minimal package
 
 Chainguard and Docker compete at the platform level (Enforce vs Scout) but cooperate at the base image level (DHI uses Wolfi). This is a common pattern in open-source infrastructure — upstream supplier vs integrated platform.
 
-See [Docker Hardened Images](26-docker-hardened-images.md) for a full breakdown of DHI's build pipeline, attestation model, and interview strategy.
+See [Docker Hardened Images](../docker/product-strategy/docker-hardened-images.md) for a full breakdown of DHI's build pipeline, attestation model, and interview strategy.
 
 ### Dockerfile: Distroless vs Alpine vs Ubuntu
 
@@ -200,7 +200,7 @@ kubectl exec -it pod-name -- sh
 
 ### 3. Signal Handling
 
-Distroless images use [tini](../articles/30-docker-architecture.md#init-process-in-containers) (a minimal init) by default in some variants. Without an init process, PID 1 in Linux ignores `SIGTERM` and `SIGINT` unless explicitly handled. See [Init Process in Containers](../articles/30-docker-architecture.md#init-process-in-containers) for how tini solves signal forwarding and zombie reaping.
+Distroless images use [tini](../docker/docker-architecture.md#init-process-in-containers) (a minimal init) by default in some variants. Without an init process, PID 1 in Linux ignores `SIGTERM` and `SIGINT` unless explicitly handled. See [Init Process in Containers](../docker/docker-architecture.md#init-process-in-containers) for how tini solves signal forwarding and zombie reaping.
 
 ```dockerfile
 # Use the distroless/cc (C++ compatible) variant which includes tini
@@ -251,4 +251,4 @@ When asked about distroless, emphasize the **supply chain security** angle: dist
 
 The [Distroless vs Wolfi vs Docker Hardened Images](#distroless-vs-wolfi-vs-docker-hardened-images) section above covers the architectural differences, CVE remediation speed, attestation models, and decision framework.
 
-For a deeper look at how layers compose into a container's filesystem, see [Image Layers & Storage Drivers](../articles/34-image-layers-storage-drivers.md).
+For a deeper look at how layers compose into a container's filesystem, see [Image Layers & Storage Drivers](../docker/image-layers-storage-drivers.md).

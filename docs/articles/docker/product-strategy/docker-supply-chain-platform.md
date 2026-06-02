@@ -254,4 +254,4 @@ Every Docker Desktop installation is a potential Scout activation. Docker Deskto
 - "Where would you invest next if you were leading Docker's supply chain strategy?" (Runtime verification integration — not a full runtime product, but attestation verification at admission control via a Kubernetes admission webhook. Also: AI/ML image support.)
 - "How does Docker's platform strategy benefit a 10-person startup vs. a 10,000-person enterprise?" (Startup: zero-config Scout, free Hub, DHI base images — security out of the box. Enterprise: RBAC, org-level policies, commercial SLA, FIPS images, integration with existing CI/CD.)
 
-For deeper dives into the underlying technologies that power Docker's platform, see [Docker Architecture](../articles/30-docker-architecture.md) and [BuildKit Internals](../articles/32-buildkit-internals.md).
+For deeper dives into the underlying technologies that power Docker's platform, see [Docker Architecture](../docker-architecture.md) and [BuildKit Internals](../buildkit-internals.md).

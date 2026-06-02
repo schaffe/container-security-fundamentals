@@ -64,7 +64,7 @@ Key fields:
 | `runAsNonRoot` | Override pod-level non-root check |
 | `readOnlyRootFilesystem` | Mount root filesystem read-only |
 | `allowPrivilegeEscalation` | Control `no_new_privs` (defaults to true if privileged) |
-| `procMount` | Mount [`/proc`](../articles/37-proc-container-isolation.md#procmount-in-kubernetes) as unmasked (default: DefaultProcMount) |
+| `procMount` | Mount [`/proc`](../linux-fundamentals/proc-container-isolation.md#procmount-in-kubernetes) as unmasked (default: DefaultProcMount) |
 | `seccompProfile` | Override pod-level seccomp for this container |
 | `capabilities.drop` | Drop all with `["ALL"]` |
 | `seLinuxOptions` | Override pod-level SELinux context |

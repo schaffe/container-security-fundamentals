@@ -267,7 +267,7 @@ builds reuse it if the session is still alive (e.g., `docker buildx build` with 
 instance).
 
 The LLB representation allows BuildKit to parallelize context loading with other build operations.
-For details on LLB, see [BuildKit Internals](../articles/32-buildkit-internals.md).
+For details on LLB, see [BuildKit Internals](buildkit-internals.md).
 
 ---
 
@@ -400,7 +400,7 @@ while excluding the rest of the build directory.
    not a workaround for a poorly structured repository — it is a guardrail.
 
 For a deeper look at how the build pipeline processes the context from Dockerfile to layer diff,
-see [How Docker Builds Images](../articles/33-how-docker-builds-images.md).
+see [How Docker Builds Images](how-docker-builds-images.md).
 
 ---
 

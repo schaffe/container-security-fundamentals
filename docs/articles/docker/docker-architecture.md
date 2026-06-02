@@ -165,7 +165,7 @@ runc run my-container
 2. Mount rootfs (pivot_root or chroot).
 3. Clone namespaces (`CLONE_NEW*` flags).
 4. Write PID to cgroup files.
-5. Mount [/proc](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev.
+5. Mount [/proc](../linux-fundamentals/proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev.
 6. Load seccomp BPF filter.
 7. Drop capabilities (`cap_set_proc`).
 8. Write UID/GID mappings for user namespaces.
@@ -209,7 +209,7 @@ step 2 in the startup sequence above.
 | `cgroup` | Cgroup root view | 4.6+ |
 | `time` | System time | 5.6+ |
 
-User namespaces are covered in [Non-Root Execution](../articles/10-non-root-execution.md). **They are not enabled by default** — see that article for the trade-offs and rootless Docker as the recommended path.
+User namespaces are covered in [Non-Root Execution](../container-image-hardening/non-root-execution.md). **They are not enabled by default** — see that article for the trade-offs and rootless Docker as the recommended path.
 
 #### cgroups
 
@@ -229,11 +229,11 @@ cgroups v2 uses a unified hierarchy (default since systemd 242+).
 #### Seccomp, Capabilities, MAC
 
 - **Seccomp**: Filters syscalls. Blocks ~50 dangerous, allows ~300+. See
-  [Seccomp](../articles/12-seccomp.md).
+  [Seccomp](../container-image-hardening/seccomp.md).
 - **Capabilities**: Divides root privileges into discrete units. Dropped by default. See
-  [Linux Capabilities](../articles/11-linux-capabilities.md).
+  [Linux Capabilities](../container-image-hardening/linux-capabilities.md).
 - **MAC**: SELinux and AppArmor profiles. See
-  [AppArmor / SELinux](../articles/13-apparmor-selinux.md).
+  [AppArmor / SELinux](../container-image-hardening/apparmor-selinux.md).
 
 ### History
 
@@ -294,7 +294,7 @@ Phase 1 — Setup (runc run)
     runc init (child) ─── enters new namespaces
          │
          ├── writes PID to cgroup files
-          ├── mounts [/proc](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev
+          ├── mounts [/proc](../linux-fundamentals/proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev
          ├── loads seccomp BPF filter
          ├── drops capabilities (cap_set_proc)
          ├── writes UID/GID mappings (user ns)
@@ -316,7 +316,7 @@ Step-by-step:
 2. **runc (parent)** reads `config.json`, validates the spec, opens synchronization pipes,
    and forks with `CLONE_NEW*` flags into the new namespaces.
 3. **runc init (child)** is now inside partially-isolated namespaces. It continues setup:
-   writes the PID to cgroupfs, mounts [`/proc`](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), `/sys`, `/dev`, loads the seccomp BPF
+   writes the PID to cgroupfs, mounts [`/proc`](../linux-fundamentals/proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), `/sys`, `/dev`, loads the seccomp BPF
    filter via `seccomp(SECCOMP_SET_MODE_FILTER)`, drops capabilities, writes user
    namespace mappings, and calls `pivot_root` (or `chroot`) into the container rootfs.
 4. **Init** calls `execve()` on `process.args[0]` (e.g., `/bin/sh`). This replaces the
@@ -865,8 +865,8 @@ equivalents — no `sudo` or setuid required.
 
 ### Cross-References
 
-- [Non-Root Execution](../articles/10-non-root-execution.md)
-- [Linux Capabilities](../articles/11-linux-capabilities.md)
-- [Seccomp](../articles/12-seccomp.md)
-- [AppArmor / SELinux](../articles/13-apparmor-selinux.md)
-- [Docker Hardened Images](../articles/26-docker-hardened-images.md)
+- [Non-Root Execution](../container-image-hardening/non-root-execution.md)
+- [Linux Capabilities](../container-image-hardening/linux-capabilities.md)
+- [Seccomp](../container-image-hardening/seccomp.md)
+- [AppArmor / SELinux](../container-image-hardening/apparmor-selinux.md)
+- [Docker Hardened Images](product-strategy/docker-hardened-images.md)

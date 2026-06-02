@@ -48,7 +48,7 @@ This builds the site and force-pushes to the `gh-pages` branch. GitHub Pages ser
 
 ## Adding an Article
 
-1. Drop a `.md` file into `docs/articles/`
+1. Drop a `.md` file into the appropriate topic subdirectory under `docs/articles/`
 2. Add one entry to the appropriate section in `mkdocs.yml` under `nav`
 3. Run `mkdocs build --strict` to verify
 4. Deploy with `mkdocs gh-deploy`
@@ -60,6 +60,13 @@ This builds the site and force-pushes to the `gh-pages` branch. GitHub Pages ser
 ├── docs/
 │   ├── index.md            # Landing page
 │   ├── docker-supply-chain.md  # Topic map
-│   └── articles/           # 28 interview prep articles
+│   └── articles/           # 37 interview prep articles grouped by topic
+│       ├── supply-chain-security/
+│       ├── linux-fundamentals/
+│       ├── container-image-hardening/
+│       ├── helm-chart-security/
+│       ├── cve-lifecycle/
+│       └── docker/
+│           └── product-strategy/
 └── .venv/                  # Virtual environment (ignored)
 ```
