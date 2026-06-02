@@ -519,7 +519,7 @@ kubectl exec -it pod-name -- sh
 </li>
 </ul>
 <h3 id="3-signal-handling">3. Signal Handling<a class="headerlink" href="#3-signal-handling" title="Permanent link">&para;</a></h3>
-<p>Distroless images use tini (a minimal init) by default in some variants. Without an init process, PID 1 in Linux has special semantics: it ignores <code>SIGTERM</code> and <code>SIGINT</code> unless explicitly handled. If the application doesn't handle these signals, <code>docker stop</code> will wait 10 seconds then <code>SIGKILL</code>.</p>
+<p>Distroless images use <a href="../30-docker-architecture/#init-process-in-containers">tini</a> (a minimal init) by default in some variants. Without an init process, PID 1 in Linux ignores <code>SIGTERM</code> and <code>SIGINT</code> unless explicitly handled. See <a href="../30-docker-architecture/#init-process-in-containers">Init Process in Containers</a> for how tini solves signal forwarding and zombie reaping.</p>
 <pre><code class="language-dockerfile"># Use the distroless/cc (C++ compatible) variant which includes tini
 FROM gcr.io/distroless/cc-debian12
 COPY --from=build /app /app

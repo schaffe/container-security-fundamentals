@@ -207,6 +207,22 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#oci-runtime-spec">OCI Runtime Spec</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#init-process-in-containers">Init Process in Containers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-pid-1-problem">The PID 1 Problem</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#use-cases-for-an-init-process">Use Cases for an Init Process</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tini">tini</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dumb-init">dumb-init</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#container-orchestration-and-init">Container Orchestration and Init</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#when-you-dont-need-an-init">When You Don't Need an Init</a>
+    </li>
+        </ul>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#oci-image-spec">OCI Image Spec</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#manifest">Manifest</a>
@@ -1081,6 +1097,75 @@ Compatibility:       runc/crun/youki &gt; Kata &gt; gVisor
 <li><strong><code>linux.readonlyPaths</code></strong>: Paths bind-mounted read-only.</li>
 </ul>
 <hr />
+<h2 id="init-process-in-containers">Init Process in Containers<a class="headerlink" href="#init-process-in-containers" title="Permanent link">&para;</a></h2>
+<p>The container entrypoint runs as PID 1 inside the PID namespace, which gives it two Linux kernel responsibilities: signal handling and zombie reaping.</p>
+<h3 id="the-pid-1-problem">The PID 1 Problem<a class="headerlink" href="#the-pid-1-problem" title="Permanent link">&para;</a></h3>
+<p>Linux PID 1 differs from other PIDs in two ways:</p>
+<ul>
+<li><strong>Signal handling</strong>: PID 1 ignores <code>SIGTERM</code> and <code>SIGINT</code> unless the process explicitly installs a handler. If the application doesn't handle these signals, <code>docker stop</code> (which sends <code>SIGTERM</code>) waits 10 seconds, then escalates to <code>SIGKILL</code>.</li>
+<li><strong>Zombie reaping</strong>: When a child process exits, it becomes a zombie until its parent calls <code>waitpid()</code>. Orphaned children are reparented to PID 1. If the application running as PID 1 doesn't <code>wait()</code> for them, zombie processes accumulate until PID exhaustion.</li>
+</ul>
+<p>Most application runtimes (Node.js, Python, Go) handle signals correctly but <strong>do not reap zombie children</strong> — they only see their direct children.</p>
+<h3 id="use-cases-for-an-init-process">Use Cases for an Init Process<a class="headerlink" href="#use-cases-for-an-init-process" title="Permanent link">&para;</a></h3>
+<p>An init process like tini or dumb-init solves three problems:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Without init</th>
+<th>With init</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SIGTERM forwarding</strong></td>
+<td>Application ignores SIGTERM → 10s timeout → SIGKILL, dirty shutdown</td>
+<td>Init catches SIGTERM, forwards to child via <code>kill(-pid, SIGTERM)</code>, waits for clean exit</td>
+</tr>
+<tr>
+<td><strong>Zombie reaping</strong></td>
+<td>Short-lived child processes (curl, batch jobs) leave zombies, PID space leaks</td>
+<td>Init calls <code>waitpid()</code> in a loop, reaps all terminated children</td>
+</tr>
+<tr>
+<td><strong>Exit code preservation</strong></td>
+<td>Docker reports 137 (SIGKILL) instead of the app's actual exit code</td>
+<td>Init exits with the child's exit code, preserving signalling for orchestration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tini">tini<a class="headerlink" href="#tini" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/krallin/tini">tini</a> is the most widely used container init, written in C (~6 KB).</p>
+<pre><code class="language-dockerfile">FROM ubuntu:22.04
+RUN apt-get update &amp;&amp; apt-get install -y tini
+ENTRYPOINT [&quot;/usr/bin/tini&quot;, &quot;--&quot;]
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>How tini works:
+1. Forks the actual application as a child
+2. Installs signal handlers (<code>SIGTERM</code>, <code>SIGINT</code>, <code>SIGHUP</code>, <code>SIGCHLD</code>) that forward to the child process group using <code>kill(-pid, sig)</code>
+3. Blocks <code>SIGCHLD</code> to guarantee <code>sigwaitinfo()</code> receives child exit events
+4. When the child exits, calls <code>waitpid()</code> and exits with the same status code</p>
+<p>Docker bundles tini and exposes it via the <code>--init</code> flag:</p>
+<pre><code class="language-bash">docker run --init myapp
+# Uses /usr/libexec/docker/init (bundled tini)
+</code></pre>
+<h3 id="dumb-init">dumb-init<a class="headerlink" href="#dumb-init" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/Yelp/dumb-init">dumb-init</a> is a minimal alternative written in C (~8 KB), designed for environments where package managers aren't available:</p>
+<pre><code class="language-dockerfile">FROM python:3.12-slim
+RUN pip install dumb-init
+ENTRYPOINT [&quot;dumb-init&quot;, &quot;--&quot;]
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<p>Key difference from tini: dumb-init uses <code>setsid()</code> to create a new session, so signals are forwarded to the entire process tree. tini uses process group signalling (<code>kill(-pgid, sig)</code>). Both achieve the same result — the child process group receives the signal.</p>
+<h3 id="container-orchestration-and-init">Container Orchestration and Init<a class="headerlink" href="#container-orchestration-and-init" title="Permanent link">&para;</a></h3>
+<p>Kubernetes does not use tini directly. Each pod's <code>pause</code> container holds the PID namespace but does not reap zombies — that's the application's responsibility. If your application spawns child processes, add an init or set <code>shareProcessNamespace: true</code> and rely on the sidecar's init.</p>
+<h3 id="when-you-dont-need-an-init">When You Don't Need an Init<a class="headerlink" href="#when-you-dont-need-an-init" title="Permanent link">&para;</a></h3>
+<p>An init process is unnecessary when:
+- <strong>Single-process containers</strong>: Go binaries, Rust binaries, shell scripts that exec — no children to reap, and signal handling is built into the runtime.
+- <strong>Applications that handle signals correctly</strong>: nginx, Apache, most production-grade servers already install <code>SIGTERM</code> handlers.
+- <strong>Ephemeral batch jobs</strong>: The container exits quickly, so zombie accumulation isn't meaningful.</p>
+<p>Most production images benefit from <code>docker run --init</code> or an explicit tini/dumb-init as the entrypoint, even if only for the zombie reaping guarantee.</p>
 <h2 id="oci-image-spec">OCI Image Spec<a class="headerlink" href="#oci-image-spec" title="Permanent link">&para;</a></h2>
 <p>A container image is a <strong>manifest</strong>, a <strong>config</strong> JSON, and <strong>layer tarballs</strong>.</p>
 <h3 id="manifest">Manifest<a class="headerlink" href="#manifest" title="Permanent link">&para;</a></h3>

@@ -414,10 +414,16 @@ docker run --rm --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp  # try 1
 docker run --rm --cap-drop=ALL --cap-add=NET_RAW myapp           # try 2
 </code></pre>
 <h3 id="auditing-capabilities-with-tini">Auditing Capabilities with tini<a class="headerlink" href="#auditing-capabilities-with-tini" title="Permanent link">&para;</a></h3>
-<p>Use a minimal init (tini) to drop capabilities before the main process runs:</p>
-<pre><code class="language-bash"># Docker 1.13+ includes --init flag
+<p>A minimal init (<a href="../30-docker-architecture/#init-process-in-containers">tini</a>) solves a practical problem when locking down capabilities: <strong>the application must handle signals correctly</strong> after you drop capabilities. Without tini, the application runs as PID 1 and Linux PID 1 ignores <code>SIGTERM</code>/<code>SIGINT</code> unless the app explicitly handles them. With <code>--cap-drop=ALL</code>, the app has no privileges to work around this — it either handles signals or gets <code>SIGKILL</code> after the 10s timeout.</p>
+<pre><code class="language-bash"># Tini as entrypoint + minimal capabilities = best practice
 docker run --init --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
 </code></pre>
+<p><strong>Why this works with no capabilities</strong>: tini uses <code>kill()</code> within the same PID namespace and <code>waitpid()</code> — neither requires any privileges. <code>CAP_KILL</code> is only needed for crossing namespace boundaries. Tini forwards signals to its child process group using <code>kill(-pgid, sig)</code>, which is a standard unprivileged operation. This means you can pair the most restrictive capability set (<code>--cap-drop=ALL</code>) with proper init behavior.</p>
+<p>Without <code>--init</code>, the application as PID 1 must be trusted to:
+- Install a <code>SIGTERM</code> handler for graceful shutdown
+- <code>waitpid()</code> any orphaned children to prevent zombie accumulation</p>
+<p>With <code>--init</code>, tini handles both, decoupling init behavior from the application code — critical when you've dropped all capabilities and can't rely on workarounds.</p>
+<p>See <a href="../30-docker-architecture/#init-process-in-containers">Init Process in Containers</a> for detailed mechanics of tini, dumb-init, and when an init process is unnecessary.</p>
 <h2 id="common-capability-mappings-by-application">Common Capability Mappings by Application<a class="headerlink" href="#common-capability-mappings-by-application" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
