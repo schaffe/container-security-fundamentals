@@ -117,7 +117,7 @@ parallelises work, and dispatches operations to workers.
 
 **Worker** — Executes individual LLB operations. Two built-in workers:
 
-- `runc` worker: Uses `runc` via containerd to execute `ExecOp` instructions in containers.
+- `runc` worker: Uses [`runc`](../articles/30-docker-architecture.md#architecture) via containerd to execute `ExecOp` instructions in containers.
 - `containerd` worker: Uses containerd directly for both exec and snapshot management.
 - `oci` worker (experimental): Uses `runtime-tools` directly.
 

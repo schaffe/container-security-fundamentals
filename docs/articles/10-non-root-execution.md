@@ -28,7 +28,7 @@ FROM alpine:3.19
 CMD ["/usr/local/bin/myapp"]
 ```
 
-If `myapp` is compromised, the attacker has root in the container. If they find a container escape (e.g., CVE-2019-5736 runc), they have root on the host.
+If `myapp` is compromised, the attacker has root in the container. If they find a container escape (e.g., [CVE-2019-5736 runc](../articles/30-docker-architecture.md#cves)), they have root on the host.
 
 ## UID/GID Allocation Patterns
 

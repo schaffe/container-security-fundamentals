@@ -175,7 +175,7 @@ CVE-2024-12345 # Low severity, requires physical access, not applicable
 For a Docker Scout product context, customers need clear communication:
 
 ```
-CVE-2024-21626 (runc)
+[CVE-2024-21626 (runc)](../articles/30-docker-architecture.md#cves)
 ───────────────────────────────────────────
 Severity:     CRITICAL (CVSS 8.6)
 EPSS:         0.931 (93.1% exploit prob.)

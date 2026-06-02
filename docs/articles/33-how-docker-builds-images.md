@@ -237,7 +237,7 @@ lives in `moby/buildkit/solver`. The solver does three things:
    a remote cache (e.g. a registry cache), the op is **cache hit** and its output is reused without
    re-execution. If the key is absent, the op is **cache miss** and must be executed.
 
-3. **Schedules execution.** Cache-miss ops are dispatched to workers (runc, containerd) for
+3. **Schedules execution.** Cache-miss ops are dispatched to workers ([runc](../articles/30-docker-architecture.md#architecture), containerd) for
    execution. Independent ops (e.g. two `FROM` pulls for different stages) run in parallel.
 
 ### Cache Key Computation
@@ -283,7 +283,7 @@ other.
 
 When the solver schedules an `ExecOp`, BuildKit:
 
-1. **Creates a temporary container** from the current snapshot using the configured worker (runc or
+1. **Creates a temporary container** from the current snapshot using the configured worker ([runc](../articles/30-docker-architecture.md#architecture) or
    containerd). The snapshot is a read-only mount; BuildKit adds a writable overlay on top.
 
 2. **Sets up the execution environment:** mounts, environment variables, working directory, user,
