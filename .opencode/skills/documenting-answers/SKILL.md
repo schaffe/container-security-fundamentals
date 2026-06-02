@@ -54,12 +54,29 @@ STRICT priority:
 
 ## Cross-Reference Update Rule
 
-After adding the concept explanation, find every existing reference to the concept in `docs/articles/*.md` and add a relative link to the new canonical location. Examples:
+After adding the concept explanation, find every existing reference to the concept in
+`docs/articles/*.md` and make the concept name itself an inline hyperlink to the new canonical
+location. No "see also" footnotes — the concept word **is** the link.
 
-- `chroot` → `../articles/NN-key-concepts.md#chroot` or the relevant anchor
-- `ptrace` → `../articles/NN-key-concepts.md#ptrace` or the relevant anchor
+### Good (inline hypertext):
+```markdown
+The command runs inside this [chroot](../articles/30-docker-architecture.md#chroot-and-pivot_root).
+```
 
-Use `replaceAll` when the concept name appears as a plain word and should link every time. Use targeted edits when only specific mentions should link. When the mention is already part of a link, leave it unchanged.
+```markdown
+...why [ptrace](../articles/12-seccomp.md#ptrace) is dangerous...
+```
+
+### Bad (separate "see also"):
+```
+...ptrace... — see seccomp's ptrace section for details
+...chroot() — see Docker Architecture for more
+```
+
+Use `replaceAll` when the concept name appears as a plain word and every instance should link.
+Use targeted edits when only specific mentions should link, or when the word is part of a larger
+identifier (e.g., `CAP_SYS_PTRACE` — link only the `ptrace` portion, or the whole term as context
+dictates). When the mention is already part of a link, leave it unchanged.
 
 ## Common Mistakes
 

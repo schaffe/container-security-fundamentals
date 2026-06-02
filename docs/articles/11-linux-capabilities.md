@@ -56,7 +56,7 @@ By default, Docker containers receive these capabilities (this is the `--cap-def
 | **SETGID** | Change GID |
 | **SETUID** | Change UID |
 | **SETPCAP** | Set process capabilities |
-| **SYS_CHROOT** | Use chroot() — see [chroot and pivot_root](../articles/30-docker-architecture.md#chroot-and-pivot_root) |
+| **SYS_CHROOT** | Use [chroot()](../articles/30-docker-architecture.md#chroot-and-pivot_root) |
 | **MKNOD** | Create device nodes |
 | **AUDIT_WRITE** | Write to kernel audit log |
 | **SETFCAP** | Set file capabilities |
@@ -98,10 +98,8 @@ The most dangerous capability — it's essentially root. This capability enables
 
 ### SYS_PTRACE
 
-Allows `ptrace()` system call — the ability to trace and debug any process:
-
-See [seccomp's ptrace section](../articles/12-seccomp.md#ptrace) for why ptrace is blocked by
-default and how it enables container escape.
+Allows [ptrace()](../articles/12-seccomp.md#ptrace) system call — the ability to trace and debug
+any process:
 
 ```dockerfile
 # Needed for strace, perf, or debug containers
