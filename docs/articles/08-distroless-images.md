@@ -200,7 +200,7 @@ kubectl exec -it pod-name -- sh
 
 ### 3. Signal Handling
 
-Distroless images use tini (a minimal init) by default in some variants. Without an init process, PID 1 in Linux has special semantics: it ignores `SIGTERM` and `SIGINT` unless explicitly handled. If the application doesn't handle these signals, `docker stop` will wait 10 seconds then `SIGKILL`.
+Distroless images use [tini](../articles/30-docker-architecture.md#init-process-in-containers) (a minimal init) by default in some variants. Without an init process, PID 1 in Linux ignores `SIGTERM` and `SIGINT` unless explicitly handled. See [Init Process in Containers](../articles/30-docker-architecture.md#init-process-in-containers) for how tini solves signal forwarding and zombie reaping.
 
 ```dockerfile
 # Use the distroless/cc (C++ compatible) variant which includes tini

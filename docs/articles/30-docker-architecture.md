@@ -616,6 +616,79 @@ Key fields:
 
 ---
 
+## Init Process in Containers
+
+The container entrypoint runs as PID 1 inside the PID namespace, which gives it two Linux kernel responsibilities: signal handling and zombie reaping.
+
+### The PID 1 Problem
+
+Linux PID 1 differs from other PIDs in two ways:
+
+- **Signal handling**: PID 1 ignores `SIGTERM` and `SIGINT` unless the process explicitly installs a handler. If the application doesn't handle these signals, `docker stop` (which sends `SIGTERM`) waits 10 seconds, then escalates to `SIGKILL`.
+- **Zombie reaping**: When a child process exits, it becomes a zombie until its parent calls `waitpid()`. Orphaned children are reparented to PID 1. If the application running as PID 1 doesn't `wait()` for them, zombie processes accumulate until PID exhaustion.
+
+Most application runtimes (Node.js, Python, Go) handle signals correctly but **do not reap zombie children** — they only see their direct children.
+
+### Use Cases for an Init Process
+
+An init process like tini or dumb-init solves three problems:
+
+| Problem | Without init | With init |
+|---|---|---|
+| **SIGTERM forwarding** | Application ignores SIGTERM → 10s timeout → SIGKILL, dirty shutdown | Init catches SIGTERM, forwards to child via `kill(-pid, SIGTERM)`, waits for clean exit |
+| **Zombie reaping** | Short-lived child processes (curl, batch jobs) leave zombies, PID space leaks | Init calls `waitpid()` in a loop, reaps all terminated children |
+| **Exit code preservation** | Docker reports 137 (SIGKILL) instead of the app's actual exit code | Init exits with the child's exit code, preserving signalling for orchestration |
+
+### tini
+
+[tini](https://github.com/krallin/tini) is the most widely used container init, written in C (~6 KB).
+
+```dockerfile
+FROM ubuntu:22.04
+RUN apt-get update && apt-get install -y tini
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["/app"]
+```
+
+How tini works:
+1. Forks the actual application as a child
+2. Installs signal handlers (`SIGTERM`, `SIGINT`, `SIGHUP`, `SIGCHLD`) that forward to the child process group using `kill(-pid, sig)`
+3. Blocks `SIGCHLD` to guarantee `sigwaitinfo()` receives child exit events
+4. When the child exits, calls `waitpid()` and exits with the same status code
+
+Docker bundles tini and exposes it via the `--init` flag:
+
+```bash
+docker run --init myapp
+# Uses /usr/libexec/docker/init (bundled tini)
+```
+
+### dumb-init
+
+[dumb-init](https://github.com/Yelp/dumb-init) is a minimal alternative written in C (~8 KB), designed for environments where package managers aren't available:
+
+```dockerfile
+FROM python:3.12-slim
+RUN pip install dumb-init
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["python", "app.py"]
+```
+
+Key difference from tini: dumb-init uses `setsid()` to create a new session, so signals are forwarded to the entire process tree. tini uses process group signalling (`kill(-pgid, sig)`). Both achieve the same result — the child process group receives the signal.
+
+### Container Orchestration and Init
+
+Kubernetes does not use tini directly. Each pod's `pause` container holds the PID namespace but does not reap zombies — that's the application's responsibility. If your application spawns child processes, add an init or set `shareProcessNamespace: true` and rely on the sidecar's init.
+
+### When You Don't Need an Init
+
+An init process is unnecessary when:
+- **Single-process containers**: Go binaries, Rust binaries, shell scripts that exec — no children to reap, and signal handling is built into the runtime.
+- **Applications that handle signals correctly**: nginx, Apache, most production-grade servers already install `SIGTERM` handlers.
+- **Ephemeral batch jobs**: The container exits quickly, so zombie accumulation isn't meaningful.
+
+Most production images benefit from `docker run --init` or an explicit tini/dumb-init as the entrypoint, even if only for the zombie reaping guarantee.
+
 ## OCI Image Spec
 
 A container image is a **manifest**, a **config** JSON, and **layer tarballs**.

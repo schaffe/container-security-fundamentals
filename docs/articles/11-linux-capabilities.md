@@ -204,12 +204,22 @@ docker run --rm --cap-drop=ALL --cap-add=NET_RAW myapp           # try 2
 
 ### Auditing Capabilities with tini
 
-Use a minimal init (tini) to drop capabilities before the main process runs:
+A minimal init ([tini](../articles/30-docker-architecture.md#init-process-in-containers)) solves a practical problem when locking down capabilities: **the application must handle signals correctly** after you drop capabilities. Without tini, the application runs as PID 1 and Linux PID 1 ignores `SIGTERM`/`SIGINT` unless the app explicitly handles them. With `--cap-drop=ALL`, the app has no privileges to work around this — it either handles signals or gets `SIGKILL` after the 10s timeout.
 
 ```bash
-# Docker 1.13+ includes --init flag
+# Tini as entrypoint + minimal capabilities = best practice
 docker run --init --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
 ```
+
+**Why this works with no capabilities**: tini uses `kill()` within the same PID namespace and `waitpid()` — neither requires any privileges. `CAP_KILL` is only needed for crossing namespace boundaries. Tini forwards signals to its child process group using `kill(-pgid, sig)`, which is a standard unprivileged operation. This means you can pair the most restrictive capability set (`--cap-drop=ALL`) with proper init behavior.
+
+Without `--init`, the application as PID 1 must be trusted to:
+- Install a `SIGTERM` handler for graceful shutdown
+- `waitpid()` any orphaned children to prevent zombie accumulation
+
+With `--init`, tini handles both, decoupling init behavior from the application code — critical when you've dropped all capabilities and can't rely on workarounds.
+
+See [Init Process in Containers](../articles/30-docker-architecture.md#init-process-in-containers) for detailed mechanics of tini, dumb-init, and when an init process is unnecessary.
 
 ## Common Capability Mappings by Application
 
