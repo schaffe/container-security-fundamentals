@@ -2139,7 +2139,7 @@
 </ul>
 <h4 id="image-catalog-attestations">Image Catalog &amp; Attestations<a class="headerlink" href="#image-catalog-attestations" title="Permanent link">&para;</a></h4>
 <p>Google's <code>gcr.io/distroless</code> covers runtimes only: static, base, cc, java, python, node, .NET (~20 families). No middleware or databases. Attestations are limited to a cosign signature.</p>
-<p>Chainguard's <code>cgr.dev/chainguard</code> covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.</p>
+<p>Chainguard's <code>cgr.dev/chainguard</code> covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations. (See <a href="../28-docker-supply-chain-platform/#chainguard">Chainguard's platform strategy</a> for how Wolfi, Chainguard Images, and Enforce connect.)</p>
 <p>Docker's <code>docker/hardened-*</code> covers ~25 curated images (PostgreSQL, MongoDB, Redis, Nginx, Envoy, Grafana, Prometheus, cert-manager, Kyverno, Python, Node.js, Go, Java). Built on Wolfi, each image carries Docker-signed attestations and is distributed through Docker Hub with Scout integration.</p>
 <h4 id="decision-framework">Decision Framework<a class="headerlink" href="#decision-framework" title="Permanent link">&para;</a></h4>
 <table>

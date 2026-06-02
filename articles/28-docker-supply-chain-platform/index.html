@@ -2147,17 +2147,105 @@ docker scout policy --env production myorg/my-app:latest
 <h2 id="competitive-landscape">Competitive Landscape<a class="headerlink" href="#competitive-landscape" title="Permanent link">&para;</a></h2>
 <p>Docker's strategy must be understood in the context of its competitors, each of which approaches supply chain security from a different angle.</p>
 <h3 id="chainguard">Chainguard<a class="headerlink" href="#chainguard" title="Permanent link">&para;</a></h3>
+<p>Chainguard is a supply chain security company founded in 2021 by former Google engineers (Dan Lorenc, Kim Lewandowski, Ville Aikas, Matt Moore) who built Sigstore, SLSA, in-toto, and distroless while at Google. The company's mission is to make software supply chain security available to every organization by building a complete, open-core platform for container image security.</p>
+<p><strong>Product Stack:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Product</th>
+<th>Description</th>
+<th>Business Model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OS</strong></td>
+<td>Wolfi</td>
+<td>A Linux distribution designed from scratch for containers. Custom-built from source, rebuilt near-daily. Proactive CVE patching — patches vulnerable packages rather than waiting for upstream. Uses <code>apk</code> (Alpine's package manager).</td>
+<td>Open source (Apache 2.0)</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Chainguard Images</td>
+<td>~200+ minimal, distroless container images built on Wolfi — runtimes (Python, Go, Node.js, Java), databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.</td>
+<td>Free tier (public pull, rate-limited) + commercial subscription (unlimited pull, enterprise SLA)</td>
+</tr>
+<tr>
+<td><strong>Policy</strong></td>
+<td>Chainguard Enforce</td>
+<td>A Kubernetes admission controller and policy engine that verifies image attestations at deploy time. Enforces SLSA levels, required attestation types, allowed registries, and vulnerability thresholds. Provides a continuous audit trail of what images run where.</td>
+<td>Commercial (SaaS + self-hosted)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How the layers connect:</strong></p>
+<pre><code>Wolfi (OS) ──builds──→ Chainguard Images (200+ pre-built images)
+                            │
+                            ↓
+                     Kubernetes cluster
+                            │
+                    Chainguard Enforce (admission control)
+                     - Verifies attestations
+                     - Enforces policies
+                     - Audits runtime
+</code></pre>
+<p>Wolfi is the foundation: a minimal, continuously-patched OS that produces zero-CVE base images. Chainguard Images are the packaged product: ready-to-use containers built from Wolfi with signed attestations. Chainguard Enforce is the platform layer: it checks those attestations at admission time, ensuring only approved images with valid provenance and acceptable CVEs reach production.</p>
+<p><strong>Relationship to Docker's platform:</strong></p>
+<p>Docker and Chainguard compete at multiple layers of the stack, but also cooperate at the OS layer:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Docker</th>
+<th>Chainguard</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OS</strong></td>
+<td>Wolfi (via DHI)</td>
+<td>Wolfi</td>
+<td><strong>Coopetition</strong>: Both use Wolfi. Docker doesn't maintain Wolfi — Chainguard does. Docker gets Wolfi's security posture without running an OS team.</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Docker Hardened Images (~25 curated)</td>
+<td>Chainguard Images (~200+)</td>
+<td><strong>Competition</strong>: DHI has a smaller catalog with tighter Docker integration. Chainguard has breadth.</td>
+</tr>
+<tr>
+<td><strong>Analysis</strong></td>
+<td>Docker Scout</td>
+<td>Chainguard Enforce</td>
+<td><strong>Competition</strong>: Both do SBOM-based policy evaluation. Scout is CLI/Hub-integrated; Enforce is admission-control-native.</td>
+</tr>
+<tr>
+<td><strong>Registry</strong></td>
+<td>Docker Hub</td>
+<td>cgr.dev</td>
+<td><strong>Competition</strong>: Hub has massive distribution; cgr.dev is smaller but purpose-built for Chainguard Images.</td>
+</tr>
+<tr>
+<td><strong>Build</strong></td>
+<td>Docker Build Cloud</td>
+<td>None</td>
+<td><strong>No equivalent</strong>: Chainguard has no managed build service. Build Cloud is a Docker-exclusive differentiator.</td>
+</tr>
+</tbody>
+</table>
+<p>The coopetition at the OS layer is notable: Docker Hardened Images are built on Wolfi (Chainguard's OS), yet the two companies compete at the image and policy layers. This mirrors the open-source pattern where upstream suppliers and platform integrators have overlapping but distinct roles — Chainguard maintains the raw materials, Docker integrates them into a developer workflow.</p>
 <p><strong>Approach</strong>: Build a better base image and toolchain (Wolfi, apk, Chainguard Images, Chainguard Enforce)</p>
 <p><strong>Strengths</strong>:
-- <strong>Wolfi is the most secure container OS</strong>: Unpatched CVEs are proactively removed rather than waiting for upstream fixes
 - <strong>Image catalog breadth</strong>: Chainguard has more language runtimes and middleware images than DHI
-- <strong>Enforce platform</strong>: Policy enforcement at admission control level (in-cluster), not just at build time
-- <strong>Open source credibility</strong>: Wolfi is open source; the community trusts the approach</p>
+- <strong>OS ownership</strong>: Chainguard controls Wolfi end-to-end. CVE remediation happens in hours, not days
+- <strong>Open core</strong>: Wolfi is Apache 2.0, apk is open source. Community contributions to Wolfi packages</p>
 <p><strong>Weaknesses</strong>:
-- No build platform equivalent to Build Cloud
-- No image registry with the same reach as Docker Hub
-- Developer workflow integration is weaker (no Docker CLI integration, no <code>docker scout</code> equivalent)
-- Smaller distribution network (no CDN equivalent to Docker Hub's pull infrastructure)</p>
+- <strong>Distribution</strong>: cgr.dev has minimal traffic compared to Docker Hub. Most developers have never pulled from cgr.dev
+- <strong>Developer workflow</strong>: Chainguard's tooling is Kubernetes/admission-controller focused. Docker has better CLI and IDE integration
+- <strong>Brand recognition</strong>: Docker is a household name in containers; Chainguard is unknown outside security teams
+- <strong>Build service</strong>: No managed build platform. Customers must use their own CI or a third-party build service</p>
 <p><strong>Docker's response</strong>: DHI uses Wolfi as its base OS, coopetition with Chainguard. Docker integrates Wolfi's security posture with Docker's distribution and developer experience advantages.</p>
 <h3 id="anchore">Anchore<a class="headerlink" href="#anchore" title="Permanent link">&para;</a></h3>
 <p><strong>Approach</strong>: Vulnerability scanning and policy engine (Grype, Syft, Anchore Enterprise)</p>
