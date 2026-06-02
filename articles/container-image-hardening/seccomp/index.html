@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Seccomp Profiles for Containers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Seccomp Profiles for Containers";
+        var mkdocs_page_input_path = "articles/container-image-hardening/seccomp.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Seccomp Profiles for Containers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#how-seccomp-works">How Seccomp Works</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#seccomp-action-values">Seccomp Action Values</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#dockers-default-seccomp-profile">Docker's Default Seccomp Profile</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#syscalls-blocked-by-default">Syscalls Blocked by Default</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#ptrace">ptrace</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-default-profile-location">Docker Default Profile Location</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#runtimedefault-vs-custom-profiles">RuntimeDefault vs Custom Profiles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#custom-seccomp-profiles">Custom Seccomp Profiles</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#determining-required-syscalls">Determining Required Syscalls</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#writing-custom-profiles-for-specific-applications">Writing Custom Profiles for Specific Applications</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#web-server-nginx-profile">Web Server (nginx) Profile</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#applying-custom-profiles">Applying Custom Profiles</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#k8s-seccomp-configuration">K8s Seccomp Configuration</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#runtimedefault">RuntimeDefault</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#localhost-custom-profile-file-on-node">Localhost (custom profile file on node)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#unconfined-no-seccomp">Unconfined (no seccomp)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#seccomp-capabilities-defense-in-depth">Seccomp + Capabilities: Defense in Depth</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">Seccomp Profiles for Containers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/seccomp.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="seccomp-profiles-for-containers">Seccomp Profiles for Containers<a class="headerlink" href="#seccomp-profiles-for-containers" title="Permanent link">&para;</a></h1>
+<p>Seccomp (Secure Computing Mode) is a Linux kernel feature that restricts the system calls a process can make. It acts as a second line of defense — even if a container process is compromised and running with capabilities, seccomp can block the syscalls needed for kernel exploitation.</p>
+<h2 id="how-seccomp-works">How Seccomp Works<a class="headerlink" href="#how-seccomp-works" title="Permanent link">&para;</a></h2>
+<p>Seccomp installs a BPF (Berkeley Packet Filter) program that intercepts every system call before execution. The filter can:</p>
+<ul>
+<li><strong>Allow</strong> the syscall (with optional argument filtering)</li>
+<li><strong>Deny</strong> the syscall (return -EPERM or -EACCES, killing the process with SIGSYS)</li>
+<li><strong>Trap</strong> to userspace handler</li>
+<li><strong>Trace</strong> via ptrace</li>
+</ul>
+<p>Docker's default profile uses "allow on default action, deny on specific match" — listing the ~300 syscalls that are explicitly allowed and denying everything else by default.</p>
+<h3 id="seccomp-action-values">Seccomp Action Values<a class="headerlink" href="#seccomp-action-values" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Behavior</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SCMP_ACT_ALLOW</code></td>
+<td>Allow syscall execution</td>
+<td>Permitted syscalls</td>
+</tr>
+<tr>
+<td><code>SCMP_ACT_ERRNO</code></td>
+<td>Return error code (EPERM)</td>
+<td>Blocked syscalls, graceful handling</td>
+</tr>
+<tr>
+<td><code>SCMP_ACT_KILL_PROCESS</code></td>
+<td>Kill the process with SIGSYS</td>
+<td>Dangerous syscalls</td>
+</tr>
+<tr>
+<td><code>SCMP_ACT_KILL_THREAD</code></td>
+<td>Kill the offending thread</td>
+<td>Legacy behavior</td>
+</tr>
+<tr>
+<td><code>SCMP_ACT_TRAP</code></td>
+<td>Trap to userspace handler</td>
+<td>Debugging</td>
+</tr>
+<tr>
+<td><code>SCMP_ACT_LOG</code></td>
+<td>Allow but log (Linux 4.14+)</td>
+<td>Auditing before switching to deny</td>
+</tr>
+</tbody>
+</table>
+<h2 id="dockers-default-seccomp-profile">Docker's Default Seccomp Profile<a class="headerlink" href="#dockers-default-seccomp-profile" title="Permanent link">&para;</a></h2>
+<p>Docker ships with a default seccomp profile that allows ~300 of the ~450 total Linux syscalls. The profile is critical for container security because it blocks kernel exploits that use uncommon but dangerous syscalls.</p>
+<h3 id="syscalls-blocked-by-default">Syscalls Blocked by Default<a class="headerlink" href="#syscalls-blocked-by-default" title="Permanent link">&para;</a></h3>
+<p>Key blocked syscalls and their exploit relevance:</p>
+<table>
+<thead>
+<tr>
+<th>Blocked Syscall</th>
+<th>Why It's Blocked</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mount</code></td>
+<td>Namespace escape via pivot_root, bind mounts, overlay</td>
+</tr>
+<tr>
+<td><code>umount</code></td>
+<td>Unmounting filesystem boundaries</td>
+</tr>
+<tr>
+<td><code>ptrace</code></td>
+<td>Process inspection, code injection, escape via ptrace</td>
+</tr>
+<tr>
+<td><code>swapon</code> / <code>swapoff</code></td>
+<td>Denial of service, resource exhaustion</td>
+</tr>
+<tr>
+<td><code>kexec_file_load</code></td>
+<td>Boot kernel takeover</td>
+</tr>
+<tr>
+<td><code>bpf</code></td>
+<td>BPF JIT spraying, kernel code execution</td>
+</tr>
+<tr>
+<td><code>perf_event_open</code></td>
+<td>Kernel information leak (e.g., Meltdown)</td>
+</tr>
+<tr>
+<td><code>open_by_handle_at</code></td>
+<td>Container escape via handle-based file access</td>
+</tr>
+<tr>
+<td><code>name_to_handle_at</code></td>
+<td>Used with open_by_handle_at for escape</td>
+</tr>
+<tr>
+<td><code>init_module</code> / <code>delete_module</code></td>
+<td>Kernel module loading</td>
+</tr>
+<tr>
+<td><code>setdomainname</code> / <code>sethostname</code></td>
+<td>Break container isolation assumptions</td>
+</tr>
+<tr>
+<td><code>reboot</code></td>
+<td>System shutdown</td>
+</tr>
+<tr>
+<td><code>iopl</code> / <code>ioperm</code></td>
+<td>Port I/O access, HID attacks</td>
+</tr>
+<tr>
+<td><code>process_vm_readv</code> / <code>process_vm_writev</code></td>
+<td>Cross-process memory access</td>
+</tr>
+<tr>
+<td><code>nfsservctl</code></td>
+<td>NFS server inside container</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ptrace">ptrace<a class="headerlink" href="#ptrace" title="Permanent link">&para;</a></h3>
+<p><code>ptrace</code> is a Linux system call that lets one process observe and control another — read and
+write memory and registers, intercept syscalls, and single-step execution. It is the
+mechanism behind debuggers (gdb, lldb), tracing tools (strace, ltrace), and profiling tools.</p>
+<p>In containers, ptrace is dangerous because:</p>
+<ul>
+<li><strong>Code injection</strong>: A compromised process with <code>CAP_SYS_PTRACE</code> can attach to sibling
+  containers in the same namespace, read secrets from memory, and execute arbitrary code in
+  another process.</li>
+<li><strong>Container escape</strong>: ptrace was a component in <a href="../../linux-fundamentals/proc-container-isolation/#1-cve-2019-5736-procselfexe-race">CVE-2019-5736</a> (runc escape) — the attacker
+  used ptrace on <code>/proc/self/exe</code> combined with file-descriptor tricks to overwrite the host's
+  <code>runc</code> binary.</li>
+<li><strong>Syscall interception</strong>: The <code>PTRACE_SYSCALL</code> mechanism can intercept every system call a
+  process makes. This is both useful (e.g., Kaniko uses ptrace to snapshot filesystem changes
+  during image builds) and exploitable (a malicious process can monitor all syscalls of
+  another process).</li>
+</ul>
+<p>Docker's default seccomp profile blocks ptrace. The kernel cannot distinguish between
+"benign use" (a user debugging their own process) and "malicious use" (injecting code into
+another container), so it's denied entirely. For debugging, use ephemeral debug containers
+with <code>CAP_SYS_PTRACE</code> explicitly added rather than disabling the seccomp profile.</p>
+<p>See also <a href="../linux-capabilities/">Linux Capabilities: CAP_SYS_PTRACE</a> and
+<a href="../../docker/kaniko-vs-docker-builds/#change-detection-via-ptrace">Kaniko's ptrace-based change detection</a>.</p>
+<h3 id="docker-default-profile-location">Docker Default Profile Location<a class="headerlink" href="#docker-default-profile-location" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Default profile built into dockerd
+# On most systems, you can find it at:
+ls /etc/docker/seccomp.json  # Usually not present — it's built into the daemon
+
+# Inspect the default by running:
+docker run --rm alpine cat /proc/1/status | grep Seccomp
+# Output: Seccomp:  2  (filtered mode)
+
+# Dump the default profile from Docker source:
+docker run --rm -it alpine sh -c &quot;apk add -q curl &amp;&amp; curl -s https://raw.githubusercontent.com/moby/moby/master/profiles/seccomp/default.json | head -50&quot;
+</code></pre>
+<h2 id="runtimedefault-vs-custom-profiles">RuntimeDefault vs Custom Profiles<a class="headerlink" href="#runtimedefault-vs-custom-profiles" title="Permanent link">&para;</a></h2>
+<p>Kubernetes 1.19+ introduced the <code>RuntimeDefault</code> seccomp profile, which applies the container runtime's default (Docker/containerd's default seccomp profile):</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: secure-pod
+spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault  # Applies the default seccomp profile
+  containers:
+  - name: app
+    image: myapp
+</code></pre>
+<h3 id="custom-seccomp-profiles">Custom Seccomp Profiles<a class="headerlink" href="#custom-seccomp-profiles" title="Permanent link">&para;</a></h3>
+<p>When <code>RuntimeDefault</code> blocks a syscall your application needs, you must write a custom profile:</p>
+<pre><code class="language-json">{
+  &quot;defaultAction&quot;: &quot;SCMP_ACT_ERRNO&quot;,
+  &quot;architectures&quot;: [&quot;SCMP_ARCH_X86_64&quot;, &quot;SCMP_ARCH_AARCH64&quot;],
+  &quot;syscalls&quot;: [
+    {
+      &quot;names&quot;: [
+        &quot;accept4&quot;,
+        &quot;bind&quot;,
+        &quot;clock_gettime&quot;,
+        &quot;clone&quot;,
+        &quot;close&quot;,
+        &quot;connect&quot;,
+        &quot;epoll_create1&quot;,
+        &quot;epoll_ctl&quot;,
+        &quot;epoll_pwait&quot;,
+        &quot;exit&quot;,
+        &quot;exit_group&quot;,
+        &quot;fchown&quot;,
+        &quot;fcntl&quot;,
+        &quot;fstat&quot;,
+        &quot;fstatfs&quot;,
+        &quot;ftruncate&quot;,
+        &quot;getdents64&quot;,
+        &quot;getpeername&quot;,
+        &quot;getpid&quot;,
+        &quot;getsockname&quot;,
+        &quot;getsockopt&quot;,
+        &quot;listen&quot;,
+        &quot;lseek&quot;,
+        &quot;madvise&quot;,
+        &quot;mmap&quot;,
+        &quot;mprotect&quot;,
+        &quot;munmap&quot;,
+        &quot;nanosleep&quot;,
+        &quot;newfstatat&quot;,
+        &quot;openat&quot;,
+        &quot;pread64&quot;,
+        &quot;prlimit64&quot;,
+        &quot;pwrite64&quot;,
+        &quot;read&quot;,
+        &quot;readlinkat&quot;,
+        &quot;recvfrom&quot;,
+        &quot;recvmsg&quot;,
+        &quot;rt_sigaction&quot;,
+        &quot;rt_sigprocmask&quot;,
+        &quot;rt_sigreturn&quot;,
+        &quot;sched_getaffinity&quot;,
+        &quot;sched_yield&quot;,
+        &quot;sendmsg&quot;,
+        &quot;sendto&quot;,
+        &quot;set_robust_list&quot;,
+        &quot;set_tid_address&quot;,
+        &quot;setsockopt&quot;,
+        &quot;shutdown&quot;,
+        &quot;sigaltstack&quot;,
+        &quot;socket&quot;,
+        &quot;statfs&quot;,
+        &quot;tgkill&quot;,
+        &quot;write&quot;,
+        &quot;writev&quot;
+      ],
+      &quot;action&quot;: &quot;SCMP_ACT_ALLOW&quot;
+    },
+    {
+      &quot;names&quot;: [&quot;personality&quot;],
+      &quot;action&quot;: &quot;SCMP_ACT_ALLOW&quot;,
+      &quot;args&quot;: [
+        {
+          &quot;index&quot;: 0,
+          &quot;value&quot;: 0,
+          &quot;op&quot;: &quot;SCMP_CMP_EQ&quot;
+        }
+      ]
+    }
+  ]
+}
+</code></pre>
+<p>This profile only allows the syscalls an HTTP Go server needs. All other syscalls return <code>-EPERM</code> (<code>SCMP_ACT_ERRNO</code>).</p>
+<h3 id="determining-required-syscalls">Determining Required Syscalls<a class="headerlink" href="#determining-required-syscalls" title="Permanent link">&para;</a></h3>
+<p>Use <code>strace</code> to identify which syscalls your application makes:</p>
+<pre><code class="language-bash"># On the host (not recommended — syscall numbers differ between kernels)
+strace -c -S calls ./myapp
+
+# Better: run with seccomp logging and inspect
+docker run --security-opt seccomp=unconfined --security-opt no-new-privileges alpine \
+    strace -c -o /tmp/syscalls.txt /app
+</code></pre>
+<p>Or use <code>audit2allow</code>-style tooling:</p>
+<pre><code class="language-bash"># Install inspektor-gadget to trace syscalls
+kubectl gadget trace syscall --podname mypod
+</code></pre>
+<h2 id="writing-custom-profiles-for-specific-applications">Writing Custom Profiles for Specific Applications<a class="headerlink" href="#writing-custom-profiles-for-specific-applications" title="Permanent link">&para;</a></h2>
+<h3 id="web-server-nginx-profile">Web Server (nginx) Profile<a class="headerlink" href="#web-server-nginx-profile" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;defaultAction&quot;: &quot;SCMP_ACT_ERRNO&quot;,
+  &quot;architectures&quot;: [&quot;SCMP_ARCH_X86_64&quot;],
+  &quot;syscalls&quot;: [
+    {
+      &quot;names&quot;: [
+        &quot;accept&quot;, &quot;accept4&quot;, &quot;access&quot;, &quot;bind&quot;, &quot;brk&quot;, &quot;clock_gettime&quot;,
+        &quot;clone&quot;, &quot;close&quot;, &quot;connect&quot;, &quot;dup&quot;, &quot;epoll_create&quot;,
+        &quot;epoll_create1&quot;, &quot;epoll_ctl&quot;, &quot;epoll_wait&quot;, &quot;eventfd2&quot;,
+        &quot;execve&quot;, &quot;exit_group&quot;, &quot;fchmod&quot;, &quot;fchown&quot;, &quot;fcntl&quot;,
+        &quot;fdatasync&quot;, &quot;fstat&quot;, &quot;fsync&quot;, &quot;ftruncate&quot;, &quot;futex&quot;,
+        &quot;getdents&quot;, &quot;getdents64&quot;, &quot;getegid&quot;, &quot;geteuid&quot;, &quot;getgid&quot;,
+        &quot;getpeername&quot;, &quot;getpgrp&quot;, &quot;getpid&quot;, &quot;getppid&quot;, &quot;getrandom&quot;,
+        &quot;getsockname&quot;, &quot;getsockopt&quot;, &quot;gettid&quot;, &quot;getuid&quot;, &quot;ioctl&quot;,
+        &quot;ioprio_get&quot;, &quot;listen&quot;, &quot;lseek&quot;, &quot;madvise&quot;, &quot;mkdir&quot;,
+        &quot;mmap&quot;, &quot;mprotect&quot;, &quot;munmap&quot;, &quot;nanosleep&quot;, &quot;newfstatat&quot;,
+        &quot;open&quot;, &quot;openat&quot;, &quot;pipe&quot;, &quot;pipe2&quot;, &quot;poll&quot;, &quot;pread64&quot;,
+        &quot;prlimit64&quot;, &quot;pwrite64&quot;, &quot;read&quot;, &quot;readlink&quot;, &quot;readlinkat&quot;,
+        &quot;recvfrom&quot;, &quot;recvmmsg&quot;, &quot;recvmsg&quot;, &quot;rename&quot;, &quot;rt_sigaction&quot;,
+        &quot;rt_sigprocmask&quot;, &quot;rt_sigreturn&quot;, &quot;rt_sigtimedwait&quot;,
+        &quot;sched_getaffinity&quot;, &quot;sched_setaffinity&quot;, &quot;sched_yield&quot;,
+        &quot;sendfile&quot;, &quot;sendmsg&quot;, &quot;sendto&quot;, &quot;set_robust_list&quot;,
+        &quot;set_tid_address&quot;, &quot;setgid&quot;, &quot;setgroups&quot;, &quot;setsid&quot;,
+        &quot;setsockopt&quot;, &quot;setuid&quot;, &quot;shmget&quot;, &quot;shmid&quot;, &quot;shutdown&quot;,
+        &quot;sigaltstack&quot;, &quot;socket&quot;, &quot;socketpair&quot;, &quot;splice&quot;, &quot;stat&quot;,
+        &quot;statx&quot;, &quot;tgkill&quot;, &quot;time&quot;, &quot;utimensat&quot;, &quot;write&quot;, &quot;writev&quot;
+      ],
+      &quot;action&quot;: &quot;SCMP_ACT_ALLOW&quot;
+    }
+  ]
+}
+</code></pre>
+<h3 id="applying-custom-profiles">Applying Custom Profiles<a class="headerlink" href="#applying-custom-profiles" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Create the profile file
+cat &gt; /etc/docker/profiles/nginx.json &lt;&lt; 'EOF'
+{ ... profile content ... }
+EOF
+
+# Run with custom profile
+docker run --security-opt seccomp=/etc/docker/profiles/nginx.json nginx
+</code></pre>
+<h2 id="k8s-seccomp-configuration">K8s Seccomp Configuration<a class="headerlink" href="#k8s-seccomp-configuration" title="Permanent link">&para;</a></h2>
+<p>Kubernetes supports several seccomp profile types:</p>
+<h3 id="runtimedefault">RuntimeDefault<a class="headerlink" href="#runtimedefault" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+</code></pre>
+<h3 id="localhost-custom-profile-file-on-node">Localhost (custom profile file on node)<a class="headerlink" href="#localhost-custom-profile-file-on-node" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: profiles/nginx-seccomp.json  # Relative to kubelet seccomp dir
+</code></pre>
+<p>The profile must exist on every node at <code>/var/lib/kubelet/seccomp/profiles/nginx-seccomp.json</code>.</p>
+<h3 id="unconfined-no-seccomp">Unconfined (no seccomp)<a class="headerlink" href="#unconfined-no-seccomp" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">seccompProfile:
+  type: Unconfined
+</code></pre>
+<p>Never use this in production unless absolutely required.</p>
+<h2 id="seccomp-capabilities-defense-in-depth">Seccomp + Capabilities: Defense in Depth<a class="headerlink" href="#seccomp-capabilities-defense-in-depth" title="Permanent link">&para;</a></h2>
+<p>Seccomp and capabilities are complementary:</p>
+<table>
+<thead>
+<tr>
+<th>Security Mechanism</th>
+<th>Controls</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Capabilities</strong></td>
+<td>Privileged operations (what a process is allowed to <em>do</em>)</td>
+</tr>
+<tr>
+<td><strong>Seccomp</strong></td>
+<td>System calls (what a process is allowed to <em>request</em>)</td>
+</tr>
+<tr>
+<td><strong>AppArmor/SELinux</strong></td>
+<td>File access, network access, process interactions</td>
+</tr>
+<tr>
+<td><strong>Read-only filesystem</strong></td>
+<td>Write access to specific paths</td>
+</tr>
+</tbody>
+</table>
+<p>A process might have <code>CAP_SYS_PTRACE</code> (capability) but have <code>ptrace</code> blocked by seccomp — the capability is irrelevant because the syscall never reaches the kernel's permission check.</p>
+<pre><code class="language-yaml">securityContext:
+  capabilities:
+    drop: [&quot;ALL&quot;]
+  seccompProfile:
+    type: RuntimeDefault
+</code></pre>
+<p>This is the minimum security baseline for production containers.</p>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Understand that seccomp's primary value is <strong>preventing kernel exploit primitives</strong>. Many famous container escapes (<a href="../../docker/docker-architecture/#cves">CVE-2019-5736 runc</a>, CVE-2022-0492 cgroup v1) relied on syscalls that the default profile allows. Know which syscalls are most dangerous to allow (<code>mount</code>, <code>ptrace</code>, <code>bpf</code>, <code>open_by_handle_at</code>). Be able to explain why <code>RuntimeDefault</code> on K8s 1.27+ has finally become the default — it took years because it broke legitimate applications. For more on how runc and containerd implement seccomp profiles, see <a href="../../docker/docker-architecture/">Docker Architecture</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../linux-capabilities/" class="btn btn-neutral float-left" title="Linux Capabilities in Containers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../apparmor-selinux/" class="btn btn-neutral float-right" title="AppArmor and SELinux for Containers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../linux-capabilities/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../apparmor-selinux/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

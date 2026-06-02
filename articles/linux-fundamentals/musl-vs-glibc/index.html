@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>musl vs glibc: Choosing a C Standard Library for Containers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "musl vs glibc: Choosing a C Standard Library for Containers";
+        var mkdocs_page_input_path = "articles/linux-fundamentals/musl-vs-glibc.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">musl vs glibc: Choosing a C Standard Library for Containers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#background">Background</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#comparison">Comparison</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#compatibility-pitfalls">Compatibility Pitfalls</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-decision-framework">Security Decision Framework</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Linux Fundamentals</li>
+      <li class="breadcrumb-item active">musl vs glibc: Choosing a C Standard Library for Containers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/linux-fundamentals/musl-vs-glibc.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="musl-vs-glibc-choosing-a-c-standard-library-for-containers">musl vs glibc: Choosing a C Standard Library for Containers<a class="headerlink" href="#musl-vs-glibc-choosing-a-c-standard-library-for-containers" title="Permanent link">&para;</a></h1>
+<h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
+<p>The Alpine vs distroless vs Ubuntu decision is ultimately a <strong>libc decision</strong>. Alpine uses <strong>musl</strong>; distroless and Ubuntu use <strong>glibc</strong>. Understanding the difference is critical for container security and compatibility.</p>
+<p><strong>musl</strong> is a lightweight, fast, standards-compliant C standard library implementation. It is the default libc in Alpine Linux (~5 MB base image vs Ubuntu's ~80 MB), which makes it one of the most widely deployed libcs in the container ecosystem.</p>
+<h2 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>musl (Alpine)</th>
+<th>glibc (Debian, Ubuntu, distroless)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Size</strong></td>
+<td>~700 KB</td>
+<td>~2 MB+</td>
+</tr>
+<tr>
+<td><strong>POSIX compliance</strong></td>
+<td>Strict — rejects glibc extensions</td>
+<td>De facto standard; many extensions</td>
+</tr>
+<tr>
+<td><strong>Static linking</strong></td>
+<td>First-class; Go/Rust binaries are natural fits</td>
+<td>Possible but less common</td>
+</tr>
+<tr>
+<td><strong>CVE history</strong></td>
+<td>Smaller surface (less code, lower adoption)</td>
+<td>Larger surface (more code, more scrutiny)</td>
+</tr>
+<tr>
+<td><strong>Performance</strong></td>
+<td>Fast for static binaries</td>
+<td>Optimized for dynamic linking</td>
+</tr>
+</tbody>
+</table>
+<h2 id="compatibility-pitfalls">Compatibility Pitfalls<a class="headerlink" href="#compatibility-pitfalls" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>glibc-specific APIs</strong>: <code>GLOB_BRACE</code>, <code>strerrorname_np</code>, <code>qsort_r</code> do not exist in musl — code using them fails to compile on Alpine</li>
+<li><strong>DNS resolution</strong>: musl handles <code>/etc/hosts</code> and NSS differently than glibc; Python's <code>urllib</code> and Node.js DNS may behave unexpectedly</li>
+<li><strong>Locale support</strong>: musl has minimal locale support compared to glibc; applications relying on locale-aware string processing may produce different output</li>
+</ul>
+<h2 id="security-decision-framework">Security Decision Framework<a class="headerlink" href="#security-decision-framework" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Recommended Base</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static Go/Rust binary, minimal size goal</td>
+<td>Alpine (musl) or distroless/static</td>
+<td>No libc dependency at runtime; minimal CVE surface</td>
+</tr>
+<tr>
+<td>Python/Node.js app, broad package availability</td>
+<td>Debian slim or distroless (glibc)</td>
+<td>glibc locale support; avoids DNS compatibility issues</td>
+</tr>
+<tr>
+<td>Enterprise compliance, signed provenance</td>
+<td>Wolfi-based distroless (musl) or DHI</td>
+<td>Chainguard/Docker handle musl compatibility; you get attestations</td>
+</tr>
+<tr>
+<td>FIPS 140-2/3 required</td>
+<td>glibc-based (Ubuntu, UBI, distroless-cc)</td>
+<td>FIPS-validated crypto modules target glibc; musl lacks CAVP certification</td>
+</tr>
+</tbody>
+</table>
+<p>musl's strictness is a double-edged sword: it catches portability bugs at compile time (good), but it means Alpine builds that pass CI may still fail on glibc-based production images (bad). Testing on the same libc as production is the only safe approach.</p>
+<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../container-image-hardening/distroless-images/">Distroless Images</a> — distroless provides both glibc and musl variants</li>
+<li><a href="../../container-image-hardening/image-minimization/">Image Minimization</a> — Alpine is a common choice for small images</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../supply-chain-security/notary-docker-content-trust/" class="btn btn-neutral float-left" title="Notary / Docker Content Trust"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../proc-container-isolation/" class="btn btn-neutral float-right" title="/proc and Container Isolation">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../supply-chain-security/notary-docker-content-trust/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../proc-container-isolation/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

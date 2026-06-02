@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Kaniko vs Docker Builds - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Kaniko vs Docker Builds";
+        var mkdocs_page_input_path = "articles/docker/kaniko-vs-docker-builds.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Kaniko vs Docker Builds</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-kaniko">What Is Kaniko</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#why-kaniko-exists">Why Kaniko Exists</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-docker-socket-problem">The Docker Socket Problem</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-privileged-container-problem">The Privileged Container Problem</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-kaniko-solves">What Kaniko Solves</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#kaniko-architecture">Kaniko Architecture</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#key-design-decisions">Key Design Decisions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#filesystem-snapshot-mechanics">Filesystem Snapshot Mechanics</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#chroot-based-execution">Chroot-Based Execution</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#change-detection-via-ptrace">Change Detection via Ptrace</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#snapshot-via-tar">Snapshot via Tar</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#performance-implication">Performance Implication</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#layer-caching-in-kaniko">Layer Caching in Kaniko</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#remote-registry-cache">Remote Registry Cache</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#kaniko-vs-buildkit-caching">Kaniko vs BuildKit Caching</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cache-configuration">Cache Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#comparison-kaniko-vs-docker-buildkit">Comparison: Kaniko vs Docker BuildKit</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#when-to-use-which">When to Use Which</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#use-docker-buildkit-when">Use Docker BuildKit When</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#use-kaniko-when">Use Kaniko When</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#gitlab-ci-example">GitLab CI Example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tekton-example">Tekton Example</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#argo-workflows-example">Argo Workflows Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#alternatives">Alternatives</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#buildah">Buildah</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#img">img</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#makisu">makisu</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#comparison-of-alternatives">Comparison of Alternatives</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#strategic-analysis-for-interview">Strategic Analysis for Interview</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-cant-you-just-use-docker-in-kubernetes-security">"Why can't you just use Docker in Kubernetes?" (Security)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-does-kaniko-detect-filesystem-changes-without-overlayfs-architecture">"How does Kaniko detect filesystem changes without overlayfs?" (Architecture)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-is-the-main-performance-bottleneck-in-kaniko-performance">"What is the main performance bottleneck in Kaniko?" (Performance)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#when-would-you-pick-kaniko-over-buildkit-decision">"When would you pick Kaniko over BuildKit?" (Decision)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-does-kaniko-caching-work-caching">"How does Kaniko caching work?" (Caching)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-alternatives-exist-for-daemonless-image-building-ecosystem">"What alternatives exist for daemonless image building?" (Ecosystem)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cross-references">Cross-References</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Docker</li>
+      <li class="breadcrumb-item active">Kaniko vs Docker Builds</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/docker/kaniko-vs-docker-builds.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="kaniko-vs-docker-builds">Kaniko vs Docker Builds<a class="headerlink" href="#kaniko-vs-docker-builds" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Container image building in Kubernetes presents a security dilemma: mounting the Docker socket into a
+pod gives that pod node-level root access. Kaniko offers a daemonless alternative built by Google.
+This article covers what Kaniko is, how it works, where it shines, and when you should stick with
+Docker BuildKit.</p>
+<hr />
+<h2 id="what-is-kaniko">What Is Kaniko<a class="headerlink" href="#what-is-kaniko" title="Permanent link">&para;</a></h2>
+<p>Kaniko is an open-source tool from Google for building container images from a Dockerfile <strong>without
+depending on a Docker daemon</strong>. The executor runs as a container image itself
+(<code>gcr.io/kaniko-project/executor:latest</code>) and produces standard OCI-compatible images.</p>
+<p>It is part of Google's container tools ecosystem, which includes <code>distroless</code>, <code>ko</code> (Go builders),
+<code>crane</code>, and <code>gcrane</code>. Kaniko fills the gap for in-cluster image building where security requirements
+forbid privileged containers or Docker socket access.</p>
+<hr />
+<h2 id="why-kaniko-exists">Why Kaniko Exists<a class="headerlink" href="#why-kaniko-exists" title="Permanent link">&para;</a></h2>
+<h3 id="the-docker-socket-problem">The Docker Socket Problem<a class="headerlink" href="#the-docker-socket-problem" title="Permanent link">&para;</a></h3>
+<p>In a typical Kubernetes CI pipeline, building an image requires a Docker daemon. The standard
+workaround is to mount the host's Docker socket into the CI pod:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: docker-builder
+spec:
+  containers:
+  - name: docker
+    image: docker:24.0
+    command: [&quot;docker&quot;, &quot;build&quot;, &quot;-t&quot;, &quot;myapp&quot;, &quot;.&quot;]
+    volumeMounts:
+    - name: dockersock
+      mountPath: /var/run/docker.sock
+  volumes:
+  - name: dockersock
+    hostPath:
+      path: /var/run/docker.sock
+</code></pre>
+<p>This works, but the security implications are severe:</p>
+<ul>
+<li><strong>Node-level root access</strong>: The Docker socket is a Unix socket owned by <code>root</code>. Any process
+  with access to it can create containers on the <strong>host</strong>, not inside the pod. A malicious
+  Dockerfile or compromised build step can escape the build container and access the node.</li>
+<li><strong>No isolation</strong>: Docker containers on the host share the host's kernel, cgroups, and network.
+  A build pod with <code>docker.sock</code> is effectively a root shell on the node.</li>
+<li><strong>Audit trail</strong>: Standard Kubernetes RBAC does not control Docker socket access. If a pod has
+  the socket, it bypasses all Kubernetes access controls.</li>
+</ul>
+<h3 id="the-privileged-container-problem">The Privileged Container Problem<a class="headerlink" href="#the-privileged-container-problem" title="Permanent link">&para;</a></h3>
+<p>An alternative to mounting the Docker socket is running Docker-in-Docker (DinD) — running a Docker
+daemon inside the pod alongside the build client. This requires the pod to be <strong>privileged</strong>:</p>
+<pre><code class="language-yaml">securityContext:
+  privileged: true  # DinD requires this
+</code></pre>
+<p>A privileged container has all capabilities, no seccomp filtering, and can access host devices.
+This is often blocked by admission controllers (PodSecurity admission, OPA/Gatekeeper) in hardened
+clusters.</p>
+<h3 id="what-kaniko-solves">What Kaniko Solves<a class="headerlink" href="#what-kaniko-solves" title="Permanent link">&para;</a></h3>
+<p>Kaniko runs as a non-privileged container. It does not need <code>/var/run/docker.sock</code>, does not require
+<code>privileged: true</code>, and does not start a daemon. It builds images entirely in userspace using
+kernel features available to any container (<a href="../docker-architecture/#chroot-and-pivot_root">chroot</a>,
+<a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a>).</p>
+<p>See <a href="../docker-architecture/">Docker Architecture</a> for why the daemon model requires
+privileged access.</p>
+<hr />
+<h2 id="kaniko-architecture">Kaniko Architecture<a class="headerlink" href="#kaniko-architecture" title="Permanent link">&para;</a></h2>
+<p>Kaniko runs as a single process inside a container. There is no daemon, no socket, no background
+server. When the Kaniko executor starts, it follows this sequence:</p>
+<ol>
+<li><strong>Parse the Dockerfile</strong> — Tokenise and validate instructions.</li>
+<li><strong>Pull the base image</strong> — Download the base image manifest and layers from the registry.</li>
+<li><strong>Extract the base image</strong> — Unpack layers into the target root filesystem.</li>
+<li><strong>Execute each instruction</strong> — For each Dockerfile instruction:</li>
+<li>Apply a <a href="../docker-architecture/#chroot-and-pivot_root"><code>chroot</code></a> to the target rootfs.</li>
+<li>Run the command (for <code>RUN</code>), copy files (for <code>COPY</code>/<code>ADD</code>), or apply metadata.</li>
+<li>Snapshot the filesystem to detect changes.</li>
+<li>Package changed files as a tar layer.</li>
+<li>Push the layer to the registry (optional, configurable).</li>
+<li><strong>Push the final manifest</strong> — Assemble and push the image manifest pointing to all pushed layers.</li>
+</ol>
+<pre><code>+-------------+     +-------------+     +--------------+
+| Parse       | --&gt; | Pull base   | --&gt; | Extract to   |
+| Dockerfile  |     | image       |     | /kaniko/root |
++-------------+     +-------------+     +--------------+
+                                              |
+                                              v
+                                    +-------------------+
+                                    | For each          |
+                                    | Dockerfile step:  |
+                                    |   chroot + exec   |
+                                    |   snapshot (diff) |
+                                    |   push layer      |
+                                    +-------------------+
+                                              |
+                                              v
+                                    +-------------------+
+                                    | Push final        |
+                                    | image manifest    |
+                                    +-------------------+
+</code></pre>
+<h3 id="key-design-decisions">Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Permanent link">&para;</a></h3>
+<p><strong>No daemon.</strong> Kaniko is a single binary. It does not fork, does not listen on sockets, and does
+not require setup scripts. Simpler to deploy, no daemon crashes to handle.</p>
+<p><strong>Userspace filesystem operations.</strong> Kaniko does not use overlayfs, device-mapper, or any kernel
+union filesystem. It manages the filesystem by extracting layers into a directory tree and using
+<a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a> to snapshot changes.</p>
+<p><strong>Push-as-you-go.</strong> By default, Kaniko pushes each layer to the registry as it is built, rather
+than assembling all layers locally and pushing at the end. This reduces local disk requirements
+and allows partial progress.</p>
+<hr />
+<h2 id="filesystem-snapshot-mechanics">Filesystem Snapshot Mechanics<a class="headerlink" href="#filesystem-snapshot-mechanics" title="Permanent link">&para;</a></h2>
+<p>Kaniko's core technical challenge is detecting what files changed when a <code>RUN</code> instruction executes.
+Without a union filesystem to diff layers, Kaniko uses an approach based on
+<a href="../docker-architecture/#chroot-and-pivot_root">chroot</a> and
+<a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a>.</p>
+<h3 id="chroot-based-execution">Chroot-Based Execution<a class="headerlink" href="#chroot-based-execution" title="Permanent link">&para;</a></h3>
+<p>For each <code>RUN</code> instruction, Kaniko creates a subprocess that is
+<a href="../docker-architecture/#chroot-and-pivot_root"><code>chroot</code>ed</a> into the target rootfs.
+The command runs inside this
+<a href="../docker-architecture/#chroot-and-pivot_root">chroot</a>, with the filesystem
+directly accessible at <code>/</code> from the subprocess's perspective.</p>
+<pre><code class="language-bash"># Kaniko's chroot equivalent (simplified)
+chroot /kaniko/root /bin/sh -c &quot;apt-get install -y curl&quot;
+</code></pre>
+<h3 id="change-detection-via-ptrace">Change Detection via Ptrace<a class="headerlink" href="#change-detection-via-ptrace" title="Permanent link">&para;</a></h3>
+<p>Kaniko uses <a href="../../container-image-hardening/seccomp/#ptrace"><code>ptrace</code></a> (the <code>PTRACE_SYSCALL</code> mechanism) to intercept filesystem-related system calls
+made by the build process and its children:</p>
+<ul>
+<li><code>open()</code>, <code>creat()</code>, <code>unlink()</code>, <code>rename()</code>, <code>link()</code>, <code>symlink()</code>, <code>mkdir()</code>, <code>rmdir()</code>,
+  <code>truncate()</code>, <code>ftruncate()</code>, <code>write()</code></li>
+<li>Also tracks <code>execve()</code> to follow child processes.</li>
+</ul>
+<p>Every syscall that modifies the filesystem is recorded. After the command completes, Kaniko has a
+list of every file that was created, modified, or deleted.</p>
+<h3 id="snapshot-via-tar">Snapshot via Tar<a class="headerlink" href="#snapshot-via-tar" title="Permanent link">&para;</a></h3>
+<p>With the list of changed paths, Kaniko creates a tar archive of just those files from the target
+rootfs:</p>
+<ol>
+<li>Read each changed file from <code>/kaniko/root</code>.</li>
+<li>Compute its SHA-256 digest.</li>
+<li>Compare against the digest from the previous layer.</li>
+<li>If the digest changed (or the file is new), include it in the layer tarball.</li>
+<li>If a file was deleted, record a whiteout entry (<code>.wh.&lt;filename&gt;</code>).</li>
+</ol>
+<p>The resulting tarball is a standard OCI layer that can be pushed to any registry.</p>
+<h3 id="performance-implication">Performance Implication<a class="headerlink" href="#performance-implication" title="Permanent link">&para;</a></h3>
+<p>Ptrace-based change detection is slower than overlayfs diffs (which are O(1) at the VFS level).
+For each <code>RUN</code> instruction:</p>
+<ul>
+<li>Every syscall is intercepted and evaluated.</li>
+<li>After execution, Kaniko walks the entire changed-path list and tars matching files.</li>
+</ul>
+<p>For builds with many small file changes (e.g., <code>npm install</code> writing thousands of files), this
+overhead adds up. For single-file changes (<code>COPY main.go .</code>), the overhead is minimal.</p>
+<hr />
+<h2 id="layer-caching-in-kaniko">Layer Caching in Kaniko<a class="headerlink" href="#layer-caching-in-kaniko" title="Permanent link">&para;</a></h2>
+<p>Kaniko supports caching, but with important differences from BuildKit.</p>
+<h3 id="remote-registry-cache">Remote Registry Cache<a class="headerlink" href="#remote-registry-cache" title="Permanent link">&para;</a></h3>
+<p>Kaniko stores cache in the container registry itself using the <code>--cache</code> flag:</p>
+<pre><code class="language-bash">kaniko \
+  --context=git://github.com/myorg/myapp.git \
+  --destination=myapp:latest \
+  --cache=true
+</code></pre>
+<p>When <code>--cache=true</code> is set, Kaniko queries the registry for a cache image before executing each
+instruction. The cache key is derived from:
+- The base image digest at the current snapshot point
+- The Dockerfile instruction text
+- The build context checksum (for <code>COPY</code>/<code>ADD</code>)</p>
+<p>If a matching layer exists in the cache image, Kaniko downloads it instead of re-executing the
+instruction.</p>
+<h3 id="kaniko-vs-buildkit-caching">Kaniko vs BuildKit Caching<a class="headerlink" href="#kaniko-vs-buildkit-caching" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>BuildKit</th>
+<th>Kaniko</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cache storage</td>
+<td>Content-addressed, multiple backends (local, registry, GHA, S3)</td>
+<td>Registry only</td>
+</tr>
+<tr>
+<td>Cache granularity</td>
+<td>Per-op (LLB node)</td>
+<td>Per-Dockerfile instruction</td>
+</tr>
+<tr>
+<td>Cache mount sharing</td>
+<td>Yes (<code>--mount=type=cache</code>) across builds</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>Cache export</td>
+<td>Separate manifests (inline, registry, GHA, S3, Azure)</td>
+<td>Embedded in target image</td>
+</tr>
+<tr>
+<td>Cache hit speed</td>
+<td>Lookup by content hash (local daemon); sub-millisecond</td>
+<td>Network call to registry per instruction</td>
+</tr>
+</tbody>
+</table>
+<p>Kaniko's registry-only cache means every <code>RUN</code> instruction incurs at least one registry API call
+to check for a cached layer. In high-latency environments or with many small <code>RUN</code> instructions,
+this can be slower than no caching at all.</p>
+<h3 id="cache-configuration">Cache Configuration<a class="headerlink" href="#cache-configuration" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Enable cache with custom repository
+kaniko \
+  --context=dir:///workspace \
+  --destination=myapp:latest \
+  --cache=true \
+  --cache-repo=my-registry/cache
+
+# Warm the cache with a known good build
+kaniko \
+  --context=dir:///workspace \
+  --destination=myapp:latest \
+  --cache=true \
+  --no-push
+</code></pre>
+<p>The <code>--no-push</code> flag rebuilds and caches layers without pushing the final image — useful for
+pre-warming the cache in CI before the actual build.</p>
+<hr />
+<h2 id="comparison-kaniko-vs-docker-buildkit">Comparison: Kaniko vs Docker BuildKit<a class="headerlink" href="#comparison-kaniko-vs-docker-buildkit" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Docker BuildKit</th>
+<th>Kaniko</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Architecture</td>
+<td>Daemon-based (containerd/buildkitd)</td>
+<td>Standalone binary (userspace)</td>
+</tr>
+<tr>
+<td>Root requirement</td>
+<td>Needs root/privileged by default</td>
+<td>Can run as non-root</td>
+</tr>
+<tr>
+<td>Rootless mode</td>
+<td>Yes (with buildkitd --oci-worker-no-process-sandbox)</td>
+<td>Yes (default)</td>
+</tr>
+<tr>
+<td>Layer caching</td>
+<td>Content-hash, shared across builds</td>
+<td>Only remote registry caching (--cache=true)</td>
+</tr>
+<tr>
+<td>Cache mounts</td>
+<td>Full support (--mount=type=cache)</td>
+<td>Not supported</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>--secret, --ssh, --mount=type=secret</td>
+<td>Via Kubernetes secrets (mounted files)</td>
+</tr>
+<tr>
+<td>SSH forwarding</td>
+<td>--mount=type=ssh</td>
+<td>Not supported natively</td>
+</tr>
+<tr>
+<td>Multi-stage builds</td>
+<td>Full support + parallel stages</td>
+<td>Full support (sequential stages)</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Fast (parallel DAG execution, cached)</td>
+<td>Slower (sequential, ptrace overhead)</td>
+</tr>
+<tr>
+<td>Dockerfile compat</td>
+<td>Full + extended (heredocs, --mount types)</td>
+<td>High (limited --mount support)</td>
+</tr>
+<tr>
+<td>Use case</td>
+<td>Dev machines, CI with Docker socket</td>
+<td>Kubernetes CI (no Docker socket)</td>
+</tr>
+<tr>
+<td>Push method</td>
+<td>Direct (parallel blob uploads)</td>
+<td>Direct (sequential by default)</td>
+</tr>
+<tr>
+<td>OCI output</td>
+<td>Yes (--output type=oci)</td>
+<td>Yes (default)</td>
+</tr>
+<tr>
+<td>Multi-arch builds</td>
+<td>Yes (--platform with QEMU)</td>
+<td>Build per platform, stitch with manifest-tool</td>
+</tr>
+<tr>
+<td>Container registry</td>
+<td>Any OCI-compatible</td>
+<td>Any OCI-compatible</td>
+</tr>
+<tr>
+<td>Plugin/API</td>
+<td>Gateway frontends, LLB</td>
+<td>None (CLI flags only)</td>
+</tr>
+<tr>
+<td>Community</td>
+<td>Moby project, Docker Inc.</td>
+<td>Google, CNCF sandbox</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="when-to-use-which">When to Use Which<a class="headerlink" href="#when-to-use-which" title="Permanent link">&para;</a></h2>
+<h3 id="use-docker-buildkit-when">Use Docker BuildKit When<a class="headerlink" href="#use-docker-buildkit-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>You have Docker socket access.</strong> Local development, CI runners with Docker-in-Docker, or
+  trusted environments where mounting the socket is acceptable.</li>
+<li><strong>Speed matters.</strong> BuildKit's parallel DAG execution, content-addressed local cache, and cache
+  mounts can be 2-10x faster than Kaniko for complex multi-stage builds.</li>
+<li><strong>You need BuildKit-exclusive features.</strong> Cache mounts (<code>--mount=type=cache</code>), secret mounts,
+  SSH forwarding, heredoc syntax, or the gateway frontend architecture.</li>
+<li><strong>You need multi-arch builds.</strong> BuildKit handles <code>--platform linux/amd64,linux/arm64</code> in a
+  single invocation with QEMU emulation or cross-compilation.</li>
+</ul>
+<h3 id="use-kaniko-when">Use Kaniko When<a class="headerlink" href="#use-kaniko-when" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>You are building images in Kubernetes</strong> and PodSecurity standards block privileged containers
+  or Docker socket mounts. This is the primary Kaniko use case.</li>
+<li><strong>Your CI platform already integrates it.</strong> GitLab CI has native Kaniko support, as does
+  Tekton CD, Argo Workflows, and Jenkins X. The integration is a one-line config change.</li>
+<li><strong>You cannot run a daemon.</strong> BuildKitd is a long-running process that needs persistent state
+  and garbage collection. Kaniko is ephemeral — start, build, exit.</li>
+<li><strong>Compliance requires no host-level access.</strong> Auditors flagging Docker socket mounts or
+  privileged containers get a clean pass with Kaniko.</li>
+</ul>
+<h3 id="gitlab-ci-example">GitLab CI Example<a class="headerlink" href="#gitlab-ci-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">kaniko-build:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:latest
+    entrypoint: [&quot;&quot;]
+  script:
+    - kaniko
+        --context &quot;${CI_PROJECT_DIR}&quot;
+        --dockerfile &quot;${CI_PROJECT_DIR}/Dockerfile&quot;
+        --destination &quot;${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG:-latest}&quot;
+  rules:
+    - if: $CI_COMMIT_TAG
+</code></pre>
+<h3 id="tekton-example">Tekton Example<a class="headerlink" href="#tekton-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: kaniko-build
+spec:
+  steps:
+  - name: build-and-push
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+    - --context=dir:///workspace/source
+    - --destination=my-registry/myapp:latest
+    - --cache=true
+</code></pre>
+<h3 id="argo-workflows-example">Argo Workflows Example<a class="headerlink" href="#argo-workflows-example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: kaniko-build-
+spec:
+  entrypoint: build
+  templates:
+  - name: build
+    container:
+      image: gcr.io/kaniko-project/executor:latest
+      args:
+      - --context=dir:///workspace
+      - --destination=my-registry/myapp:latest
+      - --cache=true
+</code></pre>
+<hr />
+<h2 id="alternatives">Alternatives<a class="headerlink" href="#alternatives" title="Permanent link">&para;</a></h2>
+<p>Kaniko and BuildKit are not the only options. Several other tools address the same problem space.</p>
+<h3 id="buildah">Buildah<a class="headerlink" href="#buildah" title="Permanent link">&para;</a></h3>
+<p>Buildah is part of the Podman ecosystem (Red Hat). It builds OCI images without a daemon, using
+<code>overlayfs</code> mounted inside a user namespace for change detection:</p>
+<pre><code class="language-bash">buildah bud -t myapp .
+</code></pre>
+<p>Key differences from Kaniko:</p>
+<ul>
+<li><strong>Overlayfs-based diff</strong>: Buildah mounts layers as overlayfs lowerdirs and uses the upperdir to
+  detect changes. This is much faster than Kaniko's <a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a> approach — no syscall interception
+  overhead.</li>
+<li><strong>User namespace support</strong>: Buildah can run in a user namespace, mapping a non-root UID to root
+  inside the namespace. This gives it filesystem capabilities without <code>CAP_SYS_ADMIN</code>.</li>
+<li><strong>Mount support</strong>: Buildah supports <code>--mount=type=cache</code> (via buildah-cache) and
+  <code>--mount=type=secret</code>, similar to BuildKit.</li>
+<li><strong>Multi-stage</strong>: Full support.</li>
+</ul>
+<p>Buildah is a strong Kaniko alternative for Kubernetes CI when user namespaces are available (kernel
+5.3+). The performance is closer to BuildKit than Kaniko.</p>
+<h3 id="img">img<a class="headerlink" href="#img" title="Permanent link">&para;</a></h3>
+<p><code>img</code> is a wrapper around BuildKit that runs it in an isolated container without the Docker daemon.
+It spawns a temporary <code>buildkitd</code> inside a container, builds the image, and tears it down:</p>
+<pre><code class="language-bash">img build -t myapp .
+</code></pre>
+<p>img trades simplicity for performance — you get BuildKit's caching and parallel execution without
+the daemon's persistent state. However, it requires running nested containers (privileged or with
+<code>--security-opt seccomp=unconfined --security-opt apparmor=unconfined</code>), which may recreate the
+security concerns Kaniko avoids.</p>
+<h3 id="makisu">makisu<a class="headerlink" href="#makisu" title="Permanent link">&para;</a></h3>
+<p>Makisu is Uber's in-cluster image builder. It uses overlayfs mounts in a user namespace for
+change detection, similar to Buildah:</p>
+<ul>
+<li><strong>Overlayfs-based</strong>: Faster than Kaniko's <a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a>.</li>
+<li><strong>Registry-level caching</strong>: Makisu computes content-hash cache keys and stores cache manifests in
+  the registry, like BuildKit's <code>--cache-to type=registry</code>.</li>
+<li><strong>Parallel layer uploads</strong>: Pushes multiple layers concurrently.</li>
+<li><strong>No root required</strong>: Runs as non-root with user namespaces.</li>
+</ul>
+<p>Makisu is less actively maintained than Kaniko or Buildah, but it has the best caching performance
+among the daemonless builders.</p>
+<h3 id="comparison-of-alternatives">Comparison of Alternatives<a class="headerlink" href="#comparison-of-alternatives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Kaniko</th>
+<th>Buildah</th>
+<th>img</th>
+<th>makisu</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diff mechanism</td>
+<td>ptrace</td>
+<td>overlayfs</td>
+<td>BuildKit (overlayfs)</td>
+<td>overlayfs</td>
+</tr>
+<tr>
+<td>Rootless</td>
+<td>Yes</td>
+<td>Yes (user ns)</td>
+<td>No (needs priv)</td>
+<td>Yes (user ns)</td>
+</tr>
+<tr>
+<td>Layer caching</td>
+<td>Registry-only</td>
+<td>Local + registry</td>
+<td>BuildKit full</td>
+<td>Content-hash (local + registry)</td>
+</tr>
+<tr>
+<td>Cache mounts</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>Slow (ptrace)</td>
+<td>Medium</td>
+<td>Fast (BuildKit)</td>
+<td>Fast (overlayfs)</td>
+</tr>
+<tr>
+<td>Active maintenance</td>
+<td>Yes (Google)</td>
+<td>Yes (Red Hat)</td>
+<td>Low</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Kubernetes integration</td>
+<td>Native (Tekton, GitLab, Argo)</td>
+<td>Via scripts</td>
+<td>Via scripts</td>
+<td>Via scripts</td>
+</tr>
+<tr>
+<td>BuildKit compat</td>
+<td>None</td>
+<td>Partial</td>
+<td>Full (BuildKit)</td>
+<td>None</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strategic-analysis-for-interview">Strategic Analysis for Interview<a class="headerlink" href="#strategic-analysis-for-interview" title="Permanent link">&para;</a></h2>
+<h3 id="why-cant-you-just-use-docker-in-kubernetes-security">"Why can't you just use Docker in Kubernetes?" (Security)<a class="headerlink" href="#why-cant-you-just-use-docker-in-kubernetes-security" title="Permanent link">&para;</a></h3>
+<p>Mounting <code>/var/run/docker.sock</code> in a pod gives that pod node-level root privileges. The Docker
+daemon runs as root on the host — any process with socket access can create, modify, or delete
+containers on the node. This bypasses all Kubernetes RBAC and namespace isolation. Privileged
+containers (required for DinD) are similarly dangerous and often blocked by admission controllers.</p>
+<h3 id="how-does-kaniko-detect-filesystem-changes-without-overlayfs-architecture">"How does Kaniko detect filesystem changes without overlayfs?" (Architecture)<a class="headerlink" href="#how-does-kaniko-detect-filesystem-changes-without-overlayfs-architecture" title="Permanent link">&para;</a></h3>
+<p>Kaniko uses <a href="../../container-image-hardening/seccomp/#ptrace"><code>ptrace</code></a> to intercept filesystem-modifying syscalls (<code>open</code>, <code>creat</code>, <code>unlink</code>,
+<code>rename</code>, <code>mkdir</code>, <code>rmdir</code>) during a <code>RUN</code> instruction. After the command completes, it has a
+precise list of changed files. It then creates a tar archive of those files — this is the new
+layer. No kernel union filesystem is required, which is why Kaniko runs without privileges.</p>
+<h3 id="what-is-the-main-performance-bottleneck-in-kaniko-performance">"What is the main performance bottleneck in Kaniko?" (Performance)<a class="headerlink" href="#what-is-the-main-performance-bottleneck-in-kaniko-performance" title="Permanent link">&para;</a></h3>
+<p>The <a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a>-based change detection. Every filesystem-modifying syscall from the build process and
+its children is intercepted and evaluated by Kaniko's tracer process. For <code>RUN</code> instructions
+that touch thousands of files (e.g., <code>npm install</code>, <code>pip install</code>, <code>apt-get install</code>), this
+syscall interception overhead dominates build time. BuildKit and overlayfs-based builders compute
+the diff in O(1) time by comparing layer snapshots at the VFS level.</p>
+<h3 id="when-would-you-pick-kaniko-over-buildkit-decision">"When would you pick Kaniko over BuildKit?" (Decision)<a class="headerlink" href="#when-would-you-pick-kaniko-over-buildkit-decision" title="Permanent link">&para;</a></h3>
+<p>Kaniko is the right choice when building images inside a Kubernetes cluster and the cluster's
+security policy prohibits privileged containers, Docker socket mounts, or persistent daemons.
+BuildKit is better when you have Docker socket access, need speed, or rely on BuildKit-exclusive
+features like cache mounts, SSH forwarding, or parallel multi-stage execution.</p>
+<h3 id="how-does-kaniko-caching-work-caching">"How does Kaniko caching work?" (Caching)<a class="headerlink" href="#how-does-kaniko-caching-work-caching" title="Permanent link">&para;</a></h3>
+<p>Kaniko uses <code>--cache=true</code> with an optional <code>--cache-repo</code> to store built layers in a container
+registry. Before executing each Dockerfile instruction, Kaniko queries the registry for a layer
+matching the cache key (base image digest + instruction text + context checksum). On hit, it
+downloads the layer instead of re-executing. This is slower than BuildKit's local content-hash
+cache because every check requires a network round trip to the registry.</p>
+<h3 id="what-alternatives-exist-for-daemonless-image-building-ecosystem">"What alternatives exist for daemonless image building?" (Ecosystem)<a class="headerlink" href="#what-alternatives-exist-for-daemonless-image-building-ecosystem" title="Permanent link">&para;</a></h3>
+<p>Buildah (Red Hat) uses overlayfs in a user namespace and supports cache mounts — a strong middle
+ground between Kaniko's security and BuildKit's performance. img wraps BuildKit in a temporary
+container (still needs privileges). Makisu (Uber) uses overlayfs with content-hash caching but
+is less actively maintained.</p>
+<h3 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="../docker-architecture/">Docker Architecture</a> — why the Docker daemon model
+  requires privileged access and socket-based communication.</li>
+<li><a href="../buildkit-internals/">BuildKit Internals</a> — BuildKit's DAG execution,
+  content-addressed caching, cache mounts, and secret handling.</li>
+<li><a href="../how-docker-builds-images/">How Docker Builds Images</a> — the legacy builder
+  and BuildKit pipelines that Kaniko replaces.</li>
+<li><a href="../../container-image-hardening/non-root-execution/">Non-Root Execution</a> — user namespaces and running
+  containers without root, relevant to rootless BuildKit and Buildah.</li>
+<li><a href="../../container-image-hardening/seccomp/">Seccomp</a> — how syscall filtering interacts with ptrace-based
+  builders like Kaniko.</li>
+<li><a href="../../helm-chart-security/pod-security-standards/">Pod Security Standards</a> — Kubernetes policies that
+  restrict privileged containers, motivating Kaniko adoption.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../docker-networking/" class="btn btn-neutral float-left" title="Docker Networking"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../product-strategy/docker-scout/" class="btn btn-neutral float-right" title="Docker Scout">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../docker-networking/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../product-strategy/docker-scout/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

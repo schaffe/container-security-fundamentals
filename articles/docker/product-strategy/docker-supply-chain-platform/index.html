@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>Docker's Supply Chain Platform Strategy - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Docker\u0027s Supply Chain Platform Strategy";
+        var mkdocs_page_input_path = "articles/docker/product-strategy/docker-supply-chain-platform.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Docker Product & Strategy</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Docker's Supply Chain Platform Strategy</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-the-pillars-connect">How the Pillars Connect</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#the-integrated-workflow">The Integrated Workflow</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#the-docker-native-advantage">The "Docker-Native" Advantage</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#competitive-landscape">Competitive Landscape</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#chainguard">Chainguard</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#anchore">Anchore</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#aqua-security">Aqua Security</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#red-hat">Red Hat</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dockers-differentiation">Docker's Differentiation</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#1-developer-workflow-integration">1. Developer Workflow Integration</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#2-ease-of-use">2. Ease of Use</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#3-multi-platform-build">3. Multi-Platform Build</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#strategic-challenges">Strategic Challenges</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#challenge-1-platform-lock-in-perception">Challenge 1: Platform Lock-In Perception</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#challenge-2-runtime-security-gap">Challenge 2: Runtime Security Gap</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#challenge-3-open-source-competition">Challenge 3: Open Source Competition</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#challenge-4-enterprise-trust">Challenge 4: Enterprise Trust</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#opportunities">Opportunities</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#opportunity-1-supply-chain-regulations">Opportunity 1: Supply Chain Regulations</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#opportunity-2-aiml-image-security">Opportunity 2: AI/ML Image Security</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#opportunity-3-the-docker-desktop-distribution-channel">Opportunity 3: The "Docker Desktop" Distribution Channel</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#likely-interview-questions">Likely Interview Questions</a>
+    </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Docker</li>
+          <li class="breadcrumb-item">Docker Product & Strategy</li>
+      <li class="breadcrumb-item active">Docker's Supply Chain Platform Strategy</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/docker/product-strategy/docker-supply-chain-platform.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="dockers-supply-chain-platform-strategy">Docker's Supply Chain Platform Strategy<a class="headerlink" href="#dockers-supply-chain-platform-strategy" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Docker is assembling the components of an end-to-end supply chain security platform. The thesis is that security must be embedded into every stage of the container lifecycle — from build to distribution to runtime — and that most organizations lack an integrated platform to achieve this. Docker's strategy is to provide that platform, deeply integrated with the developer workflow that made Docker ubiquitous.</p>
+<p>The four pillars of the strategy are:</p>
+<table>
+<thead>
+<tr>
+<th>Pillar</th>
+<th>Product</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Build</strong></td>
+<td>Docker Build Cloud</td>
+<td>Fast, secure, multi-architecture builds</td>
+</tr>
+<tr>
+<td><strong>Distribution</strong></td>
+<td>Docker Hub</td>
+<td>Image storage, organization management, access control</td>
+</tr>
+<tr>
+<td><strong>Hardening</strong></td>
+<td>Docker Hardened Images (DHI)</td>
+<td>Trusted, attested base images</td>
+</tr>
+<tr>
+<td><strong>Analysis</strong></td>
+<td>Docker Scout</td>
+<td>SBOM, vulnerability scanning, policy evaluation</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="how-the-pillars-connect">How the Pillars Connect<a class="headerlink" href="#how-the-pillars-connect" title="Permanent link">&para;</a></h2>
+<p>The platform strategy is not about four separate products — it's about how they work together to create a cohesive supply chain.</p>
+<h3 id="the-integrated-workflow">The Integrated Workflow<a class="headerlink" href="#the-integrated-workflow" title="Permanent link">&para;</a></h3>
+<pre><code>Developer → Dockerfile → Build Cloud → Docker Hub → Scout Analysis → Policy Gate → Production
+                              │                              │
+                              ↓                              ↓
+                         DHI Base Image               Attestations + SBOM
+</code></pre>
+<ol>
+<li><strong>Developer starts with a DHI base image</strong> — trusted, hardened, attested, with known provenance</li>
+<li><strong>Build Cloud compiles the image</strong> — multi-architecture, with provenance and SBOM attestations attached during the build</li>
+<li><strong>Image is pushed to Docker Hub</strong> — stored in private or org repository with access controls</li>
+<li><strong>Scout analyzes the image</strong> — generates SBOM, cross-references CVEs, evaluates against environment policies</li>
+<li><strong>Policy gate decides</strong> — if the image passes, it's tagged for production; if it fails, the deployment is blocked and the developer receives remediation guidance</li>
+<li><strong>Runtime verification</strong> — Scout continues to monitor images in production, alerting on new CVEs</li>
+</ol>
+<h3 id="the-docker-native-advantage">The "Docker-Native" Advantage<a class="headerlink" href="#the-docker-native-advantage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># A single workflow that touches all four pillars
+
+# 1. Build from hardened base image
+FROM docker/hardened-node:20
+COPY . .
+RUN npm ci --omit=dev
+
+# 2. Build with Build Cloud (multi-arch + attestations)
+docker buildx build \
+  --builder cloud-org-builder \
+  --platform linux/amd64,linux/arm64 \
+  --sbom=true \
+  --attest type=provenance,mode=max \
+  -t myorg/my-app:latest \
+  --push \
+  .
+
+# 3. Hub stores and distributes the image
+# 4. Scout auto-analyzes (integrated with Hub)
+# 5. Policy evaluation gates deployment
+docker scout policy --env production myorg/my-app:latest
+</code></pre>
+<p>The integration is the product. No separate scanner setup, no external registry configuration, no additional signing infrastructure — it all works because Docker controls the entire pipeline.</p>
+<hr />
+<h2 id="competitive-landscape">Competitive Landscape<a class="headerlink" href="#competitive-landscape" title="Permanent link">&para;</a></h2>
+<p>Docker's strategy must be understood in the context of its competitors, each of which approaches supply chain security from a different angle.</p>
+<h3 id="chainguard">Chainguard<a class="headerlink" href="#chainguard" title="Permanent link">&para;</a></h3>
+<p>Chainguard is a supply chain security company founded in 2021 by former Google engineers (Dan Lorenc, Kim Lewandowski, Ville Aikas, Matt Moore) who built Sigstore, SLSA, in-toto, and distroless while at Google. The company's mission is to make software supply chain security available to every organization by building a complete, open-core platform for container image security.</p>
+<p><strong>Product Stack:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Product</th>
+<th>Description</th>
+<th>Business Model</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OS</strong></td>
+<td>Wolfi</td>
+<td>A Linux distribution designed from scratch for containers. Custom-built from source, rebuilt near-daily. Proactive CVE patching — patches vulnerable packages rather than waiting for upstream. Uses <code>apk</code> (Alpine's package manager).</td>
+<td>Open source (Apache 2.0)</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Chainguard Images</td>
+<td>~200+ minimal, distroless container images built on Wolfi — runtimes (Python, Go, Node.js, Java), databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations.</td>
+<td>Free tier (public pull, rate-limited) + commercial subscription (unlimited pull, enterprise SLA)</td>
+</tr>
+<tr>
+<td><strong>Policy</strong></td>
+<td>Chainguard Enforce</td>
+<td>A Kubernetes admission controller and policy engine that verifies image attestations at deploy time. Enforces SLSA levels, required attestation types, allowed registries, and vulnerability thresholds. Provides a continuous audit trail of what images run where.</td>
+<td>Commercial (SaaS + self-hosted)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How the layers connect:</strong></p>
+<pre><code>Wolfi (OS) ──builds──→ Chainguard Images (200+ pre-built images)
+                            │
+                            ↓
+                     Kubernetes cluster
+                            │
+                    Chainguard Enforce (admission control)
+                     - Verifies attestations
+                     - Enforces policies
+                     - Audits runtime
+</code></pre>
+<p>Wolfi is the foundation: a minimal, continuously-patched OS that produces zero-CVE base images. Chainguard Images are the packaged product: ready-to-use containers built from Wolfi with signed attestations. Chainguard Enforce is the platform layer: it checks those attestations at admission time, ensuring only approved images with valid provenance and acceptable CVEs reach production.</p>
+<p><strong>Relationship to Docker's platform:</strong></p>
+<p>Docker and Chainguard compete at multiple layers of the stack, but also cooperate at the OS layer:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Docker</th>
+<th>Chainguard</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>OS</strong></td>
+<td>Wolfi (via DHI)</td>
+<td>Wolfi</td>
+<td><strong>Coopetition</strong>: Both use Wolfi. Docker doesn't maintain Wolfi — Chainguard does. Docker gets Wolfi's security posture without running an OS team.</td>
+</tr>
+<tr>
+<td><strong>Images</strong></td>
+<td>Docker Hardened Images (~25 curated)</td>
+<td>Chainguard Images (~200+)</td>
+<td><strong>Competition</strong>: DHI has a smaller catalog with tighter Docker integration. Chainguard has breadth.</td>
+</tr>
+<tr>
+<td><strong>Analysis</strong></td>
+<td>Docker Scout</td>
+<td>Chainguard Enforce</td>
+<td><strong>Competition</strong>: Both do SBOM-based policy evaluation. Scout is CLI/Hub-integrated; Enforce is admission-control-native.</td>
+</tr>
+<tr>
+<td><strong>Registry</strong></td>
+<td>Docker Hub</td>
+<td>cgr.dev</td>
+<td><strong>Competition</strong>: Hub has massive distribution; cgr.dev is smaller but purpose-built for Chainguard Images.</td>
+</tr>
+<tr>
+<td><strong>Build</strong></td>
+<td>Docker Build Cloud</td>
+<td>None</td>
+<td><strong>No equivalent</strong>: Chainguard has no managed build service. Build Cloud is a Docker-exclusive differentiator.</td>
+</tr>
+</tbody>
+</table>
+<p>The coopetition at the OS layer is notable: Docker Hardened Images are built on Wolfi (Chainguard's OS), yet the two companies compete at the image and policy layers. This mirrors the open-source pattern where upstream suppliers and platform integrators have overlapping but distinct roles — Chainguard maintains the raw materials, Docker integrates them into a developer workflow.</p>
+<p><strong>Approach</strong>: Build a better base image and toolchain (Wolfi, apk, Chainguard Images, Chainguard Enforce)</p>
+<p><strong>Strengths</strong>:
+- <strong>Image catalog breadth</strong>: Chainguard has more language runtimes and middleware images than DHI
+- <strong>OS ownership</strong>: Chainguard controls Wolfi end-to-end. CVE remediation happens in hours, not days
+- <strong>Open core</strong>: Wolfi is Apache 2.0, apk is open source. Community contributions to Wolfi packages</p>
+<p><strong>Weaknesses</strong>:
+- <strong>Distribution</strong>: cgr.dev has minimal traffic compared to Docker Hub. Most developers have never pulled from cgr.dev
+- <strong>Developer workflow</strong>: Chainguard's tooling is Kubernetes/admission-controller focused. Docker has better CLI and IDE integration
+- <strong>Brand recognition</strong>: Docker is a household name in containers; Chainguard is unknown outside security teams
+- <strong>Build service</strong>: No managed build platform. Customers must use their own CI or a third-party build service</p>
+<p><strong>Docker's response</strong>: DHI uses Wolfi as its base OS, coopetition with Chainguard. Docker integrates Wolfi's security posture with Docker's distribution and developer experience advantages.</p>
+<h3 id="anchore">Anchore<a class="headerlink" href="#anchore" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Vulnerability scanning and policy engine (Grype, Syft, Anchore Enterprise)</p>
+<p><strong>Strengths</strong>:
+- <strong>Grype/Syft are the most widely used open source scanner/SBOM tool</strong>
+- <strong>Policy engine is mature</strong>: Fine-grained, flexible policy definitions with multiple control points
+- <strong>Vendor-neutral</strong>: Works with any registry, any build system, any orchestrator
+- <strong>Enterprise features</strong>: RBAC, audit logging, compliance reporting</p>
+<p><strong>Weaknesses</strong>:
+- No image registry, no build platform, no base images — pure analysis layer
+- Developer experience is CLI-first, not pipeline-integrated
+- Policy authoring requires YAML expertise; less accessible than Scout's environment-based model</p>
+<p><strong>Docker's response</strong>: Scout competes with Anchore Enterprise but is differentiated by being embedded in the Docker workflow. Scout policies are simpler to configure; the trade-off is less flexibility.</p>
+<h3 id="aqua-security">Aqua Security<a class="headerlink" href="#aqua-security" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Cloud-native application protection platform (CNAPP) covering full lifecycle</p>
+<p><strong>Strengths</strong>:
+- <strong>Broadest product scope</strong>: Image scanning, runtime protection, IaC scanning, Kubernetes security, vulnerability management
+- <strong>Enterprise maturity</strong>: Role-based access control, SIEM integration, compliance reporting, incident response workflows
+- <strong>Deep runtime protection</strong>: Not just pre-deployment scanning — Aqua monitors container behavior at runtime</p>
+<p><strong>Weaknesses</strong>:
+- <strong>Complexity</strong>: CNAPP platforms require significant setup, configuration, and ongoing management
+- <strong>Developer friction</strong>: Security gates are enforced by security teams, not developers
+- <strong>Cost</strong>: Enterprise CNAPP licensing is expensive; overkill for smaller teams</p>
+<p><strong>Docker's response</strong>: Docker focuses on developer-friendly, pre-deployment security. Docker doesn't compete at the runtime level (no Kubernetes admission controller, no runtime monitoring). The strategy is to be the best-in-class supply chain platform for the build-to-deploy window, then integrate with runtime security providers.</p>
+<h3 id="red-hat">Red Hat<a class="headerlink" href="#red-hat" title="Permanent link">&para;</a></h3>
+<p><strong>Approach</strong>: Enterprise container platform (UBI, Quay.io, OpenShift, ACS)</p>
+<p><strong>Strengths</strong>:
+- <strong>UBI is well-established</strong>: RHEL-based, commercially supported, familiar to enterprise ops teams
+- <strong>Quay is a mature registry</strong>: Geo-replication, security scanning, image mirroring
+- <strong>OpenShift integration</strong>: End-to-end platform from build to orchestration
+- <strong>Red Hat Advanced Cluster Security (ACS)</strong>: StackRox-based runtime security</p>
+<p><strong>Weaknesses</strong>:
+- <strong>RHEL dependency</strong>: UBI images are larger and have a different CVE surface than Wolfi or Alpine
+- <strong>Cost center</strong>: Red Hat subscriptions are expensive; UBI requires a Red Hat account for some features
+- <strong>Developer experience</strong>: OpenShift and Quay are enterprise-focused; less accessible for individual developers</p>
+<p><strong>Docker's response</strong>: Docker competes on developer experience and lower cost. Docker Hub is free for public images and inexpensive for private; Build Cloud is consumption-based; DHI is commercially supported but doesn't require a platform subscription. Docker's bet is that developers will choose the path of least resistance.</p>
+<hr />
+<h2 id="dockers-differentiation">Docker's Differentiation<a class="headerlink" href="#dockers-differentiation" title="Permanent link">&para;</a></h2>
+<h3 id="1-developer-workflow-integration">1. Developer Workflow Integration<a class="headerlink" href="#1-developer-workflow-integration" title="Permanent link">&para;</a></h3>
+<p>Docker's single strongest advantage is that developers already use Docker. Scout commands use the same <code>docker</code> CLI they run daily. DHI images are pulled with the same <code>docker pull</code> command. There's no new tooling, no new workflows, no new login credentials. The security layer is invisible until it needs to be visible (policy violation, CVE alert).</p>
+<h3 id="2-ease-of-use">2. Ease of Use<a class="headerlink" href="#2-ease-of-use" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Scout policies are environment-based (<code>--env production</code>), not complex Rego rules</li>
+<li>DHI images follow the same interface as official images (same env vars, same ports, same entrypoints)</li>
+<li>Build Cloud works with the existing <code>docker buildx</code> command</li>
+<li>Hub organization management is familiar to anyone who has used GitHub organizations</li>
+</ul>
+<h3 id="3-multi-platform-build">3. Multi-Platform Build<a class="headerlink" href="#3-multi-platform-build" title="Permanent link">&para;</a></h3>
+<p>Build Cloud's ability to build for <code>linux/amd64</code>, <code>linux/arm64</code>, and <code>linux/arm/v7</code> in parallel is a genuine differentiator. No other supply chain platform offers native multi-architecture build infrastructure integrated with signing and analysis.</p>
+<hr />
+<h2 id="strategic-challenges">Strategic Challenges<a class="headerlink" href="#strategic-challenges" title="Permanent link">&para;</a></h2>
+<h3 id="challenge-1-platform-lock-in-perception">Challenge 1: Platform Lock-In Perception<a class="headerlink" href="#challenge-1-platform-lock-in-perception" title="Permanent link">&para;</a></h3>
+<p>Docker's strategy only works if customers use multiple Docker products. A customer using Chainguard Images, Harbor registry, and Grype scanning is using none of Docker's platform. Docker needs to convince customers to consolidate.</p>
+<p><strong>Mitigation</strong>: Docker makes individual products valuable standalone (DHI without Scout, Scout without Hub). The platform value is additive, not gated.</p>
+<h3 id="challenge-2-runtime-security-gap">Challenge 2: Runtime Security Gap<a class="headerlink" href="#challenge-2-runtime-security-gap" title="Permanent link">&para;</a></h3>
+<p>Docker's platform stops at deployment. For runtime security, customers need Aqua, Sysdig, Falco, or a Kubernetes admission controller. Docker doesn't offer admission control, runtime monitoring, or incident response.</p>
+<p><strong>Mitigation</strong>: Docker positions itself as the build-to-deploy layer and partners with runtime security providers. The OCI standard for attestations enables runtime tools to verify Docker-signed images.</p>
+<h3 id="challenge-3-open-source-competition">Challenge 3: Open Source Competition<a class="headerlink" href="#challenge-3-open-source-competition" title="Permanent link">&para;</a></h3>
+<p>Grype/Syft (Anchore), Trivy (Aqua), cosign (Sigstore), and Wolfi (Chainguard) are all open source and widely adopted. Docker's products are proprietary (with some open source components). Open source tools are free, community-supported, and vendor-neutral.</p>
+<p><strong>Mitigation</strong>: Docker competes on integration, usability, and support. The open source tools are powerful but require assembly. Docker provides a pre-assembled, supported platform.</p>
+<h3 id="challenge-4-enterprise-trust">Challenge 4: Enterprise Trust<a class="headerlink" href="#challenge-4-enterprise-trust" title="Permanent link">&para;</a></h3>
+<p>Docker has a history of pricing changes (Docker Desktop licensing in 2021) that eroded enterprise trust. Security platform adoption requires trust. Enterprises worry about vendor lock-in, pricing changes, and long-term commitment.</p>
+<p><strong>Mitigation</strong>: Docker is building enterprise features (RBAC, audit logging, commercial SLAs) and communicating a clear product roadmap. DHI's enterprise SLA is a concrete example.</p>
+<hr />
+<h2 id="opportunities">Opportunities<a class="headerlink" href="#opportunities" title="Permanent link">&para;</a></h2>
+<h3 id="opportunity-1-supply-chain-regulations">Opportunity 1: Supply Chain Regulations<a class="headerlink" href="#opportunity-1-supply-chain-regulations" title="Permanent link">&para;</a></h3>
+<p>Regulatory pressure is increasing: US Executive Order 14028, EU Cyber Resilience Act, FDA pre-market cybersecurity requirements. Organizations need to demonstrate supply chain security. Docker's platform provides attestation evidence that directly maps to regulatory requirements.</p>
+<h3 id="opportunity-2-aiml-image-security">Opportunity 2: AI/ML Image Security<a class="headerlink" href="#opportunity-2-aiml-image-security" title="Permanent link">&para;</a></h3>
+<p>As organizations deploy AI models in containers, they need the same supply chain guarantees. Docker can extend Scout to scan model files, Python dependencies, and CUDA toolkits. DHI can provide hardened base images for ML workflows (TensorFlow, PyTorch, NVIDIA CUDA).</p>
+<h3 id="opportunity-3-the-docker-desktop-distribution-channel">Opportunity 3: The "Docker Desktop" Distribution Channel<a class="headerlink" href="#opportunity-3-the-docker-desktop-distribution-channel" title="Permanent link">&para;</a></h3>
+<p>Every Docker Desktop installation is a potential Scout activation. Docker Desktop already includes Scout integration; expanding this to include DHI recommendations and Build Cloud integration creates a distribution channel that competitors can't match.</p>
+<hr />
+<h2 id="likely-interview-questions">Likely Interview Questions<a class="headerlink" href="#likely-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"How would you convince an organization using Chainguard Images + Harbor + Trivy to switch to Docker's platform?" (Focus on integration: one CLI, one registry, one analysis platform. The switch is from "assembling best-of-breed" to "running an integrated platform." Demonstrate Scout policy evaluation speed and Build Cloud build times.)</li>
+<li>"What's Docker's biggest supply chain security competitor?" (Chainguard — they compete on the same plane (base images + analysis + policy) with an open source foundation. Anchore and Aqua compete at different levels of the stack.)</li>
+<li>"Where would you invest next if you were leading Docker's supply chain strategy?" (Runtime verification integration — not a full runtime product, but attestation verification at admission control via a Kubernetes admission webhook. Also: AI/ML image support.)</li>
+<li>"How does Docker's platform strategy benefit a 10-person startup vs. a 10,000-person enterprise?" (Startup: zero-config Scout, free Hub, DHI base images — security out of the box. Enterprise: RBAC, org-level policies, commercial SLA, FIPS images, integration with existing CI/CD.)</li>
+</ul>
+<p>For deeper dives into the underlying technologies that power Docker's platform, see <a href="../../docker-architecture/">Docker Architecture</a> and <a href="../../buildkit-internals/">BuildKit Internals</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../docker-content-trust/" class="btn btn-neutral float-left" title="Docker Content Trust and Notary v2"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../docker-content-trust/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

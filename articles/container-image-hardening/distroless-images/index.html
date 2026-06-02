@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Distroless Images - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Distroless Images";
+        var mkdocs_page_input_path = "articles/container-image-hardening/distroless-images.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Distroless Images</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-distroless-images-exclude">What Distroless Images Exclude</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#attack-surface-comparison">Attack Surface Comparison</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-distroless-reduces-cves">Why Distroless Reduces CVEs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#musl-vs-glibc">musl vs glibc</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#distroless-vs-wolfi-vs-docker-hardened-images">Distroless vs Wolfi vs Docker Hardened Images</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#philosophy-comparison">Philosophy Comparison</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#cve-remediation-speed">CVE Remediation Speed</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#image-catalog-attestations">Image Catalog &amp; Attestations</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#decision-framework">Decision Framework</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#relationship-wolfi-and-dhi">Relationship: Wolfi and DHI</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#dockerfile-distroless-vs-alpine-vs-ubuntu">Dockerfile: Distroless vs Alpine vs Ubuntu</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#when-distroless-breaks">When Distroless Breaks</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-health-checks">1. Health Checks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-debugging-exec-access">2. Debugging &amp; Exec Access</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-signal-handling">3. Signal Handling</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#mitigation-strategies">Mitigation Strategies</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-debug-variants-for-staging-only">1. Debug Variants for Staging Only</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-static-binaries-with-minimal-distroless">2. Static Binaries with Minimal Distroless</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-nixery-for-custom-minimal-images">3. Nixery for Custom Minimal Images</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">Distroless Images</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/distroless-images.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="distroless-images">Distroless Images<a class="headerlink" href="#distroless-images" title="Permanent link">&para;</a></h1>
+<p>Distroless images represent the extreme end of container minimization: minimal runtime dependencies with no package manager, shell, or standard Unix utilities. Published by Google (distroless) and Chainguard (Wolfi-based), these images contain only the application and its direct runtime dependencies.</p>
+<h2 id="what-distroless-images-exclude">What Distroless Images Exclude<a class="headerlink" href="#what-distroless-images-exclude" title="Permanent link">&para;</a></h2>
+<p>A typical distroless image removes:</p>
+<ul>
+<li><strong>Shell</strong>: No <code>/bin/sh</code>, <code>/bin/bash</code>, <code>/bin/dash</code></li>
+<li><strong>Package manager</strong>: No <code>apt</code>, <code>apk</code>, <code>yum</code>, or <code>dpkg</code></li>
+<li><strong>setuid/setgid binaries</strong>: No <code>sudo</code>, <code>su</code>, <code>passwd</code> — these binaries are removed entirely or have setuid bits stripped</li>
+<li><strong>Unix tools</strong>: No <code>ls</code>, <code>cat</code>, <code>cp</code>, <code>ps</code>, <code>top</code>, <code>wget</code>, <code>curl</code>, <code>tar</code>, <code>grep</code>, <code>sed</code>, <code>awk</code></li>
+<li><strong>Compilers/interpreters</strong>: No <code>gcc</code>, <code>python</code>, <code>perl</code>, unless the application requires them</li>
+<li><strong>Libraries</strong>: Only linked libraries the binary actually needs (<code>ldd</code> verified)</li>
+</ul>
+<h2 id="attack-surface-comparison">Attack Surface Comparison<a class="headerlink" href="#attack-surface-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Image Base</th>
+<th>Package Count</th>
+<th>Shell</th>
+<th>Pkg Manager</th>
+<th>setuid Binaries</th>
+<th>CVEs (typical)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Distroless</strong> (gcr.io/distroless)</td>
+<td>~5-15</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td>0-5</td>
+</tr>
+<tr>
+<td><strong>Wolfi</strong> (Chainguard)</td>
+<td>~5-20</td>
+<td>No</td>
+<td>apk</td>
+<td>No</td>
+<td>0-2</td>
+</tr>
+<tr>
+<td><strong>Alpine</strong></td>
+<td>~30-50</td>
+<td>BusyBox sh</td>
+<td>apk</td>
+<td>No</td>
+<td>5-30</td>
+</tr>
+<tr>
+<td><strong>Ubuntu 22.04</strong></td>
+<td>~150-200</td>
+<td>bash</td>
+<td>apt</td>
+<td>Yes (sudo, su)</td>
+<td>50-200+</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-distroless-reduces-cves">Why Distroless Reduces CVEs<a class="headerlink" href="#why-distroless-reduces-cves" title="Permanent link">&para;</a></h3>
+<p>Distroless drastically reduces the vulnerability surface by:</p>
+<ol>
+<li><strong>No shell</strong>: Remote code execution (RCE) without a shell prevents privilege escalation via <code>bash -i</code> or reverse shell payloads</li>
+<li><strong>No package manager</strong>: Supply chain attacks via compromised package repositories are impossible within the running container</li>
+<li><strong>Minimal libc</strong>: Distroless images use <code>glibc</code> (or <code>musl</code> for static variants) with only essential locales and NSS modules</li>
+<li><strong>No setuid binaries</strong>: Kernel exploits that target setuid elevation (like CVE-2021-3156, Baron Samedit) are irrelevant</li>
+</ol>
+<p>Supply chain security engineers should note: <strong>distroless images shrink the "gift" an attacker receives after initial RCE</strong>. If a process gets compromised, the attacker has very limited tools to pivot, escalate, or exfiltrate.</p>
+<h3 id="musl-vs-glibc">musl vs glibc<a class="headerlink" href="#musl-vs-glibc" title="Permanent link">&para;</a></h3>
+<p>See <a href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a> for a full comparison of the two libc implementations and their implications for base image selection.</p>
+<h3 id="distroless-vs-wolfi-vs-docker-hardened-images">Distroless vs Wolfi vs Docker Hardened Images<a class="headerlink" href="#distroless-vs-wolfi-vs-docker-hardened-images" title="Permanent link">&para;</a></h3>
+<p>The attack surface table above groups Google Distroless, Chainguard Wolfi, and Docker Hardened Images (DHI, which is Wolfi-based) under "distroless-type" images. But their architectures, update models, and target users differ significantly.</p>
+<h4 id="philosophy-comparison">Philosophy Comparison<a class="headerlink" href="#philosophy-comparison" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Google Distroless</th>
+<th>Chainguard Wolfi</th>
+<th>Docker Hardened Images</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Approach</strong></td>
+<td>Freeze known-good Debian packages; strip aggressively</td>
+<td>Rebuild from source continuously; patch proactively</td>
+<td>Wolfi base + Docker's platform layer (Hub, Scout, Build Cloud)</td>
+</tr>
+<tr>
+<td><strong>Base system</strong></td>
+<td>Debian-derived (glibc + Debian patches)</td>
+<td>Custom-built from scratch</td>
+<td>Wolfi (same as Chainguard)</td>
+</tr>
+<tr>
+<td><strong>Package manager</strong></td>
+<td>None in runtime</td>
+<td><code>apk</code> present (removable)</td>
+<td>None in hardened variants</td>
+</tr>
+<tr>
+<td><strong>CVE remediation</strong></td>
+<td>Reactive via Debian patch cycle</td>
+<td>Proactive within hours</td>
+<td>Proactive (inherits Wolfi) + Docker's own CVE SLA</td>
+</tr>
+<tr>
+<td><strong>Attestations</strong></td>
+<td>Cosign signature only</td>
+<td>SBOM + provenance + vuln scan</td>
+<td>SBOM + provenance + vuln scan (Docker-signed)</td>
+</tr>
+<tr>
+<td><strong>SLSA level</strong></td>
+<td>Not explicitly targeted</td>
+<td>SLSA L3 for Chainguard images</td>
+<td>SLSA L3</td>
+</tr>
+<tr>
+<td><strong>FIPS 140-2/3</strong></td>
+<td>Not available</td>
+<td>Not available directly</td>
+<td>Optional validated module</td>
+</tr>
+<tr>
+<td><strong>Enterprise SLA</strong></td>
+<td>None</td>
+<td>Via Chainguard Enforce</td>
+<td>Commercially supported</td>
+</tr>
+<tr>
+<td><strong>Image catalog</strong></td>
+<td>~20 families (runtimes)</td>
+<td>~200+ (runtimes + middleware + databases + security)</td>
+<td>~25 families (curated runtimes and infrastructure)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="cve-remediation-speed">CVE Remediation Speed<a class="headerlink" href="#cve-remediation-speed" title="Permanent link">&para;</a></h4>
+<p>This is the most important operational differentiator:</p>
+<ul>
+<li><strong>Distroless</strong> depends on the Debian patch cycle: CVE disclosed → fixed in Debian unstable → propagates to stable (days to weeks) → Google rebuilds → user pulls. Typical delay: <strong>days to weeks</strong>. In practice, distroless carries 2-5 low-severity CVEs awaiting the Debian cycle.</li>
+<li><strong>Wolfi</strong> bypasses distributions entirely: CVE disclosed → Chainguard applies minimal patch to Wolfi source → package rebuilt → image rebuilt → user pulls. Typical delay: <strong>hours</strong>.</li>
+<li><strong>DHI</strong> inherits Wolfi's proactive patching and adds a Docker-managed SLA for critical CVEs, with automated re-scan, rebuild, and notification to subscribers.</li>
+</ul>
+<h4 id="image-catalog-attestations">Image Catalog &amp; Attestations<a class="headerlink" href="#image-catalog-attestations" title="Permanent link">&para;</a></h4>
+<p>Google's <code>gcr.io/distroless</code> covers runtimes only: static, base, cc, java, python, node, .NET (~20 families). No middleware or databases. Attestations are limited to a cosign signature.</p>
+<p>Chainguard's <code>cgr.dev/chainguard</code> covers ~200+ images: runtimes, databases (PostgreSQL, Redis, MongoDB), middleware (Nginx, Envoy, HAProxy), security tools (Kyverno, Falco, OPA), monitoring (Prometheus, Grafana), and CI/CD (Tekton, ArgoCD). Every image ships with SBOM + SLSA provenance + vulnerability scan attestations. (See <a href="../../docker/product-strategy/docker-supply-chain-platform/#chainguard">Chainguard's platform strategy</a> for how Wolfi, Chainguard Images, and Enforce connect.)</p>
+<p>Docker's <code>docker/hardened-*</code> covers ~25 curated images (PostgreSQL, MongoDB, Redis, Nginx, Envoy, Grafana, Prometheus, cert-manager, Kyverno, Python, Node.js, Go, Java). Built on Wolfi, each image carries Docker-signed attestations and is distributed through Docker Hub with Scout integration.</p>
+<h4 id="decision-framework">Decision Framework<a class="headerlink" href="#decision-framework" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Best Choice</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Go/Rust static binary, minimal size</td>
+<td>Distroless <code>static-debian12:nonroot</code> (~2 MB)</td>
+<td>Smallest possible image; no deps needed</td>
+</tr>
+<tr>
+<td>Go/Rust static binary + attestations</td>
+<td>Wolfi <code>cgr.dev/chainguard/static</code> (~5 MB)</td>
+<td>Slightly larger but includes SBOM + provenance</td>
+</tr>
+<tr>
+<td>Zero CVE tolerance, any runtime</td>
+<td>Wolfi or DHI</td>
+<td>Proactive patching, often 0 CVEs</td>
+</tr>
+<tr>
+<td>Need attestations for policy enforcement</td>
+<td>DHI or Wolfi</td>
+<td>Distroless lacks machine-readable attestations</td>
+</tr>
+<tr>
+<td>FIPS 140-2/3 required</td>
+<td>DHI (FIPS variant)</td>
+<td>Only option with validated crypto modules</td>
+</tr>
+<tr>
+<td>Enterprise compliance + commercial SLA</td>
+<td>DHI</td>
+<td>Wolfi source + Docker's SLA + Hub/Scout integration</td>
+</tr>
+<tr>
+<td>Broad image catalog (databases, middleware)</td>
+<td>Wolfi (Chainguard)</td>
+<td>200+ images vs ~25 DHI vs ~20 distroless</td>
+</tr>
+<tr>
+<td>Custom Dockerfile, need runtime flexibility</td>
+<td>Wolfi</td>
+<td><code>apk</code> available; can install tools at runtime</td>
+</tr>
+<tr>
+<td>Google Cloud-native deployment</td>
+<td>Distroless</td>
+<td>Native GCR integration, Google-managed</td>
+</tr>
+</tbody>
+</table>
+<h4 id="relationship-wolfi-and-dhi">Relationship: Wolfi and DHI<a class="headerlink" href="#relationship-wolfi-and-dhi" title="Permanent link">&para;</a></h4>
+<p>DHI is built <strong>on top</strong> of Wolfi. Wolfi provides the base OS — minimal packages, proactive CVE patching, container-optimized architecture. Docker adds:
+- <strong>Distribution</strong>: Images published to Docker Hub with verified publisher badges
+- <strong>Attestations</strong>: Docker-signed SBOM, provenance, and vulnerability scan (Docker's keychain, not Chainguard's)
+- <strong>Scout integration</strong>: One-click policy evaluation, environment-based recommendations
+- <strong>FIPS modules</strong>: Validated cryptographic libraries for regulated industries
+- <strong>Commercial SLA</strong>: Defined CVE response times, enterprise support</p>
+<p>Chainguard and Docker compete at the platform level (Enforce vs Scout) but cooperate at the base image level (DHI uses Wolfi). This is a common pattern in open-source infrastructure — upstream supplier vs integrated platform.</p>
+<p>See <a href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images</a> for a full breakdown of DHI's build pipeline, attestation model, and interview strategy.</p>
+<h3 id="dockerfile-distroless-vs-alpine-vs-ubuntu">Dockerfile: Distroless vs Alpine vs Ubuntu<a class="headerlink" href="#dockerfile-distroless-vs-alpine-vs-ubuntu" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># === Ubuntu build (baseline) ===
+FROM ubuntu:22.04 AS ubuntu-app
+RUN apt-get update &amp;&amp; apt-get install -y ca-certificates &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+COPY app /app
+CMD [&quot;/app&quot;]
+
+# === Alpine build (smaller but shell present) ===
+FROM golang:1.21 AS build
+WORKDIR /src
+COPY . .
+RUN go build -o /app .
+
+FROM alpine:3.19
+RUN apk add --no-cache ca-certificates
+COPY --from=build /app /app
+CMD [&quot;/app&quot;]
+
+# === Distroless build (minimal) ===
+FROM golang:1.21 AS build
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app .
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /app /app
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>The distroless variant uses <code>CGO_ENABLED=0</code> for a fully static binary, allowing use of the <code>static-debian12</code> base which contains only:
+- <code>ca-certificates.crt</code> (from distroless bundle)
+- <code>/etc/ssl/certs/</code>
+- <code>/tmp</code> (empty, writable)
+- The zoneinfo database (minimal)</p>
+<h2 id="when-distroless-breaks">When Distroless Breaks<a class="headerlink" href="#when-distroless-breaks" title="Permanent link">&para;</a></h2>
+<p>Distroless is not always the right choice. Common failure points:</p>
+<h3 id="1-health-checks">1. Health Checks<a class="headerlink" href="#1-health-checks" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># This fails — no curl/wget in distroless
+HEALTHCHECK CMD curl -f http://localhost/health || exit 1
+</code></pre>
+<p><strong>Solutions</strong>:
+- Use the <code>netbase</code> variant (<code>gcr.io/distroless/base</code>) which includes basic networking
+- Embed health check logic in the application binary
+- Use K8s exec probes with the debug variant</p>
+<pre><code class="language-dockerfile">FROM gcr.io/distroless/base-debian12
+# base variant includes basic networking but no shell
+HEALTHCHECK CMD [&quot;/healthcheck&quot;]
+</code></pre>
+<h3 id="2-debugging-exec-access">2. Debugging &amp; Exec Access<a class="headerlink" href="#2-debugging-exec-access" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># kubectl exec into a distroless container — no shell!
+kubectl exec -it pod-name -- sh
+# error: failed to exec: executable file not found
+</code></pre>
+<p><strong>Solutions</strong>:</p>
+<ul>
+<li>
+<p><strong>Debug images</strong>: Distroless publishes <code>-debug</code> variants with <code>busybox</code> shell:
+  <code>dockerfile
+  # Debug multi-stage: deploy the non-debug version
+  FROM gcr.io/distroless/base-debian12:nonroot
+  COPY --from=build /app /app</code></p>
+</li>
+<li>
+<p><strong>Ephemeral debug containers</strong> (K8s 1.23+):
+  <code>bash
+  kubectl debug -it pod-name --image=gcr.io/distroless/base-debian12:debug -- /busybox/sh</code></p>
+</li>
+<li>
+<p><strong>Sidecar containers</strong> with shared process namespace:
+  ```yaml
+  spec:
+    shareProcessNamespace: true
+    containers:</p>
+<ul>
+<li>name: app
+  image: myapp:distroless</li>
+<li>name: debug
+  image: nixery.dev/shell/strace/curl/htop
+  command: ["sleep", "infinity"]
+  ```</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-signal-handling">3. Signal Handling<a class="headerlink" href="#3-signal-handling" title="Permanent link">&para;</a></h3>
+<p>Distroless images use <a href="../../docker/docker-architecture/#init-process-in-containers">tini</a> (a minimal init) by default in some variants. Without an init process, PID 1 in Linux ignores <code>SIGTERM</code> and <code>SIGINT</code> unless explicitly handled. See <a href="../../docker/docker-architecture/#init-process-in-containers">Init Process in Containers</a> for how tini solves signal forwarding and zombie reaping.</p>
+<pre><code class="language-dockerfile"># Use the distroless/cc (C++ compatible) variant which includes tini
+FROM gcr.io/distroless/cc-debian12
+COPY --from=build /app /app
+CMD [&quot;/app&quot;]
+</code></pre>
+<h2 id="mitigation-strategies">Mitigation Strategies<a class="headerlink" href="#mitigation-strategies" title="Permanent link">&para;</a></h2>
+<h3 id="1-debug-variants-for-staging-only">1. Debug Variants for Staging Only<a class="headerlink" href="#1-debug-variants-for-staging-only" title="Permanent link">&para;</a></h3>
+<p>Distroless publishes debug images tagged <code>:debug</code> and <code>:nonroot-debug</code>. These add <code>busybox</code> for inspection:</p>
+<pre><code class="language-bash"># Pull the debug variant for staging
+FROM gcr.io/distroless/base-debian12:debug
+COPY --from=build /app /app
+# In production, switch to :nonroot
+</code></pre>
+<h3 id="2-static-binaries-with-minimal-distroless">2. Static Binaries with Minimal Distroless<a class="headerlink" href="#2-static-binaries-with-minimal-distroless" title="Permanent link">&para;</a></h3>
+<p>For Go, Rust, Zig, or any language producing static binaries:</p>
+<pre><code class="language-dockerfile">FROM golang:1.21 AS build
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags=&quot;-s -w&quot; -o /app .
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /app /app
+USER 65532:65532
+CMD [&quot;/app&quot;]
+</code></pre>
+<h3 id="3-nixery-for-custom-minimal-images">3. Nixery for Custom Minimal Images<a class="headerlink" href="#3-nixery-for-custom-minimal-images" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Build a custom minimal image with only the tools you need
+# docker pull nixery.dev/shell/strace/curl
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>When asked about distroless, emphasize the <strong>supply chain security</strong> angle: distroless removes the "blast radius" after a compromise. Understand the trade-off between debuggability and security. Be ready to discuss monohash-based vulnerability scanning — distroless images have so few packages that scanner false positives drop dramatically.</p>
+<p>The <a href="#distroless-vs-wolfi-vs-docker-hardened-images">Distroless vs Wolfi vs Docker Hardened Images</a> section above covers the architectural differences, CVE remediation speed, attestation models, and decision framework.</p>
+<p>For a deeper look at how layers compose into a container's filesystem, see <a href="../../docker/image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../linux-fundamentals/proc-container-isolation/" class="btn btn-neutral float-left" title="/proc and Container Isolation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../image-minimization/" class="btn btn-neutral float-right" title="Image Minimization">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../linux-fundamentals/proc-container-isolation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../image-minimization/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>SLSA Framework (Supply-chain Levels for Software Artifacts) - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "SLSA Framework (Supply-chain Levels for Software Artifacts)";
+        var mkdocs_page_input_path = "articles/supply-chain-security/slsa-framework.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-levels">The Levels</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#level-1-provenance-exists">Level 1: Provenance Exists</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-2-tamper-resistant-provenance">Level 2: Tamper-Resistant Provenance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-3-non-forgeable-provenance">Level 3: Non-Forgeable Provenance</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-4-maximum-integrity">Level 4: Maximum Integrity</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#slsa-vs-in-toto">SLSA vs. In-toto</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#verification-example">Verification Example</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-interview-questions">Common Interview Questions</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Supply Chain Security Theory</li>
+      <li class="breadcrumb-item active">SLSA Framework (Supply-chain Levels for Software Artifacts)</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/supply-chain-security/slsa-framework.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="slsa-framework-supply-chain-levels-for-software-artifacts">SLSA Framework (Supply-chain Levels for Software Artifacts)<a class="headerlink" href="#slsa-framework-supply-chain-levels-for-software-artifacts" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>SLSA (pronounced "salsa") is a security framework from OpenSSF that defines a graduated set of supply chain integrity levels. It answers one question: <strong>How much can you trust that a software artifact was built from the exact source and build instructions claimed?</strong></p>
+<p>The framework defines four levels (L1–L4), each adding stricter requirements around provenance generation, build isolation, and reproducibility. At L4, an attacker cannot produce a signed artifact without detection even if they compromise the build platform.</p>
+<h2 id="the-levels">The Levels<a class="headerlink" href="#the-levels" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>SLSA L1</th>
+<th>SLSA L2</th>
+<th>SLSA L3</th>
+<th>SLSA L4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provenance exists</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Provenance is authenticated</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Provenance is non-forgeable</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Build runs on trusted platform</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Two-person review of changes</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Hermetic, isolated build</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Reproducible build</td>
+<td>❌</td>
+<td>Optional</td>
+<td>Optional</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>No untrusted inputs</td>
+<td>❌</td>
+<td>❌</td>
+<td>❌</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>Source identity in provenance</td>
+<td>❌</td>
+<td>✅</td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<h3 id="level-1-provenance-exists">Level 1: Provenance Exists<a class="headerlink" href="#level-1-provenance-exists" title="Permanent link">&para;</a></h3>
+<p>The build process generates provenance documenting what was built and how. No authentication or tamper protection is required. This is the baseline — any CI pipeline that emits a build metadata file qualifies.</p>
+<p>Example using GitHub Actions with <code>attest-build-provenance</code>:</p>
+<pre><code class="language-yaml">jobs:
+  build:
+    steps:
+      - uses: actions/checkout@v4
+      - run: make build
+      - uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: &quot;dist/myapp.tar.gz&quot;
+</code></pre>
+<h3 id="level-2-tamper-resistant-provenance">Level 2: Tamper-Resistant Provenance<a class="headerlink" href="#level-2-tamper-resistant-provenance" title="Permanent link">&para;</a></h3>
+<p>Provenance must be <strong>signed</strong> and <strong>hosted</strong> in a location the builder controls. The build platform itself generates the signature using its own identity. This makes it detectable if someone forges provenance after the fact.</p>
+<p>Requirements:
+- Provenance is signed by the build platform (e.g., using Sigstore + OIDC)
+- Provenance includes source repository and commit hash
+- All build steps are recorded</p>
+<p>Key distinction: at L2, the build platform <strong>signs on behalf of the project</strong>. If the build platform itself is compromised, it can issue false provenance.</p>
+<h3 id="level-3-non-forgeable-provenance">Level 3: Non-Forgeable Provenance<a class="headerlink" href="#level-3-non-forgeable-provenance" title="Permanent link">&para;</a></h3>
+<p>The build platform prevents the <strong>developer</strong> — not just external attackers — from tampering with the provenance. This typically means the build platform holds the signing key and refuses to sign anything it didn't execute.</p>
+<p>Requirements:
+- Build platform is hardened (isolated VMs, ephemeral environments)
+- Provenance lists all source dependencies
+- Build is run in a trusted control plane (e.g., Google Cloud Build, GitHub Actions hosted runners with OIDC)</p>
+<p>At L3, even a malicious project maintainer cannot retroactively alter build provenance because they never hold the signing key.</p>
+<h3 id="level-4-maximum-integrity">Level 4: Maximum Integrity<a class="headerlink" href="#level-4-maximum-integrity" title="Permanent link">&para;</a></h3>
+<p>L4 adds hermetic builds, two-person review, and reproducibility. The goal: <strong>no single compromised party can produce a malicious artifact that passes verification.</strong></p>
+<p>Requirements in detail:</p>
+<p><strong>Two-person review for every change:</strong> Every source commit and every build configuration change must be reviewed by a different person than the author. In practice this means branch protection rules with <code>Require pull request reviews before merging</code> and <code>Dismiss stale reviews</code>.</p>
+<p><strong>Hermetic builds:</strong> The build must not fetch any dependencies at build time — everything is pre-declared in the provenance. Running <code>go build</code> without network access:</p>
+<pre><code class="language-bash"># Hermetic Go build — no network access
+go build -mod=vendor -trimpath -ldflags=&quot;-w -s&quot; ./...
+# GOPROXY=off ensures no remote module resolution
+GOPROXY=off go build ./...
+</code></pre>
+<p><strong>Reproducible builds:</strong> Given the same source and build instructions, two independent builders produce bit-for-bit identical output. This means a third party can independently verify the build.</p>
+<p>Go example for reproducible builds in Docker:</p>
+<pre><code class="language-dockerfile">FROM golang:1.22-alpine AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags=&quot;-w -s -buildid=&quot; -o /app
+
+FROM scratch
+COPY --from=builder /app /app
+ENTRYPOINT [&quot;/app&quot;]
+</code></pre>
+<p>The <code>-trimpath</code> and <code>-buildid=</code> flags remove non-deterministic paths and build IDs. Setting <code>CGO_ENABLED=0</code> eliminates C compiler variation.</p>
+<p><strong>No untrusted inputs:</strong> Every dependency must itself meet SLSA L4, or the dependency is explicitly enumerated and reviewed.</p>
+<h2 id="slsa-vs-in-toto">SLSA vs. In-toto<a class="headerlink" href="#slsa-vs-in-toto" title="Permanent link">&para;</a></h2>
+<p>SLSA and in-toto are complementary, not competing:</p>
+<ul>
+<li><strong>In-toto</strong> defines the <strong>attestation format</strong> (how provenance is structured and signed) and the <strong>layout</strong> (who is authorized to perform which steps in the pipeline)</li>
+<li><strong>SLSA</strong> defines the <strong>requirements</strong> (what constitutes trustworthy provenance)</li>
+</ul>
+<p>In practice: in-toto attestations carry SLSA provenance predicates. A SLSA L3+ build emits an in-toto <code>SLSAProvenanceV1</code> predicate wrapped in a DSSE envelope signed with the build platform's key. The verifier checks the predicate against SLSA requirements.</p>
+<h2 id="verification-example">Verification Example<a class="headerlink" href="#verification-example" title="Permanent link">&para;</a></h2>
+<p>Using <code>slsa-verifier</code> to check provenance:</p>
+<pre><code class="language-bash">slsa-verifier verify-artifact \
+  --provenance-path build.provenance \
+  --source-uri github.com/myorg/myapp \
+  --source-tag v1.2.3 \
+  dist/myapp.tar.gz
+</code></pre>
+<p>This checks: (1) provenance signature is valid, (2) source URI matches, (3) provenance claims the build was hermetic, (4) the digest matches the artifact.</p>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"What does SLSA L4 add over L3?" — Two-person review, hermetic builds, no untrusted inputs, reproducibility</li>
+<li>"Can an L4 build use private dependencies?" — Only if the private dependency also meets SLSA L4, or is explicitly enumerated in provenance as an expected dependency</li>
+<li>"Is SLSA a tool or a standard?" — Both. It's a specification with reference implementations (<code>slsa-github-generator</code>, <code>slsa-verifier</code>)</li>
+<li>"How does SLSA relate to in-toto?" — SLSA defines the trust requirements; in-toto defines the attestation format to meet them</li>
+<li>"What build tools support SLSA L3?" — <a href="../../docker/buildkit-internals/">BuildKit Internals</a> covers BuildKit's SLSA L3 compliance through provenance attestations and hermetic builds</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../../docker-supply-chain/" class="btn btn-neutral float-left" title="Docker Supply Chain Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../in-toto-attestations/" class="btn btn-neutral float-right" title="In-toto Attestations">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../../docker-supply-chain/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../in-toto-attestations/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Notary / Docker Content Trust - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Notary / Docker Content Trust";
+        var mkdocs_page_input_path = "articles/supply-chain-security/notary-docker-content-trust.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Notary / Docker Content Trust</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#tuf-framework">TUF Framework</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#key-hierarchy">Key Hierarchy</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#root-role">Root Role</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#targets-role">Targets Role</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#snapshot-role">Snapshot Role</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#timestamp-role">Timestamp Role</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-verification-works">How Verification Works</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-content-trust-workflow">Docker Content Trust Workflow</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#enabling-dct">Enabling DCT</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#signing-with-docker-cli">Signing with Docker CLI</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#key-management">Key Management</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#notary-server">Notary Server</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#notary-v2-improvements">Notary v2 Improvements</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#why-docker-invests-in-both-notary-and-sigstore">Why Docker Invests in Both Notary and Sigstore</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-interview-questions">Common Interview Questions</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Supply Chain Security Theory</li>
+      <li class="breadcrumb-item active">Notary / Docker Content Trust</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/supply-chain-security/notary-docker-content-trust.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="notary-docker-content-trust">Notary / Docker Content Trust<a class="headerlink" href="#notary-docker-content-trust" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Docker Content Trust (DCT) is Docker's integration of the TUF (The Update Framework) specification to sign and verify container images. Under the hood, DCT uses <strong>Notary</strong> — a TUF-compliant server and client — to manage signing keys, delegations, and metadata.</p>
+<p>Where Sigstore focuses on <strong>per-artifact attestation</strong> (signing individual builds), Notary/TUF focuses on <strong>repository integrity</strong> (ensuring you always get the latest authorized version of an image, never a stale or tampered one).</p>
+<h2 id="tuf-framework">TUF Framework<a class="headerlink" href="#tuf-framework" title="Permanent link">&para;</a></h2>
+<p>TUF is a specification for securing software update systems. It separates trust into four key roles, each with a specific responsibility and — critically — separate signing keys.</p>
+<h3 id="key-hierarchy">Key Hierarchy<a class="headerlink" href="#key-hierarchy" title="Permanent link">&para;</a></h3>
+<pre><code>┌─────────────────────────────────────────┐
+│            Root Key (offline)           │
+│  Signs: root.json, rotates all keys     │
+│  Storage: HSM, paper backup, offline    │
+└────────────┬────────────────────────────┘
+             │
+    ┌────────┴────────┐
+    v                 v
+┌──────────┐  ┌──────────────┐
+│ Targets  │  │  Snapshot     │
+│ (online) │  │  (online)     │
+└──────────┘  └──────┬───────┘
+                     v
+             ┌──────────────┐
+             │  Timestamp   │
+             │  (online)    │
+             └──────────────┘
+</code></pre>
+<h4 id="root-role">Root Role<a class="headerlink" href="#root-role" title="Permanent link">&para;</a></h4>
+<p>The root role is the ultimate trust anchor. It signs a <code>root.json</code> that contains the public keys for all other roles and specifies which keys are authorized to sign which metadata. Root key rotation replaces the entire trust chain.</p>
+<p><strong>Root key compromise requires out-of-band rotation</strong> — distributing a new root.json signed by a backup root key.</p>
+<p>In Docker Content Trust:</p>
+<pre><code class="language-bash"># Root key location (local)
+~/.docker/trust/private/root_keys/
+# Root key on Notary server
+docker trust key load root.pem
+</code></pre>
+<h4 id="targets-role">Targets Role<a class="headerlink" href="#targets-role" title="Permanent link">&para;</a></h4>
+<p>The targets role signs <code>targets.json</code>, which lists the <strong>digests</strong> and <strong>tags</strong> of authorized images. This is the role that says "the image tagged <code>latest</code> should have digest <code>sha256:abc...</code>".</p>
+<p>Delegation allows subdividing target signing. For example, the <code>releases</code> team signs production tags, while <code>ci</code> signs staging tags.</p>
+<pre><code class="language-json">{
+  &quot;signed&quot;: {
+    &quot;_type&quot;: &quot;Targets&quot;,
+    &quot;spec_version&quot;: &quot;1.0&quot;,
+    &quot;version&quot;: 2,
+    &quot;targets&quot;: {
+      &quot;myapp:latest&quot;: {
+        &quot;hashes&quot;: { &quot;sha256&quot;: &quot;abc123...&quot; },
+        &quot;length&quot;: 2048
+      }
+    },
+    &quot;delegations&quot;: {
+      &quot;roles&quot;: [
+        {
+          &quot;name&quot;: &quot;ci&quot;,
+          &quot;keyids&quot;: [&quot;...&quot;],
+          &quot;paths&quot;: [&quot;myapp:ci-*&quot;]
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<h4 id="snapshot-role">Snapshot Role<a class="headerlink" href="#snapshot-role" title="Permanent link">&para;</a></h4>
+<p>The snapshot role signs <code>snapshot.json</code>, which lists the <strong>version numbers</strong> of all current metadata files (root.json, targets.json, and any delegated targets files). This prevents mix-and-match attacks where an attacker presents an old targets.json with a new timestamp.</p>
+<h4 id="timestamp-role">Timestamp Role<a class="headerlink" href="#timestamp-role" title="Permanent link">&para;</a></h4>
+<p>The timestamp role signs <code>timestamp.json</code>, a frequently rotated (often every few hours) metadata file containing the hash and version of the current snapshot.json. This prevents <strong>replay attacks</strong> — an attacker cannot serve a very old snapshot because the timestamp rotation frequency limits the window.</p>
+<p>The timestamp key can be held by the Notary server (it is the least sensitive — if compromised, it can be rotated without affecting the other roles).</p>
+<h3 id="how-verification-works">How Verification Works<a class="headerlink" href="#how-verification-works" title="Permanent link">&para;</a></h3>
+<pre><code>Client requests &quot;myapp:latest&quot;
+  ↓
+Downloads timestamp.json (always fresh)
+  ↓ Has hash of current snapshot.json
+Downloads snapshot.json
+  ↓ Has version + hash of current targets.json
+Downloads targets.json
+  ↓ Has digest of myapp:latest
+Downloads the actual image manifest
+  ↓
+Client checks: does manifest digest match targets.json entry?
+</code></pre>
+<p>Every link in the chain is signed. An attacker cannot substitute a stale or different version at any step.</p>
+<h2 id="docker-content-trust-workflow">Docker Content Trust Workflow<a class="headerlink" href="#docker-content-trust-workflow" title="Permanent link">&para;</a></h2>
+<h3 id="enabling-dct">Enabling DCT<a class="headerlink" href="#enabling-dct" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">export DOCKER_CONTENT_TRUST=1
+
+# Now all push/pull operations check and require signatures
+docker push myorg/myapp:latest   # Must be signed
+docker pull myorg/myapp:latest   # Verifies signature
+</code></pre>
+<p>When <code>DOCKER_CONTENT_TRUST=1</code>, <code>docker push</code> automatically:</p>
+<ol>
+<li>Generates a target hash for the image manifest</li>
+<li>Signs targets metadata with the targets key</li>
+<li>Updates snapshot and timestamp metadata on the Notary server</li>
+<li>Pushes the image manifest and layers to the registry</li>
+</ol>
+<h3 id="signing-with-docker-cli">Signing with Docker CLI<a class="headerlink" href="#signing-with-docker-cli" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Generate keys and sign a repository
+docker trust sign myorg/myapp:latest
+
+# Sign with a specific key
+docker trust sign --key mykey.pem myorg/myapp:latest
+
+# Inspect trust data
+docker trust inspect myorg/myapp:latest
+
+# Revoke a signature
+docker trust revoke myorg/myapp:latest
+
+# Manage delegations
+docker trust signer add --key ci.pem ci myorg/myapp
+docker trust signer remove ci myorg/myapp
+</code></pre>
+<h3 id="key-management">Key Management<a class="headerlink" href="#key-management" title="Permanent link">&para;</a></h3>
+<p>Docker Content Trust maintains two keys per user:</p>
+<ul>
+<li><strong>Root key</strong> (<code>~/.docker/trust/private/root_keys/</code>) — the most sensitive, should be offline</li>
+<li><strong>Repository key</strong> (<code>~/.docker/trust/private/tuf_keys/</code>) — used to sign specific repositories</li>
+</ul>
+<pre><code class="language-bash"># Back up root key
+docker trust key load root.pem  # Load from backup
+</code></pre>
+<h3 id="notary-server">Notary Server<a class="headerlink" href="#notary-server" title="Permanent link">&para;</a></h3>
+<p>The Notary server stores and serves TUF metadata. Docker Hub runs a Notary server at <code>notary.docker.io</code>. Self-hosted registries can run their own:</p>
+<pre><code class="language-bash"># Run Notary server
+docker run -d -p 4443:4443 \
+  -v notary-config:/etc/notary \
+  notary:server \
+  -config=/etc/notary/config.json
+</code></pre>
+<h2 id="notary-v2-improvements">Notary v2 Improvements<a class="headerlink" href="#notary-v2-improvements" title="Permanent link">&para;</a></h2>
+<p>Notary v2 (now part of the <strong>Notary Project</strong> under CNCF) addresses limitations in the original Notary v1:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Notary v1 (DCT)</th>
+<th>Notary v2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Signature format</td>
+<td>TUF metadata only</td>
+<td>OCI artifact + TUF metadata</td>
+</tr>
+<tr>
+<td>Signatures stored</td>
+<td>Notary server side-by-side</td>
+<td>OCI registry (referrers API)</td>
+</tr>
+<tr>
+<td>Image format</td>
+<td>Docker V2 manifest</td>
+<td>OCI image spec + referrers</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>Docker CLI only</td>
+<td>Any OCI-compatible tool</td>
+</tr>
+<tr>
+<td>Attestations</td>
+<td>None</td>
+<td>Supports arbitrary attestations</td>
+</tr>
+<tr>
+<td>Performance</td>
+<td>N+1 queries per tag</td>
+<td>Single referrers API call</td>
+</tr>
+<tr>
+<td>Delegation</td>
+<td>Complex key management</td>
+<td>Simpler identity-based delegation</td>
+</tr>
+</tbody>
+</table>
+<p>Notary v2 stores signatures and attestations as OCI artifacts using the <strong>referrers API</strong>, so they live in the same registry as the image, not in a separate Notary server. This eliminates the Notary server as a single point of failure and simplifies deployment.</p>
+<h2 id="why-docker-invests-in-both-notary-and-sigstore">Why Docker Invests in Both Notary and Sigstore<a class="headerlink" href="#why-docker-invests-in-both-notary-and-sigstore" title="Permanent link">&para;</a></h2>
+<p>This is a common interview question. The two projects solve complementary problems:</p>
+<table>
+<thead>
+<tr>
+<th>Notary / TUF</th>
+<th>Sigstore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Repository integrity</strong> — always get the latest authorized version</td>
+<td><strong>Artifact attestation</strong> — prove who built an artifact</td>
+</tr>
+<tr>
+<td>Prevents replay, mix-and-match, freeze attacks</td>
+<td>Prevents provenance forgery</td>
+</tr>
+<tr>
+<td>Key hierarchy with delegation</td>
+<td>Ephemeral keys with OIDC binding</td>
+</tr>
+<tr>
+<td>Long-lived offline root keys</td>
+<td>No long-lived keys at all</td>
+</tr>
+<tr>
+<td>Role-based (delegations for teams)</td>
+<td>Identity-based (OIDC email/subject)</td>
+</tr>
+<tr>
+<td>Focus on <strong>update freshness</strong></td>
+<td>Focus on <strong>build integrity</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A complete supply chain security strategy uses both:</p>
+<ol>
+<li><strong>Sigstore</strong> to attest that an artifact was built by a specific CI pipeline from known source (SLSA provenance)</li>
+<li><strong>Notary/TUF</strong> to ensure consumers always pull the latest signed version, preventing rollback attacks and providing delegation for multi-team publishing</li>
+</ol>
+<p>Docker's strategy: Notary secures the <strong>registry-to-consumer</strong> channel (you always get the right image), while Sigstore (via cosign) secures the <strong>builder-to-registry</strong> channel (the image was built correctly). Both are needed.</p>
+<h2 id="common-interview-questions">Common Interview Questions<a class="headerlink" href="#common-interview-questions" title="Permanent link">&para;</a></h2>
+<ul>
+<li>"How does TUF prevent replay attacks?" — The timestamp role rotates frequently; the timestamp key signs the current snapshot hash. An attacker cannot replay old metadata because the timestamp is too old</li>
+<li>"What does Docker Content Trust add over plain image signing?" — Repository integrity: freshness guarantees, delegation, multi-key management. Plain signing just says "someone signed this"; DCT says "the current authorized version is this"</li>
+<li>"Can you use cosign and DCT together?" — Yes. Cosign attaches in-toto attestations for build provenance; DCT manages tag-to-digest mappings and freshness. They operate at different layers</li>
+<li>"Is Notary v2 a replacement for Sigstore?" — No. Notary v2 handles repository-level trust (freshness, delegation); Sigstore handles per-artifact attestation (provenance, scan results). They are complementary</li>
+<li>"What happens if the Notary server is compromised?" — Root key is offline, so attacker cannot sign new targets. They can serve stale metadata (replay), but timestamp rotation limits the window. In Notary v2, signatures are stored in the OCI registry, eliminating the Notary server as a target</li>
+</ul>
+<p>For a detailed walkthrough of the image build pipeline and where signing fits into the workflow, see <a href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../trusted-builds/" class="btn btn-neutral float-left" title="Trusted Builds"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../linux-fundamentals/musl-vs-glibc/" class="btn btn-neutral float-right" title="musl vs glibc: Choosing a C Standard Library for Containers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../trusted-builds/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../linux-fundamentals/musl-vs-glibc/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

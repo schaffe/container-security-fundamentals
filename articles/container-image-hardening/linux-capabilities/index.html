@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Linux Capabilities in Containers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Linux Capabilities in Containers";
+        var mkdocs_page_input_path = "articles/container-image-hardening/linux-capabilities.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Linux Capabilities in Containers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-linux-capability-model">The Linux Capability Model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#-cap-dropall-cap-add-pattern">--cap-drop=ALL --cap-add Pattern</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#default-docker-capabilities">Default Docker Capabilities</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#capability-deep-dive">Capability Deep Dive</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#chown">CHOWN</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#net_bind_service">NET_BIND_SERVICE</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sys_admin">SYS_ADMIN</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sys_ptrace">SYS_PTRACE</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sys_module">SYS_MODULE</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#net_admin">NET_ADMIN</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cap_net_raw">CAP_NET_RAW</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ambient-capabilities-for-non-root">Ambient Capabilities for Non-root</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#go-implementation-of-capability-handling">Go Implementation of Capability Handling</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#k8s-securitycontext-capability-fields">K8s SecurityContext Capability Fields</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tool-capsh-for-testing-capabilities">Tool: capsh for Testing Capabilities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#auditing-capabilities-with-tini">Auditing Capabilities with tini</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-capability-mappings-by-application">Common Capability Mappings by Application</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-a-minimal-capability-baseline">Creating a Minimal Capability Baseline</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">Linux Capabilities in Containers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/linux-capabilities.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="linux-capabilities-in-containers">Linux Capabilities in Containers<a class="headerlink" href="#linux-capabilities-in-containers" title="Permanent link">&para;</a></h1>
+<p>Linux capabilities break the binary "root vs non-root" model into fine-grained privileges. Each capability grants a specific permission (e.g., binding to a privileged port, changing file ownership, loading kernel modules). Containers use capabilities to grant processes elevated privileges without giving full root access.</p>
+<h2 id="the-linux-capability-model">The Linux Capability Model<a class="headerlink" href="#the-linux-capability-model" title="Permanent link">&para;</a></h2>
+<p>In traditional Unix, the <code>setuid</code> bit and UID 0 determine privilege. Capabilities divide root's power into ~40 distinct units. Each process has five capability sets:</p>
+<ol>
+<li><strong>Effective (CapEff)</strong>: The currently active capabilities</li>
+<li><strong>Permitted (CapPrm)</strong>: Capabilities the process can use (superset of effective)</li>
+<li><strong>Inheritable (CapInh)</strong>: Capabilities preserved across <code>execve()</code></li>
+<li><strong>Bounding (CapBnd)</strong>: Capabilities a process can ever obtain</li>
+<li><strong>Ambient (CapAmb)</strong>: Capabilities preserved across <code>execve()</code> for non-root processes (Linux 4.3+)</li>
+</ol>
+<pre><code>Effective ⊆ Permitted ⊆ Bounding
+Inheritable ⊆ Bounding
+Ambient ⊆ (Permitted ∩ Inheritable)
+</code></pre>
+<h2 id="-cap-dropall-cap-add-pattern">--cap-drop=ALL --cap-add Pattern<a class="headerlink" href="#-cap-dropall-cap-add-pattern" title="Permanent link">&para;</a></h2>
+<p>The Docker security best practice is to drop all capabilities and add back only what's needed:</p>
+<pre><code class="language-bash">docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
+</code></pre>
+<pre><code class="language-yaml"># Kubernetes equivalent
+securityContext:
+  capabilities:
+    drop: [&quot;ALL&quot;]
+    add: [&quot;NET_BIND_SERVICE&quot;]
+</code></pre>
+<h3 id="default-docker-capabilities">Default Docker Capabilities<a class="headerlink" href="#default-docker-capabilities" title="Permanent link">&para;</a></h3>
+<p>By default, Docker containers receive these capabilities (this is the <code>--cap-default</code> set):</p>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CHOWN</strong></td>
+<td>Change file ownership</td>
+</tr>
+<tr>
+<td><strong>DAC_OVERRIDE</strong></td>
+<td>Bypass file permission checks</td>
+</tr>
+<tr>
+<td><strong>FOWNER</strong></td>
+<td>Bypass ownership checks on file operations</td>
+</tr>
+<tr>
+<td><strong>FSETID</strong></td>
+<td>Don't clear setuid/setgid on mode changes</td>
+</tr>
+<tr>
+<td><strong>KILL</strong></td>
+<td>Bypass permission checks for sending signals</td>
+</tr>
+<tr>
+<td><strong>NET_BIND_SERVICE</strong></td>
+<td>Bind to ports &lt; 1024</td>
+</tr>
+<tr>
+<td><strong>NET_RAW</strong></td>
+<td>Use raw and packet sockets</td>
+</tr>
+<tr>
+<td><strong>SETGID</strong></td>
+<td>Change GID</td>
+</tr>
+<tr>
+<td><strong>SETUID</strong></td>
+<td>Change UID</td>
+</tr>
+<tr>
+<td><strong>SETPCAP</strong></td>
+<td>Set process capabilities</td>
+</tr>
+<tr>
+<td><strong>SYS_CHROOT</strong></td>
+<td>Use <a href="../../docker/docker-architecture/#chroot-and-pivot_root">chroot()</a></td>
+</tr>
+<tr>
+<td><strong>MKNOD</strong></td>
+<td>Create device nodes</td>
+</tr>
+<tr>
+<td><strong>AUDIT_WRITE</strong></td>
+<td>Write to kernel audit log</td>
+</tr>
+<tr>
+<td><strong>SETFCAP</strong></td>
+<td>Set file capabilities</td>
+</tr>
+</tbody>
+</table>
+<p>A root container running with default capabilities has significantly more power than necessary. <code>--cap-drop=ALL</code> removes all 14, forcing explicit capability grants.</p>
+<h2 id="capability-deep-dive">Capability Deep Dive<a class="headerlink" href="#capability-deep-dive" title="Permanent link">&para;</a></h2>
+<h3 id="chown">CHOWN<a class="headerlink" href="#chown" title="Permanent link">&para;</a></h3>
+<p>Allows <code>chown()</code> system call. Without it, files created by root in the container remain owned by root, which can be a problem for shared volumes.</p>
+<pre><code class="language-yaml">securityContext:
+  capabilities:
+    drop: [&quot;ALL&quot;]
+    add: [&quot;CHOWN&quot;]  # Needed if app needs to change file ownership
+</code></pre>
+<h3 id="net_bind_service">NET_BIND_SERVICE<a class="headerlink" href="#net_bind_service" title="Permanent link">&para;</a></h3>
+<p>The most commonly added capability. Allows binding to ports below 1024 as non-root.</p>
+<pre><code class="language-bash">docker run --cap-drop=ALL --cap-add=NET_BIND_SERVICE -p 80:80 myapp
+</code></pre>
+<h3 id="sys_admin">SYS_ADMIN<a class="headerlink" href="#sys_admin" title="Permanent link">&para;</a></h3>
+<p>The most dangerous capability — it's essentially root. This capability enables:
+- <code>mount()</code> and <code>umount()</code>
+- <code>swapon()</code>
+- <code>setdomainname()</code>
+- Access to performance monitoring
+- <code>pivot_root()</code>
+- <code>nsenter()</code> (namespace manipulation)</p>
+<p><strong>Never grant SYS_ADMIN in production</strong>. If an application needs it, find a different architecture.</p>
+<h3 id="sys_ptrace">SYS_PTRACE<a class="headerlink" href="#sys_ptrace" title="Permanent link">&para;</a></h3>
+<p>Allows <a href="../seccomp/#ptrace">ptrace()</a> system call — the ability to trace and debug
+any process:</p>
+<pre><code class="language-dockerfile"># Needed for strace, perf, or debug containers
+docker run --cap-add=SYS_PTRACE debugger
+</code></pre>
+<p>In production, leave this dropped.</p>
+<h3 id="sys_module">SYS_MODULE<a class="headerlink" href="#sys_module" title="Permanent link">&para;</a></h3>
+<p>Allows <code>init_module()</code> and <code>delete_module()</code> — loading kernel modules. If compromised, an attacker can load a malicious kernel module to escape the container.</p>
+<h3 id="net_admin">NET_ADMIN<a class="headerlink" href="#net_admin" title="Permanent link">&para;</a></h3>
+<p>Allows network administration: <code>iptables</code>, <code>ip link</code>, routing table modification, socket debugging.</p>
+<h3 id="cap_net_raw">CAP_NET_RAW<a class="headerlink" href="#cap_net_raw" title="Permanent link">&para;</a></h3>
+<p>Allows creation of raw sockets (<code>SOCK_RAW</code>). Tools like <code>ping</code> and <code>traceroute</code> require this. Also required for ICMP traffic.</p>
+<h2 id="ambient-capabilities-for-non-root">Ambient Capabilities for Non-root<a class="headerlink" href="#ambient-capabilities-for-non-root" title="Permanent link">&para;</a></h2>
+<p>Before Linux 4.3, capabilities were effectively useless for non-root processes because <code>execve()</code> would drop all capabilities when changing to a non-root user. Ambient capabilities (Linux 4.3+) fix this:</p>
+<pre><code class="language-bash">docker run --user 10001 --cap-drop=ALL --cap-add=NET_BIND_SERVICE --cap-add=NET_RAW myapp
+</code></pre>
+<p>Without ambient capabilities, the above command would break — the capability would be in Permitted but not Effective after <code>execve()</code>. Docker handles ambient capabilities automatically when using <code>--user</code> with <code>--cap-add</code>.</p>
+<h3 id="go-implementation-of-capability-handling">Go Implementation of Capability Handling<a class="headerlink" href="#go-implementation-of-capability-handling" title="Permanent link">&para;</a></h3>
+<pre><code class="language-go">package main
+
+import (
+    &quot;golang.org/x/sys/unix&quot;
+    &quot;log&quot;
+)
+
+func main() {
+    // Check and apply capabilities at runtime
+    header, err := unix.CapGet(0, nil)
+    if err != nil {
+        log.Fatalf(&quot;CapGet: %v&quot;, err)
+    }
+
+    caps := make([]unix.Cap, header.Caps)
+    _, err = unix.CapGet(0, &amp;caps)
+    if err != nil {
+        log.Fatalf(&quot;CapGet data: %v&quot;, err)
+    }
+
+    // If we have NET_BIND_SERVICE, bind to port 80
+    for _, cap := range caps {
+        if cap == unix.CAP_NET_BIND_SERVICE {
+            // Bind to port 80
+        }
+    }
+}
+</code></pre>
+<h2 id="k8s-securitycontext-capability-fields">K8s SecurityContext Capability Fields<a class="headerlink" href="#k8s-securitycontext-capability-fields" title="Permanent link">&para;</a></h2>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: capability-demo
+spec:
+  containers:
+  - name: app
+    image: nginx:alpine
+    securityContext:
+      capabilities:
+        # Start with nothing, add exactly what's needed
+        drop: [&quot;ALL&quot;]
+        add:
+        - NET_BIND_SERVICE   # Bind to port 80
+        - CHOWN              # Change nginx log ownership
+        - SETGID             # nginx worker processes change GID
+        - SETUID             # nginx worker processes change UID
+        - DAC_OVERRIDE       # nginx writes to log directory
+      # Prevent privilege escalation via setuid binaries
+      allowPrivilegeEscalation: false
+      runAsNonRoot: true
+      runAsUser: 101
+</code></pre>
+<h3 id="tool-capsh-for-testing-capabilities">Tool: capsh for Testing Capabilities<a class="headerlink" href="#tool-capsh-for-testing-capabilities" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Test what capabilities a container command needs
+docker run --rm --cap-drop=ALL alpine sh -c &quot;apk add -q libcap &amp;&amp; capsh --print&quot;
+
+# Run a binary and see if it fails due to missing capabilities
+docker run --rm --cap-drop=ALL myapp
+# If it fails, add capabilities incrementally:
+docker run --rm --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp  # try 1
+docker run --rm --cap-drop=ALL --cap-add=NET_RAW myapp           # try 2
+</code></pre>
+<h3 id="auditing-capabilities-with-tini">Auditing Capabilities with tini<a class="headerlink" href="#auditing-capabilities-with-tini" title="Permanent link">&para;</a></h3>
+<p>A minimal init (<a href="../../docker/docker-architecture/#init-process-in-containers">tini</a>) solves a practical problem when locking down capabilities: <strong>the application must handle signals correctly</strong> after you drop capabilities. Without tini, the application runs as PID 1 and Linux PID 1 ignores <code>SIGTERM</code>/<code>SIGINT</code> unless the app explicitly handles them. With <code>--cap-drop=ALL</code>, the app has no privileges to work around this — it either handles signals or gets <code>SIGKILL</code> after the 10s timeout.</p>
+<pre><code class="language-bash"># Tini as entrypoint + minimal capabilities = best practice
+docker run --init --cap-drop=ALL --cap-add=NET_BIND_SERVICE myapp
+</code></pre>
+<p><strong>Why this works with no capabilities</strong>: tini uses <code>kill()</code> within the same PID namespace and <code>waitpid()</code> — neither requires any privileges. <code>CAP_KILL</code> is only needed for crossing namespace boundaries. Tini forwards signals to its child process group using <code>kill(-pgid, sig)</code>, which is a standard unprivileged operation. This means you can pair the most restrictive capability set (<code>--cap-drop=ALL</code>) with proper init behavior.</p>
+<p>Without <code>--init</code>, the application as PID 1 must be trusted to:
+- Install a <code>SIGTERM</code> handler for graceful shutdown
+- <code>waitpid()</code> any orphaned children to prevent zombie accumulation</p>
+<p>With <code>--init</code>, tini handles both, decoupling init behavior from the application code — critical when you've dropped all capabilities and can't rely on workarounds.</p>
+<p>See <a href="../../docker/docker-architecture/#init-process-in-containers">Init Process in Containers</a> for detailed mechanics of tini, dumb-init, and when an init process is unnecessary.</p>
+<h2 id="common-capability-mappings-by-application">Common Capability Mappings by Application<a class="headerlink" href="#common-capability-mappings-by-application" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Application</th>
+<th>Required Capabilities</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>nginx</strong> (port 80)</td>
+<td><code>NET_BIND_SERVICE</code>, <code>CHOWN</code>, <code>SETGID</code>, <code>SETUID</code>, <code>DAC_OVERRIDE</code></td>
+</tr>
+<tr>
+<td><strong>nginx</strong> (port 8080)</td>
+<td><code>CHOWN</code>, <code>SETGID</code>, <code>SETUID</code>, <code>DAC_OVERRIDE</code></td>
+</tr>
+<tr>
+<td><strong>PostgreSQL</strong></td>
+<td><code>CHOWN</code>, <code>SETGID</code>, <code>SETUID</code>, <code>DAC_OVERRIDE</code>, <code>SYS_CHROOT</code></td>
+</tr>
+<tr>
+<td><strong>Redis</strong></td>
+<td><code>SETGID</code>, <code>SETUID</code></td>
+</tr>
+<tr>
+<td><strong>Node.js/Python/Go</strong> app</td>
+<td>(none with --cap-drop=ALL if port &gt;= 1024)</td>
+</tr>
+<tr>
+<td><strong>Prometheus</strong></td>
+<td>(none)</td>
+</tr>
+<tr>
+<td><strong>Envoy/HAProxy</strong> (port &lt; 1024)</td>
+<td><code>NET_BIND_SERVICE</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="creating-a-minimal-capability-baseline">Creating a Minimal Capability Baseline<a class="headerlink" href="#creating-a-minimal-capability-baseline" title="Permanent link">&para;</a></h2>
+<pre><code class="language-dockerfile">FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=build /app /app
+USER 65532:65532
+
+# Do NOT declare K8s capabilities in Dockerfile — it's an orchestration concern
+CMD [&quot;/app&quot;]
+</code></pre>
+<pre><code class="language-yaml"># k8s-deployment.yaml
+securityContext:
+  runAsNonRoot: true
+  capabilities:
+    drop: [&quot;ALL&quot;]
+    # No add — this Go app binds to :8080 (non-privileged)
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Discuss the <strong>principle of least privilege</strong> for containers. Be ready to explain why <code>--cap-drop=ALL --cap-add=NET_BIND_SERVICE</code> is safer than just not dropping capabilities. Understand the difference between capabilities and seccomp — capabilities control "what you are allowed to do" while seccomp controls "what system calls you can make." Know that capabilities don't help if the kernel itself has a vulnerability (they gate access to privileged operations, not the kernel code that implements them). For more on how the Docker engine manages capability sets, see <a href="../../docker/docker-architecture/">Docker Architecture</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../non-root-execution/" class="btn btn-neutral float-left" title="Non-root Execution"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../seccomp/" class="btn btn-neutral float-right" title="Seccomp Profiles for Containers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../non-root-execution/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../seccomp/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

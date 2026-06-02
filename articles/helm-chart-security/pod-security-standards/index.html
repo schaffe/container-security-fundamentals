@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Pod Security Standards (PSS) - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Pod Security Standards (PSS)";
+        var mkdocs_page_input_path = "articles/helm-chart-security/pod-security-standards.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Pod Security Standards (PSS)</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-three-policy-levels">The Three Policy Levels</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#privileged">Privileged</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#baseline">Baseline</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#restricted">Restricted</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pod-security-admission-psa">Pod Security Admission (PSA)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#modes">Modes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#namespace-label-schema">Namespace Label Schema</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#versioning">Versioning</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#exemptions">Exemptions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#migration-guide-psp-to-pss">Migration Guide: PSP to PSS</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-audit-current-permissions">Step 1: Audit Current Permissions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-identify-in-use-psps">Step 2: Identify In-Use PSPs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-enable-psa-with-audit-only">Step 3: Enable PSA with Audit-Only</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-4-fix-violations">Step 4: Fix Violations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-5-gate-with-exemptions">Step 5: Gate with Exemptions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-6-remove-psps">Step 6: Remove PSPs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#psa-in-helm">PSA in Helm</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-deep-dive">Interview Deep Dive</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Helm Chart Security</li>
+      <li class="breadcrumb-item active">Pod Security Standards (PSS)</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/helm-chart-security/pod-security-standards.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pod-security-standards-pss">Pod Security Standards (PSS)<a class="headerlink" href="#pod-security-standards-pss" title="Permanent link">&para;</a></h1>
+<p>Pod Security Standards (PSS) define three policy levels that restrict pod behavior based on security best practices. They replaced PodSecurityPolicy (PSP), which was deprecated in K8s 1.21 and removed in 1.25. PSS is enforced via Pod Security Admission (PSA), a built-in admission controller.</p>
+<h2 id="the-three-policy-levels">The Three Policy Levels<a class="headerlink" href="#the-three-policy-levels" title="Permanent link">&para;</a></h2>
+<h3 id="privileged">Privileged<a class="headerlink" href="#privileged" title="Permanent link">&para;</a></h3>
+<p>Unrestricted. Allows everything. Intended for system-level and infrastructure workloads (e.g., cluster CNI daemonsets, storage drivers, monitoring agents).</p>
+<p><strong>What it allows:</strong>
+- Privileged containers
+- All capabilities
+- Host network, PID, IPC
+- Host port ranges
+- HostPath volumes
+- Running as root
+- SELinux custom options
+- Any seccomp profile</p>
+<h3 id="baseline">Baseline<a class="headerlink" href="#baseline" title="Permanent link">&para;</a></h3>
+<p>Prevents known privilege escalations. Intended for general-purpose workloads that don't require special privileges.</p>
+<p><strong>What it blocks:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Restriction</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>privileged: true</code></td>
+<td>Privileged containers disallowed</td>
+</tr>
+<tr>
+<td>Host namespaces</td>
+<td><code>hostPID</code>, <code>hostIPC</code>, <code>hostNetwork</code> disallowed</td>
+</tr>
+<tr>
+<td>Host ports</td>
+<td>Most host port ranges blocked (exceptions below)</td>
+</tr>
+<tr>
+<td>Linux capabilities</td>
+<td><code>add</code> capability list restricted; <code>drop</code> is fine</td>
+</tr>
+<tr>
+<td><code>seccomp</code></td>
+<td>Must be set; type <code>Unconfined</code> is allowed</td>
+</tr>
+<tr>
+<td><code>SYS_ADMIN</code> capability</td>
+<td>Blocked</td>
+</tr>
+<tr>
+<td>HostPath volumes</td>
+<td>Disallowed</td>
+</tr>
+<tr>
+<td>AppArmor</td>
+<td>Must be <code>runtime/default</code> or local</td>
+</tr>
+<tr>
+<td>SELinux <code>type</code></td>
+<td>Must be unset or <code>container_t</code></td>
+</tr>
+<tr>
+<td><a href="../../linux-fundamentals/proc-container-isolation/#procmount-in-kubernetes"><code>/proc</code> mount type</a></td>
+<td>Must be <code>DefaultProcMount</code></td>
+</tr>
+<tr>
+<td>Sysctls</td>
+<td>Only <code>net.ipv4.ip_local_port_range</code>, <code>net.ipv4.ping_group_range</code>, and <code>net.ipv4.ip_unprivileged_port_start</code> allowed</td>
+</tr>
+<tr>
+<td>Windows HostProcess</td>
+<td>Disallowed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Allowable host ports:</strong> Ports 1024 and above on hostNetwork are generally allowed under Baseline; exact behavior depends on implementation nuances.</p>
+<h3 id="restricted">Restricted<a class="headerlink" href="#restricted" title="Permanent link">&para;</a></h3>
+<p>Hardened for security-critical workloads. Meets Pod Security Standards toughest requirements.</p>
+<p><strong>Inherits all Baseline restrictions, plus:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Restriction</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runAsNonRoot: true</code></td>
+<td>Must be set; image must not run as root</td>
+</tr>
+<tr>
+<td><code>runAsUser</code></td>
+<td>Must not be 0 (root). Must specify a range (not <code>RunAsAny</code>)</td>
+</tr>
+<tr>
+<td><code>seccomp</code></td>
+<td>Must be <code>RuntimeDefault</code> or <code>Localhost</code></td>
+</tr>
+<tr>
+<td><code>capabilities.drop</code></td>
+<td>Must drop <code>ALL</code></td>
+</tr>
+<tr>
+<td><code>allowPrivilegeEscalation</code></td>
+<td>Must be <code>false</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="pod-security-admission-psa">Pod Security Admission (PSA)<a class="headerlink" href="#pod-security-admission-psa" title="Permanent link">&para;</a></h2>
+<p>PSA is a built-in admission controller (enabled by default in K8s 1.23+, GA in 1.25). It evaluates pods against the three PSS levels using <strong>labels on namespaces</strong>.</p>
+<h3 id="modes">Modes<a class="headerlink" href="#modes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>enforce</strong></td>
+<td>Rejects pod creation that violates the policy</td>
+</tr>
+<tr>
+<td><strong>audit</strong></td>
+<td>Allows the pod but logs a violation in audit records</td>
+</tr>
+<tr>
+<td><strong>warn</strong></td>
+<td>Allows the pod but returns a warning to the API user</td>
+</tr>
+</tbody>
+</table>
+<h3 id="namespace-label-schema">Namespace Label Schema<a class="headerlink" href="#namespace-label-schema" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/audit: baseline
+    pod-security.kubernetes.io/warn: restricted
+</code></pre>
+<p>The <code>enforce</code>, <code>audit</code>, and <code>warn</code> labels can differ for the same namespace, enabling a gradual rollout:</p>
+<ol>
+<li>Start with <code>warn</code> to surface violations.</li>
+<li>Move to <code>audit</code> to log without impact.</li>
+<li>Graduate to <code>enforce</code> once all workloads are compliant.</li>
+</ol>
+<h3 id="versioning">Versioning<a class="headerlink" href="#versioning" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">labels:
+  pod-security.kubernetes.io/enforce-version: v1.28
+</code></pre>
+<p>Pins the policy checks to a specific K8s version's standard, preventing new checks from breaking existing workloads on upgrade.</p>
+<h3 id="exemptions">Exemptions<a class="headerlink" href="#exemptions" title="Permanent link">&para;</a></h3>
+<p>Namespaces can be exempted via kube-apiserver flags:</p>
+<pre><code class="language-yaml">--pod-security-admission-config-file=/etc/kubernetes/pss-config.yaml
+</code></pre>
+<p>The config file specifies exempt namespaces, runtimes, and users.</p>
+<pre><code class="language-yaml">apiVersion: apiserver.config.k8s.io/v1
+kind: AdmissionConfiguration
+plugins:
+  - name: PodSecurity
+    configuration:
+      exemptions:
+        namespaces: [&quot;kube-system&quot;, &quot;gatekeeper-system&quot;]
+        runtimes: [&quot;gvisor&quot;, &quot;kata&quot;]
+</code></pre>
+<h2 id="migration-guide-psp-to-pss">Migration Guide: PSP to PSS<a class="headerlink" href="#migration-guide-psp-to-pss" title="Permanent link">&para;</a></h2>
+<h3 id="step-1-audit-current-permissions">Step 1: Audit Current Permissions<a class="headerlink" href="#step-1-audit-current-permissions" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># What PSPs exist already
+kubectl get psp --all-namespaces
+
+# Who uses them
+kubectl get rolebinding,clusterrolebinding --all-namespaces -o json \
+  | jq '.items[] | select(.roleRef.name | startswith(&quot;psp:&quot;))'
+</code></pre>
+<h3 id="step-2-identify-in-use-psps">Step 2: Identify In-Use PSPs<a class="headerlink" href="#step-2-identify-in-use-psps" title="Permanent link">&para;</a></h3>
+<p>PodSecurityPolicies use <code>privileged</code>, <code>baseline</code>, and <code>restricted</code> tiers internally. Map each PSP:</p>
+<table>
+<thead>
+<tr>
+<th>PSP</th>
+<th>PSS Equivalent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>privileged</code></td>
+<td><code>privileged</code></td>
+</tr>
+<tr>
+<td><code>nonroot</code></td>
+<td><code>restricted</code></td>
+</tr>
+<tr>
+<td><code>restricted</code></td>
+<td><code>restricted</code></td>
+</tr>
+<tr>
+<td><code>baseline</code></td>
+<td><code>baseline</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-3-enable-psa-with-audit-only">Step 3: Enable PSA with Audit-Only<a class="headerlink" href="#step-3-enable-psa-with-audit-only" title="Permanent link">&para;</a></h3>
+<p>Label all namespaces with the appropriate PSS level in <code>audit</code> and <code>warn</code> mode first:</p>
+<pre><code class="language-bash">for ns in $(kubectl get ns -o name | cut -d/ -f2); do
+  kubectl label ns &quot;$ns&quot; \
+    pod-security.kubernetes.io/audit=restricted \
+    pod-security.kubernetes.io/warn=restricted \
+    --overwrite
+done
+</code></pre>
+<h3 id="step-4-fix-violations">Step 4: Fix Violations<a class="headerlink" href="#step-4-fix-violations" title="Permanent link">&para;</a></h3>
+<p>Check violations:</p>
+<pre><code class="language-bash">kubectl get events -A --field-selector reason=FailedCreate \
+  | grep &quot;violates PodSecurity&quot;
+</code></pre>
+<p>Common fixes:
+- Drop unused capabilities
+- Set <code>runAsNonRoot: true</code>
+- Remove <code>privileged: true</code> (use individual capabilities instead)
+- Replace <code>hostNetwork</code> with proper network policies
+- Set <code>seccompProfile: RuntimeDefault</code></p>
+<h3 id="step-5-gate-with-exemptions">Step 5: Gate with Exemptions<a class="headerlink" href="#step-5-gate-with-exemptions" title="Permanent link">&para;</a></h3>
+<p>Switch to <code>enforce</code> mode, keeping exemptions for system namespaces:</p>
+<pre><code class="language-bash">kubectl label ns production \
+  pod-security.kubernetes.io/enforce=restricted \
+  pod-security.kubernetes.io/enforce-version=v1.28
+</code></pre>
+<h3 id="step-6-remove-psps">Step 6: Remove PSPs<a class="headerlink" href="#step-6-remove-psps" title="Permanent link">&para;</a></h3>
+<p>Once migration is complete:</p>
+<pre><code class="language-bash">kubectl delete psp --all
+</code></pre>
+<h2 id="psa-in-helm">PSA in Helm<a class="headerlink" href="#psa-in-helm" title="Permanent link">&para;</a></h2>
+<p>To make charts PSS-compatible, conditionally render security contexts:</p>
+<pre><code class="language-yaml"># In values.yaml
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  fsGroup: 2000
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: [&quot;ALL&quot;]
+</code></pre>
+<pre><code class="language-yaml"># In deployment template
+spec:
+  securityContext:
+    {{- toYaml .Values.podSecurityContext | nindent 4 }}
+  containers:
+    - name: {{ .Chart.Name }}
+      securityContext:
+        {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+</code></pre>
+<h2 id="interview-deep-dive">Interview Deep Dive<a class="headerlink" href="#interview-deep-dive" title="Permanent link">&para;</a></h2>
+<p><strong>Q:</strong> Why was PSP removed?</p>
+<p><strong>A:</strong> PSP had fundamental design issues: it was a single <code>ClusterRole</code> resource with mutate-on-create semantics that made it impossible to audit without webhook tooling. The CRD validation was incomplete, and the API never graduated from beta. PSS+PSA replaced it with a simpler label-based approach that integrates with the built-in admission controller.</p>
+<p><strong>Q:</strong> Can you use both PSP and PSA during migration?</p>
+<p><strong>A:</strong> Yes. PSP and PSA can run in parallel. PSA evaluates independently of PSP. During migration, run PSA in <code>audit</code>/<code>warn</code> mode while PSPs still enforce. This avoids enforcement gaps.</p>
+<p><strong>Q:</strong> What about <code>ephemeralContainers</code> and <code>initContainers</code>?</p>
+<p><strong>A:</strong> PSA evaluates both <code>initContainers</code> and <code>ephemeralContainers</code> under the same policy. Init containers are checked at pod creation; ephemeral containers are checked at attach time. Both must satisfy the namespace's PSS level.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../securitycontext-vs-podsecuritycontext/" class="btn btn-neutral float-left" title="SecurityContext vs PodSecurityContext in Kubernetes"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../adapting-upstream-helm-charts/" class="btn btn-neutral float-right" title="Adapting Upstream Helm Charts for Hardened Environments">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../securitycontext-vs-podsecuritycontext/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../adapting-upstream-helm-charts/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Image Layers & Storage Drivers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Image Layers \u0026 Storage Drivers";
+        var mkdocs_page_input_path = "articles/docker/image-layers-storage-drivers.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Image Layers & Storage Drivers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#layer-concept">Layer Concept</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#layer-graph">Layer Graph</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#layer-sharing">Layer Sharing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#overlayfs-theory">OverlayFS Theory</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#reads">Reads</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#writes">Writes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#deletes">Deletes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#overlayfs-in-docker">OverlayFS in Docker</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#copy-on-write">Copy-on-Write</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#container-layer-lifecycle">Container Layer Lifecycle</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#storage-drivers">Storage Drivers</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#overlay2-default-since-docker-1809">overlay2 (default since Docker 18.09+)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fuse-overlayfs-rootless-mode">fuse-overlayfs (rootless mode)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#aufs-deprecated">aufs (deprecated)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#devicemapper-deprecated">devicemapper (deprecated)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#overlay-deprecated">overlay (deprecated)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vfs-debug-only">vfs (debug only)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#why-overlay2-wins">Why overlay2 Wins</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#garbage-collection">Garbage Collection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-image-prune">docker image prune</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-builder-prune">docker builder prune</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-system-prune">docker system prune</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#buildkit-gc">BuildKit GC</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-save-docker-load">docker save / docker load</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-save">docker save</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-load">docker load</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#exporting-individual-layers">Exporting Individual Layers</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cross-references">Cross-References</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Docker</li>
+      <li class="breadcrumb-item active">Image Layers & Storage Drivers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/docker/image-layers-storage-drivers.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="image-layers-storage-drivers">Image Layers &amp; Storage Drivers<a class="headerlink" href="#image-layers-storage-drivers" title="Permanent link">&para;</a></h1>
+<p>Container images are not monolithic blobs. Every <code>docker build</code> produces a stack of layers, each
+representing a filesystem delta. When a container starts, Docker stacks these layers into a unified
+view using a storage driver — typically overlay2. Understanding the layer model and how storage
+drivers compose layers into a writable filesystem is essential for debugging image size, optimizing
+Dockerfiles, troubleshooting disk usage, and diagnosing runtime filesystem behaviour.</p>
+<hr />
+<h2 id="layer-concept">Layer Concept<a class="headerlink" href="#layer-concept" title="Permanent link">&para;</a></h2>
+<p>Every Dockerfile instruction that modifies the filesystem creates a <strong>layer</strong>. Instructions that
+only set metadata — <code>ENV</code>, <code>WORKDIR</code>, <code>USER</code>, <code>VOLUME</code>, <code>EXPOSE</code>, <code>CMD</code>, <code>ENTRYPOINT</code>, <code>LABEL</code>,
+<code>SHELL</code>, <code>MAINTAINER</code>, <code>ARG</code> — do not create layers. They update the image configuration JSON but
+produce no filesystem delta.</p>
+<p>A <strong>layer</strong> is a tar archive containing the files added, modified, or deleted by a single
+instruction. Layers are stacked: applying layer N on top of layer N-1 produces the filesystem state
+after instruction N.</p>
+<pre><code class="language-bash">$ docker history --no-trunc ubuntu:22.04
+IMAGE          CREATED       CREATED BY                                      SIZE
+d5c5f6f8e9a0   2 weeks ago   /bin/sh -c #(nop) CMD [&quot;/bin/bash&quot;]            0B
+&lt;missing&gt;      2 weeks ago   /bin/sh -c #(nop) ADD file:abc... in /         77.9MB
+</code></pre>
+<p>The first line (<code>CMD</code>) shows <code>0B</code> — it produces no layer. The second line (<code>ADD</code> of the root
+filesystem) shows <code>77.9MB</code> — it does produce a layer. Every layer after <code>FROM</code> adds to the stack.</p>
+<pre><code class="language-bash">$ docker history --no-trunc my-app:latest
+IMAGE          CREATED       CREATED BY                                      SIZE
+sha256:def...   5 min ago    CMD [&quot;/app&quot;]                                    0B
+sha256:abc...   5 min ago    COPY app.sh /app.sh                             512B
+sha256:base...  2 weeks ago  FROM ubuntu:22.04                               77.9MB
+</code></pre>
+<p>The <code>FROM ubuntu:22.04</code> layer is the base. Each subsequent instruction adds a delta on top.</p>
+<hr />
+<h2 id="layer-graph">Layer Graph<a class="headerlink" href="#layer-graph" title="Permanent link">&para;</a></h2>
+<p>Images use <strong>content-addressable storage</strong>: each layer is identified by its SHA-256 digest. The
+digest is computed from the layer's tar content — if two builds produce identical tars, they share
+the same digest and the same blob on disk.</p>
+<pre><code class="language-bash">$ docker image inspect ubuntu:22.04 | jq '.[0].RootFS'
+{
+  &quot;Type&quot;: &quot;layers&quot;,
+  &quot;Layers&quot;: [
+    &quot;sha256:2dc39ba0c4f3e1e3b5e0c2c5d5b6f7a8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b&quot;,
+    &quot;sha256:3ed4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d&quot;
+  ]
+}
+</code></pre>
+<p><code>RootFS.Layers</code> is an ordered list of layer digests from bottom to top. The runtime applies them in
+sequence: layer[0] first, then layer[1] on top, and so on. The final filesystem is the union of all
+layers.</p>
+<p>Internally, each layer references its <strong>parent</strong> layer digest, forming a chain:</p>
+<pre><code>layer C (digest: sha256:c3...)
+  └─ parent: sha256:b2...
+layer B (digest: sha256:b2...)
+  └─ parent: sha256:a1...
+layer A (digest: sha256:a1...)
+  └─ parent: &lt;none&gt;   ← base image layer
+</code></pre>
+<p>The image configuration records only the list of leaf digests — the chain is implicit in the layer
+metadata stored on disk.</p>
+<hr />
+<h2 id="layer-sharing">Layer Sharing<a class="headerlink" href="#layer-sharing" title="Permanent link">&para;</a></h2>
+<p>Because layers are content-addressed, any two images that share a base layer store that layer's
+blob <strong>once</strong> on disk. If ten images all start from <code>ubuntu:22.04</code>, the 77.9 MB root filesystem
+layer is stored once and referenced by all ten image manifests.</p>
+<pre><code class="language-bash">$ docker system df
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          5         2         1.234GB   456.7MB (37%)
+Containers      3         0         12.3kB    12.3kB (100%)
+Local Volumes   2         1         1.234GB   0B (0%)
+Build Cache     0         0         0B        0B
+</code></pre>
+<p><code>docker system df</code> shows total image size and reclaimable space. The difference between total and
+reclaimable is the shared layer data that cannot be pruned because at least one active image
+references it.</p>
+<p>Layer sharing is what makes Docker storage efficient: pulling a second Ubuntu-based image after the
+first adds only the unique layers (the diff between the two Dockerfiles), not another full 77.9 MB
+copy of Ubuntu.</p>
+<hr />
+<h2 id="overlayfs-theory">OverlayFS Theory<a class="headerlink" href="#overlayfs-theory" title="Permanent link">&para;</a></h2>
+<p>OverlayFS is a Linux union filesystem that merges multiple directories into a single view. It has
+three key components:</p>
+<ul>
+<li><strong>lowerdir</strong>: one or more read-only directories, stacked.</li>
+<li><strong>upperdir</strong>: a single writable directory.</li>
+<li><strong>merged</strong>: the union view that the process sees.</li>
+</ul>
+<pre><code>┌──────────────────────┐
+│      merged          │  ← what the container sees
+├──────────────────────┤
+│      upperdir        │  ← writable layer (container's changes)
+├──────────────────────┤
+│      lowerdir        │  ← image layers (read-only)
+│  ┌────┐ ┌────┐ ┌───┐ │
+│  │ L1 │ │ L2 │ │L3 │ │
+│  └────┘ └────┘ └───┘ │
+└──────────────────────┘
+</code></pre>
+<h3 id="reads">Reads<a class="headerlink" href="#reads" title="Permanent link">&para;</a></h3>
+<p>When a process reads a file from the merged view, OverlayFS:</p>
+<ol>
+<li>Checks the <strong>upperdir</strong> first. If the file exists there, return it.</li>
+<li>Falls through to the <strong>lowerdir</strong> layers in order (topmost lower first).</li>
+<li>If the file does not exist in any layer, return <code>ENOENT</code>.</li>
+</ol>
+<p>An upperdir file <strong>shadows</strong> the same path in lowerdir — the lower file is hidden, not removed.</p>
+<h3 id="writes">Writes<a class="headerlink" href="#writes" title="Permanent link">&para;</a></h3>
+<p>Writing to a file that exists in the lowerdir triggers <strong>copy-up</strong>:</p>
+<ol>
+<li>OverlayFS copies the file from lowerdir to upperdir.</li>
+<li>The write modifies the copy in upperdir.</li>
+<li>The original in lowerdir remains untouched.</li>
+</ol>
+<p>Copy-up happens on the <strong>first write</strong> to a file — subsequent writes modify the upper copy directly
+with no additional overhead.</p>
+<h3 id="deletes">Deletes<a class="headerlink" href="#deletes" title="Permanent link">&para;</a></h3>
+<p>Deleting a file that exists in a lower layer does not modify the lower layer. Instead, OverlayFS
+places a <strong>whiteout</strong> in the upperdir — a character device with major/minor 0/0. The whiteout tells
+the merged view to hide the lower file.</p>
+<pre><code class="language-bash">$ ls -la /upperdir/
+c--------- 2 root root 0, 0 .wh.target_file
+</code></pre>
+<p>When the whiteout is present, reads of <code>target_file</code> from merged return <code>ENOENT</code>, even though the
+original still exists in the lower layer.</p>
+<hr />
+<h2 id="overlayfs-in-docker">OverlayFS in Docker<a class="headerlink" href="#overlayfs-in-docker" title="Permanent link">&para;</a></h2>
+<p>Docker uses OverlayFS to mount each container's filesystem. When a container starts:</p>
+<ul>
+<li><strong>lowerdir</strong> = the image layers, stacked as read-only snapshots.</li>
+<li><strong>upperdir</strong> = a thin writable directory created for this container (~0 bytes initially).</li>
+<li><strong>merged</strong> = the union view mounted as the container's root filesystem.</li>
+</ul>
+<pre><code class="language-bash">$ cat /proc/self/mountinfo | grep overlay
+36 29 0:28 / / rw,relatime - overlay overlay rw,
+  lowerdir=/var/lib/docker/overlay2/l/K7Q3...:.../l/2W5P...,
+  upperdir=/var/lib/docker/overlay2/abc123/diff,
+  workdir=/var/lib/docker/overlay2/abc123/work
+</code></pre>
+<p>The <code>lowerdir</code> parameter lists layer directories, colon-separated, ordered from bottom to top (the
+leftmost is the topmost lower layer). The <code>upperdir</code> is the container's writable layer. The <code>workdir</code>
+is an internal OverlayFS scratch directory for atomic operations.</p>
+<p>Docker stores layers under <code>/var/lib/docker/overlay2/</code>. Each layer has:</p>
+<pre><code>/var/lib/docker/overlay2/&lt;layer-hash&gt;/
+├── diff/          ← the actual files in this layer
+├── link           ← short name symlink (e.g., &quot;L3X7...&quot;)
+├── lower          ← parent layer reference
+└── work/          ← OverlayFS workdir
+</code></pre>
+<p>The <code>link</code> file contains a short name (e.g., <code>L3X7...</code>) that Docker uses to avoid long mount path
+issues. Symlinks in <code>/var/lib/docker/overlay2/l/</code> map short names to full layer hashes.</p>
+<hr />
+<h2 id="copy-on-write">Copy-on-Write<a class="headerlink" href="#copy-on-write" title="Permanent link">&para;</a></h2>
+<p>Copy-on-write (CoW) is the mechanism that prevents containers from modifying image layers. When a
+container writes to a file from a lower layer:</p>
+<ol>
+<li>OverlayFS detects the write targets a lower-layer file.</li>
+<li>It <strong>copies up</strong> the file from lowerdir to upperdir.</li>
+<li>The write completes against the upper copy.</li>
+</ol>
+<p>The first write to any given lower-layer file is slower because of the copy-up. Subsequent writes
+to the same file hit the upper copy directly and perform at native filesystem speed.</p>
+<pre><code>Before write (file is in lowerdir only):
+  Process reads /etc/passwd → OverlayFS returns lowerdir copy
+  Process writes /etc/passwd → copy-up triggered
+
+After write (file now exists in upperdir):
+  Process reads /etc/passwd → OverlayFS returns upperdir copy
+  Process writes /etc/passwd → direct write to upperdir (no copy-up)
+</code></pre>
+<p>The copy-up only copies the <strong>file</strong> that is written, not the entire directory. A 1-byte write to
+a 100 MB log file copies the full 100 MB to upper, then modifies 1 byte. For workloads that write
+to large files, mount a volume or tmpfs mount to bypass CoW entirely.</p>
+<p>Reading from the upper layer is also CoW — it shadows the lower file. The read itself is cheap (no
+copy), but the upper copy occupies space for as long as the container lives (or until the file is
+deleted from the writable layer).</p>
+<hr />
+<h2 id="container-layer-lifecycle">Container Layer Lifecycle<a class="headerlink" href="#container-layer-lifecycle" title="Permanent link">&para;</a></h2>
+<p>When <code>docker run</code> creates a container, Docker:</p>
+<ol>
+<li>Creates a new writable layer directory under <code>/var/lib/docker/overlay2/</code>.</li>
+<li>Mounts the overlay with image layers as lowerdir and the new directory as upperdir.</li>
+<li>The overlay mount becomes the container's root filesystem.</li>
+</ol>
+<pre><code>docker run → new upperdir created → overlay mount → container starts
+</code></pre>
+<p>The writable layer is <strong>thin</strong> — it starts at ~0 bytes and grows only when the container writes new
+files or triggers copy-up from lower layers. Containers that write large amounts of data (databases,
+logs, caches) should use <strong>volumes</strong> or <strong>bind mounts</strong>, which bypass the overlay and mount directly
+into the container's mount namespace at the target path.</p>
+<p>When <code>docker rm</code> removes a container:</p>
+<ol>
+<li>The overlay mount is unmounted.</li>
+<li>The upperdir directory is deleted.</li>
+<li>All data written by the container is lost (unless volumes were used).</li>
+</ol>
+<pre><code class="language-bash">$ docker create --name temp ubuntu:22.04 touch /data
+$ docker start temp
+$ docker rm temp   # /data is gone forever
+</code></pre>
+<p>If the container is <strong>committed</strong> via <code>docker commit</code>, the current state of the writable layer is
+exported as a new image layer:</p>
+<pre><code class="language-bash">$ docker commit temp my-image:snapshot
+</code></pre>
+<p>The commit freezes the writable layer as a new immutable layer, which becomes part of the image
+graph. This is how <code>docker build</code> works under the hood — each <code>RUN</code> instruction commits the
+container's writable layer into the build cache.</p>
+<hr />
+<h2 id="storage-drivers">Storage Drivers<a class="headerlink" href="#storage-drivers" title="Permanent link">&para;</a></h2>
+<p>The storage driver is the component that manages how layers are stored and mounted. Docker supports
+several drivers:</p>
+<h3 id="overlay2-default-since-docker-1809">overlay2 (default since Docker 18.09+)<a class="headerlink" href="#overlay2-default-since-docker-1809" title="Permanent link">&para;</a></h3>
+<p>The native Linux OverlayFS driver. It uses the kernel's OverlayFS module directly.</p>
+<p><strong>Advantages:</strong>
+- Page cache sharing: multiple containers reading the same file from the same lower layer share
+  kernel page cache entries. Memory usage scales with unique data, not total layers.
+- Inode-efficient: uses one directory per layer, not one directory per file (unlike aufs).
+- Fast mount/unmount: overlay mounts are instantaneous.
+- CoW at the kernel level: copy-up is handled by VFS, not userspace.</p>
+<p><strong>Requirements:</strong> Linux kernel 4.0+ (ideally 4.18+ for metacopy and redirect_dir improvements).</p>
+<h3 id="fuse-overlayfs-rootless-mode">fuse-overlayfs (rootless mode)<a class="headerlink" href="#fuse-overlayfs-rootless-mode" title="Permanent link">&para;</a></h3>
+<p>Rootless Docker cannot mount kernel OverlayFS because it requires <code>CAP_SYS_ADMIN</code>. Instead,
+rootless mode uses <strong>fuse-overlayfs</strong> — a FUSE implementation of OverlayFS that runs in userspace.</p>
+<p><strong>Tradeoffs:</strong>
+- No page cache sharing (every container has its own cache).
+- Slower copy-up (FUSE context switches dominate).
+- Works without privileges, enabling rootless Docker on any modern kernel.</p>
+<h3 id="aufs-deprecated">aufs (deprecated)<a class="headerlink" href="#aufs-deprecated" title="Permanent link">&para;</a></h3>
+<p>Advanced multi-layered unification filesystem. Was the default before overlay2. Still supported for
+compatibility but removed in Docker Engine 24+.</p>
+<p><strong>Disadvantages:</strong>
+- Not in upstream Linux (needs patched kernel or DKMS).
+- No page cache sharing.
+- One directory per file in the union layer — high inode pressure on large images.</p>
+<h3 id="devicemapper-deprecated">devicemapper (deprecated)<a class="headerlink" href="#devicemapper-deprecated" title="Permanent link">&para;</a></h3>
+<p>Uses device-mapper thin provisioning to create block-level snapshots. Was the default on RHEL/CentOS
+before overlay2.</p>
+<p><strong>Disadvantages:</strong>
+- 10 GB default pool size (out-of-space errors on large images without manual config).
+- No page cache sharing.
+- CoW at block level — modifies 64 KB blocks even for 1-byte changes.
+- <code>docker system df</code> shows misleading sizes (pool allocation, not actual data).</p>
+<h3 id="overlay-deprecated">overlay (deprecated)<a class="headerlink" href="#overlay-deprecated" title="Permanent link">&para;</a></h3>
+<p>The predecessor to overlay2. Single lowerdir only (cannot stack multiple lower layers). Replaced by
+overlay2 which supports multiple lowerdirs natively.</p>
+<h3 id="vfs-debug-only">vfs (debug only)<a class="headerlink" href="#vfs-debug-only" title="Permanent link">&para;</a></h3>
+<p>No union filesystem at all. Every layer is a full copy of all previous layers. Used for testing and
+environments where no union filesystem is available (e.g., some CI environments).</p>
+<h3 id="why-overlay2-wins">Why overlay2 Wins<a class="headerlink" href="#why-overlay2-wins" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>overlay2</th>
+<th>aufs</th>
+<th>devicemapper</th>
+<th>vfs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Page cache sharing</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Inode efficient</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Kernel supported</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>CoW granularity</td>
+<td>File</td>
+<td>File</td>
+<td>Block (64K)</td>
+<td>File</td>
+</tr>
+<tr>
+<td>Mount time</td>
+<td>Instant</td>
+<td>Fast</td>
+<td>Slow</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>Default since</td>
+<td>18.09</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Overlay2 is the default on all modern Linux distributions. Unless you run rootless Docker or a very
+old kernel, you are using overlay2.</p>
+<hr />
+<h2 id="garbage-collection">Garbage Collection<a class="headerlink" href="#garbage-collection" title="Permanent link">&para;</a></h2>
+<p>Over time, Docker accumulates unused layers, build cache entries, and dangling images. Several
+commands clean these up.</p>
+<h3 id="docker-image-prune">docker image prune<a class="headerlink" href="#docker-image-prune" title="Permanent link">&para;</a></h3>
+<p>Removes dangling images (images with no tag and no child image) and optionally all unused images:</p>
+<pre><code class="language-bash"># Remove dangling images only
+docker image prune
+
+# Remove all unused images (not referenced by any container)
+docker image prune -a
+</code></pre>
+<h3 id="docker-builder-prune">docker builder prune<a class="headerlink" href="#docker-builder-prune" title="Permanent link">&para;</a></h3>
+<p>BuildKit stores layers in its build cache. These are not visible to <code>docker image prune</code>:</p>
+<pre><code class="language-bash"># Remove all build cache
+docker builder prune
+
+# Keep only the last 24 hours of cache
+docker builder prune --filter until=24h
+
+# Show how much space would be freed
+docker builder prune --dry-run
+</code></pre>
+<h3 id="docker-system-prune">docker system prune<a class="headerlink" href="#docker-system-prune" title="Permanent link">&para;</a></h3>
+<p>The nuclear option — removes stopped containers, unused networks, dangling images, and build cache:</p>
+<pre><code class="language-bash">docker system prune -a --volumes
+</code></pre>
+<p><code>--volumes</code> also removes anonymous volumes. Omitting it preserves volumes because they may contain
+intentional data.</p>
+<h3 id="buildkit-gc">BuildKit GC<a class="headerlink" href="#buildkit-gc" title="Permanent link">&para;</a></h3>
+<p>BuildKit has its own garbage collection, configured in <code>/etc/buildkit/buildkitd.toml</code>:</p>
+<pre><code class="language-toml">[worker.oci]
+  gc = true
+  gckeepstorage = 10000  # keep 10 GB of cache
+
+[worker.oci.gcpolicy]
+  # Keep all cache entries used in the last 48 hours
+  keepDuration = 172800  # 48 hours in seconds
+  keepStorage = 5000     # target 5 GB of cache
+  filters = [ &quot;unused-for=48h&quot; ]
+</code></pre>
+<p>BuildKit uses <strong>LRU eviction</strong>: when storage exceeds <code>keepStorage</code>, it deletes the oldest unused
+cache entries first. The <code>keepDuration</code> filter exempts recently-used entries from eviction.</p>
+<hr />
+<h2 id="docker-save-docker-load">docker save / docker load<a class="headerlink" href="#docker-save-docker-load" title="Permanent link">&para;</a></h2>
+<p><code>docker save</code> and <code>docker load</code> export and import images as tarballs while preserving the layer
+structure.</p>
+<h3 id="docker-save">docker save<a class="headerlink" href="#docker-save" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">$ docker save ubuntu:22.04 -o ubuntu.tar
+$ tar tvf ubuntu.tar
+blobs/sha256/abc...   ← layer blob (gzipped tar)
+blobs/sha256/def...   ← another layer blob
+index.json            ← multi-arch index (if applicable)
+oci-layout            ← OCI layout version
+manifest.json         ← legacy Docker manifest
+</code></pre>
+<p>The exported tarball preserves each layer as a separate blob. The manifest references the blob
+digests so the layer topology is intact on import.</p>
+<pre><code class="language-bash"># Save multiple images into one tarball
+docker save ubuntu:22.04 alpine:3.19 -o images.tar
+</code></pre>
+<h3 id="docker-load">docker load<a class="headerlink" href="#docker-load" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">$ docker load -i ubuntu.tar
+Loaded image: ubuntu:22.04
+</code></pre>
+<p><code>docker load</code> reads the tarball, verifies blob digests, extracts layers into
+<code>/var/lib/docker/overlay2/</code>, and registers the image in the local image store. Layers that already
+exist (matching digest) are skipped — this is the same deduplication as layer sharing.</p>
+<h3 id="exporting-individual-layers">Exporting Individual Layers<a class="headerlink" href="#exporting-individual-layers" title="Permanent link">&para;</a></h3>
+<p>For debugging, you can export a single layer from an image:</p>
+<pre><code class="language-bash"># Save image, extract a specific layer blob
+docker save my-app:latest -o my-app.tar
+tar xf my-app.tar blobs/sha256/abc123...
+mkdir /tmp/layer &amp;&amp; tar xzf blobs/sha256/abc123... -C /tmp/layer
+</code></pre>
+<p>This lets you inspect exactly what files a given instruction added or modified, without running
+a container.</p>
+<hr />
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../container-image-hardening/distroless-images/">Distroless Images</a> — how minimal base images shrink the
+  layer footprint and reduce attack surface.</li>
+<li><a href="../../container-image-hardening/image-minimization/">Image Minimization</a> — techniques for reducing layer count
+  and size through multi-stage builds and layer squashing.</li>
+<li><a href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems</a> — how read-only root works with
+  overlay upperdir and what it prevents.</li>
+<li><a href="../../cve-lifecycle/scanner-internals/">Scanner Internals</a> — how vulnerability scanners decompress
+  and analyse image layers to extract package databases.</li>
+<li><a href="../how-docker-builds-images/">How Docker Builds Images</a> — the layer export pipeline
+  from the differ through content-addressed storage to manifest assembly.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../how-docker-builds-images/" class="btn btn-neutral float-left" title="How Docker Builds Images"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../docker-networking/" class="btn btn-neutral float-right" title="Docker Networking">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../how-docker-builds-images/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../docker-networking/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

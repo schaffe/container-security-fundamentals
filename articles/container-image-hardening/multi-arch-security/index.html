@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Multi-architecture Container Security - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Multi-architecture Container Security";
+        var mkdocs_page_input_path = "articles/container-image-hardening/multi-arch-security.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Multi-architecture Container Security</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-multi-architecture-manifest">The Multi-Architecture Manifest</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#from-platformbuildplatform">FROM --platform=$BUILDPLATFORM</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#platform-variables-available-during-build">Platform Variables Available During Build</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#per-architecture-base-image-cve-profiles">Per-Architecture Base Image CVE Profiles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-architecture-affects-cves">Why Architecture Affects CVEs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#auditing-per-architecture-cves">Auditing Per-Architecture CVEs</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#generating-per-architecture-sboms">Generating Per-Architecture SBOMs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#registries-with-multi-arch-manifests">Registries with Multi-Arch Manifests</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#oci-distribution-spec-support">OCI Distribution Spec Support</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pushing-multi-arch-images">Pushing Multi-Arch Images</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#attestations-per-architecture">Attestations per Architecture</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#cosign-attestations-per-architecture">Cosign Attestations per Architecture</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#slsa-provenance-per-architecture">SLSA Provenance per Architecture</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cross-build-security-concerns">Cross-Build Security Concerns</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-emulation-based-builds-qemu">1. Emulation-Based Builds (QEMU)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-architecture-specific-dependency-attacks">2. Architecture-Specific Dependency Attacks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-hash-mismatch-across-architectures">3. Hash Mismatch Across Architectures</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-cicd-pipeline-complexity">4. CI/CD Pipeline Complexity</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">Multi-architecture Container Security</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/multi-arch-security.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="multi-architecture-container-security">Multi-architecture Container Security<a class="headerlink" href="#multi-architecture-container-security" title="Permanent link">&para;</a></h1>
+<p>Multi-architecture container images ensure that a single image reference (e.g., <code>myapp:v1.0</code>) automatically works on different CPU architectures — amd64, arm64, armv7, s390x, ppc64le. While multi-arch is a deployment convenience, it introduces significant supply chain security considerations that a Senior Supply Chain Security Engineer must understand.</p>
+<h2 id="the-multi-architecture-manifest">The Multi-Architecture Manifest<a class="headerlink" href="#the-multi-architecture-manifest" title="Permanent link">&para;</a></h2>
+<p>Container registries support multi-architecture images through the OCI Image Index (also called a manifest list):</p>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 2,
+  &quot;mediaType&quot;: &quot;application/vnd.oci.image.index.v1+json&quot;,
+  &quot;manifests&quot;: [
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.manifest.v1+json&quot;,
+      &quot;digest&quot;: &quot;sha256:amd64-digest&quot;,
+      &quot;platform&quot;: {
+        &quot;architecture&quot;: &quot;amd64&quot;,
+        &quot;os&quot;: &quot;linux&quot;
+      }
+    },
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.manifest.v1+json&quot;,
+      &quot;digest&quot;: &quot;sha256:arm64-digest&quot;,
+      &quot;platform&quot;: {
+        &quot;architecture&quot;: &quot;arm64&quot;,
+        &quot;os&quot;: &quot;linux&quot;,
+        &quot;variant&quot;: &quot;v8&quot;
+      }
+    }
+  ]
+}
+</code></pre>
+<pre><code class="language-bash"># Inspect the multi-arch manifest
+docker manifest inspect myapp:v1.0
+
+# Or with crane
+crane manifest myapp:v1.0
+
+# List all architectures in an image
+docker buildx imagetools inspect myapp:v1.0
+</code></pre>
+<h2 id="from-platformbuildplatform">FROM --platform=$BUILDPLATFORM<a class="headerlink" href="#from-platformbuildplatform" title="Permanent link">&para;</a></h2>
+<p>The modern approach to multi-arch builds uses Docker BuildKit's built-in platform variables:</p>
+<pre><code class="language-dockerfile"># syntax=docker/dockerfile:1
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
+ARG TARGETOS
+ARG TARGETARCH
+
+WORKDIR /src
+COPY . .
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 \
+    go build -ldflags=&quot;-s -w&quot; -o /app .
+
+FROM gcr.io/distroless/static-debian12:nonroot-${TARGETARCH}
+COPY --from=builder /app /app
+USER 65532:65532
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>Build for multiple architectures:</p>
+<pre><code class="language-bash"># Create a builder instance
+docker buildx create --use --name multiarch
+
+# Build and push all architectures
+docker buildx build \
+  --platform linux/amd64,linux/arm64,linux/arm/v7 \
+  -t myapp:v1.0 \
+  --push .
+</code></pre>
+<h3 id="platform-variables-available-during-build">Platform Variables Available During Build<a class="headerlink" href="#platform-variables-available-during-build" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Example Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BUILDPLATFORM</code></td>
+<td><code>linux/amd64</code></td>
+<td>The platform running the build</td>
+</tr>
+<tr>
+<td><code>BUILDOS</code></td>
+<td><code>linux</code></td>
+<td>OS of the build host</td>
+</tr>
+<tr>
+<td><code>BUILDARCH</code></td>
+<td><code>amd64</code></td>
+<td>Architecture of the build host</td>
+</tr>
+<tr>
+<td><code>TARGETPLATFORM</code></td>
+<td><code>linux/arm64</code></td>
+<td>The platform being built for</td>
+</tr>
+<tr>
+<td><code>TARGETOS</code></td>
+<td><code>linux</code></td>
+<td>OS of the target</td>
+</tr>
+<tr>
+<td><code>TARGETARCH</code></td>
+<td><code>arm64</code></td>
+<td>Architecture of the target</td>
+</tr>
+<tr>
+<td><code>TARGETVARIANT</code></td>
+<td><code>v8</code></td>
+<td>Architecture variant (arm v7/v8)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="per-architecture-base-image-cve-profiles">Per-Architecture Base Image CVE Profiles<a class="headerlink" href="#per-architecture-base-image-cve-profiles" title="Permanent link">&para;</a></h2>
+<p><strong>Different architectures have different CVE profiles</strong>. This is a critical supply chain consideration:</p>
+<table>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Base Image</th>
+<th>Typical CVE Count (Distroless Static)</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>amd64</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot</td>
+<td>~5</td>
+<td>Most widely scanned, quickest CVE remediation</td>
+</tr>
+<tr>
+<td><strong>arm64</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-arm64</td>
+<td>~5</td>
+<td>Similar to amd64, same packages</td>
+</tr>
+<tr>
+<td><strong>arm/v7</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-arm</td>
+<td>~8</td>
+<td>Older glibc snapshot, fewer patches</td>
+</tr>
+<tr>
+<td><strong>s390x</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-s390x</td>
+<td>~12</td>
+<td>Architecture receives fewer backport fixes</td>
+</tr>
+<tr>
+<td><strong>ppc64le</strong></td>
+<td>gcr.io/distroless/static-debian12:nonroot-ppc64le</td>
+<td>~10</td>
+<td>Similar delay in security patches</td>
+</tr>
+</tbody>
+</table>
+<h3 id="why-architecture-affects-cves">Why Architecture Affects CVEs<a class="headerlink" href="#why-architecture-affects-cves" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong>Package rebuild frequency</strong>: Debian and other distros rebuild packages per-architecture. A CVE fixed for amd64 on day 1 may take days or weeks to land for arm/v7 or s390x.</p>
+</li>
+<li>
+<p><strong>Binary-only packages</strong>: Some vendor-provided binaries (e.g., NVIDIA CUDA, Intel MKL) are only available for specific architectures, requiring alternative packages with different CVE profiles.</p>
+</li>
+<li>
+<p><strong>Compiler-specific vulnerabilities</strong>: CVEs in GCC, LLVM, or architecture-specific code (e.g., ARM TrustZone, AMD SEV) affect only certain platforms.</p>
+</li>
+<li>
+<p><strong>Rare architecture delays</strong>: s390x and ppc64le have fewer maintainers, leading to delayed CVE backports.</p>
+</li>
+</ol>
+<h3 id="auditing-per-architecture-cves">Auditing Per-Architecture CVEs<a class="headerlink" href="#auditing-per-architecture-cves" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Scan each architecture separately
+docker scan myapp:v1.0 --platform linux/amd64
+docker scan myapp:v1.0 --platform linux/arm64
+
+# With Grype
+grype myapp:v1.0 --platform linux/amd64
+grype myapp:v1.0 --platform linux/arm64
+
+# With Trivy
+trivy image --platform linux/amd64 myapp:v1.0
+trivy image --platform linux/arm64 myapp:v1.0
+</code></pre>
+<h3 id="generating-per-architecture-sboms">Generating Per-Architecture SBOMs<a class="headerlink" href="#generating-per-architecture-sboms" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Generate SBOM per architecture
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --attest type=sbom,generator=cylindrical/docker-sbom \
+  -t myapp:v1.0 \
+  --push .
+
+# Download SBOM for a specific platform
+crane manifest myapp:v1.0@sha256:amd64-digest &gt; manifest.json
+crane blob myapp:v1.0@sha256:sbom-blob-digest &gt; sbom.spdx.json
+</code></pre>
+<h2 id="registries-with-multi-arch-manifests">Registries with Multi-Arch Manifests<a class="headerlink" href="#registries-with-multi-arch-manifests" title="Permanent link">&para;</a></h2>
+<h3 id="oci-distribution-spec-support">OCI Distribution Spec Support<a class="headerlink" href="#oci-distribution-spec-support" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Registry</th>
+<th>Multi-Arch Support</th>
+<th>Attestation Support</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Hub</strong></td>
+<td>Full</td>
+<td>Via annotations</td>
+<td>Requires <code>--push</code> with buildx</td>
+</tr>
+<tr>
+<td><strong>Google Artifact Registry</strong></td>
+<td>Full</td>
+<td>Native (SLSA, SPDX)</td>
+<td>Integrated with Binary Authorization</td>
+</tr>
+<tr>
+<td><strong>Amazon ECR</strong></td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>Signature via Signer</td>
+</tr>
+<tr>
+<td><strong>Azure ACR</strong></td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>Integrated with Notation</td>
+</tr>
+<tr>
+<td><strong>GitHub Container Registry</strong> (ghcr.io)</td>
+<td>Full</td>
+<td>Via OCI artifacts</td>
+<td>OIDC-based signing</td>
+</tr>
+<tr>
+<td><strong>Harbor</strong></td>
+<td>Full</td>
+<td>Via Cosign integration</td>
+<td>Supports replication per-arch</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pushing-multi-arch-images">Pushing Multi-Arch Images<a class="headerlink" href="#pushing-multi-arch-images" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Build and push multi-arch
+docker buildx build --platform linux/amd64,linux/arm64 -t myapp:v1.0 --push .
+
+# Or create manifest list manually
+docker manifest create myapp:v1.0 \
+  myapp:v1.0-amd64 \
+  myapp:v1.0-arm64
+
+docker manifest push myapp:v1.0
+</code></pre>
+<h2 id="attestations-per-architecture">Attestations per Architecture<a class="headerlink" href="#attestations-per-architecture" title="Permanent link">&para;</a></h2>
+<p>Attestations provide cryptographic proof about an image's origin, build process, and vulnerability status. With multi-arch, attestations must be generated and signed per architecture.</p>
+<h3 id="cosign-attestations-per-architecture">Cosign Attestations per Architecture<a class="headerlink" href="#cosign-attestations-per-architecture" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Build with SBOM and provenance attestations per architecture
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --attest type=sbom \
+  --attest type=provenance,mode=max \
+  -t myapp:v1.0 \
+  --push .
+
+# Sign each architecture's manifest
+cosign sign myapp:v1.0@sha256:amd64-digest
+cosign sign myapp:v1.0@sha256:arm64-digest
+
+# Verify signatures for a specific platform
+cosign verify \
+  --key cosign.pub \
+  myapp:v1.0@sha256:amd64-digest
+
+# Policy: only deploy if both architectures verified
+cosign verify \
+  --policy policy.json \
+  myapp:v1.0
+</code></pre>
+<h3 id="slsa-provenance-per-architecture">SLSA Provenance per Architecture<a class="headerlink" href="#slsa-provenance-per-architecture" title="Permanent link">&para;</a></h3>
+<pre><code class="language-json">{
+  &quot;subject&quot;: [
+    {
+      &quot;name&quot;: &quot;myapp:v1.0&quot;,
+      &quot;digest&quot;: {
+        &quot;sha256&quot;: &quot;amd64-specific-digest&quot;
+      }
+    }
+  ],
+  &quot;predicateType&quot;: &quot;https://slsa.dev/provenance/v1&quot;,
+  &quot;predicate&quot;: {
+    &quot;builder&quot;: { &quot;id&quot;: &quot;https://github.com/actions/runner&quot; },
+    &quot;buildType&quot;: &quot;https://docker.io/buildx/build/v1&quot;,
+    &quot;invocation&quot;: {
+      &quot;configSource&quot;: {
+        &quot;uri&quot;: &quot;git+https://github.com/myorg/myapp@refs/tags/v1.0&quot;,
+        &quot;digest&quot;: { &quot;sha1&quot;: &quot;abc123def456&quot; }
+      }
+    },
+    &quot;buildConfig&quot;: {
+      &quot;platforms&quot;: [&quot;linux/amd64&quot;, &quot;linux/arm64&quot;],
+      &quot;targetPlatform&quot;: &quot;linux/amd64&quot;
+    },
+    &quot;metadata&quot;: {
+      &quot;buildStartedOn&quot;: &quot;2026-05-20T10:00:00Z&quot;,
+      &quot;completeness&quot;: {
+        &quot;environment&quot;: true,
+        &quot;parameters&quot;: true,
+        &quot;materials&quot;: true
+      }
+    }
+  }
+}
+</code></pre>
+<h2 id="cross-build-security-concerns">Cross-Build Security Concerns<a class="headerlink" href="#cross-build-security-concerns" title="Permanent link">&para;</a></h2>
+<h3 id="1-emulation-based-builds-qemu">1. Emulation-Based Builds (QEMU)<a class="headerlink" href="#1-emulation-based-builds-qemu" title="Permanent link">&para;</a></h3>
+<p>When building for <code>arm64</code> on an <code>amd64</code> host, Docker uses QEMU user-mode emulation:</p>
+<pre><code class="language-bash"># Install QEMU binfmt support
+docker run --privileged --rm tonistiigi/binfmt --install all
+
+# Now builds can cross-compile via QEMU emulation
+docker buildx create --use --name multiarch
+</code></pre>
+<p><strong>Security risks of QEMU emulation</strong>:
+- QEMU user-mode emulation has a history of VM escape CVEs (CVE-2020-25704, CVE-2021-20255)
+- Emulation runs the entire build pipeline — package downloads, compilation, tests — in an emulated environment
+- Supply chain attacks targeting emulation bugs could compromise the build host</p>
+<p><strong>Mitigation</strong>: Prefer native cross-compilation over QEMU emulation:</p>
+<pre><code class="language-dockerfile"># Use native cross-compilation for Go
+FROM --platform=$BUILDPLATFORM golang:1.21 AS builder
+ARG TARGETOS TARGETARCH
+# Cross-compiles natively — no QEMU needed
+RUN GOOS=$TARGETOS GOARCH=$TARGETARCH CGO_ENABLED=0 go build -o /app .
+</code></pre>
+<h3 id="2-architecture-specific-dependency-attacks">2. Architecture-Specific Dependency Attacks<a class="headerlink" href="#2-architecture-specific-dependency-attacks" title="Permanent link">&para;</a></h3>
+<p>A malicious package may behave differently on different architectures:</p>
+<pre><code class="language-toml"># Cargo.toml — benign but arch-specific vulnerability
+[dependencies]
+# On amd64, this compiles to safe code
+# On arm64, unsafe vector instructions expose a buffer overflow
+arch-specific-crate = &quot;1.0&quot;
+</code></pre>
+<p><strong>Mitigation</strong>: Scan dependencies per architecture with tooling that understands arch-specific compilation:</p>
+<pre><code class="language-bash"># Run security audit per architecture
+cargo audit --target aarch64-unknown-linux-gnu
+cargo audit --target x86_64-unknown-linux-gnu
+</code></pre>
+<h3 id="3-hash-mismatch-across-architectures">3. Hash Mismatch Across Architectures<a class="headerlink" href="#3-hash-mismatch-across-architectures" title="Permanent link">&para;</a></h3>
+<p>Each architecture produces a different image digest. This complicates:
+- <strong>Image pinning</strong>: Pinning to <code>myapp@sha256:amd64-digest</code> won't work on arm64 nodes
+- <strong>Admission control</strong>: Must verify all architecture digests, not just the one on the container registry's index</p>
+<p><strong>Solution</strong>: Pin to the manifest list digest, not individual architecture digests:</p>
+<pre><code class="language-yaml"># ✅ Correct: pin to the manifest list digest
+image: myapp@sha256:manifest-list-digest
+# Kubernetes will resolve to the correct architecture from the list
+
+# ❌ Wrong: pinning to amd64 digest breaks arm64 nodes
+image: myapp@sha256:amd64-specific-digest
+</code></pre>
+<h3 id="4-cicd-pipeline-complexity">4. CI/CD Pipeline Complexity<a class="headerlink" href="#4-cicd-pipeline-complexity" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># GitHub Actions multi-arch build with security scanning
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/setup-buildx-action@v3
+    - name: Build and scan
+      uses: docker/build-push-action@v5
+      with:
+        platforms: ${{ matrix.platform }}
+        tags: myapp:${{ github.sha }}-${{ matrix.platform }}
+    - name: Scan
+      run: |
+        trivy image myapp:${{ github.sha }}-${{ matrix.platform }}
+        cosign sign myapp:${{ github.sha }}-${{ matrix.platform }}
+    - name: Create manifest list
+      run: |
+        docker manifest create myapp:latest \
+          myapp:${{ github.sha }}-linux/amd64 \
+          myapp:${{ github.sha }}-linux/arm64
+        docker manifest push myapp:latest
+</code></pre>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Multi-arch security is an evolving area. Understand that most vulnerability scanners default to amd64 — you must explicitly specify the target platform. Know that SBOM and provenance attestations should be generated per architecture, not just for the manifest list. Be able to discuss the trade-off between QEMU emulation and native cross-compilation for security. Understand that arm64's growing popularity means CVE response times are rapidly converging with amd64 (but s390x/ppc64le remain slower). For the full pipeline of how multi-arch images are built and pushed, see <a href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../readonly-filesystem/" class="btn btn-neutral float-left" title="Read-only Filesystems in Containers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/" class="btn btn-neutral float-right" title="SecurityContext vs PodSecurityContext in Kubernetes">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../readonly-filesystem/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

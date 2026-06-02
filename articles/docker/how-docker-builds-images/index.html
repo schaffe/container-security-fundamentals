@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>How Docker Builds Images - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "How Docker Builds Images";
+        var mkdocs_page_input_path = "articles/docker/how-docker-builds-images.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">How Docker Builds Images</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#stage-1-dockerfile-parsing">Stage 1 — Dockerfile Parsing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-lexer-and-parser">The Lexer and Parser</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#supported-instructions">Supported Instructions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#heredoc-support">Heredoc Support</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-ast-output">Example AST Output</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-2-frontend-translation-dockerfile-llb">Stage 2 — Frontend Translation (Dockerfile → LLB)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-dockerfilev1-frontend">The dockerfile.v1 Frontend</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#translation-rules">Translation Rules</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multi-stage-builds">Multi-Stage Builds</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-3-llb-graph-resolution">Stage 3 — LLB Graph Resolution</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-solver">The Solver</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cache-key-computation">Cache Key Computation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#parallelism">Parallelism</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-4-solver-execution">Stage 4 — Solver Execution</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#execop-execution">ExecOp Execution</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#snapshotters">Snapshotters</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fileopcopy-execution">FileOp.Copy Execution</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#execution-traces">Execution Traces</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-5-layer-export">Stage 5 — Layer Export</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-differ">The Differ</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#whiteout-files">Whiteout Files</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#content-addressed-layers">Content-Addressed Layers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-from-layers-look-like">What FROM Layers Look Like</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-6-image-manifest-assembly">Stage 6 — Image Manifest Assembly</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#configjson">config.json</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manifestjson">manifest.json</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-history-no-trunc">docker history --no-trunc</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stage-7-push">Stage 7 — Push</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parallel-layer-upload">Parallel Layer Upload</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#manifest-push">Manifest Push</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#output-types">Output Types</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cross-references">Cross-References</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Docker</li>
+      <li class="breadcrumb-item active">How Docker Builds Images</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/docker/how-docker-builds-images.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="how-docker-builds-images">How Docker Builds Images<a class="headerlink" href="#how-docker-builds-images" title="Permanent link">&para;</a></h1>
+<p>Building a container image looks like a single command — <code>docker build .</code> — but behind the curtain it
+is a multi-stage pipeline involving parsing, DAG construction, cache resolution, sandboxed execution,
+filesystem differencing, layer compression, and manifest assembly. This article walks through every
+stage from <code>docker build</code> to a publishable image.</p>
+<p>The pipeline is broken into seven stages:</p>
+<ol>
+<li><strong>Dockerfile Parsing</strong> — lex and parse the Dockerfile into an AST.</li>
+<li><strong>Frontend Translation</strong> — translate the AST into a low-level build graph (LLB).</li>
+<li><strong>LLB Graph Resolution</strong> — resolve cache keys, prune unreachable ops, linearise the DAG.</li>
+<li><strong>Solver Execution</strong> — execute ops in sandboxed containers, capture filesystem diffs.</li>
+<li><strong>Layer Export</strong> — produce content-addressed layer tarballs.</li>
+<li><strong>Image Manifest Assembly</strong> — assemble config.json and manifest.json.</li>
+<li><strong>Push</strong> — upload layers and manifests to a container registry.</li>
+</ol>
+<hr />
+<h2 id="stage-1-dockerfile-parsing">Stage 1 — Dockerfile Parsing<a class="headerlink" href="#stage-1-dockerfile-parsing" title="Permanent link">&para;</a></h2>
+<h3 id="the-lexer-and-parser">The Lexer and Parser<a class="headerlink" href="#the-lexer-and-parser" title="Permanent link">&para;</a></h3>
+<p>BuildKit's Dockerfile parser lives in <code>moby/buildkit/pkg/dockerfile/parser</code>. It is a hand-written
+recursive-descent parser — not a generated one — because Dockerfile syntax is simple enough that a
+parser generator adds more complexity than it removes.</p>
+<p>The parser has two phases:</p>
+<p><strong>Lexer.</strong> The lexer reads the Dockerfile character-by-character and emits tokens: instruction names
+(<code>FROM</code>, <code>RUN</code>, <code>COPY</code>, etc.), whitespace, quoted strings, comments (lines starting with <code>#</code>), and
+heredoc markers. It strips <code>\</code> line-continuation characters and normalises line endings.</p>
+<p><strong>Parser.</strong> The parser consumes the token stream and builds an AST of <code>*parser.Node</code> values. Each
+node has three fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Value</code></td>
+<td><code>string</code></td>
+<td>The raw text of the node (instruction + args)</td>
+</tr>
+<tr>
+<td><code>Next</code></td>
+<td><code>*Node</code></td>
+<td>Next sibling node (next line / instruction)</td>
+</tr>
+<tr>
+<td><code>Children</code></td>
+<td><code>[]*Node</code></td>
+<td>Child nodes (arguments, heredocs, flags)</td>
+</tr>
+</tbody>
+</table>
+<p>A <code>FROM</code> instruction becomes a node whose <code>Value</code> is <code>FROM ubuntu:22.04</code>. An <code>ARG</code> before the first
+<code>FROM</code> is attached as a child of the root node. <code>RUN</code> with a heredoc gets the heredoc body as a child
+node.</p>
+<h3 id="supported-instructions">Supported Instructions<a class="headerlink" href="#supported-instructions" title="Permanent link">&para;</a></h3>
+<p>The parser recognises every Dockerfile instruction:</p>
+<p><code>FROM</code>, <code>RUN</code>, <code>CMD</code>, <code>LABEL</code>, <code>MAINTAINER</code>, <code>EXPOSE</code>, <code>ENV</code>, <code>ADD</code>, <code>COPY</code>, <code>ENTRYPOINT</code>,
+<code>VOLUME</code>, <code>USER</code>, <code>WORKDIR</code>, <code>ARG</code>, <code>ONBUILD</code>, <code>STOPSIGNAL</code>, <code>HEALTHCHECK</code>, <code>SHELL</code>.</p>
+<p><code>MAINTAINER</code> is deprecated but still parsed for backward compatibility.</p>
+<h3 id="heredoc-support">Heredoc Support<a class="headerlink" href="#heredoc-support" title="Permanent link">&para;</a></h3>
+<p>BuildKit extends the standard Dockerfile syntax with heredocs in <code>RUN</code>, <code>COPY</code>, and <code>FROM</code>
+instructions. A heredoc allows multi-line inline content without escaping:</p>
+<pre><code class="language-Dockerfile">RUN &lt;&lt;EOF
+apt-get update
+apt-get install -y curl jq
+EOF
+</code></pre>
+<p>The parser detects the <code>&lt;&lt;EOF</code> marker and reads until the closing <code>EOF</code> on its own line, creating a
+child node with the heredoc body. The frontend later translates this into an equivalent <code>RUN</code> with
+the content piped into the shell.</p>
+<h3 id="example-ast-output">Example AST Output<a class="headerlink" href="#example-ast-output" title="Permanent link">&para;</a></h3>
+<p>For a minimal Dockerfile:</p>
+<pre><code class="language-Dockerfile">FROM alpine:3.19
+RUN apk add curl
+COPY app.sh /app.sh
+CMD [&quot;/app.sh&quot;]
+</code></pre>
+<p>The parser produces an AST that (simplified to JSON) looks like:</p>
+<pre><code class="language-json">{
+  &quot;value&quot;: &quot;&quot;,
+  &quot;children&quot;: [
+    {
+      &quot;value&quot;: &quot;FROM alpine:3.19&quot;,
+      &quot;next&quot;: {
+        &quot;value&quot;: &quot;RUN apk add curl&quot;,
+        &quot;next&quot;: {
+          &quot;value&quot;: &quot;COPY app.sh /app.sh&quot;,
+          &quot;next&quot;: {
+            &quot;value&quot;: &quot;CMD [\&quot;/app.sh\&quot;]&quot;
+          }
+        }
+      }
+    }
+  ]
+}
+</code></pre>
+<p>Each instruction is a sibling (<code>Next</code> pointer), and the root node has no value — it is a container
+for the instruction list.</p>
+<hr />
+<h2 id="stage-2-frontend-translation-dockerfile-llb">Stage 2 — Frontend Translation (Dockerfile → LLB)<a class="headerlink" href="#stage-2-frontend-translation-dockerfile-llb" title="Permanent link">&para;</a></h2>
+<h3 id="the-dockerfilev1-frontend">The dockerfile.v1 Frontend<a class="headerlink" href="#the-dockerfilev1-frontend" title="Permanent link">&para;</a></h3>
+<p>Once the Dockerfile is parsed into an AST, BuildKit's <strong>dockerfile.v1 frontend</strong> walks the AST and
+translates each instruction into one or more <strong>LLB (Low-Level Build) operations</strong>. The frontend is
+reimplemented entirely in Go — it does <strong>not</strong> shell out to Docker or any external tool.</p>
+<p>LLB is a protobuf-based intermediate representation that describes a build graph. Each node in the
+LLB graph is an <strong>op</strong> that produces one or more outputs (typically a filesystem snapshot). Ops
+connect to form a directed acyclic graph (DAG).</p>
+<h3 id="translation-rules">Translation Rules<a class="headerlink" href="#translation-rules" title="Permanent link">&para;</a></h3>
+<p><strong><code>FROM</code> → <code>SourceOp</code>.</strong> Every <code>FROM</code> becomes a <code>SourceOp</code> that pulls a base image (or scratches an
+empty filesystem). The op carries the image reference, platform selection, and credentials. If the
+image is already cached locally, the op resolves immediately without a network fetch.</p>
+<pre><code class="language-json">{
+  &quot;op&quot;: &quot;SourceOp&quot;,
+  &quot;identifier&quot;: &quot;docker-image://docker.io/library/alpine:3.19&quot;,
+  &quot;platform&quot;: &quot;linux/amd64&quot;
+}
+</code></pre>
+<p><strong><code>RUN</code> → <code>ExecOp</code>.</strong> Every <code>RUN</code> becomes an <code>ExecOp</code> that creates a temporary container from the
+current snapshot, runs the command, and captures the filesystem diff. The op carries the command
+array, environment variables, working directory, and metadata. The diff between the snapshot before
+and after execution becomes a new layer.</p>
+<pre><code class="language-json">{
+  &quot;op&quot;: &quot;ExecOp&quot;,
+  &quot;meta&quot;: {
+    &quot;args&quot;: [&quot;/bin/sh&quot;, &quot;-c&quot;, &quot;apk add curl&quot;],
+    &quot;env&quot;: [&quot;PATH=/usr/local/sbin:...&quot;],
+    &quot;cwd&quot;: &quot;/&quot;
+  },
+  &quot;mounts&quot;: [
+    {&quot;input&quot;: 0, &quot;output&quot;: 0, &quot;type&quot;: &quot;bind&quot;}
+  ]
+}
+</code></pre>
+<p><strong><code>COPY</code> → <code>FileOp.Copy</code>.</strong> <code>COPY</code> and <code>ADD</code> become <code>FileOp</code> actions — specifically <code>Copy</code> actions.
+The action copies files from one snapshot (the build context or a previous stage) into the current
+snapshot. <code>ADD</code> with a URL becomes a <code>SourceOp</code> followed by a <code>FileOp.Copy</code>. <code>ADD</code> with automatic
+tar extraction sets a flag on the action.</p>
+<pre><code class="language-json">{
+  &quot;op&quot;: &quot;FileOp&quot;,
+  &quot;actions&quot;: [
+    {
+      &quot;input&quot;: 0,
+      &quot;secondaryInput&quot;: 1,
+      &quot;output&quot;: 0,
+      &quot;action&quot;: &quot;COPY&quot;,
+      &quot;src&quot;: &quot;app.sh&quot;,
+      &quot;dest&quot;: &quot;/app.sh&quot;
+    }
+  ]
+}
+</code></pre>
+<p><strong><code>ENV</code> / <code>WORKDIR</code> / <code>USER</code> → metadata on <code>ExecOp</code>.</strong> These instructions do <strong>not</strong> produce their
+own layers. Instead, they modify metadata that gets attached to the <em>next</em> <code>ExecOp</code>. The frontend
+maintains a running state map for environment variables, working directory, and user. When the next
+<code>RUN</code> executes, it inherits that state. The metadata is also written into the final image
+configuration.</p>
+<p>This is an important optimisation — setting <code>ENV FOO=bar</code> followed by <code>RUN make</code> produces <strong>one</strong>
+layer (the <code>RUN</code> diff), not two.</p>
+<p><strong><code>EXPOSE</code> / <code>LABEL</code> → image config metadata.</strong> These are stored in the image configuration and
+do not produce any ops at all.</p>
+<h3 id="multi-stage-builds">Multi-Stage Builds<a class="headerlink" href="#multi-stage-builds" title="Permanent link">&para;</a></h3>
+<p>Each <code>FROM</code> starts a new sub-graph. The frontend tracks stage dependencies: if <code>COPY --from=builder</code>
+references stage <code>builder</code>, the frontend wires the output of builder's final snapshot as an input to
+the current <code>FileOp</code>.</p>
+<p>Unused stages are pruned: if stage <code>builder</code> has a <code>FROM ubuntu</code> but is never referenced by a
+<code>COPY --from=builder</code>, the frontend drops it from the graph entirely. This prevents pulling base
+images that no output stage needs.</p>
+<pre><code class="language-Dockerfile"># Stage 1
+FROM golang:1.22 AS builder
+WORKDIR /src
+COPY . .
+RUN go build -o /app
+
+# Stage 2
+FROM alpine:3.19
+COPY --from=builder /app /app
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>This produces an LLB graph with two roots: <code>golang:1.22</code> (builder) and <code>alpine:3.19</code> (final stage).
+The <code>alpine</code> stage's <code>COPY</code> op has an additional input pointing to the builder's final snapshot.
+The builder's <code>RUN go build</code> op is reachable only through that <code>COPY</code> reference; nothing else in
+the final stage depends on the base <code>golang</code> image beyond the compiled binary.</p>
+<hr />
+<h2 id="stage-3-llb-graph-resolution">Stage 3 — LLB Graph Resolution<a class="headerlink" href="#stage-3-llb-graph-resolution" title="Permanent link">&para;</a></h2>
+<h3 id="the-solver">The Solver<a class="headerlink" href="#the-solver" title="Permanent link">&para;</a></h3>
+<p>BuildKit's <strong>solver</strong> is the component that takes the LLB graph and drives it to completion. It
+lives in <code>moby/buildkit/solver</code>. The solver does three things:</p>
+<ol>
+<li>
+<p><strong>Builds the DAG.</strong> It walks the LLB ops, creates a dependency graph (each op's inputs are its
+   dependencies), and topologically sorts it. Ops with no dependencies (leaf <code>SourceOp</code>s) are
+   ready immediately.</p>
+</li>
+<li>
+<p><strong>Computes cache keys.</strong> For each op, the solver computes a <strong>cache key</strong> — a digest (SHA-256)
+   of the op's definition and its inputs' cache keys. If the same key exists in the local cache or
+   a remote cache (e.g. a registry cache), the op is <strong>cache hit</strong> and its output is reused without
+   re-execution. If the key is absent, the op is <strong>cache miss</strong> and must be executed.</p>
+</li>
+<li>
+<p><strong>Schedules execution.</strong> Cache-miss ops are dispatched to workers (<a href="../docker-architecture/#architecture">runc</a>, containerd) for
+   execution. Independent ops (e.g. two <code>FROM</code> pulls for different stages) run in parallel.</p>
+</li>
+</ol>
+<h3 id="cache-key-computation">Cache Key Computation<a class="headerlink" href="#cache-key-computation" title="Permanent link">&para;</a></h3>
+<p>The cache key for an <code>ExecOp</code> includes:</p>
+<ul>
+<li>The command string and arguments.</li>
+<li>Environment variables (filtered by <code>--build-arg</code> awareness).</li>
+<li>The working directory.</li>
+<li>The cache keys of all input snapshots.</li>
+<li>The contents of files referenced by <code>COPY</code> (via checksums, not full content).</li>
+</ul>
+<p>A <code>SourceOp</code>'s cache key is the image digest (not the tag — tags are mutable). If two builds both
+reference <code>alpine:3.19</code>, but the remote <code>alpine:3.19</code> has a different digest than yesterday's pull,
+the cache key changes and the base image is re-pulled.</p>
+<h3 id="parallelism">Parallelism<a class="headerlink" href="#parallelism" title="Permanent link">&para;</a></h3>
+<p>Because the solver processes the DAG and not the Dockerfile's linear order, it can parallelise
+aggressively:</p>
+<ul>
+<li>Two <code>FROM</code> lines at the start of separate stages are pulled concurrently.</li>
+<li>Multiple <code>COPY</code> ops from the same source can run in parallel.</li>
+<li>A <code>RUN</code> in one stage and a <code>RUN</code> in an independent stage execute simultaneously.</li>
+</ul>
+<p>The <code>--progress=plain</code> flag shows this parallelism:</p>
+<pre><code>#1 [stage-0  1/2] FROM golang:1.22@sha256:abc...
+#2 [stage-1  1/2] FROM alpine:3.19@sha256:def...
+#1 [stage-0  2/2] RUN go build -o /app
+#2 [stage-1  2/2] COPY --from=stage-0 /app /app
+</code></pre>
+<p>Lines <code>#1</code> and <code>#2</code> execute concurrently because the solver determined neither depends on the
+other.</p>
+<hr />
+<h2 id="stage-4-solver-execution">Stage 4 — Solver Execution<a class="headerlink" href="#stage-4-solver-execution" title="Permanent link">&para;</a></h2>
+<h3 id="execop-execution">ExecOp Execution<a class="headerlink" href="#execop-execution" title="Permanent link">&para;</a></h3>
+<p>When the solver schedules an <code>ExecOp</code>, BuildKit:</p>
+<ol>
+<li>
+<p><strong>Creates a temporary container</strong> from the current snapshot using the configured worker (<a href="../docker-architecture/#architecture">runc</a> or
+   containerd). The snapshot is a read-only mount; BuildKit adds a writable overlay on top.</p>
+</li>
+<li>
+<p><strong>Sets up the execution environment:</strong> mounts, environment variables, working directory, user,
+   resource limits (CPU, memory), security options (seccomp, AppArmor, capabilities).</p>
+</li>
+<li>
+<p><strong>Runs the command</strong> inside the container. The process's stdout and stderr are streamed back to
+   the client for display.</p>
+</li>
+<li>
+<p><strong>Captures the filesystem diff.</strong> After the command exits, BuildKit compares the writable layer
+   to the original snapshot. The difference is the new layer's content.</p>
+</li>
+<li>
+<p><strong>Commits the snapshot.</strong> The writable layer is committed as a new immutable snapshot, which
+   becomes the input to the next op.</p>
+</li>
+</ol>
+<h3 id="snapshotters">Snapshotters<a class="headerlink" href="#snapshotters" title="Permanent link">&para;</a></h3>
+<p>BuildKit uses <strong>snapshotters</strong> to manage filesystem snapshots efficiently. The default snapshotter
+on Linux is <code>overlayfs</code> — it uses Linux's OverlayFS kernel driver to create lightweight
+copy-on-write layers. Each snapshot is a directory with:</p>
+<ul>
+<li><code>fs/</code> — the full filesystem tree (for non-overlay snapshotters).</li>
+<li>Metadata tracking parent-child relationships.</li>
+</ul>
+<p>The <code>native</code> snapshotter creates full copies of the filesystem (slower, more space). The
+<code>fuse-overlayfs</code> snapshotter works on systems where the kernel lacks OverlayFS (e.g. older distros,
+rootless mode).</p>
+<h3 id="fileopcopy-execution">FileOp.Copy Execution<a class="headerlink" href="#fileopcopy-execution" title="Permanent link">&para;</a></h3>
+<p><code>FileOp.Copy</code> is simpler than <code>ExecOp</code> — no container is created. BuildKit reads files from the
+source snapshot and writes them into the destination snapshot using Go's <code>io.Copy</code>. The copy is
+chunked and checksummed. If the source is a tar archive (as in <code>ADD</code>), BuildKit streams the tar
+directly into the destination snapshot without extracting to an intermediate directory.</p>
+<h3 id="execution-traces">Execution Traces<a class="headerlink" href="#execution-traces" title="Permanent link">&para;</a></h3>
+<p>Setting <code>BUILDKIT_PROGRESS=plain</code> shows every op's status in real time:</p>
+<pre><code>#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 352B done
+#2 [internal] load metadata for docker.io/library/alpine:3.19
+#2 DONE 1.2s
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#4 [stage-0 1/2] FROM docker.io/library/alpine:3.19@sha256:...
+#4 resolve docker.io/library/alpine:3.19@sha256:... 0.0s done
+#4 sha256:abc... 0B / 7.04MB 0.1s
+#4 sha256:abc... 7.04MB / 7.04MB 0.5s done
+#4 extracting sha256:abc... 0.2s done
+#5 [stage-0 2/2] RUN apk add curl
+#5 0.294 fetch https://dl-cdn.alpinelinux.org/...
+#5 1.586 (1/1) Installing curl (8.5.0-r0)
+#5 1.626 Executing busybox-1.36.1-r15.trigger
+#5 1.626 OK: 8 MiB in 19 packages
+#5 DONE 1.7s
+</code></pre>
+<p>Each <code>#[N]</code> prefix identifies a vertex (op) in the build graph. The two-part numbers (e.g. <code>1/2</code>)
+are stage progress indicators — the first number is the current op index within that stage, the
+second is the total ops for that stage.</p>
+<hr />
+<h2 id="stage-5-layer-export">Stage 5 — Layer Export<a class="headerlink" href="#stage-5-layer-export" title="Permanent link">&para;</a></h2>
+<h3 id="the-differ">The Differ<a class="headerlink" href="#the-differ" title="Permanent link">&para;</a></h3>
+<p>After an <code>ExecOp</code> completes, BuildKit's <strong>differ</strong> walks the before and after snapshots to produce
+a tar archive of changes. The differ lives in <code>moby/buildkit/cache/blobs</code>.</p>
+<p>The differ is optimised for OverlayFS: it reads the overlay's upper directory (the writable layer)
+and lists every file. Each file falls into one of three categories:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Meaning</th>
+<th>Tar header type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Added</td>
+<td>File exists in upper, not in lower</td>
+<td>Regular file</td>
+</tr>
+<tr>
+<td>Modified</td>
+<td>File exists in both, different content</td>
+<td>Regular file</td>
+</tr>
+<tr>
+<td>Deleted</td>
+<td>File exists in lower, not in upper</td>
+<td>Whiteout entry</td>
+</tr>
+<tr>
+<td>Unchanged</td>
+<td>File exists in both, same content</td>
+<td>Skipped (not in tar)</td>
+</tr>
+</tbody>
+</table>
+<p>Unchanged files are <strong>not</strong> included in the layer tar — this is what makes layers small. A layer
+represents only the delta from the previous state.</p>
+<h3 id="whiteout-files">Whiteout Files<a class="headerlink" href="#whiteout-files" title="Permanent link">&para;</a></h3>
+<p>On OverlayFS, when a file is deleted from the upper directory, the filesystem leaves a <strong>whiteout</strong>
+character device (0:0) in its place. The differ converts these whiteout devices into OCI-compatible
+tar entries:</p>
+<ul>
+<li><strong>Whiteout file:</strong> A tar entry named <code>.wh.&lt;filename&gt;</code> marks that <code>&lt;filename&gt;</code> was deleted.</li>
+<li><strong>Opaque directory:</strong> A tar entry named <code>.wh..wh..opq</code> in a directory marks all pre-existing
+  entries under that directory as deleted (used when the entire directory was removed and
+  re-created).</li>
+</ul>
+<p>When a container runtime applies layers, it interprets whiteout entries: any <code>.wh.</code> file causes the
+corresponding real file to be deleted from the lower layers' view. Opaque markers clear all
+contents of a directory before applying the new layer's contents.</p>
+<h3 id="content-addressed-layers">Content-Addressed Layers<a class="headerlink" href="#content-addressed-layers" title="Permanent link">&para;</a></h3>
+<p>Each layer tar is content-addressed: its digest (SHA-256) is its identity. BuildKit computes two
+digests per layer:</p>
+<ul>
+<li><strong>Uncompressed digest</strong> — SHA-256 of the raw tar stream. This goes into <code>rootfs.diff_ids</code> in the
+  image config.</li>
+<li><strong>Compressed digest</strong> — SHA-256 of the gzip-compressed tar stream. This goes into the manifest's
+  <code>layers[].digest</code>.</li>
+</ul>
+<p>Because layers are content-addressed, identical layers across different images share the same blob
+on disk and in the registry. If two unrelated builds both produce a layer with the same SHA-256
+digest, the registry stores it once.</p>
+<h3 id="what-from-layers-look-like">What FROM Layers Look Like<a class="headerlink" href="#what-from-layers-look-like" title="Permanent link">&para;</a></h3>
+<p>When an image references <code>alpine:3.19</code>, its layers already exist in the registry. BuildKit does
+<strong>not</strong> re-export those layers — the final image's manifest references the base image's existing
+layer digests. Only layers produced during the current build are new blobs.</p>
+<p>This means a Dockerfile:</p>
+<pre><code class="language-Dockerfile">FROM alpine:3.19
+RUN echo hello &gt; /hello
+</code></pre>
+<p>Produces a single new layer (the <code>RUN</code> diff). The final image references alpine's existing layers
+plus the new one. The registry does not duplicate alpine's data.</p>
+<hr />
+<h2 id="stage-6-image-manifest-assembly">Stage 6 — Image Manifest Assembly<a class="headerlink" href="#stage-6-image-manifest-assembly" title="Permanent link">&para;</a></h2>
+<h3 id="configjson">config.json<a class="headerlink" href="#configjson" title="Permanent link">&para;</a></h3>
+<p>After all layers are exported, BuildKit assembles the <strong>image configuration</strong> (<code>config.json</code>). This
+JSON object describes the image's metadata and hardware requirements. Fields include:</p>
+<pre><code class="language-json">{
+  &quot;architecture&quot;: &quot;amd64&quot;,
+  &quot;os&quot;: &quot;linux&quot;,
+  &quot;rootfs&quot;: {
+    &quot;type&quot;: &quot;layers&quot;,
+    &quot;diff_ids&quot;: [
+      &quot;sha256:abc...&quot;,
+      &quot;sha256:def...&quot;
+    ]
+  },
+  &quot;history&quot;: [
+    {
+      &quot;created&quot;: &quot;2024-01-15T10:00:00Z&quot;,
+      &quot;created_by&quot;: &quot;FROM alpine:3.19&quot;,
+      &quot;comment&quot;: &quot;buildkit.dockerfile.v1&quot;
+    },
+    {
+      &quot;created&quot;: &quot;2024-01-15T10:00:01Z&quot;,
+      &quot;created_by&quot;: &quot;RUN apk add curl&quot;,
+      &quot;comment&quot;: &quot;buildkit.dockerfile.v1&quot;
+    }
+  ],
+  &quot;config&quot;: {
+    &quot;Env&quot;: [&quot;PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin&quot;],
+    &quot;Cmd&quot;: [&quot;/bin/sh&quot;],
+    &quot;ExposedPorts&quot;: null,
+    &quot;Volumes&quot;: null,
+    &quot;WorkingDir&quot;: &quot;/&quot;,
+    &quot;Entrypoint&quot;: null,
+    &quot;Labels&quot;: null
+  }
+}
+</code></pre>
+<p>Key details:</p>
+<ul>
+<li><strong><code>rootfs.diff_ids</code></strong> lists uncompressed layer digests in order. The runtime applies layers in
+  this exact sequence. Each digest is the SHA-256 of the <strong>uncompressed</strong> layer tar (before gzip).</li>
+<li><strong><code>history</code></strong> records each build step. <code>docker history --no-trunc</code> displays this list. The
+  <code>created_by</code> field stores the original Dockerfile instruction.</li>
+<li><strong><code>config</code></strong> contains the runtime defaults: entrypoint, command, environment variables, working
+  directory, ports, volumes, and labels. These defaults are used by the container runtime when a
+  user runs <code>docker run</code> without overriding them.</li>
+</ul>
+<h3 id="manifestjson">manifest.json<a class="headerlink" href="#manifestjson" title="Permanent link">&para;</a></h3>
+<p>The <strong>image manifest</strong> (<code>manifest.json</code>) references the config and the layer blobs:</p>
+<pre><code class="language-json">{
+  &quot;schemaVersion&quot;: 2,
+  &quot;mediaType&quot;: &quot;application/vnd.oci.image.manifest.v1+json&quot;,
+  &quot;config&quot;: {
+    &quot;mediaType&quot;: &quot;application/vnd.oci.image.config.v1+json&quot;,
+    &quot;digest&quot;: &quot;sha256:123...&quot;,
+    &quot;size&quot;: 1420
+  },
+  &quot;layers&quot;: [
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;,
+      &quot;digest&quot;: &quot;sha256:abc...&quot;,
+      &quot;size&quot;: 7040000
+    },
+    {
+      &quot;mediaType&quot;: &quot;application/vnd.oci.image.layer.v1.tar+gzip&quot;,
+      &quot;digest&quot;: &quot;sha256:def...&quot;,
+      &quot;size&quot;: 123
+    }
+  ]
+}
+</code></pre>
+<p>The <code>layers[]</code> entries use <strong>compressed</strong> digests — the SHA-256 of the gzipped tar. Each entry
+includes the compressed size. The runtime downloads these blobs and decompresses them before
+applying.</p>
+<p>BuildKit uses OCI media types by default (<code>application/vnd.oci.*</code>). Docker media types
+(<code>application/vnd.docker.*</code>) are also supported for backward compatibility with older registries.</p>
+<h3 id="docker-history-no-trunc">docker history --no-trunc<a class="headerlink" href="#docker-history-no-trunc" title="Permanent link">&para;</a></h3>
+<p>The <code>history</code> field in config.json is what <code>docker history --no-trunc</code> displays:</p>
+<pre><code class="language-bash">$ docker history --no-trunc my-image:latest
+IMAGE          CREATED       CREATED BY                                      SIZE
+sha256:def...  2 hours ago   RUN /bin/sh -c apk add curl                      5.2MB
+sha256:abc...  2 hours ago   COPY app.sh /app.sh                             512B
+sha256:base... 2 weeks ago   FROM alpine:3.19                                7.05MB
+</code></pre>
+<p>Each line corresponds to one entry in <code>history[]</code>. The <code>SIZE</code> column is the compressed layer size
+from the manifest (or <code>0B</code> for instructions that do not produce layers, like <code>ENV</code> or <code>WORKDIR</code>).</p>
+<hr />
+<h2 id="stage-7-push">Stage 7 — Push<a class="headerlink" href="#stage-7-push" title="Permanent link">&para;</a></h2>
+<h3 id="parallel-layer-upload">Parallel Layer Upload<a class="headerlink" href="#parallel-layer-upload" title="Permanent link">&para;</a></h3>
+<p>When <code>--push</code> is specified, BuildKit uploads all new layers to the target registry. Layers are
+pushed <strong>in parallel</strong> — the solver does not wait for layer N to finish before starting layer N+1.</p>
+<p>The upload protocol follows the OCI Distribution Spec:</p>
+<ol>
+<li><strong>POST</strong> <code>/v2/&lt;name&gt;/blobs/uploads/</code> — initiate an upload session. The registry returns a
+   session URL.</li>
+<li><strong>PATCH</strong> <code>&lt;session-url&gt;</code> — upload chunk(s) of blob data. BuildKit uses chunked upload with
+   <code>Content-Range</code> headers.</li>
+<li><strong>PUT</strong> <code>&lt;session-url&gt;?digest=sha256:...</code> — finalise the upload. The registry computes the
+   digest and verifies it matches the declared digest.</li>
+</ol>
+<p>If a blob already exists on the registry (same digest), BuildKit skips the upload — it sends a
+<code>HEAD</code> request first and checks the registry's response:</p>
+<pre><code class="language-bash">HEAD /v2/&lt;name&gt;/blobs/sha256:abc...
+
+# Response: 200 OK → blob exists, skip upload
+# Response: 404 Not Found → blob missing, initiate upload
+</code></pre>
+<h3 id="manifest-push">Manifest Push<a class="headerlink" href="#manifest-push" title="Permanent link">&para;</a></h3>
+<p>The manifest is pushed <strong>last</strong>, after all layers are confirmed present on the registry. This makes
+the push atomic: if the client disconnects mid-push, the registry never sees an incomplete manifest
+pointing to missing blobs.</p>
+<pre><code class="language-bash">PUT /v2/&lt;name&gt;/manifests/&lt;tag&gt;
+Content-Type: application/vnd.oci.image.manifest.v1+json
+</code></pre>
+<p>The manifest content type matters — registries use it to validate the manifest structure. Using the
+wrong media type can cause rejections.</p>
+<h3 id="output-types">Output Types<a class="headerlink" href="#output-types" title="Permanent link">&para;</a></h3>
+<p>BuildKit supports multiple output formats via the <code>--output</code> (or <code>-o</code>) flag:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>image</code></td>
+<td><code>--output type=image</code></td>
+<td>Push to registry (same as <code>--push</code>)</td>
+</tr>
+<tr>
+<td><code>docker</code></td>
+<td><code>--output type=docker</code></td>
+<td>Export as Docker tar (<code>docker load</code>)</td>
+</tr>
+<tr>
+<td><code>oci</code></td>
+<td><code>--output type=oci</code></td>
+<td>Export as OCI layout tar</td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td><code>--output type=local</code></td>
+<td>Export filesystem to a local directory</td>
+</tr>
+<tr>
+<td><code>tar</code></td>
+<td><code>--output type=tar</code></td>
+<td>Export filesystem as a tar archive</td>
+</tr>
+<tr>
+<td><code>registry</code></td>
+<td><code>--output type=registry</code></td>
+<td>Push to one or more registries (deprecated)</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>type=image</code> output is equivalent to <code>--push</code> but allows fine-grained control over the push
+destination:</p>
+<pre><code class="language-bash">buildctl build \
+  --output type=image,name=docker.io/user/my-app:latest,push=true
+</code></pre>
+<p>The <code>type=docker</code> output produces a single tar file compatible with <code>docker load</code>:</p>
+<pre><code class="language-bash">buildctl build \
+  --output type=docker,name=my-app:latest,dest=my-app.tar
+</code></pre>
+<hr />
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../buildkit-internals/">BuildKit Internals</a> — LLB deep dive, cache mounts, and
+  advanced caching strategies.</li>
+<li><a href="../build-context/">Build Context</a> — how the build context is tarred, shipped, and
+  filtered by <code>.dockerignore</code>.</li>
+<li><a href="../image-layers-storage-drivers/">Image Layers and Storage Drivers</a> — how layers
+  are stored on disk and mounted by overlayfs, devicemapper, and btrfs.</li>
+<li><a href="../product-strategy/docker-content-trust/">Docker Content Trust</a> — how Notary signs image manifests
+  for tamper-proof distribution.</li>
+<li><a href="../product-strategy/docker-hardened-images/">Docker Hardened Images</a> — attestations, SBOM
+  generation, and SLSA provenance during builds.</li>
+<li><a href="../../container-image-hardening/multi-arch-security/">Multi-Architecture and Security</a> — multi-arch manifests
+  and platform-aware image references.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../buildkit-internals/" class="btn btn-neutral float-left" title="BuildKit Internals"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../image-layers-storage-drivers/" class="btn btn-neutral float-right" title="Image Layers & Storage Drivers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../buildkit-internals/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../image-layers-storage-drivers/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

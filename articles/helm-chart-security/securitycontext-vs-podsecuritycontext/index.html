@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>SecurityContext vs PodSecurityContext in Kubernetes - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "SecurityContext vs PodSecurityContext in Kubernetes";
+        var mkdocs_page_input_path = "articles/helm-chart-security/securitycontext-vs-podsecuritycontext.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">SecurityContext vs PodSecurityContext in Kubernetes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#podsecuritycontext-pod-level">PodSecurityContext (Pod Level)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example-podsecuritycontext">Example: PodSecurityContext</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#securitycontext-container-level">SecurityContext (Container Level)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example-container-securitycontext">Example: Container SecurityContext</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cascade-behavior">Cascade Behavior</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#mermaid-how-settings-cascade">Mermaid: How Settings Cascade</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-patterns-in-hardened-deployments">Common Patterns in Hardened Deployments</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#pattern-1-restricted-pod-with-capability-exception">Pattern 1: Restricted Pod with Capability Exception</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pattern-2-readonlyrootfs-with-emptydir-for-temp-writes">Pattern 2: readOnlyRootFS with EmptyDir for Temp Writes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-deep-dive">Interview Deep Dive</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Helm Chart Security</li>
+      <li class="breadcrumb-item active">SecurityContext vs PodSecurityContext in Kubernetes</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/helm-chart-security/securitycontext-vs-podsecuritycontext.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="securitycontext-vs-podsecuritycontext-in-kubernetes">SecurityContext vs PodSecurityContext in Kubernetes<a class="headerlink" href="#securitycontext-vs-podsecuritycontext-in-kubernetes" title="Permanent link">&para;</a></h1>
+<p>When hardening Kubernetes workloads, SecurityContext is the primary mechanism for controlling permissions at both the pod and container levels. Understanding the distinction, overlap, and cascade behavior between <code>pod.spec.securityContext</code> and <code>container.securityContext</code> is essential — and is one of the most common interview topics for supply chain security roles.</p>
+<h2 id="podsecuritycontext-pod-level">PodSecurityContext (Pod Level)<a class="headerlink" href="#podsecuritycontext-pod-level" title="Permanent link">&para;</a></h2>
+<p><code>PodSecurityContext</code> is set at <code>spec.securityContext</code> in a Pod spec. It applies to <strong>all containers</strong> in the pod unless overridden. It cannot set container-specific fields like <code>capabilities</code> or <code>privileged</code> mode.</p>
+<p>Key fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>runAsUser</code></td>
+<td>UID for all processes in the pod</td>
+</tr>
+<tr>
+<td><code>runAsGroup</code></td>
+<td>GID for all processes</td>
+</tr>
+<tr>
+<td><code>runAsNonRoot</code></td>
+<td>Reject if container runs as UID 0</td>
+</tr>
+<tr>
+<td><code>fsGroup</code></td>
+<td>Ownership of mounted volumes</td>
+</tr>
+<tr>
+<td><code>supplementalGroups</code></td>
+<td>Additional GIDs for the process</td>
+</tr>
+<tr>
+<td><code>seLinuxOptions</code></td>
+<td>SELinux labels applied to all containers</td>
+</tr>
+<tr>
+<td><code>seccompProfile</code></td>
+<td>seccomp profile (Localhost, RuntimeDefault, Unconfined)</td>
+</tr>
+<tr>
+<td><code>sysctls</code></td>
+<td>Namespace-level sysctl settings</td>
+</tr>
+<tr>
+<td><code>fsGroupChangePolicy</code></td>
+<td>Always vs OnRootMismatch for volume ownership</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-podsecuritycontext">Example: PodSecurityContext<a class="headerlink" href="#example-podsecuritycontext" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: hardened-pod
+spec:
+  securityContext:
+    runAsUser: 1001
+    runAsGroup: 3000
+    fsGroup: 2000
+    supplementalGroups: [4000, 5000]
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+    seLinuxOptions:
+      level: &quot;s0:c123,c456&quot;
+  containers:
+    - name: app
+      image: myapp:1.0
+</code></pre>
+<h2 id="securitycontext-container-level">SecurityContext (Container Level)<a class="headerlink" href="#securitycontext-container-level" title="Permanent link">&para;</a></h2>
+<p>Set at <code>containers[].securityContext</code>. This is where <strong>fine-grained controls</strong> live: capabilities, privilege escalation, read-only root filesystem, and container-specific user identities.</p>
+<p>Key fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>capabilities</code></td>
+<td>Add/drop Linux capabilities via <code>add</code>/<code>drop</code> lists</td>
+</tr>
+<tr>
+<td><code>privileged</code></td>
+<td>Run container with full host privileges</td>
+</tr>
+<tr>
+<td><code>runAsUser</code></td>
+<td>Override pod-level UID for this container</td>
+</tr>
+<tr>
+<td><code>runAsGroup</code></td>
+<td>Override pod-level GID for this container</td>
+</tr>
+<tr>
+<td><code>runAsNonRoot</code></td>
+<td>Override pod-level non-root check</td>
+</tr>
+<tr>
+<td><code>readOnlyRootFilesystem</code></td>
+<td>Mount root filesystem read-only</td>
+</tr>
+<tr>
+<td><code>allowPrivilegeEscalation</code></td>
+<td>Control <code>no_new_privs</code> (defaults to true if privileged)</td>
+</tr>
+<tr>
+<td><code>procMount</code></td>
+<td>Mount <a href="../../linux-fundamentals/proc-container-isolation/#procmount-in-kubernetes"><code>/proc</code></a> as unmasked (default: DefaultProcMount)</td>
+</tr>
+<tr>
+<td><code>seccompProfile</code></td>
+<td>Override pod-level seccomp for this container</td>
+</tr>
+<tr>
+<td><code>capabilities.drop</code></td>
+<td>Drop all with <code>["ALL"]</code></td>
+</tr>
+<tr>
+<td><code>seLinuxOptions</code></td>
+<td>Override pod-level SELinux context</td>
+</tr>
+</tbody>
+</table>
+<h3 id="example-container-securitycontext">Example: Container SecurityContext<a class="headerlink" href="#example-container-securitycontext" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: container-hardened
+spec:
+  containers:
+    - name: app
+      image: myapp:1.0
+      securityContext:
+        runAsUser: 1002
+        runAsNonRoot: true
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [&quot;ALL&quot;]
+          add: [&quot;NET_BIND_SERVICE&quot;]
+        seccompProfile:
+          type: RuntimeDefault
+</code></pre>
+<h2 id="cascade-behavior">Cascade Behavior<a class="headerlink" href="#cascade-behavior" title="Permanent link">&para;</a></h2>
+<p>The pod-level SecurityContext serves as a <strong>default</strong> that container-level settings override. The relationship is:</p>
+<ol>
+<li>Pod-level <code>runAsUser</code>, <code>runAsGroup</code>, <code>runAsNonRoot</code> apply to all containers unless a container explicitly sets its own.</li>
+<li>Pod-level <code>fsGroup</code>, <code>supplementalGroups</code>, <code>fsGroupChangePolicy</code> apply only at the pod level and <strong>cannot</strong> be overridden per container.</li>
+<li>Container-level <code>runAsUser</code> <strong>overrides</strong> pod-level <code>runAsUser</code> for that container.</li>
+<li><code>capabilities</code>, <code>privileged</code>, <code>readOnlyRootFilesystem</code>, and <code>allowPrivilegeEscalation</code> only exist at the container level.</li>
+</ol>
+<h3 id="mermaid-how-settings-cascade">Mermaid: How Settings Cascade<a class="headerlink" href="#mermaid-how-settings-cascade" title="Permanent link">&para;</a></h3>
+<pre><code>PodSecurityContext (defaults for all containers)
+ ├── runAsUser ─────── can be overridden per container
+ ├── runAsGroup ────── can be overridden per container
+ ├── runAsNonRoot ──── can be overridden per container
+ ├── seccompProfile ── can be overridden per container
+ ├── seLinuxOptions ── can be overridden per container
+ ├── fsGroup ───────── applied once to volumes (not per container)
+ └── supplementalGroups ── applied process-wide
+
+ContainerSecurityContext (container-specific)
+ ├── runAsUser ─────── overrides pod value
+ ├── capabilities ──── only at container level
+ ├── privileged ────── only at container level
+ ├── readOnlyRootFilesystem ── only at container level
+ └── allowPrivilegeEscalation ── only at container level
+</code></pre>
+<h2 id="common-patterns-in-hardened-deployments">Common Patterns in Hardened Deployments<a class="headerlink" href="#common-patterns-in-hardened-deployments" title="Permanent link">&para;</a></h2>
+<h3 id="pattern-1-restricted-pod-with-capability-exception">Pattern 1: Restricted Pod with Capability Exception<a class="headerlink" href="#pattern-1-restricted-pod-with-capability-exception" title="Permanent link">&para;</a></h3>
+<p>Some containers genuinely need <code>NET_BIND_SERVICE</code> to bind to ports below 1024. The rest do not.</p>
+<pre><code class="language-yaml">spec:
+  securityContext:
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: proxy
+      securityContext:
+        runAsUser: 1001
+        capabilities:
+          drop: [&quot;ALL&quot;]
+          add: [&quot;NET_BIND_SERVICE&quot;]
+    - name: sidecar
+      securityContext:
+        runAsUser: 1002
+        capabilities:
+          drop: [&quot;ALL&quot;]
+</code></pre>
+<h3 id="pattern-2-readonlyrootfs-with-emptydir-for-temp-writes">Pattern 2: readOnlyRootFS with EmptyDir for Temp Writes<a class="headerlink" href="#pattern-2-readonlyrootfs-with-emptydir-for-temp-writes" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">spec:
+  securityContext:
+    runAsNonRoot: true
+  containers:
+    - name: app
+      securityContext:
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop: [&quot;ALL&quot;]
+      volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+  volumes:
+    - name: tmp
+      emptyDir: {}
+</code></pre>
+<h2 id="interview-deep-dive">Interview Deep Dive<a class="headerlink" href="#interview-deep-dive" title="Permanent link">&para;</a></h2>
+<p><strong>Q:</strong> If the pod SecurityContext sets <code>runAsUser: 1000</code> and a container sets <code>runAsUser: 2000</code>, which wins?</p>
+<p><strong>A:</strong> The container wins. <code>container.securityContext.runAsUser</code> takes precedence over <code>pod.spec.securityContext.runAsUser</code> for that specific container.</p>
+<p><strong>Q:</strong> Can <code>fsGroup</code> be set per container?</p>
+<p><strong>A:</strong> No. <code>fsGroup</code> is a pod-level field. It controls the ownership of all volumes mounted in the pod and is applied as a single operation. The group ownership change happens once to the volume, not per container.</p>
+<p><strong>Q:</strong> Why drop <code>ALL</code> capabilities and add back selectively?</p>
+<p><strong>A:</strong> Defense in depth. The principle of least privilege means starting from zero. K8s containers get a default set capabilities that are almost never needed (e.g., <code>CHOWN</code>, <code>DAC_OVERRIDE</code>, <code>FOWNER</code>, <code>FSETID</code>, <code>KILL</code>, <code>SETGID</code>, <code>SETUID</code>, <code>SETPCAP</code>, <code>NET_RAW</code>). Dropping <code>ALL</code> then explicitly adding back only what's required (e.g., <code>NET_BIND_SERVICE</code>) minimizes kernel attack surface.</p>
+<p><strong>Q:</strong> What happens if <code>readOnlyRootFilesystem: true</code> is set but the container writes to <code>/</code> at runtime?</p>
+<p><strong>A:</strong> The container will crash with a write error. This is a common breaking change when hardening existing images. Fixes include: write to an <code>emptyDir</code> volume mounted at the writable path, or ensure the image writes to <code>/tmp</code> or a designated volume path.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../container-image-hardening/multi-arch-security/" class="btn btn-neutral float-left" title="Multi-architecture Container Security"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../pod-security-standards/" class="btn btn-neutral float-right" title="Pod Security Standards (PSS)">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../container-image-hardening/multi-arch-security/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../pod-security-standards/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

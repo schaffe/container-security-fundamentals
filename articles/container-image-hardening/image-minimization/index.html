@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Image Minimization - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Image Minimization";
+        var mkdocs_page_input_path = "articles/container-image-hardening/image-minimization.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Image Minimization</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#multi-stage-build-patterns">Multi-stage Build Patterns</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#go-application">Go Application</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#python-application">Python Application</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#copy-from-for-binary-only-results">COPY --from for Binary-Only Results</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#selective-file-copy-patterns">Selective File Copy Patterns</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#run-cleanup-chains">RUN Cleanup Chains</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2">Bad (packages persist in layer 1, then deleted in layer 2):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#good-single-run-with-cleanup">Good (single RUN with cleanup):</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#package-manager-cleanup-commands">Package Manager Cleanup Commands</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#layer-squash">Layer Squash</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#stripping-binaries">Stripping Binaries</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#stripping-with-ldflags-go">Stripping with ldflags (Go)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stripping-with-strip-command">Stripping with strip command</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#upx-compression">UPX Compression</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#removing-unused-shared-libraries">Removing Unused Shared Libraries</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#audit-shared-library-dependencies">Audit shared library dependencies</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#distroless-as-an-alternative">Distroless as an Alternative</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#combining-techniques-production-grade-minimization">Combining Techniques: Production-Grade Minimization</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#results-comparison">Results Comparison</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supply-chain-security-impact">Supply Chain Security Impact</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">Image Minimization</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/image-minimization.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="image-minimization">Image Minimization<a class="headerlink" href="#image-minimization" title="Permanent link">&para;</a></h1>
+<p>Container image minimization is the practice of reducing image size by eliminating build-time artifacts, unused dependencies, debug symbols, and intermediate layers. Smaller images mean faster pulls, less network transfer, reduced storage costs, and — critically — a smaller attack surface.</p>
+<h2 id="multi-stage-build-patterns">Multi-stage Build Patterns<a class="headerlink" href="#multi-stage-build-patterns" title="Permanent link">&para;</a></h2>
+<p>Multi-stage builds are the single most effective technique for image minimization. They allow separate build and runtime environments, copying only the compiled artifact into the final image.</p>
+<h3 id="go-application">Go Application<a class="headerlink" href="#go-application" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Stage 1: Build with full toolchain
+FROM golang:1.21 AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags=&quot;-s -w&quot; -o /app .
+
+# Stage 2: Minimal runtime with scratch
+FROM scratch
+COPY --from=builder /app /app
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+EXPOSE 8080
+CMD [&quot;/app&quot;]
+</code></pre>
+<p>The <code>scratch</code> base yields an image of ~8-15 MB for a Go binary vs ~300 MB for the full Go toolchain image.</p>
+<h3 id="python-application">Python Application<a class="headerlink" href="#python-application" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM python:3.12-slim AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir -r requirements.txt
+
+FROM python:3.12-slim
+RUN useradd -m -u 10001 appuser
+COPY --from=builder /root/.local /home/appuser/.local
+COPY --from=builder /app /app
+WORKDIR /app
+USER appuser
+# Adjust PATH to find pip-installed binaries
+ENV PATH=/home/appuser/.local/bin:$PATH
+CMD [&quot;python&quot;, &quot;main.py&quot;]
+</code></pre>
+<p>Python is harder to minimize than Go because the runtime interpreter is required. The <code>slim</code> variants remove headers, static libraries, and documentation.</p>
+<h2 id="copy-from-for-binary-only-results">COPY --from for Binary-Only Results<a class="headerlink" href="#copy-from-for-binary-only-results" title="Permanent link">&para;</a></h2>
+<p>The <code>COPY --from=&lt;stage&gt;</code> syntax can copy individual files, not just entire directories:</p>
+<pre><code class="language-dockerfile">FROM node:20 AS build
+WORKDIR /app
+COPY package*.json .
+RUN npm ci --only=production
+COPY . .
+RUN npm run build
+
+FROM gcr.io/distroless/nodejs20-debian12
+# Copy only the production dependencies
+COPY --from=build /app/node_modules /node_modules
+COPY --from=build /app/dist /dist
+CMD [&quot;/dist/server.js&quot;]
+</code></pre>
+<h3 id="selective-file-copy-patterns">Selective File Copy Patterns<a class="headerlink" href="#selective-file-copy-patterns" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Copy only what's needed — not the entire builder stage
+COPY --from=builder /app/bin/server /usr/local/bin/server
+COPY --from=builder /app/config/prod.yaml /etc/app/config.yaml
+# NOT: COPY --from=builder /app /app
+</code></pre>
+<h2 id="run-cleanup-chains">RUN Cleanup Chains<a class="headerlink" href="#run-cleanup-chains" title="Permanent link">&para;</a></h2>
+<p>Every <code>RUN</code> instruction creates a new layer. Cleaning up in the same <code>RUN</code> is critical — otherwise the deleted files persist in a previous layer.</p>
+<h3 id="bad-packages-persist-in-layer-1-then-deleted-in-layer-2">Bad (packages persist in layer 1, then deleted in layer 2):<a class="headerlink" href="#bad-packages-persist-in-layer-1-then-deleted-in-layer-2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential   # Layer 1: ~200 MB added
+RUN apt-get remove -y build-essential                       # Layer 2: marked deleted but space persists
+</code></pre>
+<h3 id="good-single-run-with-cleanup">Good (single RUN with cleanup):<a class="headerlink" href="#good-single-run-with-cleanup" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y build-essential &amp;&amp; \
+    make &amp;&amp; \
+    apt-get purge -y --auto-remove build-essential &amp;&amp; \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+</code></pre>
+<h3 id="package-manager-cleanup-commands">Package Manager Cleanup Commands<a class="headerlink" href="#package-manager-cleanup-commands" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># Debian/Ubuntu
+RUN apt-get update &amp;&amp; apt-get install -y --no-install-recommends pkg &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+
+# Alpine
+RUN apk add --no-cache --virtual .build-deps build-base &amp;&amp; \
+    make &amp;&amp; \
+    apk del .build-deps
+
+# The --virtual flag creates a virtual package that can be removed atomically
+
+# RHEL/Ubi
+RUN yum install -y make gcc &amp;&amp; \
+    make &amp;&amp; \
+    yum remove -y make gcc &amp;&amp; \
+    yum clean all &amp;&amp; \
+    rm -rf /var/cache/yum
+</code></pre>
+<h2 id="layer-squash">Layer Squash<a class="headerlink" href="#layer-squash" title="Permanent link">&para;</a></h2>
+<p>After a Docker build, the image consists of many layers. Squashing collapses them into a single layer, removing intermediate files even if they span multiple <code>RUN</code> instructions.</p>
+<pre><code class="language-bash"># During build: squash all layers into one
+docker build --squash -t myapp:squashed .
+
+# BuildKit variant (no squash flag, but better layer caching)
+DOCKER_BUILDKIT=1 docker build -t myapp:squashed .
+</code></pre>
+<p>Note: <code>--squash</code> is still experimental in some Docker versions. An alternative is using <code>docker-slim</code>:</p>
+<pre><code class="language-bash">docker-slim build myapp:latest
+# Analyzes the image and removes unnecessary files
+</code></pre>
+<h2 id="stripping-binaries">Stripping Binaries<a class="headerlink" href="#stripping-binaries" title="Permanent link">&para;</a></h2>
+<p>Debug symbols significantly increase binary size and serve no purpose in running containers.</p>
+<h3 id="stripping-with-ldflags-go">Stripping with ldflags (Go)<a class="headerlink" href="#stripping-with-ldflags-go" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># -s: omit symbol table and debug info
+# -w: omit DWARF symbol table
+RUN go build -ldflags=&quot;-s -w&quot; -o /app .
+</code></pre>
+<h3 id="stripping-with-strip-command">Stripping with strip command<a class="headerlink" href="#stripping-with-strip-command" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y binutils &amp;&amp; \
+    strip --strip-all /app/binary &amp;&amp; \
+    strip --strip-unneeded /usr/local/lib/*.so &amp;&amp; \
+    apt-get purge -y --auto-remove binutils &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+</code></pre>
+<h3 id="upx-compression">UPX Compression<a class="headerlink" href="#upx-compression" title="Permanent link">&para;</a></h3>
+<p>UPX (Ultimate Packer for Executables) is an open-source tool that compresses executable files (EXEs, DLLs, ELF binaries, etc.) using run-time compression — it shrinks file size by compressing the binary, and a small decompression stub unpacks it in memory at runtime. Commonly used to reduce distribution size.</p>
+<p>For additional size reduction, UPX compresses the binary:</p>
+<pre><code class="language-dockerfile">RUN apt-get update &amp;&amp; apt-get install -y upx-ucl &amp;&amp; \
+    upx --best --lzma /app/binary &amp;&amp; \
+    apt-get purge -y --auto-remove upx-ucl &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*
+</code></pre>
+<p>UPX trades runtime decompression overhead for image size. This is rarely worth it for container images because:
+- Container images are already compressed during pull/docker save
+- UPX can trigger antivirus false positives
+- Decompression at startup adds latency</p>
+<h2 id="removing-unused-shared-libraries">Removing Unused Shared Libraries<a class="headerlink" href="#removing-unused-shared-libraries" title="Permanent link">&para;</a></h2>
+<p>Dynamic binaries pull in shared libraries that may not all be needed. Use <code>ldd</code> to audit and <code>strip</code> to remove unused sections.</p>
+<h3 id="audit-shared-library-dependencies">Audit shared library dependencies<a class="headerlink" href="#audit-shared-library-dependencies" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile">FROM debian:bookworm-slim AS builder
+RUN apt-get update &amp;&amp; apt-get install -y patchelf
+
+# Copy the binary
+COPY myapp /myapp
+
+# List dynamic dependencies
+RUN ldd /myapp
+
+# Copy only required libraries
+RUN mkdir /lib-stripped &amp;&amp; \
+    for lib in $(ldd /myapp | grep &quot;=&gt; /&quot; | awk '{print $3}'); do \
+        cp &quot;$lib&quot; /lib-stripped/; \
+    done &amp;&amp; \
+    cp /lib64/ld-linux-x86-64.so.2 /lib-stripped/
+
+FROM scratch
+COPY --from=builder /myapp /myapp
+COPY --from=builder /lib-stripped /lib64/
+COPY --from=builder /lib-stripped /lib/
+</code></pre>
+<h3 id="distroless-as-an-alternative">Distroless as an Alternative<a class="headerlink" href="#distroless-as-an-alternative" title="Permanent link">&para;</a></h3>
+<p>Rather than manually tracking library dependencies, use distroless base images which handle this automatically:</p>
+<pre><code class="language-dockerfile"># No need for ldd/copying — distroless includes the right glibc subset
+FROM gcr.io/distroless/cc-debian12
+COPY --from=build /app /app
+</code></pre>
+<h2 id="combining-techniques-production-grade-minimization">Combining Techniques: Production-Grade Minimization<a class="headerlink" href="#combining-techniques-production-grade-minimization" title="Permanent link">&para;</a></h2>
+<pre><code class="language-dockerfile"># === Stage 1: Build ===
+FROM golang:1.21 AS builder
+WORKDIR /src
+COPY . .
+RUN CGO_ENABLED=0 go build -ldflags=&quot;-s -w&quot; -o /app .
+
+# === Stage 2: Runtime ===
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /app /app
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+USER 65532:65532
+EXPOSE 8080
+CMD [&quot;/app&quot;]
+</code></pre>
+<h2 id="results-comparison">Results Comparison<a class="headerlink" href="#results-comparison" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Technique</th>
+<th>Base Image</th>
+<th>Final Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No minimization</td>
+<td>golang:1.21</td>
+<td>~1.2 GB</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>scratch</td>
+<td>~12 MB</td>
+</tr>
+<tr>
+<td>+ ldflags -s -w</td>
+<td>scratch</td>
+<td>~9 MB</td>
+</tr>
+<tr>
+<td>+ distroless</td>
+<td>distroless/static</td>
+<td>~15 MB (includes CA certs)</td>
+</tr>
+<tr>
+<td>+ UPX compressed</td>
+<td>scratch</td>
+<td>~4 MB</td>
+</tr>
+</tbody>
+</table>
+<h2 id="supply-chain-security-impact">Supply Chain Security Impact<a class="headerlink" href="#supply-chain-security-impact" title="Permanent link">&para;</a></h2>
+<p>Smaller images reduce supply chain risk:</p>
+<ol>
+<li><strong>Fewer packages = fewer CVEs</strong>: Each removed transitive dependency eliminates a potential vulnerability vector</li>
+<li><strong>Faster vulnerability scanning</strong>: Scanning a 10 MB image vs a 500 MB image takes seconds vs minutes</li>
+<li><strong>Reduced blast radius</strong>: If compromised, the attacker has less tooling available in a minimal image</li>
+<li><strong>SBOM accuracy</strong>: A smaller, deterministic image produces a more accurate Software Bill of Materials</li>
+</ol>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Know the <strong>layer model</strong> — each <code>RUN</code> creates a writable layer that persists even if files are deleted in subsequent layers. See <a href="../../docker/image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a> for a detailed look at how OverlayFS implements copy-on-write. The <code>COPY --from</code> is the most important minimization technique to discuss. Be ready to explain why <code>--squash</code> isn't widely adopted (it breaks layer caching, which is the primary benefit of BuildKit).</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../distroless-images/" class="btn btn-neutral float-left" title="Distroless Images"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../non-root-execution/" class="btn btn-neutral float-right" title="Non-root Execution">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../distroless-images/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../non-root-execution/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
