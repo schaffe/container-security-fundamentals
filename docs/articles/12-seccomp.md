@@ -67,7 +67,7 @@ In containers, ptrace is dangerous because:
 - **Code injection**: A compromised process with `CAP_SYS_PTRACE` can attach to sibling
   containers in the same namespace, read secrets from memory, and execute arbitrary code in
   another process.
-- **Container escape**: ptrace was a component in CVE-2019-5736 (runc escape) — the attacker
+- **Container escape**: ptrace was a component in [CVE-2019-5736](../articles/37-proc-container-isolation.md#1-cve-2019-5736-procselfexe-race) (runc escape) — the attacker
   used ptrace on `/proc/self/exe` combined with file-descriptor tricks to overwrite the host's
   `runc` binary.
 - **Syscall interception**: The `PTRACE_SYSCALL` mechanism can intercept every system call a

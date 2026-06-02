@@ -16,6 +16,7 @@ nav:
     - articles/07-notary-docker-content-trust.md
   - Linux Fundamentals:
     - articles/29-musl-vs-glibc.md
+    - articles/37-proc-container-isolation.md
   - Container Image Hardening:
     - articles/08-distroless-images.md
     - articles/09-image-minimization.md

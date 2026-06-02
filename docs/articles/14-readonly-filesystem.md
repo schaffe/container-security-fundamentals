@@ -297,7 +297,7 @@ Common hidden write paths:
 /var/db/mtab
 # Shared memory
 /dev/shm
-/proc/self/exe
+[/proc/self/exe](../articles/37-proc-container-isolation.md#1-cve-2019-5736--procselfexe-race)
 # Lock files
 /var/lock/
 # .cache directories

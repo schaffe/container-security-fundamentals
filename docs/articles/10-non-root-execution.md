@@ -52,7 +52,7 @@ USER appuser
 
 Why a high UID? Low UIDs (0–999) are reserved for system users (daemons like `sshd`, `syslog`, `ntp`) and vary by distribution. A high UID avoids collisions. It also avoids accidental collisions with host users (e.g., UID 1000 often maps to a real developer account), which matters when bind-mounting volumes or during a container escape.
 
-**Caveat — same UID across containers is the same problem as nobody**: If every container in your cluster runs as UID 10001, the cross-container signaling risk (`/proc/PID` access, `kill`, `ptrace`) is identical to using `nobody`. The UID number itself does not provide isolation — only **unique UIDs per workload** or **user namespaces** do. See [User Namespaces](#user-namespaces) below.
+**Caveat — same UID across containers is the same problem as nobody**: If every container in your cluster runs as UID 10001, the cross-container signaling risk ([`/proc/PID` access](../articles/37-proc-container-isolation.md#the-kernel-access-check), `kill`, `ptrace`) is identical to using `nobody`. The UID number itself does not provide isolation — only **unique UIDs per workload** or **user namespaces** do. See [User Namespaces](#user-namespaces) below.
 
 ### UID 65534 (nobody)
 
@@ -66,7 +66,7 @@ CMD ["/app"]
 
 The concerns with `nobody` are best understood in two categories:
 
-**1. Shared-UID risk (applies to any reused UID)**: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via `/proc/PID` access, `kill`, or `ptrace`. This is not specific to `nobody`; it applies equally to any UID (including 10001) used across multiple containers.
+**1. Shared-UID risk (applies to any reused UID)**: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via [`/proc/PID` access](../articles/37-proc-container-isolation.md#the-kernel-access-check), `kill`, or `ptrace`. This is not specific to `nobody`; it applies equally to any UID (including 10001) used across multiple containers.
 
 **2. `nobody`-specific issues**:
 - **No home directory**: `nobody`'s home is typically `/nonexistent` or unset. Many runtimes (JVM, Node.js, Python, SSH) require a writable `$HOME` for caches, temp files, or config.
@@ -82,7 +82,7 @@ Container A: UID 10001 → Host UID 100000
 Container B: UID 10001 → Host UID 200000
 ```
 
-Now the kernel sees different host UIDs, so `/proc` isolation, signal delivery, and file permissions are enforced. Use a dedicated high UID within the container for application correctness (home dir, audit trail), and rely on user namespaces for cross-container isolation.
+Now the kernel sees different host UIDs, so [`/proc` isolation](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), signal delivery, and file permissions are enforced. Use a dedicated high UID within the container for application correctness (home dir, audit trail), and rely on user namespaces for cross-container isolation.
 
 ```bash
 # Enable in daemon.json:
@@ -274,6 +274,139 @@ securityContext:
     type: RuntimeDefault
 ```
 
+## Kubernetes SecurityContext Best Practices
+
+### runAsNonRoot Admission Check
+
+Setting `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root before admitting the pod:
+
+| Image USER | runAsNonRoot: true | Result |
+|---|---|---|
+| `USER 10001` | ✅ | Admitted |
+| `USER appuser` | ✅ | Admitted (resolved to UID) |
+| `USER root` or `USER 0` | ❌ | Rejected |
+| No USER directive (defaults to root) | ❌ | Rejected |
+| `USER nobody` (UID 65534) | ✅ | Admitted (non-zero UID) |
+
+The check reads the `Config.User` field from the image manifest. If the UID resolves to 0 or the field is empty, the pod is rejected. **This is a critical defense** because it catches cases where the Dockerfile's `USER` is removed or the base image changes.
+
+Scenarios where `runAsNonRoot` saves you:
+- Developer accidentally removes `USER` from Dockerfile — pod won't deploy
+- Base image switches from Debian to Alpine with different user resolution — pod won't deploy
+- Attacker swaps the image tag — admission re-checks every time
+
+### Pod vs Container SecurityContext
+
+SecurityContext fields are split between pod and container level. The pod level sets defaults that containers inherit unless overridden:
+
+| Setting | Pod level | Container level |
+|---|---|---|
+| `runAsUser` | ✅ (default) | ✅ (overrides) |
+| `runAsGroup` | ✅ (default) | ✅ (overrides) |
+| `runAsNonRoot` | ✅ only | ❌ |
+| `fsGroup` | ✅ only | ❌ |
+| `supplementalGroups` | ✅ only | ❌ |
+| `seLinuxOptions` | ✅ (default) | ✅ (overrides) |
+| `seccompProfile` | ✅ (default) | ✅ (overrides) |
+| `allowPrivilegeEscalation` | ❌ | ✅ |
+| `capabilities` | ❌ | ✅ |
+| `readOnlyRootFilesystem` | ❌ | ✅ |
+
+Key rules:
+- `runAsNonRoot` can only be set at the pod level — it applies to all containers
+- `allowPrivilegeEscalation`, `capabilities`, and `readOnlyRootFilesystem` are container-only
+- The pod-level `runAsUser`/`runAsGroup` is the default; container-level overrides it
+
+### Pod Security Admission (PSA) Enforcement
+
+The modern way to enforce PSS is through Pod Security Admission, using namespace labels:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest
+    pod-security.kubernetes.io/warn: restricted
+    pod-security.kubernetes.io/audit: restricted
+```
+
+Three modes:
+- **enforce**: Rejects pods that violate the profile
+- **warn**: Admission accepts the pod but returns a warning
+- **audit**: Logs violations to the audit log without interrupting admission
+
+Best practice for adoption:
+1. Start with `warn` + `audit` on `restricted` to identify violations
+2. Fix workloads that fail
+3. Switch to `enforce: baseline` to catch obvious issues
+4. Move to `enforce: restricted` once compliant
+
+For the Restricted profile specifically, your pod must satisfy:
+
+| Requirement | Configuration |
+|---|---|
+| **Not running as root** | `runAsNonRoot: true` or image has non-root USER |
+| **No privilege escalation** | `allowPrivilegeEscalation: false` |
+| **Seccomp** | `seccompProfile.type: RuntimeDefault` |
+| **Capabilities** | `capabilities.drop: ["ALL"]` (only `NET_BIND_SERVICE` may be added) |
+| **Read-only root** | `readOnlyRootFilesystem: true` (recommended, not required) |
+
+### Common Kubernetes Anti-Patterns
+
+**Anti-pattern 1: Relying only on Dockerfile USER**
+```yaml
+# Bad — runAsNonRoot not set; a tag swap bypasses USER
+securityContext:
+  runAsUser: 10001
+```
+If someone rebuilds the image without `USER`, the pod runs as root silently. Always set `runAsNonRoot: true`.
+
+**Anti-pattern 2: Setting runAsUser: 0**
+```yaml
+# Bad — explicitly runs as root, bypassing any USER directive
+securityContext:
+  runAsUser: 0
+```
+This is common when debugging ("it works locally as root") and accidentally left in production manifests.
+
+**Anti-pattern 3: Not dropping ALL capabilities**
+```yaml
+# Bad — inherits default capabilities, many unneeded
+securityContext:
+  runAsNonRoot: true
+```
+Non-root doesn't mean capability-free. Always `drop: ["ALL"]`, then add back only what's needed.
+
+**Anti-pattern 4: Inconsistent securityContext per container**
+A pod can have 10 containers but only 2 with `runAsNonRoot: true` — the others run unrestricted. Pod-level `runAsNonRoot` prevents this.
+
+### Mutating Webhooks for Non-Root Injection
+
+When you can't control the upstream image's USER, use a mutating webhook or Kyverno policy to inject securityContext:
+
+```yaml
+# Kyverno — auto-inject runAsNonRoot into every pod
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-non-root
+spec:
+  rules:
+  - name: auto-inject-runAsNonRoot
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    mutate:
+      patchStrategicMerge:
+        spec:
+          securityContext:
+            +(runAsNonRoot): true
+```
+
 ## Complete Secure Example
 
 ```dockerfile
@@ -324,4 +457,4 @@ spec:
 
 ## Interview Tips
 
-Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `USER` instruction in the image config). Be able to explain the `no-new-privileges` flag and how it interacts with `AllowPrivilegeEscalation: false`. For a deeper understanding of how the Docker engine enforces these constraints, see [Docker Architecture](../articles/30-docker-architecture.md).
+Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `USER` instruction in the image config). Be able to explain the `no-new-privileges` flag and how it interacts with `AllowPrivilegeEscalation: false`. Know the Pod Security Standards three profiles and how Pod Security Admission enforces them via namespace labels. Understand why `runAsNonRoot` at the pod level is critical — it catches tag swaps and Dockerfile regressions that a container-level `runAsUser` alone would miss. For a deeper understanding of how the Docker engine enforces these constraints, see [Docker Architecture](../articles/30-docker-architecture.md).

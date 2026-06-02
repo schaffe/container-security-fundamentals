@@ -38,11 +38,11 @@ The `docker-default` profile allows:
 - Standard signal delivery
 
 The profile denies:
-- Writing to `/proc/sys/` (kernel parameter modification)
+- Writing to [`/proc/sys/`](../articles/37-proc-container-isolation.md#3-procsys-kernel-parameter-modification) (kernel parameter modification)
 - Writing to `/sys/` (kernel object modification)
 - Mounting filesystems
-- Access to `/proc/kcore` (kernel memory)
-- Access to `/proc/sched_debug`
+- Access to [`/proc/kcore`](../articles/37-proc-container-isolation.md#2-prockcore-full-kernel-memory) (kernel memory)
+- Access to [`/proc/sched_debug`](../articles/37-proc-container-isolation.md#attack-surface-via-proc-in-containers)
 - `capability sys_admin` (even if the capability is granted)
 
 ```bash

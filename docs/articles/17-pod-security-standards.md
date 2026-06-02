@@ -41,7 +41,7 @@ Prevents known privilege escalations. Intended for general-purpose workloads tha
 | HostPath volumes | Disallowed |
 | AppArmor | Must be `runtime/default` or local |
 | SELinux `type` | Must be unset or `container_t` |
-| `/proc` mount type | Must be `DefaultProcMount` |
+| [`/proc` mount type](../articles/37-proc-container-isolation.md#procmount-in-kubernetes) | Must be `DefaultProcMount` |
 | Sysctls | Only `net.ipv4.ip_local_port_range`, `net.ipv4.ping_group_range`, and `net.ipv4.ip_unprivileged_port_start` allowed |
 | Windows HostProcess | Disallowed |
 

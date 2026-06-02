@@ -165,7 +165,7 @@ runc run my-container
 2. Mount rootfs (pivot_root or chroot).
 3. Clone namespaces (`CLONE_NEW*` flags).
 4. Write PID to cgroup files.
-5. Mount /proc, /sys, /dev.
+5. Mount [/proc](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev.
 6. Load seccomp BPF filter.
 7. Drop capabilities (`cap_set_proc`).
 8. Write UID/GID mappings for user namespaces.
@@ -294,7 +294,7 @@ Phase 1 — Setup (runc run)
     runc init (child) ─── enters new namespaces
          │
          ├── writes PID to cgroup files
-         ├── mounts /proc, /sys, /dev
+          ├── mounts [/proc](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), /sys, /dev
          ├── loads seccomp BPF filter
          ├── drops capabilities (cap_set_proc)
          ├── writes UID/GID mappings (user ns)
@@ -316,7 +316,7 @@ Step-by-step:
 2. **runc (parent)** reads `config.json`, validates the spec, opens synchronization pipes,
    and forks with `CLONE_NEW*` flags into the new namespaces.
 3. **runc init (child)** is now inside partially-isolated namespaces. It continues setup:
-   writes the PID to cgroupfs, mounts `/proc`, `/sys`, `/dev`, loads the seccomp BPF
+   writes the PID to cgroupfs, mounts [`/proc`](../articles/37-proc-container-isolation.md#how-docker-virtualizes-proc-via-pid-namespaces), `/sys`, `/dev`, loads the seccomp BPF
    filter via `seccomp(SECCOMP_SET_MODE_FILTER)`, drops capabilities, writes user
    namespace mappings, and calls `pivot_root` (or `chroot`) into the container rootfs.
 4. **Init** calls `execve()` on `process.args[0]` (e.g., `/bin/sh`). This replaces the
