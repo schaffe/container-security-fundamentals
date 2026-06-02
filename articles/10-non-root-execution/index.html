@@ -850,6 +850,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#user-namespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Namespaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#distroless-non-root-variants" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2059,6 +2070,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#user-namespaces" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User Namespaces
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#distroless-non-root-variants" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2278,14 +2300,37 @@ RUN groupadd --gid 10001 appgroup &amp;&amp; \
     useradd --uid 10001 --gid appgroup --shell /bin/false --no-create-home appuser
 USER appuser
 </code></pre>
+<p>Why a high UID? Low UIDs (0–999) are reserved for system users (daemons like <code>sshd</code>, <code>syslog</code>, <code>ntp</code>) and vary by distribution. A high UID avoids collisions. It also avoids accidental collisions with host users (e.g., UID 1000 often maps to a real developer account), which matters when bind-mounting volumes or during a container escape.</p>
+<p><strong>Caveat — same UID across containers is the same problem as nobody</strong>: If every container in your cluster runs as UID 10001, the cross-container signaling risk (<code>/proc/PID</code> access, <code>kill</code>, <code>ptrace</code>) is identical to using <code>nobody</code>. The UID number itself does not provide isolation — only <strong>unique UIDs per workload</strong> or <strong>user namespaces</strong> do. See <a href="#user-namespaces">User Namespaces</a> below.</p>
 <h3 id="uid-65534-nobody">UID 65534 (nobody)<a class="headerlink" href="#uid-65534-nobody" title="Permanent link">&para;</a></h3>
 <p>The <code>nobody</code> user (UID 65534) exists on all Linux distributions:</p>
 <pre><code class="language-dockerfile">FROM alpine:3.19
 USER 65534
 CMD [&quot;/app&quot;]
 </code></pre>
-<p>There is a significant security concern with <code>65534</code>/<code>nobody</code>: <strong>if multiple containers share the same UID namespace, an attacker in one container can signal or interfere with processes in another container that also run as <code>nobody</code></strong>. Additionally, <code>nobody</code>'s home directory does not exist, which breaks applications that require a writable home.</p>
-<p><strong>Recommendation</strong>: Use a dedicated UID (10001) rather than 65534.</p>
+<p>The concerns with <code>nobody</code> are best understood in two categories:</p>
+<p><strong>1. Shared-UID risk (applies to any reused UID)</strong>: If multiple containers share the same UID, an attacker in one container can signal or interfere with processes in another — via <code>/proc/PID</code> access, <code>kill</code>, or <code>ptrace</code>. This is not specific to <code>nobody</code>; it applies equally to any UID (including 10001) used across multiple containers.</p>
+<p><strong>2. <code>nobody</code>-specific issues</strong>:
+- <strong>No home directory</strong>: <code>nobody</code>'s home is typically <code>/nonexistent</code> or unset. Many runtimes (JVM, Node.js, Python, SSH) require a writable <code>$HOME</code> for caches, temp files, or config.
+- <strong>System daemon conflict</strong>: <code>nobody</code> is already used by NFS, systemd-mapped services, and other kernel-managed tasks. Using it for an app creates ambiguity — is that process your app or a system daemon?
+- <strong>Unpredictable permissions</strong>: Some kernels and distributions assign <code>nobody</code> special treatment in unprivileged user namespaces, leading to inconsistent behavior.</p>
+<h3 id="user-namespaces">User Namespaces<a class="headerlink" href="#user-namespaces" title="Permanent link">&para;</a></h3>
+<p>Neither <code>nobody</code> nor a dedicated UID provides cross-container isolation on their own. <strong>User namespaces</strong> do. With <code>--userns-remap</code>, Docker maps each container's UID to a different host UID range:</p>
+<pre><code>Container A: UID 10001 → Host UID 100000
+Container B: UID 10001 → Host UID 200000
+</code></pre>
+<p>Now the kernel sees different host UIDs, so <code>/proc</code> isolation, signal delivery, and file permissions are enforced. Use a dedicated high UID within the container for application correctness (home dir, audit trail), and rely on user namespaces for cross-container isolation.</p>
+<pre><code class="language-bash"># Enable in daemon.json:
+{
+  &quot;userns-remap&quot;: &quot;default&quot;
+}
+</code></pre>
+<pre><code class="language-yaml"># Kubernetes equivalent (pod level):
+securityContext:
+  runAsUser: 10001
+  fsGroup: 10001
+</code></pre>
+<p><strong>Recommendation</strong>: Use a dedicated high UID (e.g., 10001) per application for correct runtime behavior (home directory, file ownership, audit trail). <strong>Use different UIDs per app or enable user namespaces</strong> to prevent cross-container interference. Prefer <code>nobody</code> only when no writable paths are needed and the image provides no other user — but be aware of its limitations.</p>
 <h3 id="distroless-non-root-variants">Distroless Non-root Variants<a class="headerlink" href="#distroless-non-root-variants" title="Permanent link">&para;</a></h3>
 <p>Google's distroless images ship with a pre-configured non-root user:</p>
 <pre><code class="language-dockerfile">FROM gcr.io/distroless/base-debian12:nonroot
