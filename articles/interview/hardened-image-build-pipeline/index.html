@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>System Design: Hardened Image Build Pipeline - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "System Design: Hardened Image Build Pipeline";
+        var mkdocs_page_input_path = "articles/interview/hardened-image-build-pipeline.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">System Design: Hardened Image Build Pipeline</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-design-decisions">Key Design Decisions</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#base-image-selection">Base Image Selection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#multi-stage-builds">Multi-Stage Builds</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#build-context-hygiene">Build Context Hygiene</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sbom-generation">SBOM Generation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#image-signing">Image Signing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#registry-hardening">Registry Hardening</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cicd-integration">CI/CD Integration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#slsa-l3-target">SLSA L3 Target</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#trade-offs">Trade-offs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Interview</li>
+      <li class="breadcrumb-item active">System Design: Hardened Image Build Pipeline</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/interview/hardened-image-build-pipeline.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="system-design-hardened-image-build-pipeline">System Design: Hardened Image Build Pipeline<a class="headerlink" href="#system-design-hardened-image-build-pipeline" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Design an image build pipeline that minimizes attack surface, ensures reproducibility, and guarantees provenance. The goal is a pipeline that a security-conscious organization can trust to produce artifacts that are verifiably built from known source, with no unexpected dependencies, and signed such that tampering is detectable.</p>
+<h2 id="key-design-decisions">Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Permanent link">&para;</a></h2>
+<h3 id="base-image-selection">Base Image Selection<a class="headerlink" href="#base-image-selection" title="Permanent link">&para;</a></h3>
+<p>The base image is the largest source of inherited CVEs. The hierarchy of trust:</p>
+<ol>
+<li><strong>Distroless</strong> — ~5 packages, no shell, no package manager, no setuid binaries. Best attack surface.</li>
+<li><strong>Alpine</strong> — ~30 packages, uses musl libc (fewer CVE surface than glibc historically), but ships <code>apk</code> and <code>sh</code>.</li>
+<li><strong>Ubuntu/Debian</strong> — ~150+ packages in the minimal variant. Convenient but large blast radius.</li>
+</ol>
+<p>Pin by digest, never by tag. A tag like <code>ubuntu:22.04</code> changes over time; <code>ubuntu@sha256:abc123...</code> is immutable. Scan the pinned digest with Grype or Trivy before accepting it into the pipeline. Reject any base image exceeding configured CVE thresholds (e.g., no critical CVEs, high count &lt; 5).</p>
+<h3 id="multi-stage-builds">Multi-Stage Builds<a class="headerlink" href="#multi-stage-builds" title="Permanent link">&para;</a></h3>
+<p>Separate builder and runtime stages:</p>
+<pre><code class="language-dockerfile">FROM golang:1.22@sha256:... AS builder
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -trimpath -ldflags=&quot;-w -s&quot; -o /app
+
+FROM gcr.io/distroless/static-debian12@sha256:...
+COPY --from=builder /app /app
+ENTRYPOINT [&quot;/app&quot;]
+</code></pre>
+<p>Each stage is scanned independently. The builder stage may contain dev tools with CVEs that never reach runtime. The runtime stage should have near-zero CVEs.</p>
+<h3 id="build-context-hygiene">Build Context Hygiene<a class="headerlink" href="#build-context-hygiene" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>.dockerignore</strong> — exclude <code>.git</code>, <code>node_modules</code>, <code>test/</code>, <code>*.md</code>, CI configs. Prevents secrets in build context and reduces image size.</li>
+<li><strong><code>docker build --secret</code></strong> — pass build-time secrets (NPM tokens, SSH keys) via <code>--secret</code> instead of <code>COPY</code>. Secrets never end up in image layers.</li>
+<li><strong>No <code>COPY .</code></strong> — copy only what's needed. <code>COPY go.mod go.sum ./</code> before <code>COPY . .</code> leverages layer caching and prevents accidental inclusion.</li>
+</ul>
+<h3 id="sbom-generation">SBOM Generation<a class="headerlink" href="#sbom-generation" title="Permanent link">&para;</a></h3>
+<p>Run Syft at the end of every build to generate an SBOM in SPDX or CycloneDX format:</p>
+<pre><code class="language-bash">syft packages /app -o spdx-json --file sbom.spdx.json
+</code></pre>
+<p>Attach the SBOM as an in-toto attestation using Cosign:</p>
+<pre><code class="language-bash">cosign attest --predicate sbom.spdx.json --type spdx $IMAGE
+</code></pre>
+<h3 id="image-signing">Image Signing<a class="headerlink" href="#image-signing" title="Permanent link">&para;</a></h3>
+<p>Use Cosign keyless signing via OIDC (GitHub/GitLab OIDC). This binds the identity of the CI pipeline to the image digest:</p>
+<pre><code class="language-bash">cosign sign $IMAGE@$DIGEST
+</code></pre>
+<p>Sign the digest, not the tag. Tags are mutable; digests are immutable. Signing the digest means verification checks the cryptographic identity of the image content, not a floating label.</p>
+<p>Also sign the SBOM and provenance attestation. This creates a bundle of cryptographically linked artifacts: image → signature → SBOM → provenance.</p>
+<h3 id="registry-hardening">Registry Hardening<a class="headerlink" href="#registry-hardening" title="Permanent link">&para;</a></h3>
+<p>Push through admission control using OPA/Gatekeeper or Kyverno. The admission policy enforces:</p>
+<ul>
+<li>Signature is present and matches expected OIDC identity (subject = CI pipeline, issuer = known provider)</li>
+<li>No critical CVEs in the scanned image</li>
+<li>Provenance attestation is present and valid (SLSA L3 predicate)</li>
+</ul>
+<h3 id="cicd-integration">CI/CD Integration<a class="headerlink" href="#cicd-integration" title="Permanent link">&para;</a></h3>
+<p>The pipeline is a strict sequence: <strong>build → scan → sign → push → notify</strong>. Each step gates the next:</p>
+<pre><code>Developer push → CI trigger → Docker build + Syft SBOM → Trivy scan →
+Cosign sign + attest → OPA policy check → Registry push →
+Deployment controller verifies before node pull
+</code></pre>
+<p>The pipeline fails on scan thresholds or signature failure. Rollback is a no-op: a failed sign means no image is pushed, and the previous image remains in the registry.</p>
+<h3 id="slsa-l3-target">SLSA L3 Target<a class="headerlink" href="#slsa-l3-target" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Hermetic builds</strong> — all dependencies declared upfront, network access disabled during build</li>
+<li><strong>Provenance generation</strong> — in-toto attestation recording build platform, source commit, build instructions</li>
+<li><strong>Non-forgeable provenance</strong> — build platform holds the signing key; developers never touch it</li>
+</ul>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code>┌──────────┐    ┌──────────────┐    ┌──────────┐    ┌───────────┐
+│ Developer │───▶│ CI Pipeline  │───▶│   Build  │───▶│   Scan    │
+│   Push    │    │ (GitHub/     │    │ (BuildKit)│   │  (Trivy)  │
+└──────────┘    │  GitLab)     │    └──────────┘   └─────┬─────┘
+                └──────────────┘                          │ pass
+                                                          ▼
+                ┌──────────────────────────────────────────────────┐
+                │         Registry Admission (OPA/Kyverno)         │
+                │  ┌──────────┐  ┌──────────┐  ┌─────────────┐    │
+                │  │ Signature│  │   SBOM   │  │ Provenance  │    │
+                │  │ Present  │  │  Valid   │  │  SLSA L3    │    │
+                │  └──────────┘  └──────────┘  └─────────────┘    │
+                └──────────────────────┬───────────────────────────┘
+                                       │ pass
+                                       ▼
+                               ┌──────────────┐
+                               │   Registry   │
+                               │  Push Image  │
+                               └──────────────┘
+                                       │
+                                       ▼
+                               ┌──────────────────────┐
+                               │ Deployment Controller │
+                               │ verify before pull    │
+                               └──────────────────────┘
+</code></pre>
+<h2 id="trade-offs">Trade-offs<a class="headerlink" href="#trade-offs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Pro</th>
+<th>Con</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Distroless base</td>
+<td>Minimal CVEs, small image</td>
+<td>No shell — debugging requires debug container</td>
+</tr>
+<tr>
+<td>Keyless signing</td>
+<td>No key rotation, OIDC binds to pipeline</td>
+<td>Air-gapped environments need KMS keys</td>
+</tr>
+<tr>
+<td>Hermetic builds</td>
+<td>Deterministic, auditable</td>
+<td>Slower, breaks if upstream source disappears</td>
+</tr>
+<tr>
+<td>Multi-stage</td>
+<td>Clean separation of build vs. runtime</td>
+<td>Complex Dockerfile, harder to maintain</td>
+</tr>
+</tbody>
+</table>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>A hardened image build pipeline is a layered defense: minimal base images, multi-stage separation, SBOM generation, cryptographic signing, and policy enforcement at admission. The combination of SLSA L3 provenance, Cosign keyless signing, and OPA/Kyverno admission creates a pipeline where tampering is detectable at every stage.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../docker/product-strategy/docker-supply-chain-platform/" class="btn btn-neutral float-left" title="Docker's Supply Chain Platform Strategy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../cve-triage-system/" class="btn btn-neutral float-right" title="System Design: CVE Triage System">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../docker/product-strategy/docker-supply-chain-platform/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../cve-triage-system/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

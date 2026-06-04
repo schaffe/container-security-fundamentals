@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>System Design: Image Signing and Verification Workflow - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "System Design: Image Signing and Verification Workflow";
+        var mkdocs_page_input_path = "articles/interview/image-signing-verification.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">System Design: Image Signing and Verification Workflow</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-design-decisions">Key Design Decisions</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#signing-cosign-keyless-via-oidc">Signing: Cosign Keyless via OIDC</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#verification-at-deploy-admission-controller">Verification at Deploy: Admission Controller</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#policy-as-code-rego-rules">Policy as Code: Rego Rules</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#key-management">Key Management</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#continuous-verification-ratify">Continuous Verification: Ratify</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tool-comparison">Tool Comparison</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#architecture">Architecture</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#trade-offs">Trade-offs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#conclusion">Conclusion</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Interview</li>
+      <li class="breadcrumb-item active">System Design: Image Signing and Verification Workflow</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/interview/image-signing-verification.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="system-design-image-signing-and-verification-workflow">System Design: Image Signing and Verification Workflow<a class="headerlink" href="#system-design-image-signing-and-verification-workflow" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Design a workflow that proves an image's origin, detects tampering, and enforces policy at deployment time. The goal is to ensure that every container running in a cluster was built by an authorized CI pipeline, has not been altered since signing, and carries verifiable metadata (SBOM, provenance, SLSA attestation).</p>
+<h2 id="key-design-decisions">Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Permanent link">&para;</a></h2>
+<h3 id="signing-cosign-keyless-via-oidc">Signing: Cosign Keyless via OIDC<a class="headerlink" href="#signing-cosign-keyless-via-oidc" title="Permanent link">&para;</a></h3>
+<p>Cosign keyless signing uses ephemeral certificates issued by Fulcio, a Sigstore component, bound to the CI pipeline's OIDC identity. No long-lived keys to rotate or store:</p>
+<pre><code class="language-bash">cosign sign $IMAGE@$DIGEST
+</code></pre>
+<p><strong>Sign the digest, not the tag.</strong> Tags like <code>latest</code> are mutable — two different images can share the same tag. Digests are immutable content hashes. Signing the digest binds the signature to the exact image content. Verification always checks <code>$IMAGE@$DIGEST</code>.</p>
+<p>The signature is stored as an OCI artifact in the registry alongside the image. It contains the digest, the signer's identity (OIDC subject + issuer), and the Fulcio certificate chain.</p>
+<p><strong>Sign more than the image.</strong> Also sign the SBOM (<code>cosign attest --predicate sbom.spdx.json --type spdx</code>) and provenance attestation (<code>cosign attest --predicate provenance.json --type slsaprovenance/v1</code>). Each is attached as an in-toto attestation, creating a bundle: image ↔ signature ↔ SBOM ↔ provenance. An attacker who tampers with the image must also forge the signature, the SBOM, and the provenance attestation.</p>
+<h3 id="verification-at-deploy-admission-controller">Verification at Deploy: Admission Controller<a class="headerlink" href="#verification-at-deploy-admission-controller" title="Permanent link">&para;</a></h3>
+<p>A Kubernetes admission controller (Kyverno with <code>verifyImages</code>, or Ratify) intercepts all Pod create operations. It performs three checks:</p>
+<ol>
+<li><strong>Signature exists and matches expected identity</strong> — The signature must be present and its OIDC identity must match the expected CI pipeline.</li>
+<li><strong>Attestation contains valid SBOM</strong> — The SBOM attestation is verified and checked for policy violations (no critical CVEs, no prohibited packages).</li>
+<li><strong>Attestation matches SLSA level</strong> — The provenance attestation is verified and meets the required SLSA level.</li>
+</ol>
+<h3 id="policy-as-code-rego-rules">Policy as Code: Rego Rules<a class="headerlink" href="#policy-as-code-rego-rules" title="Permanent link">&para;</a></h3>
+<p>An admission policy expressed in Rego (OPA/Gatekeeper):</p>
+<pre><code class="language-rego">allow if {
+  input.image.registry == &quot;trusted-registry.io&quot;
+  cosign.verify(input.image, {
+    &quot;subject&quot;: &quot;https://github.com/myorg/myapp/.github/workflows/build.yml@refs/heads/main&quot;,
+    &quot;issuer&quot;: &quot;https://token.actions.githubusercontent.com&quot;
+  })
+  input.image.annotations[&quot;build.slsa.level&quot;] == &quot;3&quot;
+}
+</code></pre>
+<p>If any check fails, the admission controller rejects the Pod creation with a clear message.</p>
+<h3 id="key-management">Key Management<a class="headerlink" href="#key-management" title="Permanent link">&para;</a></h3>
+<p><strong>Keyless signing</strong> eliminates key rotation for internet-connected CI. Fulcio issues short-lived certificates (minutes) bound to the OIDC token. Rekor, the Sigstore transparency log, records every signing event for audit.</p>
+<p><strong>Air-gapped environments</strong> need a different approach. Use rootless key pairs stored in a KMS:</p>
+<ul>
+<li><strong>AWS KMS</strong> — <code>cosign generate-key-pair --kms aws-kms://arn:aws:kms:us-east-1:...</code></li>
+<li><strong>GCP Cloud KMS</strong> — <code>cosign generate-key-pair --kms gcpkms://projects/...</code></li>
+<li><strong>Azure Key Vault</strong> — <code>cosign generate-key-pair --kms azurekms://...</code></li>
+</ul>
+<p>The private key never leaves the KMS. Signing happens via KMS API calls.</p>
+<h3 id="continuous-verification-ratify">Continuous Verification: Ratify<a class="headerlink" href="#continuous-verification-ratify" title="Permanent link">&para;</a></h3>
+<p>Ratify is a Kubernetes admission controller that verifies the entire signature chain before the node pulls the image:</p>
+<ol>
+<li>Checks the signature against Fulcio's certificate chain</li>
+<li>Verifies the Rekor transparency log entry</li>
+<li>Validates attestations (SBOM, provenance)</li>
+<li>Applies policy</li>
+</ol>
+<p>If verification fails, the image pull is denied. This prevents a compromised node from pulling an unsigned image even if admission was bypassed.</p>
+<h3 id="tool-comparison">Tool Comparison<a class="headerlink" href="#tool-comparison" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Cosign</th>
+<th>Notary v2</th>
+<th>Prysm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keyless OIDC signing</td>
+<td>✅ Native</td>
+<td>❌ TUF keys</td>
+<td>✅ Supported</td>
+</tr>
+<tr>
+<td>Signing format</td>
+<td>OCI artifact</td>
+<td>OCI artifact</td>
+<td>WASM module</td>
+</tr>
+<tr>
+<td>Attestation support</td>
+<td>✅ In-toto attests</td>
+<td>❌ Sign-only</td>
+<td>✅ Through WASM</td>
+</tr>
+<tr>
+<td>Verification</td>
+<td>cosign verify CLI</td>
+<td>Notation CLI</td>
+<td>Prysm plugin</td>
+</tr>
+<tr>
+<td>Transparency log</td>
+<td>Rekor</td>
+<td>Optional</td>
+<td>Configurable</td>
+</tr>
+<tr>
+<td>Maturity</td>
+<td>GA, wide adoption</td>
+<td>GA, Docker ecosystem</td>
+<td>Beta, extensible</td>
+</tr>
+<tr>
+<td>Air-gapped</td>
+<td>KMS support</td>
+<td>TUF delegation</td>
+<td>WASM-based</td>
+</tr>
+</tbody>
+</table>
+<p>Cosign dominates for OIDC-based workflows because keyless signing removes the key management burden. Notary v2 fits ecosystems already using TUF. Prysm is extensible via WASM but less mature.</p>
+<h2 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h2>
+<pre><code>                     CI Pipeline
+                         │
+                    cosign sign
+                    cosign attest
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │   Registry   │
+                  │  (image +    │
+                  │   signature  │
+                  │   + SBOM     │
+                  │   + provenance)│
+                  └──────┬───────┘
+                         │
+                         ▼
+            ┌──────────────────────────┐
+            │   Admission Controller   │
+            │   (Kyverno/Ratify)       │
+            │ 1. Verify signature      │
+            │ 2. Verify attestations   │
+            │ 3. Apply Rego policy     │
+            │                          │
+            │ pass? ──── YES ──────►   │
+            │ reject ◄── NO           │
+            └──────────────────────────┘
+                         │
+                         ▼
+            ┌──────────────────────────┐
+            │   Ratify (pre-pull)      │
+            │   - Cert chain check     │
+            │   - Rekor transparency   │
+            │   - Policy evaluation    │
+            └──────────────────────────┘
+                         │
+                         ▼
+                  ┌──────────────┐
+                  │    Node      │
+                  │  Pull Image  │
+                  │  Run Pod     │
+                  └──────────────┘
+</code></pre>
+<h2 id="trade-offs">Trade-offs<a class="headerlink" href="#trade-offs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Pro</th>
+<th>Con</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Keyless signing</td>
+<td>No key rotation, strong OIDC binding</td>
+<td>Requires internet access (Fulcio + Rekor)</td>
+</tr>
+<tr>
+<td>Sign digest, not tag</td>
+<td>Immutable binding, tamper-proof</td>
+<td>Tag-to-digest resolution needed at deploy</td>
+</tr>
+<tr>
+<td>Ratify admission + pre-pull</td>
+<td>Defense in depth, catches bypasses</td>
+<td>Deploy latency from verification time</td>
+</tr>
+<tr>
+<td>Rekor transparency log</td>
+<td>Public audit trail, detects key compromise</td>
+<td>Privacy concern — all signing events are public</td>
+</tr>
+</tbody>
+</table>
+<h2 id="conclusion">Conclusion<a class="headerlink" href="#conclusion" title="Permanent link">&para;</a></h2>
+<p>An image signing and verification workflow is the enforcement layer of supply chain security. Cosign keyless signing at build time, plus verification at admission and pre-pull via Ratify, creates a chain where tampering is detectable and unsigned images cannot run. The choice between keyless and KMS-backed signing depends on connectivity; the choice between Cosign, Notary v2, and Prysm depends on the existing trust infrastructure. In all cases, the principle is the same: verify before execute, and never trust a tag.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../cve-triage-system/" class="btn btn-neutral float-left" title="System Design: CVE Triage System"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../cve-triage-system/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

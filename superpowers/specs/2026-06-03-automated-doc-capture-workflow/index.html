@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>GitHub Pages with MkDocs Implementation Plan - Docker Supply Chain</title>
+    <title>Automated Doc Capture via Ephemeral Worktrees - Docker Supply Chain</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "GitHub Pages with MkDocs Implementation Plan";
-        var mkdocs_page_input_path = "superpowers/plans/2026-06-01-github-pages-mkdocs.md";
+        var mkdocs_page_name = "Automated Doc Capture via Ephemeral Worktrees";
+        var mkdocs_page_input_path = "superpowers/specs/2026-06-03-automated-doc-capture-workflow.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -167,9 +167,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">GitHub Pages with MkDocs Implementation Plan</li>
+      <li class="breadcrumb-item active">Automated Doc Capture via Ephemeral Worktrees</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/superpowers/plans/2026-06-01-github-pages-mkdocs.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/superpowers/specs/2026-06-03-automated-doc-capture-workflow.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -177,174 +177,86 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="github-pages-with-mkdocs-implementation-plan">GitHub Pages with MkDocs Implementation Plan<a class="headerlink" href="#github-pages-with-mkdocs-implementation-plan" title="Permanent link">&para;</a></h1>
-<blockquote>
-<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
-</blockquote>
-<p><strong>Goal:</strong> Publish interview-prep markdown articles as a GitHub Pages site using MkDocs with Material theme.</p>
-<p><strong>Architecture:</strong> Standard MkDocs site with articles grouped by 5 topic sections in the sidebar. Single <code>docs/</code> directory contains all content. Deploy to <code>gh-pages</code> branch via <code>mkdocs gh-deploy</code>.</p>
-<p><strong>Tech Stack:</strong> Python, MkDocs, mkdocs-material, GitHub Pages</p>
-<hr />
-<h3 id="task-1-install-dependencies">Task 1: Install Dependencies<a class="headerlink" href="#task-1-install-dependencies" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong> None</p>
-<ul>
-<li>[ ] <strong>Create and activate virtual environment</strong></li>
-</ul>
-<p>Run: <code>python3 -m venv .venv &amp;&amp; source .venv/bin/activate</code></p>
-<p>Expected: virtual environment created in <code>.venv/</code>.</p>
-<ul>
-<li>[ ] <strong>Add .venv to .gitignore</strong></li>
-</ul>
-<p>Append <code>.venv/</code> to <code>.gitignore</code>. Create the file if it doesn't exist.</p>
-<ul>
-<li>[ ] <strong>Install mkdocs and mkdocs-material</strong></li>
-</ul>
-<p>Run: <code>pip install mkdocs mkdocs-material</code></p>
-<p>Expected: both packages install successfully into the venv.</p>
-<ul>
-<li>[ ] <strong>Verify installation</strong></li>
-</ul>
-<p>Run: <code>mkdocs --version</code>
-Expected: outputs version (e.g., <code>mkdocs, version 1.6.1</code>)</p>
-<ul>
-<li>[ ] <strong>Commit</strong></li>
-</ul>
-<pre><code class="language-bash">git add .gitignore .venv &amp;&amp; git commit -m &quot;chore: add mkdocs and mkdocs-material to venv&quot;
+                <h1 id="automated-doc-capture-via-ephemeral-worktrees">Automated Doc Capture via Ephemeral Worktrees<a class="headerlink" href="#automated-doc-capture-via-ephemeral-worktrees" title="Permanent link">&para;</a></h1>
+<h2 id="motivation">Motivation<a class="headerlink" href="#motivation" title="Permanent link">&para;</a></h2>
+<p>When a user asks a follow-up question that warrants documentation, the
+<code>documenting-answers</code> skill captures it. Currently it writes directly to the main
+checkout. This prevents running multiple capture queries in parallel (you'd get
+interleaved dirty state) and couples doc writing to the active workspace.</p>
+<h2 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h2>
+<p>Introduce an ephemeral branch + worktree per capture session. The full lifecycle
+is owned by <code>documenting-answers</code>; <code>publishing-docs</code> is unchanged.</p>
+<h3 id="branch-naming">Branch naming<a class="headerlink" href="#branch-naming" title="Permanent link">&para;</a></h3>
+<pre><code>docs/&lt;topic-slug&gt;
 </code></pre>
-<h3 id="task-2-restructure-files-into-docs">Task 2: Restructure Files into docs/<a class="headerlink" href="#task-2-restructure-files-into-docs" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong>
-- Move: <code>articles/</code> → <code>docs/articles/</code>
-- Move: <code>docker-supply-chain.md</code> → <code>docs/docker-supply-chain.md</code></p>
-<ul>
-<li>[ ] <strong>Move articles directory</strong></li>
-</ul>
-<p>Run: <code>mkdir -p docs/articles &amp;&amp; git mv articles/* docs/articles/</code></p>
-<p>Expected: <code>docs/articles/</code> contains all 28 <code>.md</code> files, original <code>articles/</code> directory gone.</p>
-<ul>
-<li>[ ] <strong>Move root markdown file</strong></li>
-</ul>
-<p>Run: <code>git mv docker-supply-chain.md docs/docker-supply-chain.md</code></p>
-<p>Expected: <code>docs/docker-supply-chain.md</code> exists.</p>
-<ul>
-<li>[ ] <strong>Commit</strong></li>
-</ul>
-<pre><code class="language-bash">git add -A &amp;&amp; git commit -m &quot;chore: restructure markdown files under docs/&quot;
+<p>Created from <code>main</code>. Deleted after merge.</p>
+<h3 id="worktree-location">Worktree location<a class="headerlink" href="#worktree-location" title="Permanent link">&para;</a></h3>
+<pre><code>.worktrees/docs/&lt;topic-slug&gt;/
 </code></pre>
-<h3 id="task-3-create-landing-page">Task 3: Create Landing Page<a class="headerlink" href="#task-3-create-landing-page" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong>
-- Create: <code>docs/index.md</code></p>
-<ul>
-<li>[ ] <strong>Write docs/index.md</strong></li>
-</ul>
-<pre><code class="language-markdown"># Docker Supply Chain — Interview Prep
+<p>Project-local, added to <code>.gitignore</code> so worktree contents are never tracked.</p>
+<h3 id="lifecycle">Lifecycle<a class="headerlink" href="#lifecycle" title="Permanent link">&para;</a></h3>
+<pre><code>User approves proposal
+  → [create] git branch docs/&lt;topic&gt; main
+              git worktree add .worktrees/docs/&lt;topic&gt; docs/&lt;topic&gt;
 
-Collection of articles on container supply chain security, image hardening, and Docker's security strategy.
+  → [apply]   write approved edits into .worktrees/docs/&lt;topic&gt;/docs/
 
-## Topics
+  → [verify]  mkdocs build --strict (in worktree, using venv from main checkout)
 
-- **[Supply Chain Security Theory](articles/01-slsa-framework.md)** — SLSA, in-toto, SBOM, Sigstore, trusted builds
-- **[Container Image Hardening](articles/08-distroless-images.md)** — distroless, seccomp, capabilities, AppArmor
-- **[Helm Chart Security](articles/16-securitycontext-vs-podsecuritycontext.md)** — SecurityContext, Pod Security Standards, admission control
-- **[CVE Lifecycle](articles/20-scanner-internals.md)** — scanners, CVSS, EPSS, fix categorization
-- **[Docker Product &amp; Strategy](articles/25-docker-scout.md)** — Scout, DHI, Notary, supply chain platform
+  → [commit]  git add + git commit (in worktree)
 
-[Browse the full topic map →](docker-supply-chain.md)
+  → [merge]   git checkout main
+               git merge docs/&lt;topic&gt; (no-ff, with commit message)
+
+  → [push]    git push upstream main
+
+  → [deploy]  source .venv/bin/activate &amp;&amp; mkdocs gh-deploy --remote-name upstream
+
+  → [cleanup] git branch -d docs/&lt;topic&gt;
+               git worktree remove .worktrees/docs/&lt;topic&gt;
 </code></pre>
+<h3 id="ownership">Ownership<a class="headerlink" href="#ownership" title="Permanent link">&para;</a></h3>
 <ul>
-<li>[ ] <strong>Commit</strong></li>
+<li><strong>documenting-answers</strong> — creates branch + worktree, applies edits, runs the
+  full merge→deploy→cleanup sequence</li>
+<li><strong>publishing-docs</strong> — unchanged. Still used for standalone deploy requests
+  from main.</li>
 </ul>
-<pre><code class="language-bash">git add docs/index.md &amp;&amp; git commit -m &quot;feat: add landing page&quot;
+<h3 id="error-handling">Error handling<a class="headerlink" href="#error-handling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>If <code>mkdocs build --strict</code> fails: report the failure to the user, do NOT
+  proceed to commit/merge. Worktree remains for debugging.</li>
+<li>If merge has conflicts: report to user, leave worktree intact for manual
+  resolution. Do NOT deploy.</li>
+<li>On any failure: stop and report. Do not auto-cleanup so state is inspectable.</li>
+</ul>
+<h3 id="parallelism">Parallelism<a class="headerlink" href="#parallelism" title="Permanent link">&para;</a></h3>
+<p>Multiple capturing queries can run simultaneously because each gets its own
+<code>docs/&lt;topic&gt;</code> branch and worktree. There is no shared mutable state until merge
+time, when each branch serializes on merging into <code>main</code>.</p>
+<h3 id="cleanup-if-interrupted">Cleanup if interrupted<a class="headerlink" href="#cleanup-if-interrupted" title="Permanent link">&para;</a></h3>
+<p>If the process fails mid-way, the branch and worktree persist. Manual cleanup:</p>
+<pre><code class="language-bash">git worktree remove .worktrees/docs/&lt;topic&gt; 2&gt;/dev/null; git branch -D docs/&lt;topic&gt;
 </code></pre>
-<h3 id="task-4-create-mkdocsyml">Task 4: Create mkdocs.yml<a class="headerlink" href="#task-4-create-mkdocsyml" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong>
-- Create: <code>mkdocs.yml</code></p>
-<ul>
-<li>[ ] <strong>Write mkdocs.yml</strong></li>
-</ul>
-<pre><code class="language-yaml">site_name: Docker Supply Chain
-site_description: Interview prep articles on container supply chain security
-theme:
-  name: material
-  features:
-    - navigation.sections
-    - navigation.top
-    - toc.follow
-    - search.highlight
-nav:
-  - Home: index.md
-  - Docker Supply Chain Overview: docker-supply-chain.md
-  - Supply Chain Security Theory:
-    - articles/01-slsa-framework.md
-    - articles/02-in-toto-attestations.md
-    - articles/03-sbom.md
-    - articles/04-sigstore.md
-    - articles/05-dependency-management-security.md
-    - articles/06-trusted-builds.md
-    - articles/07-notary-docker-content-trust.md
-  - Container Image Hardening:
-    - articles/08-distroless-images.md
-    - articles/09-image-minimization.md
-    - articles/10-non-root-execution.md
-    - articles/11-linux-capabilities.md
-    - articles/12-seccomp.md
-    - articles/13-apparmor-selinux.md
-    - articles/14-readonly-filesystem.md
-    - articles/15-multi-arch-security.md
-  - Helm Chart Security:
-    - articles/16-securitycontext-vs-podsecuritycontext.md
-    - articles/17-pod-security-standards.md
-    - articles/18-adapting-upstream-helm-charts.md
-    - articles/19-admission-control.md
-  - CVE Lifecycle:
-    - articles/20-scanner-internals.md
-    - articles/21-cve-sources.md
-    - articles/22-cvss-epss.md
-    - articles/23-fix-categorization.md
-    - articles/24-coordinated-disclosure.md
-  - Docker Product &amp; Strategy:
-    - articles/25-docker-scout.md
-    - articles/26-docker-hardened-images.md
-    - articles/27-docker-content-trust.md
-    - articles/28-docker-supply-chain-platform.md
-markdown_extensions:
-  - toc:
-      permalink: true
-</code></pre>
-<ul>
-<li>[ ] <strong>Commit</strong></li>
-</ul>
-<pre><code class="language-bash">git add mkdocs.yml &amp;&amp; git commit -m &quot;feat: add mkdocs config with material theme and grouped nav&quot;
-</code></pre>
-<h3 id="task-5-verify-locally">Task 5: Verify Locally<a class="headerlink" href="#task-5-verify-locally" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong> None</p>
-<ul>
-<li>[ ] <strong>Serve the site locally</strong></li>
-</ul>
-<p>Run: <code>mkdocs serve</code>
-Expected: starts dev server on <code>http://127.0.0.1:8000</code>. Open in browser and verify:
-  - Landing page renders
-  - Sidebar shows grouped sections
-  - Clicking articles navigates correctly
-  - Search works</p>
-<p>Stop the server with Ctrl+C after verification.</p>
-<h3 id="task-6-deploy-to-github-pages">Task 6: Deploy to GitHub Pages<a class="headerlink" href="#task-6-deploy-to-github-pages" title="Permanent link">&para;</a></h3>
-<p><strong>Files:</strong> None</p>
-<ul>
-<li>[ ] <strong>Build and deploy</strong></li>
-</ul>
-<p>Run: <code>mkdocs gh-deploy</code></p>
-<p>Expected: builds site to <code>site/</code>, pushes to <code>gh-pages</code> branch on origin.</p>
-<ul>
-<li>[ ] <strong>Verify deployment</strong></li>
-</ul>
-<p>Visit <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code> in browser. Verify the same checks as Task 5.</p>
-<h3 id="task-7-commit-final-changes">Task 7: Commit Final Changes<a class="headerlink" href="#task-7-commit-final-changes" title="Permanent link">&para;</a></h3>
-<ul>
-<li>[ ] <strong>Commit the docs/ directory and mkdocs.yml</strong></li>
-</ul>
-<pre><code class="language-bash">git add mkdocs.yml docs/ &amp;&amp; git commit -m &quot;feat: add mkdocs site with articles&quot;
-</code></pre>
-<p>(If <code>mkdocs serve</code> or <code>gh-deploy</code> created a <code>site/</code> directory, add it to <code>.gitignore</code> first.)</p>
+<h2 id="files-changed">Files changed<a class="headerlink" href="#files-changed" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.gitignore</code></td>
+<td>Add <code>.worktrees/</code></td>
+</tr>
+<tr>
+<td><code>.opencode/skills/documenting-answers/SKILL.md</code></td>
+<td>Rewrite publish step with worktree lifecycle</td>
+</tr>
+</tbody>
+</table>
               
             </div>
           </div><footer>
