@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../img/favicon.ico" />
-    <title>musl vs glibc: Choosing a C Standard Library for Containers - Docker Supply Chain</title>
+    <title>Ecosystem Tools Reference - Docker Supply Chain</title>
     <link rel="stylesheet" href="../../../css/theme.css" />
     <link rel="stylesheet" href="../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "musl vs glibc: Choosing a C Standard Library for Containers";
-        var mkdocs_page_input_path = "articles/linux-fundamentals/musl-vs-glibc.md";
+        var mkdocs_page_name = "Ecosystem Tools Reference";
+        var mkdocs_page_input_path = "articles/kubernetes-security/ecosystem-tools-reference.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -66,24 +66,12 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="#">musl vs glibc: Choosing a C Standard Library for Containers</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#background">Background</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#comparison">Comparison</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#compatibility-pitfalls">Compatibility Pitfalls</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#security-decision-framework">Security Decision Framework</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#see-also">See Also</a>
-    </li>
-    </ul>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../proc-container-isolation/">/proc and Container Isolation</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
@@ -108,18 +96,30 @@
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
-              <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Ecosystem Tools Reference</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#cert-manager">cert-manager</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#kyverno">Kyverno</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#grafana">Grafana</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#istio">Istio</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#comparison-at-a-glance">Comparison at a Glance</a>
+    </li>
+    </ul>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../pod-security-standards/">Pod Security Standards (PSS)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../admission-control/">Admission Control for Supply Chain Security</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
@@ -187,10 +187,10 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Linux Fundamentals</li>
-      <li class="breadcrumb-item active">musl vs glibc: Choosing a C Standard Library for Containers</li>
+          <li class="breadcrumb-item">Kubernetes Security</li>
+      <li class="breadcrumb-item active">Ecosystem Tools Reference</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/linux-fundamentals/musl-vs-glibc.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/kubernetes-security/ecosystem-tools-reference.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -198,97 +198,94 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="musl-vs-glibc-choosing-a-c-standard-library-for-containers">musl vs glibc: Choosing a C Standard Library for Containers<a class="headerlink" href="#musl-vs-glibc-choosing-a-c-standard-library-for-containers" title="Permanent link">&para;</a></h1>
-<h2 id="background">Background<a class="headerlink" href="#background" title="Permanent link">&para;</a></h2>
-<p>The Alpine vs distroless vs Ubuntu decision is ultimately a <strong>libc decision</strong>. Alpine uses <strong>musl</strong>; distroless and Ubuntu use <strong>glibc</strong>. Understanding the difference is critical for container security and compatibility.</p>
-<p><strong>musl</strong> is a lightweight, fast, standards-compliant C standard library implementation. It is the default libc in Alpine Linux (~5 MB base image vs Ubuntu's ~80 MB), which makes it one of the most widely deployed libcs in the container ecosystem.</p>
-<h2 id="comparison">Comparison<a class="headerlink" href="#comparison" title="Permanent link">&para;</a></h2>
+                <h1 id="key-kubernetes-ecosystem-tools">Key Kubernetes Ecosystem Tools<a class="headerlink" href="#key-kubernetes-ecosystem-tools" title="Permanent link">&para;</a></h1>
+<p>Several ecosystem tools appear throughout the Kubernetes Security articles. This page provides a quick reference for each — what it is, why it matters for security, and where it's discussed in detail.</p>
+<hr />
+<h2 id="cert-manager">cert-manager<a class="headerlink" href="#cert-manager" title="Permanent link">&para;</a></h2>
+<p><strong>What it is:</strong> A Kubernetes add-on that automates the lifecycle of TLS certificates. It issues, renews, and rotates certificates from a variety of issuers — Let's Encrypt, HashiCorp Vault, Venafi, AWS Private CA, and self-signed CAs. It manages certificates via Kubernetes CRDs: <code>Certificate</code>, <code>Issuer</code>, <code>ClusterIssuer</code>, and <code>CertificateRequest</code>.</p>
+<p><strong>Role in security:</strong> cert-manager enables automatic mTLS for pod-to-pod communication, ingress TLS termination, and CA-based identity. Without it, certificate rotation is manual and often neglected, leading to expired certs or long-lived keys.</p>
+<p><strong>In this project:</strong> Referenced in <a href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a> as a chart that requires careful security context adaptation — its <code>cainjector</code> component historically needed privileged mode but modern versions work under Restricted.</p>
+<p><strong>Resources:</strong> cert-manager.io</p>
+<hr />
+<h2 id="kyverno">Kyverno<a class="headerlink" href="#kyverno" title="Permanent link">&para;</a></h2>
+<p><strong>What it is:</strong> A Kubernetes-native policy engine that validates, mutates, and generates Kubernetes resources. Policies are defined as CRDs, not in a separate language — a <code>ClusterPolicy</code> resource uses YAML-based <code>match</code>/<code>validate</code>/<code>mutate</code> rules. This makes it more approachable than OPA/Gatekeeper (which uses Rego).</p>
+<p><strong>Role in security:</strong> Kyverno is the most commonly cited admission controller for supply chain security. Its <code>verifyImages</code> rule enforces that only signed images (via Cosign, Notation, or custom attestors) can be deployed. It also enforces Pod Security Standards, blocks dangerous capabilities, requires resource limits, and can audit existing resources via background scans.</p>
+<p><strong>Key capabilities:</strong></p>
+<ul>
+<li><strong>Verify images at admission</strong> — check Cosign signatures, attestations, SBOMs</li>
+<li><strong>Mutate resources</strong> — inject sidecars, set default security contexts</li>
+<li><strong>Generate resources</strong> — create NetworkPolicies or Secrets based on namespace labels</li>
+<li><strong>Audit mode</strong> — report violations without blocking (for gradual rollout)</li>
+</ul>
+<p><strong>In this project:</strong> Discussed extensively in <a href="../admission-control/">Admission Control</a> and <a href="../securing-kubernetes-runtime/">Securing the Kubernetes Runtime</a>. Also appears in interview articles on hardened image build pipelines and image signing.</p>
+<p><strong>Resources:</strong> kyverno.io</p>
+<hr />
+<h2 id="grafana">Grafana<a class="headerlink" href="#grafana" title="Permanent link">&para;</a></h2>
+<p><strong>What it is:</strong> An open-source observability platform for metrics, logs, and traces. It queries data sources (Prometheus, Loki, Tempo, CloudWatch, etc.) and renders dashboards, alerts, and reports. In Kubernetes, Grafana is typically deployed via Helm chart alongside Prometheus (kube-prometheus-stack).</p>
+<p><strong>Role in security:</strong> Grafana is a <strong>consumer</strong> of security data — it visualizes Falco alerts, admission policy reports, CVE scan results, and cluster audit logs. It does not enforce security itself, but is essential for detection and response.</p>
+<p><strong>In this project:</strong> Referenced in <a href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a> as a real-world example of hardening — it needs writable paths at <code>/var/lib/grafana</code>, <code>/var/log/grafana</code>, <code>/var/lib/grafana/plugins</code>, and <code>/tmp</code> that must be mapped to <code>emptyDir</code> volumes when <code>readOnlyRootFilesystem: true</code>. Also listed as a Docker Hardened Image catalog entry.</p>
+<p><strong>Resources:</strong> grafana.com</p>
+<hr />
+<h2 id="istio">Istio<a class="headerlink" href="#istio" title="Permanent link">&para;</a></h2>
+<p><strong>What it is:</strong> A service mesh that injects Envoy sidecar proxies into pods to handle inter-service communication. It provides traffic management (routing, retries, circuit breaking), observability (metrics, tracing, access logs), and security (mTLS, authorization policies) — all at the platform layer, without application code changes.</p>
+<p><strong>Role in security:</strong> Istio's primary security contribution is <strong>automatic mTLS</strong> — it encrypts and authenticates all pod-to-pod traffic using SPIFFE identities, without application modification. It also supports authorization policies (<code>AuthorizationPolicy</code> CRD) for L7 access control, and peer authentication for mTLS mode configuration (STRICT, PERMISSIVE, DISABLE).</p>
+<p><strong>Security considerations:</strong></p>
+<ul>
+<li>Sidecar injection adds a container to every pod — each sidecar must be hardened (drop capabilities, read-only rootfs)</li>
+<li>Istio itself is a high-value target — the control plane (istiod) must be in a privileged namespace with restricted access</li>
+<li>mTLS does not prevent application-level attacks — it secures the transport, not the data</li>
+</ul>
+<p><strong>In this project:</strong> Referenced in <a href="../securing-kubernetes-runtime/">Securing the Kubernetes Runtime</a> as an option for L7 mTLS between pods (alongside Linkerd and Cilium). Not covered in depth elsewhere.</p>
+<p><strong>Resources:</strong> istio.io</p>
+<hr />
+<h2 id="comparison-at-a-glance">Comparison at a Glance<a class="headerlink" href="#comparison-at-a-glance" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Dimension</th>
-<th>musl (Alpine)</th>
-<th>glibc (Debian, Ubuntu, distroless)</th>
+<th>Tool</th>
+<th>Category</th>
+<th>Security Role</th>
+<th>CRDs?</th>
+<th>Policy Language</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>Size</strong></td>
-<td>~700 KB</td>
-<td>~2 MB+</td>
+<td>cert-manager</td>
+<td>Certificate lifecycle</td>
+<td>Automatic TLS/mTLS</td>
+<td>Yes</td>
+<td>YAML (CRD fields)</td>
 </tr>
 <tr>
-<td><strong>POSIX compliance</strong></td>
-<td>Strict — rejects glibc extensions</td>
-<td>De facto standard; many extensions</td>
+<td>Kyverno</td>
+<td>Policy engine</td>
+<td>Admission control, image verification</td>
+<td>Yes</td>
+<td>YAML (rules)</td>
 </tr>
 <tr>
-<td><strong>Static linking</strong></td>
-<td>First-class; Go/Rust binaries are natural fits</td>
-<td>Possible but less common</td>
+<td>Grafana</td>
+<td>Observability</td>
+<td>Security visualization</td>
+<td>No</td>
+<td>N/A (dashboard config)</td>
 </tr>
 <tr>
-<td><strong>CVE history</strong></td>
-<td>Smaller surface (less code, lower adoption)</td>
-<td>Larger surface (more code, more scrutiny)</td>
-</tr>
-<tr>
-<td><strong>Performance</strong></td>
-<td>Fast for static binaries</td>
-<td>Optimized for dynamic linking</td>
+<td>Istio</td>
+<td>Service mesh</td>
+<td>mTLS, authz policies</td>
+<td>Yes</td>
+<td>YAML (CRD fields)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="compatibility-pitfalls">Compatibility Pitfalls<a class="headerlink" href="#compatibility-pitfalls" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>glibc-specific APIs</strong>: <code>GLOB_BRACE</code>, <code>strerrorname_np</code>, <code>qsort_r</code> do not exist in musl — code using them fails to compile on Alpine</li>
-<li><strong>DNS resolution</strong>: musl handles <code>/etc/hosts</code> and NSS differently than glibc; Python's <code>urllib</code> and Node.js DNS may behave unexpectedly</li>
-<li><strong>Locale support</strong>: musl has minimal locale support compared to glibc; applications relying on locale-aware string processing may produce different output</li>
-</ul>
-<h2 id="security-decision-framework">Security Decision Framework<a class="headerlink" href="#security-decision-framework" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Scenario</th>
-<th>Recommended Base</th>
-<th>Rationale</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Static Go/Rust binary, minimal size goal</td>
-<td>Alpine (musl) or distroless/static</td>
-<td>No libc dependency at runtime; minimal CVE surface</td>
-</tr>
-<tr>
-<td>Python/Node.js app, broad package availability</td>
-<td>Debian slim or distroless (glibc)</td>
-<td>glibc locale support; avoids DNS compatibility issues</td>
-</tr>
-<tr>
-<td>Enterprise compliance, signed provenance</td>
-<td>Wolfi-based distroless (musl) or DHI</td>
-<td>Chainguard/Docker handle musl compatibility; you get attestations</td>
-</tr>
-<tr>
-<td>FIPS 140-2/3 required</td>
-<td>glibc-based (Ubuntu, UBI, distroless-cc)</td>
-<td>FIPS-validated crypto modules target glibc; musl lacks CAVP certification</td>
-</tr>
-</tbody>
-</table>
-<p>musl's strictness is a double-edged sword: it catches portability bugs at compile time (good), but it means Alpine builds that pass CI may still fail on glibc-based production images (bad). Testing on the same libc as production is the only safe approach.</p>
-<h2 id="see-also">See Also<a class="headerlink" href="#see-also" title="Permanent link">&para;</a></h2>
-<ul>
-<li><a href="../../container-image-hardening/distroless-images/">Distroless Images</a> — distroless provides both glibc and musl variants</li>
-<li><a href="../../container-image-hardening/image-minimization/">Image Minimization</a> — Alpine is a common choice for small images</li>
-</ul>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../../supply-chain-security/notary-docker-content-trust/" class="btn btn-neutral float-left" title="Notary / Docker Content Trust"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../proc-container-isolation/" class="btn btn-neutral float-right" title="/proc and Container Isolation">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../securing-kubernetes-runtime/" class="btn btn-neutral float-left" title="K8s Runtime Security Overview"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../securitycontext-vs-podsecuritycontext/" class="btn btn-neutral float-right" title="SecurityContext vs PodSecurityContext in Kubernetes">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -315,10 +312,10 @@
         </span>
     
     
-      <span><a href="../../supply-chain-security/notary-docker-content-trust/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../securing-kubernetes-runtime/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../proc-container-isolation/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../securitycontext-vs-podsecuritycontext/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
