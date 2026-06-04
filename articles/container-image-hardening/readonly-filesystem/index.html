@@ -106,6 +106,16 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#read-only-in-the-kubernetes-security-stack">Read-Only in the Kubernetes Security Stack</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#podsecuritycontext-vs-securitycontext-cascade">PodSecurityContext vs SecurityContext Cascade</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#psa-enforcement">PSA Enforcement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#helm-chart-integration">Helm Chart Integration</a>
+    </li>
+        </ul>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#mounting-tmpfs-for-write-locations">Mounting tmpfs for Write Locations</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#best-practices-for-tmpfs-mounts">Best Practices for tmpfs Mounts</a>
@@ -137,6 +147,8 @@
     <li class="toctree-l2"><a class="reference internal" href="#complete-hardened-example">Complete Hardened Example</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-deep-dive">Interview Deep Dive</a>
     </li>
     </ul>
                   </li>
@@ -293,6 +305,99 @@ spec:
   - name: cache
     emptyDir: {}
 </code></pre>
+<h2 id="read-only-in-the-kubernetes-security-stack">Read-Only in the Kubernetes Security Stack<a class="headerlink" href="#read-only-in-the-kubernetes-security-stack" title="Permanent link">&para;</a></h2>
+<p><code>readOnlyRootFilesystem</code> is one of four container-level fields that form the <strong>Restricted Pod Security Standard</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>readOnlyRootFilesystem: true</code></td>
+<td>Prevent filesystem writes</td>
+</tr>
+<tr>
+<td><code>allowPrivilegeEscalation: false</code></td>
+<td>Prevent <code>no_new_privs</code> bypass</td>
+</tr>
+<tr>
+<td><code>capabilities.drop: ["ALL"]</code></td>
+<td>Remove all kernel capabilities</td>
+</tr>
+<tr>
+<td><code>runAsNonRoot: true</code></td>
+<td>Prevent root execution</td>
+</tr>
+</tbody>
+</table>
+<p>These work together: read-only prevents file-based persistence, no-new-privs prevents setuid-based privilege escalation, dropping capabilities limits kernel attack surface, and non-root limits blast radius. Missing any one weakens the others.</p>
+<p>For the full context on how these fit into cluster-wide policy, see <a href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a> and <a href="../../kubernetes-security/securing-kubernetes-runtime/">Securing the Kubernetes Runtime — Defense in Depth</a>.</p>
+<h3 id="podsecuritycontext-vs-securitycontext-cascade">PodSecurityContext vs SecurityContext Cascade<a class="headerlink" href="#podsecuritycontext-vs-securitycontext-cascade" title="Permanent link">&para;</a></h3>
+<p><code>readOnlyRootFilesystem</code> exists <strong>only at the container level</strong> — there is no pod-level equivalent. Each container must explicitly set it:</p>
+<pre><code class="language-yaml">spec:
+  securityContext:           # Pod level — CANNOT set readOnlyRootFilesystem here
+    runAsNonRoot: true
+  containers:
+    - name: app
+      securityContext:       # Container level — readOnlyRootFilesystem belongs here
+        readOnlyRootFilesystem: true
+        allowPrivilegeEscalation: false
+</code></pre>
+<p>This is a common interview trap: <code>readOnlyRootFilesystem</code> cannot be inherited from the pod level. If you have 10 containers, each needs its own <code>readOnlyRootFilesystem: true</code>.</p>
+<h3 id="psa-enforcement">PSA Enforcement<a class="headerlink" href="#psa-enforcement" title="Permanent link">&para;</a></h3>
+<p>When a namespace is labeled <code>pod-security.kubernetes.io/enforce: restricted</code>, Pod Security Admission rejects any pod where <code>readOnlyRootFilesystem</code> is unset or <code>false</code>:</p>
+<pre><code>Error: failed to create pod: pods &quot;myapp&quot; is forbidden:
+  violates PodSecurity &quot;restricted:latest&quot;:
+    readOnlyRootFilesystem: false
+</code></pre>
+<p><strong>What to do when the pod can't go read-only:</strong></p>
+<ol>
+<li><strong>Exempt the namespace</strong> via <code>--pod-security-admission-config-file</code> for monitoring, logging, and infrastructure namespaces</li>
+<li><strong>Use <code>audit</code> mode</strong> instead of <code>enforce</code> — track violations without blocking</li>
+<li><strong>Add <code>emptyDir</code> mounts</strong> for every write path the application needs</li>
+<li><strong>Widen to <code>baseline</code></strong> if the app genuinely needs filesystem writes (baseline does not require <code>readOnlyRootFilesystem</code>)</li>
+</ol>
+<h3 id="helm-chart-integration">Helm Chart Integration<a class="headerlink" href="#helm-chart-integration" title="Permanent link">&para;</a></h3>
+<p>The idiomatic Helm pattern makes readOnlyRootFilesystem configurable without template duplication:</p>
+<pre><code class="language-yaml"># values.yaml
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: [&quot;ALL&quot;]
+  runAsUser: 1001
+
+extraVolumeMounts: []
+extraVolumes: []
+</code></pre>
+<pre><code class="language-yaml"># deployment.yaml — volume mounts
+volumeMounts:
+  {{- if .Values.containerSecurityContext.readOnlyRootFilesystem }}
+  - name: tmp
+    mountPath: /tmp
+  - name: var-run
+    mountPath: /var/run
+  {{- end }}
+  {{- with .Values.extraVolumeMounts }}
+  {{- toYaml . | nindent 8 }}
+  {{- end }}
+volumes:
+  {{- if .Values.containerSecurityContext.readOnlyRootFilesystem }}
+  - name: tmp
+    emptyDir:
+      medium: Memory
+      sizeLimit: 64Mi
+  - name: var-run
+    emptyDir: {}
+  {{- end }}
+  {{- with .Values.extraVolumes }}
+  {{- toYaml . | nindent 6 }}
+  {{- end }}
+</code></pre>
+<p>This allows operators to opt out by toggling <code>readOnlyRootFilesystem: false</code> in values, without modifying templates.</p>
 <h2 id="mounting-tmpfs-for-write-locations">Mounting tmpfs for Write Locations<a class="headerlink" href="#mounting-tmpfs-for-write-locations" title="Permanent link">&para;</a></h2>
 <p>When the root is read-only, specific directories need writable tmpfs mounts. Common writable paths:</p>
 <table>
@@ -573,6 +678,23 @@ spec:
 </code></pre>
 <h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
 <p>Know that <code>readOnlyRootFilesystem: true</code> is part of the <strong>K8s Restricted Pod Security Standard</strong>. Understand that most containers break with this setting initially — identifying the minimum set of writable directories is the key skill. Be able to explain why read-only filesystems prevent entire classes of container escape (write-based overlay exploits, binary injection, cron/init persistence). Understand that <code>emptyDir</code> with <code>medium: Memory</code> uses the container's memory limit, so proper resource limits are essential. For a deeper look at how OverlayFS implements writable upperdirs over a read-only lower layer, see <a href="../../docker/image-layers-storage-drivers/">Image Layers &amp; Storage Drivers</a>.</p>
+<h2 id="interview-deep-dive">Interview Deep Dive<a class="headerlink" href="#interview-deep-dive" title="Permanent link">&para;</a></h2>
+<p><strong>Q:</strong> Can <code>readOnlyRootFilesystem</code> be set at the pod level?</p>
+<p><strong>A:</strong> No. It's a container-level field in <code>securityContext</code>. There's no corresponding field in <code>PodSecurityContext</code>. Each container must set it independently. This is a common misconfiguration — setting it at the pod level has no effect.</p>
+<p><strong>Q:</strong> What happens if a container with <code>readOnlyRootFilesystem: true</code> crashes?</p>
+<p><strong>A:</strong> The crash loop continues. The container's rootfs is still read-only on restart. Fix by identifying the write path that causes the crash (use <code>strace</code> or check logs for "Read-only file system" errors) and mount an <code>emptyDir</code> at that path.</p>
+<p><strong>Q:</strong> How does <code>readOnlyRootFilesystem</code> interact with <code>emptyDir</code>?</p>
+<p><strong>A:</strong> <code>emptyDir</code> volumes are always writable regardless of the root filesystem mode. This is by design — it's how you provide write access to specific paths without relaxing the global restriction. When the root is read-only and you mount an emptyDir at <code>/tmp</code>, the container can write to <code>/tmp</code> but not to <code>/usr/bin</code> or <code>/etc</code>.</p>
+<p><strong>Q:</strong> In a multi-container pod, can one container write to a shared emptyDir while another has <code>readOnlyRootFilesystem: true</code>?</p>
+<p><strong>A:</strong> Yes. Each container has its own root filesystem mode. Container A can have <code>readOnlyRootFilesystem: true</code> and read from a shared emptyDir mounted by container B (with <code>readOnlyRootFilesystem: false</code>). The <code>readOnly</code> flag on a volume mount further restricts this per container.</p>
+<p><strong>Q:</strong> What's the performance impact?</p>
+<p><strong>A:</strong> Negligible for most applications. Overlay/overlay2 already uses a copy-on-write layer for writes — making the upperdir read-only adds an in-kernel permission check. The cost is nonexistent for read-heavy workloads. Write-heavy applications using emptyDir volumes perform identically to unrestricted containers.</p>
+<p><strong>Q:</strong> How does <code>readOnlyRootFilesystem</code> prevent CVE-2019-5736 (container escape via <code>/proc/self/exe</code>)?</p>
+<p><strong>A:</strong> CVE-2019-5736 exploited a race condition where a compromised container process overwrote <code>/proc/self/exe</code> on the host via runC. With <code>readOnlyRootFilesystem: true</code>, the container cannot write to any file, including the host binary mapped through <code>/proc/self/exe</code>. This is defense in depth: the CVE was patched in runC, but read-only rootfs would have prevented exploitation even on vulnerable versions.</p>
+<p><strong>Q:</strong> Why isn't <code>readOnlyRootFilesystem</code> part of the Baseline PSS? Why only Restricted?</p>
+<p><strong>A:</strong> Baseline is designed for general-purpose workloads where a strict read-only filesystem would break many legitimate applications (databases, caches, apps that write config at startup). Baseline prevents known privilege escalations. Restricted is for security-critical workloads where adapting to read-only is justified. The tiered approach lets teams adopt incrementally.</p>
+<p><strong>Q:</strong> What's the difference between <code>readOnlyRootFilesystem: true</code> and a read-only volume mount (<code>volumeMounts[].readOnly: true</code>)?</p>
+<p><strong>A:</strong> They operate at different layers. <code>readOnlyRootFilesystem</code> makes the entire container filesystem read-only (except mounted volumes). A read-only volume mount only prevents writes to that specific volume. You use both together: root read-only globally, individual volumes set to <code>readOnly: false</code> only where writes are needed, and shared volumes set to <code>readOnly: true</code> for other containers.</p>
               
             </div>
           </div><footer>
