@@ -434,7 +434,7 @@ spec:
       allowPrivilegeEscalation: false
       readOnlyRootFilesystem: true
 </code></pre>
-<p>This combines every hardening technique: non-root user, seccomp default profile, SELinux type enforcement, no capabilities, no privilege escalation, and a read-only filesystem.</p>
+<p>This combines every hardening technique: non-root user, seccomp default profile, SELinux type enforcement, no capabilities, no privilege escalation, and a read-only filesystem — see <a href="../readonly-filesystem/">Read-only Filesystems</a> for a full breakdown of the read-only layer.</p>
 <h2 id="debugging-lsm-issues">Debugging LSM Issues<a class="headerlink" href="#debugging-lsm-issues" title="Permanent link">&para;</a></h2>
 <h3 id="apparmor-denial">AppArmor Denial<a class="headerlink" href="#apparmor-denial" title="Permanent link">&para;</a></h3>
 <pre><code class="language-bash"># Check system logs

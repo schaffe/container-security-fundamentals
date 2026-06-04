@@ -265,7 +265,7 @@ containerPort: 8080
 </code></pre>
 <h2 id="breaking-change-4-volume-writes-with-readonlyrootfs">Breaking Change 4: Volume Writes with readOnlyRootFS<a class="headerlink" href="#breaking-change-4-volume-writes-with-readonlyrootfs" title="Permanent link">&para;</a></h2>
 <p><strong>Symptom:</strong> Container crashes with "read-only file system" errors.</p>
-<p><strong>Root cause:</strong> Chart enables <code>readOnlyRootFilesystem: true</code> (or it's enforced by PSS), but the application writes logs, cache, or temporary files to <code>/</code>, <code>/var/log</code>, or <code>/tmp/...</code> on the container filesystem.</p>
+<p><strong>Root cause:</strong> Chart enables <code>readOnlyRootFilesystem: true</code> (or it's enforced by PSS), but the application writes logs, cache, or temporary files to <code>/</code>, <code>/var/log</code>, or <code>/tmp/...</code> on the container filesystem. See <a href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems</a> for an application-by-application breakdown of writable paths and fixes.</p>
 <p><strong>Fix:</strong> Identify writable paths and mount <code>emptyDir</code> volumes. In Grafana:</p>
 <pre><code class="language-yaml"># Grafana chart adaptation
 extraEmptyDirMounts:
@@ -295,7 +295,7 @@ volumes:
 </code></pre>
 <h2 id="breaking-change-5-livenessreadiness-probes-using-shell">Breaking Change 5: Liveness/Readiness Probes Using Shell<a class="headerlink" href="#breaking-change-5-livenessreadiness-probes-using-shell" title="Permanent link">&para;</a></h2>
 <p><strong>Symptom:</strong> Probe fails with <code>"exec: "/bin/sh": stat /bin/sh: permission denied"</code> or <code>"exec: "sh": stat sh: permission denied"</code>.</p>
-<p><strong>Root cause:</strong> The chart defines a <code>exec</code> probe that invokes a shell command (e.g., <code>wget</code>, <code>curl</code>), but <code>allowPrivilegeEscalation: false</code> and the image does not include a shell, or <code>readOnlyRootFilesystem</code> prevents it.</p>
+<p><strong>Root cause:</strong> The chart defines a <code>exec</code> probe that invokes a shell command (e.g., <code>wget</code>, <code>curl</code>), but <code>allowPrivilegeEscalation: false</code> and the image does not include a shell, or <code>readOnlyRootFilesystem</code> prevents it — see <a href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems</a> for probe interaction patterns.</p>
 <p><strong>Fix:</strong> Replace <code>exec</code> probes with <code>httpGet</code> or <code>tcpSocket</code> probes:</p>
 <pre><code class="language-yaml"># Before
 livenessProbe:

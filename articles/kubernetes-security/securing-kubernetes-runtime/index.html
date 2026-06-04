@@ -419,7 +419,7 @@ Unconfined: all syscalls. Never in production.
 </code></pre>
 <p>Seccomp is set via <code>securityContext.seccompProfile.type</code>. PSA Restricted requires <code>RuntimeDefault</code> or <code>Localhost</code>.</p>
 <h3 id="readonlyrootfilesystem">readOnlyRootFilesystem<a class="headerlink" href="#readonlyrootfilesystem" title="Permanent link">&para;</a></h3>
-<p>Prevents binary downloads, log tampering, and unauthorized file writes. Mount <code>emptyDir</code> volumes for write paths:</p>
+<p>Prevents binary downloads, log tampering, and unauthorized file writes. See the dedicated <a href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems</a> article for a deep dive on attack scenarios, app breakage patterns, and Helm integration. Mount <code>emptyDir</code> volumes for write paths:</p>
 <pre><code class="language-yaml">securityContext:
   readOnlyRootFilesystem: true
 volumeMounts:

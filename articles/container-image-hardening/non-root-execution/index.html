@@ -567,7 +567,7 @@ securityContext:
 <p><strong>Anti-pattern 4: Inconsistent securityContext per container</strong>
 A pod can have 10 containers but only 2 with <code>runAsNonRoot: true</code> — the others run unrestricted. Pod-level <code>runAsNonRoot</code> prevents this.</p>
 <h3 id="admission-control-and-webhooks">Admission Control and Webhooks<a class="headerlink" href="#admission-control-and-webhooks" title="Permanent link">&para;</a></h3>
-<p>For enforcing non-root across your cluster, see <a href="../../kubernetes-security/admission-control/">Admission Control</a>. For adapting Helm charts to pass Restricted profile checks, see <a href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a>.</p>
+<p>For enforcing non-root across your cluster, see <a href="../../kubernetes-security/admission-control/">Admission Control</a>. For adapting Helm charts to pass Restricted profile checks, see <a href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a>. For a deep dive on the companion <code>readOnlyRootFilesystem</code> setting — writable path identification, emptyDir patterns, and per-application fixes — see <a href="../readonly-filesystem/">Read-only Filesystems</a>.</p>
 <h2 id="complete-secure-example">Complete Secure Example<a class="headerlink" href="#complete-secure-example" title="Permanent link">&para;</a></h2>
 <pre><code class="language-dockerfile">FROM golang:1.21 AS build
 WORKDIR /src
