@@ -30,14 +30,17 @@ When conversation reveals information worth preserving, capture it in the projec
 ## Workflow
 
 1. **Answer:** Answer the user's question directly
-2. **Propose:** Launch a subagent to read relevant docs and produce a written proposal of what
-   to change (no edits yet). For "what is" questions, include a cross-reference grep in the
-   proposal.
-3. **Present:** Print the proposed changes to the user
-4. **Approve:** Ask the user to approve the proposal
-5. **Publish:** On approval, dispatch a subagent to create an ephemeral `docs/<slug>` branch +
-   worktree, apply edits, verify, commit, rebase onto latest upstream/main (with AI conflict
-   resolution), merge into main, push, deploy, and clean up
+2. **Create branch + worktree:** Derive a slug from the topic, create `docs/<slug>` branch
+   from `main`, and add a worktree at `.worktrees/docs/<slug>/`. See "Branch slug derivation"
+   below.
+3. **Propose:** Launch a subagent to read relevant docs (inside the worktree) and produce a
+   written proposal of what to change (no edits yet). For "what is" questions, include a
+   cross-reference grep in the proposal.
+4. **Present:** Print the proposed changes to the user
+5. **Approve:** Ask the user to approve the proposal
+6. **Publish:** On approval, apply edits in the worktree, verify, commit, rebase onto latest
+   upstream/main (with AI conflict resolution), merge into main, push, deploy, and clean up.
+   If the user declines, clean up the branch and worktree instead.
 
 ## Where to Document Information
 
@@ -82,14 +85,16 @@ context dictates). When the mention is already part of a link, leave it unchange
 ## Subagent: Research & Propose
 
 Dispatch a subagent to determine what docs need updating and produce a concrete proposal. The
-subagent should **read only** — no edits.
+subagent should **read only** — no edits. Point it at the worktree path so it reads docs
+from the isolated checkout.
 
 ```markdown
 The user just asked: "<question>"
 
 I answered with: "<answer>"
 
-The project at <project-root> is an MkDocs site.
+The project at <project-root> is an MkDocs site. The branch <branch> has already been
+created with a worktree at <worktree-path>. Read docs from the worktree.
 
 Currently documented topics (from mkdocs.yml nav):
 <list nav sections and their articles>
@@ -151,12 +156,10 @@ Apply these changes? (yes/no)
 
 Wait for the user's response. Only proceed to Apply & Publish on explicit approval.
 
-## Subagent: Publish (branch + worktree)
+## Branch slug derivation
 
-After the user approves, derive a branch slug from the topic and dispatch a subagent to
-apply, merge, and deploy using an ephemeral branch + worktree.
-
-### Branch slug derivation
+Derive the slug from the topic name — the topic is the subject of the user's question
+(e.g., "what about build args?" → slug is `build-args`).
 
 ```python
 slug = re.sub(r'[^a-z0-9]+', '-', topic.lower()).strip('-')
@@ -164,10 +167,16 @@ branch = f"docs/{slug}"
 worktree = f".worktrees/docs/{slug}"
 ```
 
+## Subagent: Publish (branch + worktree)
+
+After the user approves, dispatch a subagent to apply edits in the already-created worktree,
+verify, commit, rebase, merge, push, deploy, and clean up.
+
 ### Dispatch template
 
 ```markdown
-Apply the approved documentation changes using the branch + worktree workflow:
+Apply the approved documentation changes using the branch + worktree workflow.
+The branch and worktree already exist — skip creation.
 
 Project root: <project-root>
 Branch: docs/<slug>
@@ -176,29 +185,24 @@ Venv: <project-root>/.venv
 
 Approved proposal: <paste approved proposal>
 
-1. Create the branch and worktree:
-   cd <project-root>
-   git branch docs/<slug> main
-   git worktree add .worktrees/docs/<slug> docs/<slug>
-
-2. Apply edits in the worktree:
+1. Apply edits in the worktree:
    Edit the files specified in the proposal within .worktrees/docs/<slug>/
 
-3. Verify the build:
+2. Verify the build:
    cd <project-root>/.worktrees/docs/<slug>
    <project-root>/.venv/bin/mkdocs build --strict
    If this fails, report the failure to the user and STOP. Do NOT proceed.
 
-4. Commit on the branch:
+3. Commit on the branch:
    cd <project-root>/.worktrees/docs/<slug>
    git add -A
    git commit -m "<proposed commit message>"
 
-5. Fetch and rebase onto latest upstream/main:
+4. Fetch and rebase onto latest upstream/main:
    cd <project-root>/.worktrees/docs/<slug>
    git fetch upstream main
    git rebase upstream/main
-   If no conflicts, proceed to step 6.
+   If no conflicts, proceed to step 5.
 
    If conflicts occur:
    a. Run `git diff --name-only --diff-filter=U` to list conflicted files
@@ -213,19 +217,19 @@ Approved proposal: <paste approved proposal>
    c. `git rebase --continue`
    d. Repeat until rebase completes
 
-6. Merge into main:
+5. Merge into main:
    cd <project-root>
    git checkout main
    git merge docs/<slug> --no-ff -m "docs: merge <slug> (<commit message>)"
 
-7. Push upstream main:
+6. Push upstream main:
    git push upstream main
 
-8. Deploy:
+7. Deploy:
    cd <project-root>
    <project-root>/.venv/bin/mkdocs gh-deploy --remote-name upstream
 
-9. Cleanup:
+8. Cleanup:
    git branch -d docs/<slug>
    git worktree remove .worktrees/docs/<slug>
 
@@ -238,9 +242,17 @@ Report back:
 
 ### Usage note
 
-The subagent reads the approved proposal and executes it in isolation. Multiple
-subagents can run simultaneously — each has its own `docs/<topic>` branch and
+The branch and worktree are created before the propose subagent runs, so the publish
+subagent can assume they already exist. Multiple documenting-answers sessions can run
+simultaneously — each has its own `docs/<topic>` branch and
 `.worktrees/docs/<topic>/` directory.
+
+If the user declines the proposal, clean up instead of publishing:
+```bash
+git checkout main
+git branch -D docs/<slug>
+git worktree remove .worktrees/docs/<slug>
+```
 
 ## Common Mistakes
 
@@ -271,4 +283,4 @@ subagents can run simultaneously — each has its own `docs/<topic>` branch and
 ## Verification
 
 On approval, always dispatch the branch + worktree subagent to apply, verify, commit,
-rebase, merge, push, and deploy.
+rebase, merge, push, and deploy. On decline, clean up the branch and worktree.
