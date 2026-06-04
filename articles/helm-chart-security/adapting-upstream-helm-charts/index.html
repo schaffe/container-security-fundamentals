@@ -71,6 +71,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
               <ul>
@@ -225,7 +227,7 @@
 </code></pre>
 <h2 id="breaking-change-2-init-containers-need-net_admin">Breaking Change 2: Init Containers Need NET_ADMIN<a class="headerlink" href="#breaking-change-2-init-containers-need-net_admin" title="Permanent link">&para;</a></h2>
 <p><strong>Symptom:</strong> Init container crashes with <code>"RTNETLINK answers: Operation not permitted"</code>.</p>
-<p><strong>Root cause:</strong> Chart uses init containers to configure iptables, set sysctls, or create network interfaces. Example: cert-manager's <code>startupapicheck</code> or Cilium's init container.</p>
+<p><strong>Root cause:</strong> Chart uses init containers to configure iptables, set <a href="../../linux-fundamentals/sysctl-container-security/">sysctls</a>, or create network interfaces. Example: cert-manager's <code>startupapicheck</code> or Cilium's init container.</p>
 <p><strong>Fix:</strong> If <code>privileged</code> cannot be granted, extract the specific capability:</p>
 <pre><code class="language-yaml"># Before: init container with privileged: true
 initContainers:

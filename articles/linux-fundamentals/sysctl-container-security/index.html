@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>sysctl: Kernel Parameter Tuning in Containers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "sysctl: Kernel Parameter Tuning in Containers";
+        var mkdocs_page_input_path = "articles/linux-fundamentals/sysctl-container-security.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">sysctl: Kernel Parameter Tuning in Containers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-sysctl">What Is sysctl?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sysctl-in-containers">sysctl in Containers</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#safe-vs-unsafe-sysctls">Safe vs Unsafe Sysctls</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#namespaced-safe-sysctls">Namespaced (Safe) Sysctls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#non-namespaced-unsafe-sysctls">Non-Namespaced (Unsafe) Sysctls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-the-kernel-enforces-namespace-isolation">How the Kernel Enforces Namespace Isolation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setting-sysctls-in-docker">Setting Sysctls in Docker</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#docker-default-allowed-sysctls">Docker Default Allowed Sysctls</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setting-sysctls-in-kubernetes">Setting Sysctls in Kubernetes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#safe-vs-unsafe-sysctl-classes">Safe vs Unsafe Sysctl Classes</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#enabling-unsafe-sysctls">Enabling Unsafe Sysctls</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#risks-of-unsafe-sysctls-in-kubernetes">Risks of Unsafe Sysctls in Kubernetes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#capabilities-required-for-sysctl-operations">Capabilities Required for Sysctl Operations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#seccomp-and-sysctl">Seccomp and Sysctl</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pod-security-standards">Pod Security Standards</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#practical-verification">Practical Verification</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-use-cases">Common Use Cases</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-enabling-ip-forwarding-for-a-container-router">1. Enabling IP Forwarding for a Container Router</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-increasing-connection-backlog">2. Increasing Connection Backlog</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-adjusting-keepalive-for-load-balancers">3. Adjusting Keepalive for Load Balancers</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#security-recommendations">Security Recommendations</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cross-references">Cross-References</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Linux Fundamentals</li>
+      <li class="breadcrumb-item active">sysctl: Kernel Parameter Tuning in Containers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/linux-fundamentals/sysctl-container-security.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sysctl-kernel-parameter-tuning-in-containers">sysctl: Kernel Parameter Tuning in Containers<a class="headerlink" href="#sysctl-kernel-parameter-tuning-in-containers" title="Permanent link">&para;</a></h1>
+<h2 id="what-is-sysctl">What Is sysctl?<a class="headerlink" href="#what-is-sysctl" title="Permanent link">&para;</a></h2>
+<p><code>sysctl</code> is the Linux kernel's runtime parameter interface. It exposes kernel tunables — network stack behavior, memory management, kernel limits — as files under <code>/proc/sys/</code>. Reading a file queries the current value; writing to it changes kernel behavior at runtime.</p>
+<pre><code class="language-bash"># Read the current value
+sysctl net.ipv4.ip_forward
+# net.ipv4.ip_forward = 0
+
+# Write a new value (requires privileges)
+sysctl -w net.ipv4.ip_forward=1
+</code></pre>
+<p>The filesystem path maps to the dotted parameter name: <code>net/ipv4/ip_forward</code> becomes <code>net.ipv4.ip_forward</code>.</p>
+<h2 id="sysctl-in-containers">sysctl in Containers<a class="headerlink" href="#sysctl-in-containers" title="Permanent link">&para;</a></h2>
+<p>In a container, <code>/proc/sys/</code> is <strong>bind-mounted read-only</strong> by default (the OCI <code>readonlyPaths</code> list includes <code>/proc/sys</code>). The container can read kernel parameters but cannot modify them. This is enforced by runc at container creation time:</p>
+<pre><code class="language-json">&quot;readonlyPaths&quot;: [
+  &quot;/proc/sys&quot;,
+  &quot;/proc/bus&quot;,
+  &quot;/proc/fs&quot;,
+  &quot;/proc/irq&quot;
+]
+</code></pre>
+<p>If a container does need to set a kernel parameter, two conditions must be met:</p>
+<ol>
+<li><strong>Write access to <code>/proc/sys/</code></strong> — the <code>readonlyPaths</code> restriction must be lifted</li>
+<li><strong>Capability to write</strong> — writing to <code>/proc/sys/</code> requires <code>CAP_SYS_ADMIN</code></li>
+</ol>
+<h2 id="safe-vs-unsafe-sysctls">Safe vs Unsafe Sysctls<a class="headerlink" href="#safe-vs-unsafe-sysctls" title="Permanent link">&para;</a></h2>
+<p>Sysctls fall into two categories based on whether they are <strong>namespaced</strong> — isolated per kernel namespace.</p>
+<h3 id="namespaced-safe-sysctls">Namespaced (Safe) Sysctls<a class="headerlink" href="#namespaced-safe-sysctls" title="Permanent link">&para;</a></h3>
+<p>These are isolated by a kernel namespace. Setting them affects only the container's namespace, not the host or other containers:</p>
+<table>
+<thead>
+<tr>
+<th>Namespace</th>
+<th>Example Sysctls</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>net</strong> (network namespace)</td>
+<td><code>net.ipv4.ip_forward</code>, <code>net.ipv4.conf.*</code>, <code>net.core.somaxconn</code></td>
+<td>Network stack behavior within the container's netns</td>
+</tr>
+<tr>
+<td><strong>ipc</strong> (IPC namespace)</td>
+<td><code>kernel.msgmax</code>, <code>kernel.msgmnb</code>, <code>kernel.msgmni</code>, <code>kernel.sem</code>, <code>kernel.shmall</code>, <code>kernel.shmmax</code>, <code>kernel.shmmni</code></td>
+<td>IPC limits — namespaced since Linux 4.18+</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>net.*</code> sysctls are the most commonly used. They are safe because the network namespace provides full isolation — changes cannot leak to the host or other containers.</p>
+<pre><code class="language-bash"># Safe: affects only this container's network namespace
+sysctl -w net.ipv4.tcp_tw_reuse=1
+sysctl -w net.core.somaxconn=1024
+sysctl -w net.ipv4.ip_local_port_range=&quot;1024 65535&quot;
+</code></pre>
+<h3 id="non-namespaced-unsafe-sysctls">Non-Namespaced (Unsafe) Sysctls<a class="headerlink" href="#non-namespaced-unsafe-sysctls" title="Permanent link">&para;</a></h3>
+<p>These are <strong>not</strong> isolated by any namespace. Setting them affects the host kernel globally:</p>
+<table>
+<thead>
+<tr>
+<th>Sysctl</th>
+<th>Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fs.inotify.max_user_watches</code></td>
+<td>Inotify limit — affects the host's inotify capacity</td>
+</tr>
+<tr>
+<td><code>vm.overcommit_memory</code>, <code>vm.swappiness</code></td>
+<td>Memory management — affects host's virtual memory behavior</td>
+</tr>
+</tbody>
+</table>
+<p>Setting an unsafe sysctl breaks namespace isolation. A compromised container could:
+- Exhaust host-wide inotify capacity (<code>fs.inotify.max_user_watches</code> → denial of service)
+- Trigger OOM behavior across the entire host (<code>vm.overcommit_memory</code>)
+- Cause kernel instability through shared memory exhaustion</p>
+<h3 id="how-the-kernel-enforces-namespace-isolation">How the Kernel Enforces Namespace Isolation<a class="headerlink" href="#how-the-kernel-enforces-namespace-isolation" title="Permanent link">&para;</a></h3>
+<p>The kernel tracks which sysctls are namespaced via internal <code>ctl_table</code> structures. Each registered sysctl carries a flag indicating whether it supports namespace isolation. When a kernel namespace is created (e.g., <code>clone(CLONE_NEWNET)</code>), the kernel copies the initial values into the namespace's sysctl table. Subsequent writes inside that namespace modify only the namespace-local copy.</p>
+<p>For non-namespaced sysctls, there is only one copy — the host's. A write from any namespace modifies the single global value.</p>
+<h2 id="setting-sysctls-in-docker">Setting Sysctls in Docker<a class="headerlink" href="#setting-sysctls-in-docker" title="Permanent link">&para;</a></h2>
+<p>Docker's <code>--sysctl</code> flag lets you set namespaced sysctls at container creation:</p>
+<pre><code class="language-bash"># Set a net sysctl (safe, namespaced)
+docker run --sysctl net.ipv4.ip_forward=1 alpine
+
+# Set a kernel sysctl (unsafe, global) — requires special permission
+docker run --sysctl kernel.msgmax=65536 alpine
+# Error: --sysctl is allowed only for namespaced sysctls by default
+</code></pre>
+<p>Docker enforces a whitelist: only <code>net.*</code> sysctls can be set with <code>--sysctl</code> by default. To set non-namespaced sysctls, you must pass <code>--privileged</code> or configure <code>--security-opt</code>:</p>
+<pre><code class="language-bash"># Only works with --privileged
+docker run --privileged --sysctl kernel.msgmax=65536 alpine
+</code></pre>
+<h3 id="docker-default-allowed-sysctls">Docker Default Allowed Sysctls<a class="headerlink" href="#docker-default-allowed-sysctls" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Namespaced</th>
+<th>Allowed by Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>net.*</code></td>
+<td>Yes (net ns)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>kernel.msg*</code></td>
+<td>Yes (ipc ns, Linux 4.18+)</td>
+<td>No (Docker whitelist predates this)</td>
+</tr>
+<tr>
+<td><code>kernel.sem</code></td>
+<td>Yes (ipc ns, Linux 4.18+)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>kernel.shm*</code></td>
+<td>Yes (ipc ns, Linux 4.18+)</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>fs.inotify.*</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>vm.*</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<h2 id="setting-sysctls-in-kubernetes">Setting Sysctls in Kubernetes<a class="headerlink" href="#setting-sysctls-in-kubernetes" title="Permanent link">&para;</a></h2>
+<p>Kubernetes exposes sysctls through the <code>PodSecurityContext.sysctls</code> field:</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: sysctl-demo
+spec:
+  securityContext:
+    sysctls:
+    - name: net.ipv4.tcp_tw_reuse
+      value: &quot;1&quot;
+    - name: net.core.somaxconn
+      value: &quot;1024&quot;
+  containers:
+  - name: app
+    image: nginx
+</code></pre>
+<h3 id="safe-vs-unsafe-sysctl-classes">Safe vs Unsafe Sysctl Classes<a class="headerlink" href="#safe-vs-unsafe-sysctl-classes" title="Permanent link">&para;</a></h3>
+<p>Kubernetes classifies sysctls as <strong>safe</strong> (namespaced, isolated) or <strong>unsafe</strong> (non-namespaced, global):</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Definition</th>
+<th>Examples</th>
+<th>Allowed by Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Safe</strong></td>
+<td>Namespaced in a kernel namespace the container already has</td>
+<td><code>net.*</code>, <code>kernel.msg*</code> (ipc ns), <code>kernel.sem</code> (ipc ns)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><strong>Unsafe</strong></td>
+<td>Not namespaced, or namespaced in a namespace the container does not have by default</td>
+<td><code>vm.*</code>, <code>fs.inotify.*</code>, <code>kernel.core_pattern</code></td>
+<td>No — must be explicitly enabled</td>
+</tr>
+</tbody>
+</table>
+<p>Kubernetes's safe list (as of v1.31):</p>
+<pre><code>kernel.shm_rmid_forced
+net.ipv4.ip_local_port_range
+net.ipv4.ip_unprivileged_port_start
+net.ipv4.tcp_syncookies
+net.ipv4.ping_group_range
+net.ipv4.ip_forward
+net.ipv4.tcp_keepalive_time
+net.core.somaxconn
+</code></pre>
+<p>Everything else is unsafe and requires a cluster-level enable.</p>
+<h3 id="enabling-unsafe-sysctls">Enabling Unsafe Sysctls<a class="headerlink" href="#enabling-unsafe-sysctls" title="Permanent link">&para;</a></h3>
+<p>To use unsafe sysctls, a cluster administrator must enable them on each node:</p>
+<pre><code class="language-bash"># kubelet flag to allow specific unsafe sysctls
+--allowed-unsafe-sysctls=kernel.msgmax,kernel.msgmnb
+</code></pre>
+<p>Or in kubelet config:</p>
+<pre><code class="language-yaml">apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+allowedUnsafeSysctls:
+  - &quot;kernel.msgmax&quot;
+  - &quot;kernel.msgmnb&quot;
+</code></pre>
+<p>Once enabled at the node level, they can be used in Pod specs:</p>
+<pre><code class="language-yaml">spec:
+  securityContext:
+    sysctls:
+    - name: kernel.msgmax
+      value: &quot;65536&quot;
+    - name: kernel.msgmnb
+      value: &quot;65536&quot;
+</code></pre>
+<h3 id="risks-of-unsafe-sysctls-in-kubernetes">Risks of Unsafe Sysctls in Kubernetes<a class="headerlink" href="#risks-of-unsafe-sysctls-in-kubernetes" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Node-wide impact</strong>: Setting <code>vm.overcommit_memory=1</code> on one pod affects all pods on that node.</li>
+<li><strong>Denial of service</strong>: <code>fs.inotify.max_user_watches=1</code> can starve other workloads of inotify watches.</li>
+<li><strong>Resource exhaustion</strong>: Lowering <code>kernel.shmall</code> can crash applications relying on shared memory.</li>
+<li><strong>Node compromise</strong>: Some sysctls (<code>kernel.core_pattern</code>, <code>kernel.kptr_restrict</code>) can leak kernel information or redirect crash dumps.</li>
+</ol>
+<h2 id="capabilities-required-for-sysctl-operations">Capabilities Required for Sysctl Operations<a class="headerlink" href="#capabilities-required-for-sysctl-operations" title="Permanent link">&para;</a></h2>
+<p>Setting sysctls requires <code>CAP_SYS_ADMIN</code> — the most powerful Linux capability. This is a problem because <code>CAP_SYS_ADMIN</code> grants nearly unrestricted root access (mount, namespace manipulation, kernel module loading).</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Capability Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Read any sysctl</td>
+<td>None (file is world-readable)</td>
+<td>Default <code>/proc/sys/</code> permissions</td>
+</tr>
+<tr>
+<td>Write to <code>/proc/sys/</code></td>
+<td><code>CAP_SYS_ADMIN</code></td>
+<td>The kernel checks for <code>CAP_SYS_ADMIN</code> in <code>proc_sys_permission()</code></td>
+</tr>
+<tr>
+<td>Use <code>sysctl()</code> system call</td>
+<td><code>CAP_SYS_ADMIN</code></td>
+<td>The legacy syscall interface (deprecated)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Even with --sysctl, Docker internally grants CAP_SYS_ADMIN
+docker run --sysctl net.ipv4.ip_forward=1 alpine
+# The container receives CAP_SYS_ADMIN implicitly
+</code></pre>
+<p>This means <strong>any container granted sysctl write access is effectively running with <code>CAP_SYS_ADMIN</code></strong>. The compromise is that sysctl access is a subset of <code>CAP_SYS_ADMIN</code>, but the kernel does not provide finer granularity.</p>
+<h2 id="seccomp-and-sysctl">Seccomp and Sysctl<a class="headerlink" href="#seccomp-and-sysctl" title="Permanent link">&para;</a></h2>
+<p>The <code>sysctl()</code> system call (legacy interface, rarely used) is blocked in Docker's default seccomp profile:</p>
+<pre><code class="language-json">{
+  &quot;names&quot;: [&quot;sysctl&quot;],
+  &quot;action&quot;: &quot;SCMP_ACT_ERRNO&quot;
+}
+</code></pre>
+<p>The modern interface — writing to <code>/proc/sys/</code> files — uses <code>open()</code>, <code>write()</code>, and <code>close()</code>, which are all allowed. Blocking <code>/proc/sys</code> writes requires the read-only bind mount (OCI <code>readonlyPaths</code>), not seccomp.</p>
+<h2 id="pod-security-standards">Pod Security Standards<a class="headerlink" href="#pod-security-standards" title="Permanent link">&para;</a></h2>
+<p>The Kubernetes <strong>Restricted</strong> Pod Security Standard does not explicitly mention sysctls. However, the underlying requirements indirectly restrict them:</p>
+<table>
+<thead>
+<tr>
+<th>PSS Profile</th>
+<th>Sysctl Restriction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Privileged</strong></td>
+<td>No restrictions</td>
+</tr>
+<tr>
+<td><strong>Baseline</strong></td>
+<td>Only safe sysctls</td>
+</tr>
+<tr>
+<td><strong>Restricted</strong></td>
+<td>Only safe sysctls + additional hardening</td>
+</tr>
+</tbody>
+</table>
+<p>Because setting unsafe sysctls requires effectively <code>CAP_SYS_ADMIN</code>, and CAP_SYS_ADMIN is dropped by the Restricted profile's requirement to drop ALL capabilities, unsafe sysctls are implicitly blocked in Restricted namespaces.</p>
+<pre><code class="language-yaml"># Restricted-compatible: safe sysctls only
+spec:
+  securityContext:
+    sysctls:
+    - name: net.ipv4.tcp_tw_reuse
+      value: &quot;1&quot;
+    - name: net.core.somaxconn
+      value: &quot;1024&quot;
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    securityContext:
+      capabilities:
+        drop: [&quot;ALL&quot;]
+</code></pre>
+<h2 id="practical-verification">Practical Verification<a class="headerlink" href="#practical-verification" title="Permanent link">&para;</a></h2>
+<pre><code class="language-bash"># Check which sysctls are namespaced
+docker run --rm alpine cat /proc/self/ns/net
+# net:[4026531993]
+
+# Set a safe sysctl
+docker run --rm --sysctl net.ipv4.ip_forward=1 alpine sysctl net.ipv4.ip_forward
+# net.ipv4.ip_forward = 1
+
+# Verify isolation: second container sees default
+docker run --rm alpine sysctl net.ipv4.ip_forward
+# net.ipv4.ip_forward = 0
+
+# Attempt an unsafe sysctl (fails without --privileged)
+docker run --rm --sysctl kernel.hostname=test alpine
+# Error: --sysctl is allowed only for namespaced sysctls
+
+# Check /proc/sys is read-only in a default container
+docker run --rm alpine touch /proc/sys/test
+# touch: /proc/sys/test: Read-only file system
+</code></pre>
+<h2 id="common-use-cases">Common Use Cases<a class="headerlink" href="#common-use-cases" title="Permanent link">&para;</a></h2>
+<h3 id="1-enabling-ip-forwarding-for-a-container-router">1. Enabling IP Forwarding for a Container Router<a class="headerlink" href="#1-enabling-ip-forwarding-for-a-container-router" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash">docker run --cap-add=NET_ADMIN --sysctl net.ipv4.ip_forward=1 my-router
+</code></pre>
+<h3 id="2-increasing-connection-backlog">2. Increasing Connection Backlog<a class="headerlink" href="#2-increasing-connection-backlog" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">spec:
+  securityContext:
+    sysctls:
+    - name: net.core.somaxconn
+      value: &quot;4096&quot;
+    - name: net.ipv4.tcp_max_syn_backlog
+      value: &quot;1024&quot;
+</code></pre>
+<h3 id="3-adjusting-keepalive-for-load-balancers">3. Adjusting Keepalive for Load Balancers<a class="headerlink" href="#3-adjusting-keepalive-for-load-balancers" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml">spec:
+  securityContext:
+    sysctls:
+    - name: net.ipv4.tcp_keepalive_time
+      value: &quot;300&quot;
+    - name: net.ipv4.tcp_keepalive_intvl
+      value: &quot;30&quot;
+    - name: net.ipv4.tcp_keepalive_probes
+      value: &quot;5&quot;
+</code></pre>
+<h2 id="security-recommendations">Security Recommendations<a class="headerlink" href="#security-recommendations" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Never set unsafe sysctls in production</strong> unless you fully understand the host-wide impact. Prefer redesigning the architecture to avoid the need.</li>
+<li><strong>Audit all <code>sysctls</code> fields in Helm charts and manifests</strong> — any unsafe sysctl is a red flag.</li>
+<li><strong>Prefer <code>net.*</code> sysctls only</strong> — they are safe (namespaced) and sufficient for most use cases.</li>
+<li><strong>Avoid <code>--privileged</code> for sysctl access</strong> — if you must set an unsafe sysctl, use <code>--sysctl</code> with the specific parameter rather than <code>--privileged</code>.</li>
+<li><strong>Use admission control</strong> to block unsafe sysctls cluster-wide.</li>
+<li><strong>Remember that sysctl access implies <code>CAP_SYS_ADMIN</code></strong> — treat any container with sysctl write access as high-risk.</li>
+</ol>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<p>Understand that sysctl is a namespace isolation boundary test. The interviewer may ask: "How would you configure a container to act as a router?" The answer involves <code>--sysctl net.ipv4.ip_forward=1</code> and <code>--cap-add=NET_ADMIN</code>. Be ready to explain why some sysctls are unsafe (not namespaced) while others are safe (namespaced by network namespace). Know that setting sysctls requires <code>CAP_SYS_ADMIN</code>, which is effectively root. Discuss the trade-off between granting <code>CAP_SYS_ADMIN</code> for a single sysctl vs the principle of least privilege. Understand that the Kubernetes safe sysctl list is a whitelist of namespaced parameters that have been verified not to break isolation.</p>
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../proc-container-isolation/">/proc and Container Isolation</a> — how <code>/proc/sys/</code> is made read-only via <code>readonlyPaths</code></li>
+<li><a href="../../container-image-hardening/linux-capabilities/">Linux Capabilities</a> — <code>CAP_SYS_ADMIN</code> and the privilege model</li>
+<li><a href="../../container-image-hardening/seccomp/">Seccomp</a> — legacy <code>sysctl()</code> syscall filtering</li>
+<li><a href="../../helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext</a> — the <code>sysctls</code> field in PodSecurityContext</li>
+<li><a href="../../helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts</a> — init containers that set sysctls</li>
+<li><a href="../../helm-chart-security/pod-security-standards/">Pod Security Standards</a> — implicit sysctl restrictions via capability dropping</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../proc-container-isolation/" class="btn btn-neutral float-left" title="/proc and Container Isolation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../container-image-hardening/distroless-images/" class="btn btn-neutral float-right" title="Distroless Images">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../proc-container-isolation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../container-image-hardening/distroless-images/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
