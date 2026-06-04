@@ -247,5 +247,5 @@ own FORWARD rules and are never overwritten.
 - [Seccomp](../container-image-hardening/seccomp.md) — seccomp profiles restrict socket-related syscalls.
 - [Read-only Filesystem](../container-image-hardening/readonly-filesystem.md) — combining RO root with network
   isolation for immutable container patterns.
-- [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md) —
+- [SecurityContext vs PodSecurityContext](../kubernetes-security/securitycontext-vs-podsecuritycontext.md) —
   Kubernetes network-level security through NetworkPolicies and CNI plugins.

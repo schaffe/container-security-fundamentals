@@ -1,6 +1,6 @@
 ---
 title: "SecurityContext vs PodSecurityContext in Kubernetes"
-section: "Helm Chart Security Adaptation"
+section: "Kubernetes Security"
 order: 16
 ---
 

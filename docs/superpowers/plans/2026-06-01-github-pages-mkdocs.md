@@ -134,7 +134,7 @@ nav:
   - Helm Chart Security:
     - articles/16-securitycontext-vs-podsecuritycontext.md
     - articles/17-pod-security-standards.md
-    - articles/18-adapting-upstream-helm-charts.md
+    - articles/kubernetes/adapting-upstream-helm-charts.md
     - articles/19-admission-control.md
   - CVE Lifecycle:
     - articles/20-scanner-internals.md

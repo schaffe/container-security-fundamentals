@@ -305,11 +305,11 @@ USER appuser
 
 ### Issue 4: Kubernetes Pod Security Standards
 
-Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The **Restricted** profile requires `runAsNonRoot: true`. See [Pod Security Standards](../helm-chart-security/pod-security-standards.md) for the full profile requirements and enforcement via Pod Security Admission.
+Kubernetes enforces Pod Security Standards (PSS) with three levels — Privileged, Baseline, Restricted. The **Restricted** profile requires `runAsNonRoot: true`. See [Pod Security Standards](../kubernetes-security/pod-security-standards.md) for the full profile requirements and enforcement via Pod Security Admission.
 
 ## Applying Non-Root in Kubernetes
 
-This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md).
+This section covers Kubernetes-specific concerns for non-root execution. For details on how securityContext fields interact across pod and container levels, see [SecurityContext vs PodSecurityContext](../kubernetes-security/securitycontext-vs-podsecuritycontext.md).
 
 ### runAsNonRoot Admission Check
 
@@ -361,7 +361,7 @@ A pod can have 10 containers but only 2 with `runAsNonRoot: true` — the others
 
 ### Admission Control and Webhooks
 
-For enforcing non-root across your cluster, see [Admission Control](../helm-chart-security/admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../helm-chart-security/adapting-upstream-helm-charts.md).
+For enforcing non-root across your cluster, see [Admission Control](../kubernetes-security/admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../kubernetes-security/adapting-upstream-helm-charts.md).
 
 ## Complete Secure Example
 
@@ -413,4 +413,4 @@ spec:
 
 ## Interview Tips
 
-Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `Config.User` field in the image manifest). Be able to explain the `no-new-privileges` flag and how it interacts with `allowPrivilegeEscalation: false`. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see [Pod Security Standards](../helm-chart-security/pod-security-standards.md) for the full breakdown. Understand the pod vs container SecurityContext split — see [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../helm-chart-security/adapting-upstream-helm-charts.md). For admission control and policy enforcement, see [Admission Control](../helm-chart-security/admission-control.md). For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see [Docker Architecture](../docker/docker-architecture.md).
+Know the difference between `USER` in Dockerfile and `securityContext.runAsUser` in Kubernetes — Kubernetes always overrides the Dockerfile value. Understand that `runAsNonRoot: true` makes the K8s admission controller verify the container image does not run as root (it checks the `Config.User` field in the image manifest). Be able to explain the `no-new-privileges` flag and how it interacts with `allowPrivilegeEscalation: false`. Know the Pod Security Standards' three profiles (Privileged, Baseline, Restricted) and how Pod Security Admission enforces them — see [Pod Security Standards](../kubernetes-security/pod-security-standards.md) for the full breakdown. Understand the pod vs container SecurityContext split — see [SecurityContext vs PodSecurityContext](../kubernetes-security/securitycontext-vs-podsecuritycontext.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../kubernetes-security/adapting-upstream-helm-charts.md). For admission control and policy enforcement, see [Admission Control](../kubernetes-security/admission-control.md). For a deeper understanding of how the Docker engine enforces these constraints at the runtime layer, see [Docker Architecture](../docker/docker-architecture.md).

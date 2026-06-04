@@ -1,6 +1,6 @@
 ---
 title: "Admission Control for Supply Chain Security"
-section: "Helm Chart Security Adaptation"
+section: "Kubernetes Security"
 order: 19
 ---
 

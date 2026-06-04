@@ -64,7 +64,7 @@ This builds the site and force-pushes to the `gh-pages` branch. GitHub Pages ser
 │       ├── supply-chain-security/
 │       ├── linux-fundamentals/
 │       ├── container-image-hardening/
-│       ├── helm-chart-security/
+│       ├── kubernetes-security/
 │       ├── cve-lifecycle/
 │       └── docker/
 │           └── product-strategy/

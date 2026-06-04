@@ -354,6 +354,6 @@ What a container **cannot** access even as root inside the container:
 - [Non-Root Execution: UID allocation and cross-container /proc risk](../container-image-hardening/non-root-execution.md)
 - [Seccomp: ptrace filtering and /proc/self/exe](../container-image-hardening/seccomp.md)
 - [AppArmor/SELinux: /proc path deny rules](../container-image-hardening/apparmor-selinux.md)
-- [Pod Security Standards: DefaultProcMount requirement](../helm-chart-security/pod-security-standards.md)
-- [SecurityContext vs PodSecurityContext: procMount field](../helm-chart-security/securitycontext-vs-podsecuritycontext.md)
+- [Pod Security Standards: DefaultProcMount requirement](../kubernetes-security/pod-security-standards.md)
+- [SecurityContext vs PodSecurityContext: procMount field](../kubernetes-security/securitycontext-vs-podsecuritycontext.md)
 - [Read-only Filesystem: /proc/self/exe as hidden write path](../container-image-hardening/readonly-filesystem.md)

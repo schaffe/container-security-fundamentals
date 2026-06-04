@@ -492,5 +492,5 @@ is less actively maintained.
   containers without root, relevant to rootless BuildKit and Buildah.
 - [Seccomp](../container-image-hardening/seccomp.md) — how syscall filtering interacts with ptrace-based
   builders like Kaniko.
-- [Pod Security Standards](../helm-chart-security/pod-security-standards.md) — Kubernetes policies that
+- [Pod Security Standards](../kubernetes-security/pod-security-standards.md) — Kubernetes policies that
   restrict privileged containers, motivating Kaniko adoption.

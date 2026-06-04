@@ -332,6 +332,6 @@ Understand that sysctl is a namespace isolation boundary test. The interviewer m
 - [/proc and Container Isolation](proc-container-isolation.md) — how `/proc/sys/` is made read-only via `readonlyPaths`
 - [Linux Capabilities](../container-image-hardening/linux-capabilities.md) — `CAP_SYS_ADMIN` and the privilege model
 - [Seccomp](../container-image-hardening/seccomp.md) — legacy `sysctl()` syscall filtering
-- [SecurityContext vs PodSecurityContext](../helm-chart-security/securitycontext-vs-podsecuritycontext.md) — the `sysctls` field in PodSecurityContext
-- [Adapting Upstream Helm Charts](../helm-chart-security/adapting-upstream-helm-charts.md) — init containers that set sysctls
-- [Pod Security Standards](../helm-chart-security/pod-security-standards.md) — implicit sysctl restrictions via capability dropping
+- [SecurityContext vs PodSecurityContext](../kubernetes-security/securitycontext-vs-podsecuritycontext.md) — the `sysctls` field in PodSecurityContext
+- [Adapting Upstream Helm Charts](../kubernetes-security/adapting-upstream-helm-charts.md) — init containers that set sysctls
+- [Pod Security Standards](../kubernetes-security/pod-security-standards.md) — implicit sysctl restrictions via capability dropping

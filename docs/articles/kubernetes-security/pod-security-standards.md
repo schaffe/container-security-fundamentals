@@ -1,6 +1,6 @@
 ---
 title: "Pod Security Standards (PSS)"
-section: "Helm Chart Security Adaptation"
+section: "Kubernetes Security"
 order: 17
 ---
 

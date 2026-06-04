@@ -1,6 +1,6 @@
 ---
 title: "Adapting Upstream Helm Charts for Hardened Environments"
-section: "Helm Chart Security Adaptation"
+section: "Kubernetes Security"
 order: 18
 ---
 

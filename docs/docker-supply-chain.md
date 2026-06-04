@@ -28,7 +28,7 @@
 - **Read-only filesystem:** `readOnlyRootFilesystem: true` in SecurityContext. Mount tmpfs for write locations (`/tmp`, `/var/run`, `/var/log`, `/var/cache/nginx`). What applications break (need to write to /etc, /var/lib).
 - **Multi-arch security:** `FROM --platform=$BUILDPLATFORM` in multi-stage. Per-arch base images (arm64 vs amd64) have different CVE profiles. Registries with multi-arch manifests, attestation per-architecture.
 
-### 4. Helm Chart Security Adaptation
+### 4. Kubernetes Security
 
 - **SecurityContext vs PodSecurityContext:** SecurityContext on container (container-level settings: capabilities, runAsUser, readOnlyRootFS, seccomp). PodSecurityContext on pod (pod-level: fsGroup, runAsNonRoot, supplementalGroups, seLinuxOptions, sysctls). Cascade behavior: pod-level defaults overrideable at container level.
 - **Pod Security Standards:** Three policies — privileged (no restrictions), baseline (minimal, prevents known privilege escalations), restricted (hardened, follows pod hardening best practices). What each allows/blocks:
@@ -73,7 +73,7 @@
    - [Design a CVE triage system](articles/interview/cve-triage-system.md)
    - [Design an image signing and verification workflow](articles/interview/image-signing-verification.md)
 2. **CVE scenario:** Given a specific CVE, walk through triage, fix strategy, customer communication
-3. **Helm chart security review:** Given a Helm chart, identify security issues and fix them
+3. **Kubernetes security review:** Given a manifest or Helm chart, identify security issues and fix them
 4. **SLSA walkthrough:** "Tell me about the SLSA L3 pipeline you built" — architecture, trade-offs, attestation format
 5. **Go coding:** Write a test that deploys a chart to a real K8s cluster and validates behavior
 6. **Docker strategy:** How should Docker position DHI vs Chainguard? How would you improve the developer experience?
@@ -86,5 +86,7 @@
 - **Docker Scout docs:** docs.docker.com/scout/
 - **Docker Hardened Images:** hub.docker.com — explore DHI catalog
 - **Trivy:** github.com/aquasecurity/trivy — hands-on scanning
-- **Helm security:** helm.sh/docs/topics/security/ plus real upstream charts (cert-manager, Grafana)
-- **Pod Security Standards:** kubernetes.io/docs/concepts/security/pod-security-standards/
+- **Kubernetes security:** kubernetes.io/docs/concepts/security/ — official docs on Pod Security Standards, RBAC, NetworkPolicy
+- **Falco:** falco.org — runtime security, rule library, CRI-aware syscall monitoring
+- **Kyverno:** kyverno.io — Kubernetes-native policy engine with verifyImages support
+- **kube-bench:** github.com/aquasecurity/kube-bench — CIS Benchmark automation
