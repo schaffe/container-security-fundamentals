@@ -469,7 +469,7 @@ container security knowledge.
 | Field | Value |
 |-------|-------|
 | **Date** | February 2019 |
-| **CVSS** | 7.2 (HIGH) |
+| **[CVSS](../cve-lifecycle/cvss-epss.md#cvss-v31-base-score)** | 7.2 (HIGH) |
 | **Root cause** | During setup, runc opens `/proc/self/exe` from inside the container's namespaces (before `execve`). A malicious process already running in the container can ptrace the runc init process (they share the same PID namespace) and overwrite `/proc/self/exe` with arbitrary code. When runc exits, the host executes the attacker's payload as root. |
 | **Impact** | Full host root compromise from any container. |
 | **Fix** | runc 1.0-rc6. The binary FD is opened from the **host** mount namespace using `O_CLOEXEC` before entering the container. The FD is never exposed to the container. |
@@ -492,7 +492,7 @@ f, _ := os.OpenFile("/proc/self/exe", os.O_RDONLY|syscall.O_CLOEXEC, 0)
 | Field | Value |
 |-------|-------|
 | **Date** | January 2024 |
-| **CVSS** | 8.6 (HIGH) |
+| **[CVSS](../cve-lifecycle/cvss-epss.md#cvss-v31-base-score)** | 8.6 (HIGH) |
 | **Root cause** | runc leaked a host-side directory FD into the container. The container process could use `openat(leaked_fd, "../../../etc/passwd")` to traverse up to any host path. |
 | **Impact** | Container escape via path traversal on the leaked FD. |
 | **Fix** | runc 1.1.12. All internal FDs are set `O_CLOEXEC` before `execve`. |
@@ -503,14 +503,14 @@ f, _ := os.OpenFile("/proc/self/exe", os.O_RDONLY|syscall.O_CLOEXEC, 0)
 | Field | Value |
 |-------|-------|
 | **Date** | May 2022 |
-| **CVSS** | 6.2 (MEDIUM) |
+| **[CVSS](../cve-lifecycle/cvss-epss.md#cvss-v31-base-score)** | 6.2 (MEDIUM) |
 | **Root cause** | `runc exec` followed symbolic links inside the container's cgroup mount when writing the PID, allowing a malicious container to escape by pointing the cgroup write at a host path. |
 | **Impact** | Limited — required a specific cgroup configuration and a symlink inside the container. |
 | **Fix** | runc 1.1.2. The cgroup path is resolved with `filepath.EvalSymlinks` before writing. |
 
 #### Summary
 
-| CVE | Year | CVSS | Type | Fixed in |
+| CVE | Year | [CVSS](../cve-lifecycle/cvss-epss.md#cvss-v31-base-score) | Type | Fixed in |
 |-----|------|------|------|----------|
 | CVE-2019-5736 | 2019 | 7.2 | Container escape (/proc/self/exe race) | runc 1.0-rc6 |
 | CVE-2022-29162 | 2022 | 6.2 | Symlink traversal (runc exec) | runc 1.1.2 |
