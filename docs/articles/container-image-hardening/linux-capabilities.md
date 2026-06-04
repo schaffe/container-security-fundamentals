@@ -63,6 +63,8 @@ By default, Docker containers receive these capabilities (this is the `--cap-def
 
 A root container running with default capabilities has significantly more power than necessary. `--cap-drop=ALL` removes all 14, forcing explicit capability grants.
 
+In a [user namespace](user-namespaces.md), capabilities are namespace-scoped — even `--privileged` only grants power over resources owned by the namespace.
+
 ## Capability Deep Dive
 
 ### CHOWN

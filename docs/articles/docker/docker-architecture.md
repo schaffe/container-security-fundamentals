@@ -209,7 +209,7 @@ step 2 in the startup sequence above.
 | `cgroup` | Cgroup root view | 4.6+ |
 | `time` | System time | 5.6+ |
 
-User namespaces are covered in [Non-Root Execution](../container-image-hardening/non-root-execution.md). **They are not enabled by default** — see that article for the trade-offs and rootless Docker as the recommended path.
+User namespaces are covered in [User Namespaces in Containers](../container-image-hardening/user-namespaces.md) and [Non-Root Execution](../container-image-hardening/non-root-execution.md). **They are not enabled by default** — see those articles for the trade-offs and rootless Docker as the recommended path.
 
 #### cgroups
 

@@ -371,7 +371,7 @@ Kaniko and BuildKit are not the only options. Several other tools address the sa
 ### Buildah
 
 Buildah is part of the Podman ecosystem (Red Hat). It builds OCI images without a daemon, using
-`overlayfs` mounted inside a user namespace for change detection:
+`overlayfs` mounted inside a [user namespace](../container-image-hardening/user-namespaces.md) for change detection:
 
 ```bash
 buildah bud -t myapp .
@@ -382,7 +382,7 @@ Key differences from Kaniko:
 - **Overlayfs-based diff**: Buildah mounts layers as overlayfs lowerdirs and uses the upperdir to
   detect changes. This is much faster than Kaniko's [ptrace](../container-image-hardening/seccomp.md#ptrace) approach — no syscall interception
   overhead.
-- **User namespace support**: Buildah can run in a user namespace, mapping a non-root UID to root
+- **[User namespace](../container-image-hardening/user-namespaces.md) support**: Buildah can run in a user namespace, mapping a non-root UID to root
   inside the namespace. This gives it filesystem capabilities without `CAP_SYS_ADMIN`.
 - **Mount support**: Buildah supports `--mount=type=cache` (via buildah-cache) and
   `--mount=type=secret`, similar to BuildKit.
@@ -488,7 +488,7 @@ is less actively maintained.
   content-addressed caching, cache mounts, and secret handling.
 - [How Docker Builds Images](how-docker-builds-images.md) — the legacy builder
   and BuildKit pipelines that Kaniko replaces.
-- [Non-Root Execution](../container-image-hardening/non-root-execution.md) — user namespaces and running
+- [User Namespaces in Containers](../container-image-hardening/user-namespaces.md) — user namespaces and running
   containers without root, relevant to rootless BuildKit and Buildah.
 - [Seccomp](../container-image-hardening/seccomp.md) — how syscall filtering interacts with ptrace-based
   builders like Kaniko.

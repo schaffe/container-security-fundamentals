@@ -22,6 +22,7 @@ nav:
     - articles/container-image-hardening/distroless-images.md
     - articles/container-image-hardening/image-minimization.md
     - articles/container-image-hardening/non-root-execution.md
+    - articles/container-image-hardening/user-namespaces.md
     - articles/container-image-hardening/linux-capabilities.md
     - articles/container-image-hardening/seccomp.md
     - articles/container-image-hardening/apparmor-selinux.md

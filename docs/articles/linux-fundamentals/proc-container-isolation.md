@@ -131,7 +131,7 @@ Access to `/proc/PID/` entries is governed by a kernel capability check in `proc
 ```
 if (uid_of_reader == uid_of_target)
     → full access to /proc/PID/{maps, mem, environ, fd/, root/, ...}
-else if (reader has CAP_SYS_PTRACE in the target's user namespace)
+else if (reader has [CAP_SYS_PTRACE in the target's user namespace](../container-image-hardening/user-namespaces.md))
     → full access
 else
     → only /proc/PID/{status, cmdline, ...} visible (world-readable)
@@ -180,7 +180,7 @@ Writing to `/proc/sys/net/ipv4/ip_forward` changes the host's network stack. Wri
 
 ### 4. `/proc/PID/environ` — Secret Leakage
 
-Environment variables commonly contain secrets: `AWS_SECRET_ACCESS_KEY`, `DB_PASSWORD`, `API_TOKEN`, `JWT_SECRET`. If two containers share a PID namespace and run as the same UID, one can read the other's `environ`. With user namespaces or unique UIDs, this is blocked at the kernel level.
+Environment variables commonly contain secrets: `AWS_SECRET_ACCESS_KEY`, `DB_PASSWORD`, `API_TOKEN`, `JWT_SECRET`. If two containers share a PID namespace and run as the same UID, one can read the other's `environ`. With [user namespaces](../container-image-hardening/user-namespaces.md) or unique UIDs, this is blocked at the kernel level.
 
 ### 5. `/proc/PID/root/` — Filesystem Traversal
 
@@ -345,7 +345,7 @@ What a container **cannot** access even as root inside the container:
 - Why can't a container see host processes in `/proc`?
 - What's the difference between a masked path and a read-only path?
 - How does the kernel check access to `/proc/PID/maps`?
-- How does a user namespace prevent `/proc/PID/` access even with shared PIDs?
+- How does a [user namespace](../container-image-hardening/user-namespaces.md) prevent `/proc/PID/` access even with shared PIDs?
 - What vulnerability is `/proc/self/exe` associated with?
 
 ## Further Reading
