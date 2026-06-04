@@ -23,7 +23,7 @@ Key fields:
 | `supplementalGroups` | Additional GIDs for the process |
 | `seLinuxOptions` | SELinux labels applied to all containers |
 | `seccompProfile` | seccomp profile (Localhost, RuntimeDefault, Unconfined) |
-| `sysctls` | Namespace-level sysctl settings |
+| `sysctls` | Namespace-level [sysctl](../linux-fundamentals/sysctl-container-security.md) settings |
 | `fsGroupChangePolicy` | Always vs OnRootMismatch for volume ownership |
 
 ### Example: PodSecurityContext

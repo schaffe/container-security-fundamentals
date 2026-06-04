@@ -17,6 +17,7 @@ nav:
   - Linux Fundamentals:
     - articles/linux-fundamentals/musl-vs-glibc.md
     - articles/linux-fundamentals/proc-container-isolation.md
+    - articles/linux-fundamentals/sysctl-container-security.md
   - Container Image Hardening:
     - articles/container-image-hardening/distroless-images.md
     - articles/container-image-hardening/image-minimization.md

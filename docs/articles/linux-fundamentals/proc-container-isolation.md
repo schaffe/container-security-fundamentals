@@ -55,7 +55,7 @@ Every running process gets a `/proc/PID/` directory:
 
 ### Tunables: /proc/sys/
 
-`/proc/sys/` is the **sysctl interface** — kernel parameters exposed as files:
+`/proc/sys/` is the **[sysctl interface](sysctl-container-security.md)** — kernel parameters exposed as files:
 
 ```bash
 # Read a kernel parameter

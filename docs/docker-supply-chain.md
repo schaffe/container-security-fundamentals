@@ -15,7 +15,7 @@
 ### 2. Linux Fundamentals
 
 - **musl vs glibc:** How the two C standard libraries compare (size, POSIX compliance, static linking, CVE history). Compatibility pitfalls: glibc-specific APIs, DNS resolution differences, locale support. Security decision framework for choosing between musl (Alpine) and glibc (Debian, Ubuntu, distroless) base images.
-- **/proc and container isolation:** What /proc is (pseudo-filesystem), how PID namespaces virtualize /proc per container, the kernel UID-based access check for /proc/PID, attack surface via /proc in containers (CVE-2019-5736, /proc/kcore, /proc/sys), Docker's MaskedPaths and ReadonlyPaths defenses, Kubernetes procMount field and DefaultProcMount requirement in Pod Security Standards.
+- **/proc and container isolation:** What /proc is (pseudo-filesystem), how PID namespaces virtualize /proc per container, the kernel UID-based access check for /proc/PID, attack surface via /proc in containers (CVE-2019-5736, /proc/kcore, /proc/sys), Docker's MaskedPaths and ReadonlyPaths defenses, Kubernetes procMount field and DefaultProcMount requirement in Pod Security Standards. [sysctl](articles/linux-fundamentals/sysctl-container-security.md) — kernel parameter interface via /proc/sys/, safe (namespaced) vs unsafe (non-namespaced), Docker --sysctl, Kubernetes securityContext.sysctls, CAP_SYS_ADMIN requirement.
 
 ### 3. Container Image Hardening
 

@@ -42,7 +42,7 @@ initContainers:
 
 **Symptom:** Init container crashes with `"RTNETLINK answers: Operation not permitted"`.
 
-**Root cause:** Chart uses init containers to configure iptables, set sysctls, or create network interfaces. Example: cert-manager's `startupapicheck` or Cilium's init container.
+**Root cause:** Chart uses init containers to configure iptables, set [sysctls](../linux-fundamentals/sysctl-container-security.md), or create network interfaces. Example: cert-manager's `startupapicheck` or Cilium's init container.
 
 **Fix:** If `privileged` cannot be granted, extract the specific capability:
 
