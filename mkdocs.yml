@@ -50,6 +50,10 @@ nav:
       - articles/docker/product-strategy/docker-hardened-images.md
       - articles/docker/product-strategy/docker-content-trust.md
       - articles/docker/product-strategy/docker-supply-chain-platform.md
+  - Interview:
+    - articles/interview/hardened-image-build-pipeline.md
+    - articles/interview/cve-triage-system.md
+    - articles/interview/image-signing-verification.md
 markdown_extensions:
   - toc:
       permalink: true

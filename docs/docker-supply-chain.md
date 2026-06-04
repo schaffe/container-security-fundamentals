@@ -68,7 +68,10 @@
 
 ## Interview Question Patterns to Expect
 
-1. **System design:** Design a hardened image build pipeline, a CVE triage system, an image signing and verification workflow
+1. **System design:**
+   - [Design a hardened image build pipeline](articles/interview/hardened-image-build-pipeline.md)
+   - [Design a CVE triage system](articles/interview/cve-triage-system.md)
+   - [Design an image signing and verification workflow](articles/interview/image-signing-verification.md)
 2. **CVE scenario:** Given a specific CVE, walk through triage, fix strategy, customer communication
 3. **Helm chart security review:** Given a Helm chart, identify security issues and fix them
 4. **SLSA walkthrough:** "Tell me about the SLSA L3 pipeline you built" — architecture, trade-offs, attestation format
