@@ -162,6 +162,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
@@ -442,7 +444,7 @@ echo 1 &gt; /proc/sys/net/ipv4/ip_forward
 <p>Access to <code>/proc/PID/</code> entries is governed by a kernel capability check in <code>proc_pid_permission()</code>:</p>
 <pre><code>if (uid_of_reader == uid_of_target)
     → full access to /proc/PID/{maps, mem, environ, fd/, root/, ...}
-else if (reader has CAP_SYS_PTRACE in the target's user namespace)
+else if (reader has [CAP_SYS_PTRACE in the target's user namespace](../container-image-hardening/user-namespaces.md))
     → full access
 else
     → only /proc/PID/{status, cmdline, ...} visible (world-readable)
@@ -504,7 +506,7 @@ else
 <h3 id="3-procsys-kernel-parameter-modification">3. <code>/proc/sys/</code> — Kernel Parameter Modification<a class="headerlink" href="#3-procsys-kernel-parameter-modification" title="Permanent link">&para;</a></h3>
 <p>Writing to <code>/proc/sys/net/ipv4/ip_forward</code> changes the host's network stack. Writing to <code>/proc/sys/kernel/core_pattern</code> can redirect crash dumps. Writing to <code>/proc/sys/kernel/panic</code> can cause denial of service. Docker blocks this by making <code>/proc/sys</code> read-only and dropping <code>CAP_SYS_ADMIN</code>.</p>
 <h3 id="4-procpidenviron-secret-leakage">4. <code>/proc/PID/environ</code> — Secret Leakage<a class="headerlink" href="#4-procpidenviron-secret-leakage" title="Permanent link">&para;</a></h3>
-<p>Environment variables commonly contain secrets: <code>AWS_SECRET_ACCESS_KEY</code>, <code>DB_PASSWORD</code>, <code>API_TOKEN</code>, <code>JWT_SECRET</code>. If two containers share a PID namespace and run as the same UID, one can read the other's <code>environ</code>. With user namespaces or unique UIDs, this is blocked at the kernel level.</p>
+<p>Environment variables commonly contain secrets: <code>AWS_SECRET_ACCESS_KEY</code>, <code>DB_PASSWORD</code>, <code>API_TOKEN</code>, <code>JWT_SECRET</code>. If two containers share a PID namespace and run as the same UID, one can read the other's <code>environ</code>. With <a href="../../container-image-hardening/user-namespaces/">user namespaces</a> or unique UIDs, this is blocked at the kernel level.</p>
 <h3 id="5-procpidroot-filesystem-traversal">5. <code>/proc/PID/root/</code> — Filesystem Traversal<a class="headerlink" href="#5-procpidroot-filesystem-traversal" title="Permanent link">&para;</a></h3>
 <p><code>/proc/PID/root/</code> is a symlink to the process's root directory (as established by <code>pivot_root</code> or <code>chroot</code>). If a container shares a PID namespace with another container and runs as the same UID, it can follow <code>/proc/OTHER_PID/root/home/appuser/config.yaml</code> to read the other container's files — bypassing filesystem isolation entirely.</p>
 <h3 id="6-procpid-open-file-descriptor-inspection">6. <code>/proc/PID/</code> — Open File Descriptor Inspection<a class="headerlink" href="#6-procpid-open-file-descriptor-inspection" title="Permanent link">&para;</a></h3>
@@ -740,7 +742,7 @@ docker run --rm alpine ls -l /proc/self/ns/
 <li>Why can't a container see host processes in <code>/proc</code>?</li>
 <li>What's the difference between a masked path and a read-only path?</li>
 <li>How does the kernel check access to <code>/proc/PID/maps</code>?</li>
-<li>How does a user namespace prevent <code>/proc/PID/</code> access even with shared PIDs?</li>
+<li>How does a <a href="../../container-image-hardening/user-namespaces/">user namespace</a> prevent <code>/proc/PID/</code> access even with shared PIDs?</li>
 <li>What vulnerability is <code>/proc/self/exe</code> associated with?</li>
 </ul>
 <h2 id="further-reading">Further Reading<a class="headerlink" href="#further-reading" title="Permanent link">&para;</a></h2>

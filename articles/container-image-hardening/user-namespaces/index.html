@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>User Namespaces in Containers - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "User Namespaces in Containers";
+        var mkdocs_page_input_path = "articles/container-image-hardening/user-namespaces.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">User Namespaces in Containers</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-a-user-namespace">What Is a User Namespace?</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#uidgid-mapping">UID/GID Mapping</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#who-can-write-the-mapping">Who Can Write the Mapping?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#etcsubuid-and-etcsubgid">/etc/subuid and /etc/subgid</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#user-namespace-as-the-parent-namespace">User Namespace as the "Parent" Namespace</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#capabilities-and-user-namespaces">Capabilities and User Namespaces</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#how-docker-uses-user-namespaces">How Docker Uses User Namespaces</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#rootful-docker-with-userns-remap">Rootful Docker with --userns-remap</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#why-off-by-default">Why Off by Default?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#rootless-docker">Rootless Docker</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#rootless-podman">Rootless Podman</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#kubernetes-per-pod-user-namespaces">Kubernetes Per-Pod User Namespaces</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interaction-with-other-security-mechanisms">Interaction with Other Security Mechanisms</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#user-namespaces-capabilities">User Namespaces + Capabilities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#user-namespaces-seccomp">User Namespaces + Seccomp</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#user-namespaces-apparmor-selinux">User Namespaces + AppArmor / SELinux</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#user-namespaces-read-only-filesystem">User Namespaces + Read-Only Filesystem</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#practical-concerns">Practical Concerns</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#volume-permissions">Volume Permissions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#-privileged-behavior">--privileged Behavior</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#debugging-user-namespace-issues">Debugging User Namespace Issues</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-security-boundary">The Security Boundary</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#known-weaknesses">Known Weaknesses</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-industry-shift-toward-user-namespaces-as-default">The Industry Shift Toward User Namespaces as Default</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-tips">Interview Tips</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#cross-references">Cross-References</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Container Image Hardening</li>
+      <li class="breadcrumb-item active">User Namespaces in Containers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/container-image-hardening/user-namespaces.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="user-namespaces-in-containers">User Namespaces in Containers<a class="headerlink" href="#user-namespaces-in-containers" title="Permanent link">&para;</a></h1>
+<h2 id="what-is-a-user-namespace">What Is a User Namespace?<a class="headerlink" href="#what-is-a-user-namespace" title="Permanent link">&para;</a></h2>
+<p>A user namespace (<code>CLONE_NEWUSER</code>) is a Linux kernel feature that isolates UID and GID numbers. A process inside a user namespace can have UID 0 (root) inside the namespace while having a completely unprivileged UID (e.g., 100000) on the host.</p>
+<p>This is the only namespace type that <strong>can be created by an unprivileged process</strong> — no <code>CAP_SYS_ADMIN</code> required. This makes user namespaces the foundation for rootless containers.</p>
+<h3 id="uidgid-mapping">UID/GID Mapping<a class="headerlink" href="#uidgid-mapping" title="Permanent link">&para;</a></h3>
+<p>When a user namespace is created, the kernel establishes a <strong>UID/GID mapping</strong> between IDs inside the namespace and IDs on the host. Two files control this:</p>
+<ul>
+<li><code>/proc/PID/uid_map</code> — UID mapping (write once, then immutable)</li>
+<li><code>/proc/PID/gid_map</code> — GID mapping (write once, then immutable)</li>
+</ul>
+<p>The mapping format is:</p>
+<pre><code>&lt;inside-ID&gt; &lt;outside-ID&gt; &lt;length&gt;
+</code></pre>
+<p>For example:</p>
+<pre><code>0       100000      65536
+65534   165534      1
+</code></pre>
+<p>This means:
+- UIDs 0–65535 inside the namespace map to host UIDs 100000–165535
+- UID 65534 (nobody) maps to host UID 165534</p>
+<p>The container's root (UID 0) is actually UID 100000 on the host — no special privileges at the host level.</p>
+<h3 id="who-can-write-the-mapping">Who Can Write the Mapping?<a class="headerlink" href="#who-can-write-the-mapping" title="Permanent link">&para;</a></h3>
+<p>The kernel enforces strict rules on who can write UID/GID mappings:</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Who Can Write uid_map</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Process created user namespace itself</td>
+<td>The process itself (once)</td>
+</tr>
+<tr>
+<td>Another process with <code>CAP_SETUID</code> in the user namespace</td>
+<td>With <code>newuidmap</code> setuid helper</td>
+</tr>
+<tr>
+<td>Root on the host writing to a child namespace</td>
+<td>Always allowed</td>
+</tr>
+</tbody>
+</table>
+<p>Once written, the mapping is <strong>immutable</strong> for the lifetime of the namespace. This prevents privilege escalation after the fact.</p>
+<h2 id="etcsubuid-and-etcsubgid">/etc/subuid and /etc/subgid<a class="headerlink" href="#etcsubuid-and-etcsubgid" title="Permanent link">&para;</a></h2>
+<p>These files delegate UID/GID ranges to unprivileged users so they can create user namespaces with valid mappings:</p>
+<pre><code># /etc/subuid
+artur:100000:65536
+docker:165536:65536
+</code></pre>
+<p>Format: <code>&lt;username&gt;:&lt;start-UID&gt;:&lt;count&gt;</code></p>
+<p>The <code>shadow-utils</code> package provides <code>newuidmap</code> and <code>newgidmap</code> setuid helpers that read these files and write the corresponding <code>uid_map</code>/<code>gid_map</code> entries. When Docker's rootless mode creates a user namespace, it invokes <code>newuidmap</code> and <code>newgidmap</code> to set up the mapping.</p>
+<pre><code class="language-bash"># Inspect your delegated ranges
+grep ^$(whoami): /etc/subuid
+
+# These ranges are allocated by
+# useradd --user-group --create-home artur
+# which creates entries in /etc/subuid and /etc/subgid
+</code></pre>
+<h2 id="user-namespace-as-the-parent-namespace">User Namespace as the "Parent" Namespace<a class="headerlink" href="#user-namespace-as-the-parent-namespace" title="Permanent link">&para;</a></h2>
+<p>User namespaces have a special property in the kernel: <strong>every other namespace type is owned by a user namespace</strong>. When a process creates a new mount, PID, or network namespace inside a user namespace, those namespaces are "owned" by that user namespace. The kernel uses the owning user namespace to determine what operations are allowed.</p>
+<pre><code>User namespace A (owns)
+├── PID namespace (owned by A)
+├── Mount namespace (owned by A)
+├── Network namespace (owned by A)
+└── IPC namespace (owned by A)
+</code></pre>
+<p>This ownership model means:</p>
+<ul>
+<li><strong>Capabilities in a user namespace grant power within the namespace</strong>, but only over resources owned by that user namespace</li>
+<li>A process with <code>CAP_SYS_ADMIN</code> in its user namespace can do <code>mount()</code> — but only inside mount namespaces owned by that user namespace</li>
+<li>A process with <code>CAP_NET_ADMIN</code> can modify iptables rules — but only in network namespaces owned by that user namespace</li>
+</ul>
+<p>This is how rootless Docker works: the daemon runs inside a user namespace, and all the namespaces it creates are owned by that user namespace. The kernel enforces that operations like <code>mount()</code> never touch host resources.</p>
+<h2 id="capabilities-and-user-namespaces">Capabilities and User Namespaces<a class="headerlink" href="#capabilities-and-user-namespaces" title="Permanent link">&para;</a></h2>
+<p>When a user namespace is created, the process <strong>gains all capabilities</strong> inside that namespace (but only for resources owned by the namespace). The kernel automatically adds all capabilities to the process's <code>Permitted</code>, <code>Effective</code>, <code>Inheritable</code>, and <code>Bounding</code> sets — but only within the scope of that user namespace.</p>
+<p>This is the crucial distinction:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Inside user namespace</th>
+<th>Outside user namespace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mount()</code> a tmpfs</td>
+<td>✅ Allowed (with <code>CAP_SYS_ADMIN</code>)</td>
+<td>❌ Blocked</td>
+</tr>
+<tr>
+<td><code>chown()</code> a file</td>
+<td>✅ Allowed</td>
+<td>❌ Blocked</td>
+</tr>
+<tr>
+<td><code>kill()</code> a process in same namespace</td>
+<td>✅ Allowed</td>
+<td>❌ Blocked</td>
+</tr>
+<tr>
+<td>Load a kernel module</td>
+<td>✅ Capability exists but meaningless — kernel modules affect the host</td>
+<td>❌ Host kernel rejects it</td>
+</tr>
+<tr>
+<td><code>ptrace()</code> a host process</td>
+<td>✅ Technically in capability set</td>
+<td>❌ Kernel checks target is in same user namespace</td>
+</tr>
+</tbody>
+</table>
+<p>The key security property: <strong>capabilities in a non-initial user namespace are "container-scoped."</strong> They let you do privileged things inside your namespace boundaries, but those boundaries are enforced by the kernel.</p>
+<h2 id="how-docker-uses-user-namespaces">How Docker Uses User Namespaces<a class="headerlink" href="#how-docker-uses-user-namespaces" title="Permanent link">&para;</a></h2>
+<h3 id="rootful-docker-with-userns-remap">Rootful Docker with --userns-remap<a class="headerlink" href="#rootful-docker-with-userns-remap" title="Permanent link">&para;</a></h3>
+<p>In rootful Docker, user namespaces are <strong>disabled by default</strong>. The container's UID 0 is the host's UID 0 — a container breakout is immediately root on the host.</p>
+<p>Enable user namespaces with <code>daemon.json</code>:</p>
+<pre><code class="language-json">{
+  &quot;userns-remap&quot;: &quot;default&quot;
+}
+</code></pre>
+<p>With <code>default</code>, Docker creates <code>/etc/subuid</code> and <code>/etc/subgid</code> entries for a <code>dockremap</code> user and maps each container's UID 0 to a unique host range (typically starting at 100000):</p>
+<pre><code>Container A: UID 0 → Host UID 100000
+Container B: UID 0 → Host UID 165536
+</code></pre>
+<p>The <code>dockremap</code> user owns all container data under <code>/var/lib/docker/</code>. The kernel enforces that the container's processes cannot access files outside their mapped range.</p>
+<h3 id="why-off-by-default">Why Off by Default?<a class="headerlink" href="#why-off-by-default" title="Permanent link">&para;</a></h3>
+<p>User namespaces break common container workflows. Docker's design philosophy prioritized "it just works" over security-by-default:</p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Root Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Volume permissions</strong></td>
+<td>Container "root" is a high UID on the host; host files owned by the real user (UID 501) are inaccessible</td>
+</tr>
+<tr>
+<td><strong>--privileged</strong></td>
+<td>Privileged containers lose some capabilities in a non-initial user namespace — <code>CAP_SYS_ADMIN</code> is namespace-scoped</td>
+</tr>
+<tr>
+<td><strong>Privileged ports (&lt;1024)</strong></td>
+<td>Needs explicit capability management</td>
+</tr>
+<tr>
+<td><strong>Storage drivers</strong></td>
+<td><code>overlay2</code> needs <code>mount()</code> — allowed in user namespace but requires <code>fuse-overlayfs</code> for rootless</td>
+</tr>
+<tr>
+<td><strong>Debugging</strong></td>
+<td><code>docker exec</code> and volume introspection become harder when UIDs are remapped</td>
+</tr>
+</tbody>
+</table>
+<p>Each breakage generates a support ticket. Docker chose compatibility. The industry is now converging on user namespaces as default, but it took a decade of kernel and tooling maturation.</p>
+<h3 id="rootless-docker">Rootless Docker<a class="headerlink" href="#rootless-docker" title="Permanent link">&para;</a></h3>
+<p>Rootless Docker (stable since 20.10) runs the <strong>entire daemon</strong> inside a user namespace. The host sees an unprivileged user (typically the user who installed Docker). Inside the user namespace, <code>dockerd</code> runs as root, creates containers, and manages networks — all within the namespace boundary.</p>
+<pre><code>Host (UID 1000) → User namespace → dockerd (UID 0 inside) → Container (UID 0 inside)
+</code></pre>
+<p>Mechanisms that enable rootless mode:</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>User namespace</strong></td>
+<td>Map daemon UID → root inside namespace</td>
+</tr>
+<tr>
+<td><strong>fuse-overlayfs</strong></td>
+<td>Replace <code>overlay2</code> (needs <code>mount()</code> syscall) with FUSE — UID mapping in userspace</td>
+</tr>
+<tr>
+<td><strong>slirp4netns</strong></td>
+<td>Userspace network stack — NAT-based, no kernel iptables</td>
+</tr>
+<tr>
+<td><strong>dockerd-rootless-setuptool.sh</strong></td>
+<td>One-command setup; creates systemd user service</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">dockerd-rootless-setuptool.sh install
+docker context use rootless
+docker run hello-world  # No sudo, no root
+</code></pre>
+<p>Trade-offs versus rootful Docker:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Rootful</th>
+<th>Rootless</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Storage driver</td>
+<td>overlay2</td>
+<td>fuse-overlayfs (~20% slower)</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>Kernel iptables</td>
+<td>slirp4netns (~10-20% slower)</td>
+</tr>
+<tr>
+<td>Cgroups</td>
+<td>Full v1/v2</td>
+<td>cgroup v2 only, limited delegation</td>
+</tr>
+<tr>
+<td>Privileged ports</td>
+<td>Direct</td>
+<td>Needs <code>setcap CAP_NET_BIND_SERVICE</code></td>
+</tr>
+<tr>
+<td>BPF (eBPF)</td>
+<td>Full</td>
+<td>Not available</td>
+</tr>
+</tbody>
+</table>
+<h3 id="rootless-podman">Rootless Podman<a class="headerlink" href="#rootless-podman" title="Permanent link">&para;</a></h3>
+<p>Podman takes a different approach: <strong>it uses user namespaces by default even in rootful mode</strong>. Every Podman container runs inside a user namespace, regardless of whether the daemon is root or non-root.</p>
+<pre><code class="language-bash"># Rootful Podman still uses user namespaces
+sudo podman run --rm alpine cat /proc/self/uid_map
+# Shows a mapped range, not 0→0
+</code></pre>
+<p>This means Podman containers have stronger default isolation than rootful Docker containers.</p>
+<h2 id="kubernetes-per-pod-user-namespaces">Kubernetes Per-Pod User Namespaces<a class="headerlink" href="#kubernetes-per-pod-user-namespaces" title="Permanent link">&para;</a></h2>
+<p>Kubernetes supports per-pod user namespaces (alpha in 1.25, beta in 1.27, GA in 1.30). This maps the container's UID 0 to a non-root host UID without requiring changes to the container image.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+metadata:
+  name: userns-pod
+spec:
+  hostUsers: false  # Enable user namespace for this pod
+  containers:
+  - name: app
+    image: nginx
+    securityContext:
+      runAsNonRoot: true  # Still checked — process must not be UID 0 inside the namespace
+</code></pre>
+<p>When <code>hostUsers: false</code>, the kubelet:
+1. Creates a user namespace for the pod
+2. Allocates UID/GID ranges from the node's <code>/etc/subuid</code> and <code>/etc/subgid</code>
+3. Configures the container runtime to map container UIDs to the allocated range</p>
+<p><strong>Interaction with Pod Security Standards</strong>: The Kubernetes Restricted PSS profile requires <code>runAsNonRoot: true</code>. User namespaces do not relax this requirement — the process must still run as a non-zero UID inside the container. However, user namespaces add a second layer of isolation: even if the process runs as UID 0 inside, the host sees a non-root UID.</p>
+<h2 id="interaction-with-other-security-mechanisms">Interaction with Other Security Mechanisms<a class="headerlink" href="#interaction-with-other-security-mechanisms" title="Permanent link">&para;</a></h2>
+<h3 id="user-namespaces-capabilities">User Namespaces + Capabilities<a class="headerlink" href="#user-namespaces-capabilities" title="Permanent link">&para;</a></h3>
+<p>Capabilities inside a user namespace are namespace-scoped. This means:
+- <code>--cap-drop=ALL</code> still works inside a user namespace — the container's capability set is constrained
+- <code>--cap-add=SYS_ADMIN</code> is less dangerous in a user namespace — the admin capability only applies to resources owned by the namespace
+- Capability escalation to the host is impossible — the kernel caps capabilities at the user namespace boundary</p>
+<h3 id="user-namespaces-seccomp">User Namespaces + Seccomp<a class="headerlink" href="#user-namespaces-seccomp" title="Permanent link">&para;</a></h3>
+<p>Seccomp operates independently of user namespaces. The default Docker seccomp profile applies regardless of whether user namespaces are enabled. User namespaces do not bypass seccomp — both must be passed for a syscall to execute.</p>
+<h3 id="user-namespaces-apparmor-selinux">User Namespaces + AppArmor / SELinux<a class="headerlink" href="#user-namespaces-apparmor-selinux" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>AppArmor</strong>: User namespaces and AppArmor are orthogonal. The AppArmor profile constrains file access inside the namespace.</li>
+<li><strong>SELinux</strong>: MCS labels provide additional isolation between containers, supplementing user namespace UID mapping.</li>
+</ul>
+<h3 id="user-namespaces-read-only-filesystem">User Namespaces + Read-Only Filesystem<a class="headerlink" href="#user-namespaces-read-only-filesystem" title="Permanent link">&para;</a></h3>
+<p>A read-only root filesystem works the same inside a user namespace. The user namespace does not make read-only filesystems writable.</p>
+<h2 id="practical-concerns">Practical Concerns<a class="headerlink" href="#practical-concerns" title="Permanent link">&para;</a></h2>
+<h3 id="volume-permissions">Volume Permissions<a class="headerlink" href="#volume-permissions" title="Permanent link">&para;</a></h3>
+<p>The single biggest practical problem with user namespaces:</p>
+<pre><code class="language-bash"># Without user namespaces — works
+docker run -v /home/user/data:/data alpine touch /data/test
+
+# With --userns-remap — fails
+# Container's UID 0 is host UID 100000
+# /home/user/data is owned by UID 1000
+</code></pre>
+<p>Solutions:
+1. <strong>Rootless Docker</strong>: <code>fuse-overlayfs</code> handles UID translation transparently.
+2. <strong>Podman</strong>: Uses <code>--userns=keep-id</code> to keep the container UID matching the host UID for bind-mounted volumes.
+3. <strong>Init container chown</strong>: Run an init container as root to chown the volume to the mapped range.
+4. <strong>Kubernetes <code>fsGroup</code></strong>: When a pod has <code>fsGroup</code>, Kubernetes recursively changes the volume ownership to the group before the container starts.</p>
+<h3 id="-privileged-behavior">--privileged Behavior<a class="headerlink" href="#-privileged-behavior" title="Permanent link">&para;</a></h3>
+<p><code>--privileged</code> is less powerful inside a user namespace. The container gains all capabilities, but they are namespace-scoped. Operations that affect the host kernel (loading modules, <code>swapon</code>, rebooting) still fail because the kernel checks the target resource's owning user namespace.</p>
+<pre><code class="language-bash"># rootful Docker, no user namespace
+docker run --privileged alpine modprobe dummy
+# Works — host kernel accepts the module
+
+# with --userns-remap
+docker run --privileged alpine modprobe dummy
+# Fails — capabilities are scoped to the user namespace
+</code></pre>
+<h3 id="debugging-user-namespace-issues">Debugging User Namespace Issues<a class="headerlink" href="#debugging-user-namespace-issues" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># Check the UID mapping
+cat /proc/self/uid_map
+
+# Check the GID mapping
+cat /proc/self/gid_map
+
+# Check user namespace identity
+ls -l /proc/self/ns/user
+
+# Compare with parent namespace
+cat /proc/self/status | grep ^Uid:
+# Uid:  0   100000  100000  100000
+#      Real Effective Saved FS
+</code></pre>
+<h2 id="the-security-boundary">The Security Boundary<a class="headerlink" href="#the-security-boundary" title="Permanent link">&para;</a></h2>
+<p>The kernel enforces the user namespace boundary at multiple levels:
+1. <strong>UID/GID isolation</strong>: A process outside the namespace cannot access files owned by UIDs inside the namespace, and vice versa.
+2. <strong>Capability scoping</strong>: Capabilities are confined to resources owned by the namespace.
+3. <strong>Signal delivery</strong>: <code>kill()</code> across user namespace boundaries requires <code>CAP_SYS_PTRACE</code> in the <strong>target's</strong> user namespace.
+4. <strong>ptrace</strong>: Cross-ns ptrace is blocked unless the tracer has <code>CAP_SYS_PTRACE</code> in both its own and the target's user namespace.
+5. <strong>Process visibility</strong>: <code>/proc/PID/</code> entries from different user namespaces are filtered by the kernel's access check.</p>
+<p>This is why user namespaces are considered a stronger isolation boundary than running as non-root without user namespaces — they add kernel-enforced UID isolation that a container breakout cannot escape without a kernel vulnerability.</p>
+<h3 id="known-weaknesses">Known Weaknesses<a class="headerlink" href="#known-weaknesses" title="Permanent link">&para;</a></h3>
+<p>User namespaces are not perfect. The following attack vectors exist:
+- <strong><code>/proc/sys/kernel/</code> writeability</strong>: Some kernel parameters are not namespaced. The kernel has gradually closed these over time.
+- <strong><code>userfaultfd</code></strong>: In kernels before 5.11, <code>userfaultfd</code> allowed denial-of-service via page fault handling in user namespaces.
+- <strong><code>FUSE</code> permission bypass</strong>: Before kernel 5.15, FUSE filesystems could bypass permission checks in user namespaces.
+- <strong><code>Overlayfs</code> privilege escalation</strong>: CVE-2021-3493 (kernel 5.11) allowed a user namespace to escape via overlayfs <code>setattr</code> operations.</p>
+<p>These are kernel CVEs — user namespaces reduce the blast radius but do not eliminate kernel attack surface entirely.</p>
+<h2 id="the-industry-shift-toward-user-namespaces-as-default">The Industry Shift Toward User Namespaces as Default<a class="headerlink" href="#the-industry-shift-toward-user-namespaces-as-default" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Podman</strong></td>
+<td>User namespaces enabled by default since early versions</td>
+</tr>
+<tr>
+<td><strong>Rootless Docker</strong></td>
+<td>User namespaces by definition (stable since 20.10)</td>
+</tr>
+<tr>
+<td><strong>Rootful Docker</strong></td>
+<td>Still off by default; <code>--userns-remap</code> required</td>
+</tr>
+<tr>
+<td><strong>Kubernetes</strong></td>
+<td><code>hostUsers: false</code> beta in 1.27, stable in 1.30</td>
+</tr>
+<tr>
+<td><strong>OCI Runtime Spec</strong></td>
+<td><code>linux.namespaces</code> includes <code>"type": "user"</code> with <code>uidMappings</code> and <code>gidMappings</code> fields</td>
+</tr>
+</tbody>
+</table>
+<p>The long-term direction: user namespaces will become the default for all containers. Remaining blockers:
+1. <strong>Compatibility</strong>: Volume permissions and port binding breakages need transparent solutions
+2. <strong>Performance</strong>: <code>fuse-overlayfs</code> is slower than <code>overlay2</code>; kernel improvements are closing the gap
+3. <strong>Feature parity</strong>: BPF-based networking, cgroup delegation need kernel namespace support</p>
+<h2 id="interview-tips">Interview Tips<a class="headerlink" href="#interview-tips" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>User namespaces are the only namespace unprivileged processes can create.</strong> This is the key fact that enables rootless containers.</li>
+<li><strong>Capabilities in a user namespace are namespace-scoped.</strong> This is the most commonly misunderstood aspect — <code>--privileged</code> inside a user namespace does not give host root.</li>
+<li><strong>User namespaces solve the UID reuse problem.</strong> The <code>nobody</code> cross-container signaling risk is eliminated because different containers get different host UID mappings.</li>
+<li><strong>Docker chose compatibility over security.</strong> User namespaces off by default for a decade is the canonical example.</li>
+<li><strong>User namespaces are the foundation of rootless containers.</strong> Rootless Docker, rootless Podman, and BuildKit's rootless mode all depend on them.</li>
+<li><strong>Know the <code>/etc/subuid</code> delegation model.</strong> This is the mechanism that makes user namespaces work at scale in multi-user systems.</li>
+<li><strong>K8s 1.27+ per-pod user namespaces are a game changer.</strong> They let Kubernetes provide user namespace isolation without requiring changes to container images or daemon configuration.</li>
+</ul>
+<h2 id="cross-references">Cross-References<a class="headerlink" href="#cross-references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../non-root-execution/">Non-Root Execution</a> — UID allocation and USER directive</li>
+<li><a href="../linux-capabilities/">Linux Capabilities</a> — capability model in containers</li>
+<li><a href="../../docker/docker-architecture/">Docker Architecture</a> — rootless mode and runc startup sequence</li>
+<li><a href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a> — kernel access check and user namespaces</li>
+<li><a href="../seccomp/">Seccomp</a> — syscall filtering orthogonal to user namespaces</li>
+<li><a href="../apparmor-selinux/">AppArmor/SELinux</a> — LSM interaction with user namespaces</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../non-root-execution/" class="btn btn-neutral float-left" title="Non-root Execution"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../linux-capabilities/" class="btn btn-neutral float-right" title="Linux Capabilities in Containers">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../non-root-execution/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../linux-capabilities/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

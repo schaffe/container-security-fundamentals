@@ -104,6 +104,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../articles/container-image-hardening/non-root-execution/">Non-root Execution</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../articles/container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../articles/container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
@@ -225,6 +227,7 @@
 <li><strong>Distroless images:</strong> What they exclude (shell, package manager, setuid binaries, common Unix tools — cp, tar, vi). Attack surface comparison: distroless (~5 packages) vs Alpine (~30) vs Ubuntu (~150). When distroless breaks: health checks needing shell, runtime package installs, debugging. Mitigations: debug image variants, static binaries.</li>
 <li><strong>Image minimization:</strong> Multi-stage build patterns. COPY --from for binary-only result. RUN cleanup chains (<code>rm -rf /var/lib/apt/lists/*</code>), layer squash (<code>--squash</code>). Stripping binaries, removing shared libraries not needed at runtime.</li>
 <li><strong>Non-root execution:</strong> USER directive, UID/GID allocation (common patterns: 10001, 65534/nobody). <code>--security-opt=no-new-privileges:true</code>. Implications for port binding (&gt;1024 needed).</li>
+<li><strong>User namespaces:</strong> CLONE_NEWUSER, UID/GID mapping, /etc/subuid, /etc/subgid, --userns-remap, rootless Docker and Podman, per-pod user namespaces (K8s 1.27+), interaction with capabilities and other namespaces.</li>
 <li><strong>Linux capabilities:</strong> Full list of ~40 capabilities. <code>--cap-drop=ALL --cap-add=CHOWN --cap-add=NET_BIND_SERVICE</code> as common hardened pattern. What each capability enables and the risk. Ambient capabilities for non-root.</li>
 <li><strong>Seccomp:</strong> Docker's default seccomp profile (blocked ~300 of ~450 syscalls). RuntimeDefault vs custom profiles. Common blocked syscalls: <code>mount</code>, <code>umount</code>, <code>ptrace</code>, <code>swapon</code>, <code>kexec_load</code>. Writing custom profiles for specific applications.</li>
 <li><strong>AppArmor / SELinux:</strong> Per-container profiles. docker-default AppArmor profile. SELinux type enforcement (svirt_lxc_net_t). How they interact with seccomp and capabilities. K8s SecurityContext fields for AppArmor/SELinux.</li>

@@ -82,6 +82,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
@@ -669,7 +671,7 @@ spec:
 <p>Kaniko and BuildKit are not the only options. Several other tools address the same problem space.</p>
 <h3 id="buildah">Buildah<a class="headerlink" href="#buildah" title="Permanent link">&para;</a></h3>
 <p>Buildah is part of the Podman ecosystem (Red Hat). It builds OCI images without a daemon, using
-<code>overlayfs</code> mounted inside a user namespace for change detection:</p>
+<code>overlayfs</code> mounted inside a <a href="../../container-image-hardening/user-namespaces/">user namespace</a> for change detection:</p>
 <pre><code class="language-bash">buildah bud -t myapp .
 </code></pre>
 <p>Key differences from Kaniko:</p>
@@ -677,7 +679,7 @@ spec:
 <li><strong>Overlayfs-based diff</strong>: Buildah mounts layers as overlayfs lowerdirs and uses the upperdir to
   detect changes. This is much faster than Kaniko's <a href="../../container-image-hardening/seccomp/#ptrace">ptrace</a> approach — no syscall interception
   overhead.</li>
-<li><strong>User namespace support</strong>: Buildah can run in a user namespace, mapping a non-root UID to root
+<li><strong><a href="../../container-image-hardening/user-namespaces/">User namespace</a> support</strong>: Buildah can run in a user namespace, mapping a non-root UID to root
   inside the namespace. This gives it filesystem capabilities without <code>CAP_SYS_ADMIN</code>.</li>
 <li><strong>Mount support</strong>: Buildah supports <code>--mount=type=cache</code> (via buildah-cache) and
   <code>--mount=type=secret</code>, similar to BuildKit.</li>
@@ -818,7 +820,7 @@ is less actively maintained.</p>
   content-addressed caching, cache mounts, and secret handling.</li>
 <li><a href="../how-docker-builds-images/">How Docker Builds Images</a> — the legacy builder
   and BuildKit pipelines that Kaniko replaces.</li>
-<li><a href="../../container-image-hardening/non-root-execution/">Non-Root Execution</a> — user namespaces and running
+<li><a href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a> — user namespaces and running
   containers without root, relevant to rootless BuildKit and Buildah.</li>
 <li><a href="../../container-image-hardening/seccomp/">Seccomp</a> — how syscall filtering interacts with ptrace-based
   builders like Kaniko.</li>
