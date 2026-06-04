@@ -55,7 +55,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#3-container-image-hardening">3. Container Image Hardening</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#4-helm-chart-security-adaptation">4. Helm Chart Security Adaptation</a>
+    <li class="toctree-l3"><a class="reference internal" href="#4-kubernetes-security">4. Kubernetes Security</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#5-cve-lifecycle">5. CVE Lifecycle</a>
     </li>
@@ -115,15 +115,17 @@
                   <li class="toctree-l1"><a class="reference internal" href="../articles/container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Helm Chart Security</span></p>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="../articles/helm-chart-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../articles/helm-chart-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../articles/helm-chart-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../articles/helm-chart-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../articles/kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
@@ -229,7 +231,7 @@
 <li><strong>Read-only filesystem:</strong> <code>readOnlyRootFilesystem: true</code> in SecurityContext. Mount tmpfs for write locations (<code>/tmp</code>, <code>/var/run</code>, <code>/var/log</code>, <code>/var/cache/nginx</code>). What applications break (need to write to /etc, /var/lib).</li>
 <li><strong>Multi-arch security:</strong> <code>FROM --platform=$BUILDPLATFORM</code> in multi-stage. Per-arch base images (arm64 vs amd64) have different CVE profiles. Registries with multi-arch manifests, attestation per-architecture.</li>
 </ul>
-<h3 id="4-helm-chart-security-adaptation">4. Helm Chart Security Adaptation<a class="headerlink" href="#4-helm-chart-security-adaptation" title="Permanent link">&para;</a></h3>
+<h3 id="4-kubernetes-security">4. Kubernetes Security<a class="headerlink" href="#4-kubernetes-security" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>SecurityContext vs PodSecurityContext:</strong> SecurityContext on container (container-level settings: capabilities, runAsUser, readOnlyRootFS, seccomp). PodSecurityContext on pod (pod-level: fsGroup, runAsNonRoot, supplementalGroups, seLinuxOptions, sysctls). Cascade behavior: pod-level defaults overrideable at container level.</li>
 <li><strong>Pod Security Standards:</strong> Three policies — privileged (no restrictions), baseline (minimal, prevents known privilege escalations), restricted (hardened, follows pod hardening best practices). What each allows/blocks:</li>
@@ -274,7 +276,7 @@
 <li><a href="../articles/interview/cve-triage-system/">Design a CVE triage system</a></li>
 <li><a href="../articles/interview/image-signing-verification/">Design an image signing and verification workflow</a></li>
 <li><strong>CVE scenario:</strong> Given a specific CVE, walk through triage, fix strategy, customer communication</li>
-<li><strong>Helm chart security review:</strong> Given a Helm chart, identify security issues and fix them</li>
+<li><strong>Kubernetes security review:</strong> Given a manifest or Helm chart, identify security issues and fix them</li>
 <li><strong>SLSA walkthrough:</strong> "Tell me about the SLSA L3 pipeline you built" — architecture, trade-offs, attestation format</li>
 <li><strong>Go coding:</strong> Write a test that deploys a chart to a real K8s cluster and validates behavior</li>
 <li><strong>Docker strategy:</strong> How should Docker position DHI vs Chainguard? How would you improve the developer experience?</li>
@@ -287,8 +289,10 @@
 <li><strong>Docker Scout docs:</strong> docs.docker.com/scout/</li>
 <li><strong>Docker Hardened Images:</strong> hub.docker.com — explore DHI catalog</li>
 <li><strong>Trivy:</strong> github.com/aquasecurity/trivy — hands-on scanning</li>
-<li><strong>Helm security:</strong> helm.sh/docs/topics/security/ plus real upstream charts (cert-manager, Grafana)</li>
-<li><strong>Pod Security Standards:</strong> kubernetes.io/docs/concepts/security/pod-security-standards/</li>
+<li><strong>Kubernetes security:</strong> kubernetes.io/docs/concepts/security/ — official docs on Pod Security Standards, RBAC, NetworkPolicy</li>
+<li><strong>Falco:</strong> falco.org — runtime security, rule library, CRI-aware syscall monitoring</li>
+<li><strong>Kyverno:</strong> kyverno.io — Kubernetes-native policy engine with verifyImages support</li>
+<li><strong>kube-bench:</strong> github.com/aquasecurity/kube-bench — CIS Benchmark automation</li>
 </ul>
               
             </div>

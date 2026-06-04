@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>K8s Runtime Security Overview - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "K8s Runtime Security Overview";
+        var mkdocs_page_input_path = "articles/kubernetes-security/securing-kubernetes-runtime.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">K8s Runtime Security Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#authentication-authorization">Authentication &amp; Authorization</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#rbac">RBAC</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#serviceaccount-hardening">ServiceAccount Hardening</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#authentication-methods">Authentication Methods</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#node-authorization">Node Authorization</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pod-security">Pod Security</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#securitycontext-podsecuritycontext">SecurityContext &amp; PodSecurityContext</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pod-security-standards-pss">Pod Security Standards (PSS)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pod-security-admission-psa">Pod Security Admission (PSA)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#linux-capabilities">Linux Capabilities</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#seccomp">Seccomp</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#readonlyrootfilesystem">readOnlyRootFilesystem</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#network-security">Network Security</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#networkpolicy">NetworkPolicy</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#encryption-in-transit">Encryption in Transit</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#secrets-management">Secrets Management</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#etcd-encryption-at-rest">etcd Encryption at Rest</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#secret-distribution">Secret Distribution</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bound-serviceaccount-tokens">Bound ServiceAccount Tokens</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#api-server-hardening">API Server Hardening</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#admission-controllers">Admission Controllers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#audit-logging">Audit Logging</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#encryption-config">Encryption Config</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#tls-hardening">TLS Hardening</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#node-control-plane-security">Node &amp; Control Plane Security</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#kubelet-hardening">Kubelet Hardening</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#metadata-service-blocking">Metadata Service Blocking</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#control-plane-isolation">Control Plane Isolation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#cis-benchmark-kube-bench">CIS Benchmark &amp; kube-bench</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#immutable-os">Immutable OS</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#runtime-detection">Runtime Detection</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#falco">Falco</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#admission-policy-engines">Admission Policy Engines</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#synergy">Synergy</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#supply-chain-at-runtime">Supply Chain at Runtime</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#image-verification-at-admission">Image Verification at Admission</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#webhook-risk">Webhook Risk</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#summary-defense-in-depth-layers">Summary: Defense in Depth Layers</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../interview/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Kubernetes Security</li>
+      <li class="breadcrumb-item active">K8s Runtime Security Overview</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/kubernetes-security/securing-kubernetes-runtime.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="securing-the-kubernetes-runtime-defense-in-depth">Securing the Kubernetes Runtime — Defense in Depth<a class="headerlink" href="#securing-the-kubernetes-runtime-defense-in-depth" title="Permanent link">&para;</a></h1>
+<p>Kubernetes runtime security is a layered problem. An attacker who compromises one layer (a vulnerable container, a misconfigured RBAC role, an exposed API server) should be contained by controls at the next. This article surveys the built-in Kubernetes primitives and ecosystem tools available at each layer, from authentication down to runtime detection.</p>
+<hr />
+<h2 id="authentication-authorization">Authentication &amp; Authorization<a class="headerlink" href="#authentication-authorization" title="Permanent link">&para;</a></h2>
+<h3 id="rbac">RBAC<a class="headerlink" href="#rbac" title="Permanent link">&para;</a></h3>
+<p>RBAC is the primary authorization mechanism. Three resource types control access:</p>
+<table>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Scope</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Role</code> / <code>ClusterRole</code></td>
+<td>Namespace / Cluster</td>
+<td>Defines allowed verbs (<code>get</code>, <code>create</code>, <code>delete</code>) on resources (<code>pods</code>, <code>deployments</code>, <code>secrets</code>)</td>
+</tr>
+<tr>
+<td><code>RoleBinding</code> / <code>ClusterRoleBinding</code></td>
+<td>Namespace / Cluster</td>
+<td>Binds a subject (User, Group, ServiceAccount) to a Role/ClusterRole</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Common anti-patterns:</strong></p>
+<ul>
+<li><strong>ClusterRoleBinding for namespace-scoped access.</strong> A <code>RoleBinding</code> should reference a <code>Role</code>, not a <code>ClusterRole</code>, unless the pod genuinely needs cluster-wide access.</li>
+<li><strong>Using <code>default</code> ServiceAccount.</strong> Every namespace has a <code>default</code> SA; workloads that don't need API access should set <code>automountServiceAccountToken: false</code>.</li>
+<li><strong>Overly permissive roles.</strong> Wildcard verbs (<code>*</code>) on sensitive resources (<code>secrets</code>, <code>pods/exec</code>) grant far more than needed. Audit with <code>kubectl auth can-i --list --as=system:serviceaccount:ns:name</code>.</li>
+</ul>
+<h3 id="serviceaccount-hardening">ServiceAccount Hardening<a class="headerlink" href="#serviceaccount-hardening" title="Permanent link">&para;</a></h3>
+<p>Kubernetes 1.24+ generates <strong>bound ServiceAccount tokens</strong> (projected volume with audience, expiration, and pod binding) instead of static secrets. This limits token theft: a stolen bound token is valid only for its intended pod and audience.</p>
+<pre><code class="language-yaml">apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: my-app
+  automountServiceAccountToken: false  # if no API access needed
+  volumes:
+    - name: token
+      projected:
+        sources:
+          - serviceAccountToken:
+              audience: &quot;https://kubernetes.default.svc&quot;
+              expirationSeconds: 3600
+</code></pre>
+<p>Key settings: <code>--service-account-extend-token-expiration=false</code> (default in 1.28+) prevents indefinite token reuse.</p>
+<h3 id="authentication-methods">Authentication Methods<a class="headerlink" href="#authentication-methods" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OIDC</td>
+<td>Human users via identity provider (Dex, Keycloak, Okta). Configured via <code>--oidc-*</code> flags on the API server.</td>
+</tr>
+<tr>
+<td>Webhook token</td>
+<td>Custom authentication for non-OIDC tokens (e.g., cloud IAM integration)</td>
+</tr>
+<tr>
+<td>ServiceAccount tokens</td>
+<td>Pod-to-API-server authentication. Automatic.</td>
+</tr>
+<tr>
+<td>x509 client certs</td>
+<td>Bootstrap and component-to-component. Hard to revoke; prefer OIDC for humans.</td>
+</tr>
+<tr>
+<td>Anonymous auth</td>
+<td>Off by default in 1.6+. <code>--anonymous-auth=false</code> in production.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="node-authorization">Node Authorization<a class="headerlink" href="#node-authorization" title="Permanent link">&para;</a></h3>
+<p>The kubelet authenticates as a member of the <code>system:nodes</code> group with the <strong>Node authorizer</strong>, which limits the kubelet to read its own pods, update its own node status, and write pod status events. This prevents a compromised kubelet from accessing other pods' data.</p>
+<hr />
+<h2 id="pod-security">Pod Security<a class="headerlink" href="#pod-security" title="Permanent link">&para;</a></h2>
+<h3 id="securitycontext-podsecuritycontext">SecurityContext &amp; PodSecurityContext<a class="headerlink" href="#securitycontext-podsecuritycontext" title="Permanent link">&para;</a></h3>
+<p>Pod security is configured at two levels:</p>
+<ul>
+<li><strong>PodSecurityContext</strong> (<code>spec.securityContext</code>): pod-wide defaults — <code>runAsNonRoot</code>, <code>fsGroup</code>, <code>runAsUser</code>, <code>seccompProfile</code>, <code>selinuxOptions</code>. Cannot set capabilities or privileged mode.</li>
+<li><strong>SecurityContext</strong> (<code>containers[].securityContext</code>): container-specific — <code>capabilities</code>, <code>privileged</code>, <code>readOnlyRootFilesystem</code>, <code>allowPrivilegeEscalation</code>. Overrides pod-level <code>runAsUser</code> etc. for that container.</li>
+</ul>
+<p><strong>Cascade rule:</strong> Pod-level values apply to all containers unless the container explicitly overrides. <code>fsGroup</code> and <code>supplementalGroups</code> are always pod-level only.</p>
+<h3 id="pod-security-standards-pss">Pod Security Standards (PSS)<a class="headerlink" href="#pod-security-standards-pss" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Description</th>
+<th>Key Restrictions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Privileged</strong></td>
+<td>Unrestricted</td>
+<td>None. For infrastructure components (CNI, storage drivers).</td>
+</tr>
+<tr>
+<td><strong>Baseline</strong></td>
+<td>Prevents known privilege escalations</td>
+<td>No privileged containers, no host namespaces, no HostPath, no <code>SYS_ADMIN</code>, limited sysctls, restricted capability additions.</td>
+</tr>
+<tr>
+<td><strong>Restricted</strong></td>
+<td>Hardened for security-critical workloads</td>
+<td>All Baseline + <code>runAsNonRoot: true</code>, <code>capabilities.drop: ["ALL"]</code>, <code>seccomp: RuntimeDefault</code>, <code>allowPrivilegeEscalation: false</code>, <code>readOnlyRootFilesystem: true</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pod-security-admission-psa">Pod Security Admission (PSA)<a class="headerlink" href="#pod-security-admission-psa" title="Permanent link">&para;</a></h3>
+<p>PSA enforces PSS via namespace labels (built-in admission controller, GA in 1.25):</p>
+<pre><code class="language-yaml">labels:
+  pod-security.kubernetes.io/enforce: restricted
+  pod-security.kubernetes.io/audit: baseline
+  pod-security.kubernetes.io/warn: restricted
+</code></pre>
+<p>Three modes — <strong>enforce</strong> (block), <strong>audit</strong> (log), <strong>warn</strong> (return warning). Gradual rollout: warn → audit → enforce. Version pinning via <code>enforce-version: v1.28</code> prevents new checks from breaking existing workloads on upgrade.</p>
+<p>PSA replaced PodSecurityPolicy (PSP, removed in 1.25). PSA is simpler but cannot express fine-grained policies — use Kyverno or OPA for that.</p>
+<h3 id="linux-capabilities">Linux Capabilities<a class="headerlink" href="#linux-capabilities" title="Permanent link">&para;</a></h3>
+<p>Containers start with a default set (~15 capabilities). Hardened pattern:</p>
+<pre><code class="language-yaml">securityContext:
+  capabilities:
+    drop: [&quot;ALL&quot;]
+    add: [&quot;NET_BIND_SERVICE&quot;]  # only what is needed
+  allowPrivilegeEscalation: false
+</code></pre>
+<p>Common dangerous capabilities: <code>SYS_ADMIN</code> (namespace escape), <code>NET_ADMIN</code> (network manipulation), <code>SYS_PTRACE</code> (process introspection). Never add these in multi-tenant clusters.</p>
+<h3 id="seccomp">Seccomp<a class="headerlink" href="#seccomp" title="Permanent link">&para;</a></h3>
+<pre><code>RuntimeDefault: blocks ~50% of syscalls. Suitable for most workloads.
+Localhost: custom profile for specific applications.
+Unconfined: all syscalls. Never in production.
+</code></pre>
+<p>Seccomp is set via <code>securityContext.seccompProfile.type</code>. PSA Restricted requires <code>RuntimeDefault</code> or <code>Localhost</code>.</p>
+<h3 id="readonlyrootfilesystem">readOnlyRootFilesystem<a class="headerlink" href="#readonlyrootfilesystem" title="Permanent link">&para;</a></h3>
+<p>Prevents binary downloads, log tampering, and unauthorized file writes. Mount <code>emptyDir</code> volumes for write paths:</p>
+<pre><code class="language-yaml">securityContext:
+  readOnlyRootFilesystem: true
+volumeMounts:
+  - name: tmp
+    mountPath: /tmp
+volumes:
+  - name: tmp
+    emptyDir: {}
+</code></pre>
+<hr />
+<h2 id="network-security">Network Security<a class="headerlink" href="#network-security" title="Permanent link">&para;</a></h2>
+<h3 id="networkpolicy">NetworkPolicy<a class="headerlink" href="#networkpolicy" title="Permanent link">&para;</a></h3>
+<p>NetworkPolicy is a Kubernetes-native firewall. By default, all pods can communicate with all other pods. A policy activates rules for the pods it selects.</p>
+<p><strong>Common pattern: default deny + allow specific:</strong></p>
+<pre><code class="language-yaml">apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-app-ingress
+spec:
+  podSelector:
+    matchLabels:
+      app: my-service
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app: frontend
+      ports:
+        - port: 8080
+</code></pre>
+<p><strong>Key considerations:</strong></p>
+<ul>
+<li><strong>CNI support:</strong> Flannel does not support NetworkPolicy. Calico, Cilium, Weave, and Antrea do. Cilium adds L7-aware policies, DNS-based rules, and Hubble for network visibility.</li>
+<li><strong>Egress policies:</strong> Often forgotten. Default deny egress prevents data exfiltration if a pod is compromised.</li>
+<li><strong>ipBlock:</strong> Restrict external access; e.g., only allow egress to specific CIDR ranges for API calls.</li>
+</ul>
+<h3 id="encryption-in-transit">Encryption in Transit<a class="headerlink" href="#encryption-in-transit" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Kubelet TLS:</strong> <code>--kubelet-certificate-authority</code>, <code>--kubelet-client-certificate</code> ensure API-server-to-kubelet TLS.</li>
+<li><strong>etcd TLS:</strong> Client-to-etcd and peer-to-peer TLS. <code>--peer-client-cert-auth</code>, <code>--peer-auto-tls=false</code>.</li>
+<li><strong>Service mesh:</strong> Istio, Linkerd, and Cilium provide mTLS between pods transparently. Cilium uses eBPF for per-pod identity with no sidecar overhead.</li>
+</ul>
+<hr />
+<h2 id="secrets-management">Secrets Management<a class="headerlink" href="#secrets-management" title="Permanent link">&para;</a></h2>
+<h3 id="etcd-encryption-at-rest">etcd Encryption at Rest<a class="headerlink" href="#etcd-encryption-at-rest" title="Permanent link">&para;</a></h3>
+<p>Secrets are base64-encoded in etcd by default — not encrypted. Enable encryption at rest via <code>EncryptionConfiguration</code>:</p>
+<pre><code class="language-yaml">apiVersion: apiserver.config.k8s.io/v1
+kind: EncryptionConfiguration
+resources:
+  - resources:
+      - secrets
+    providers:
+      - kms:
+          name: myKMS
+          endpoint: unix:///var/run/kms-plugin/socket.sock
+      - aesgcm:
+          keys:
+            - name: key1
+              secret: c2VjcmV0IGlzIHNlY3VyZQ==
+      - identity: {}  # fallback for reading existing unencrypted secrets
+</code></pre>
+<p><strong>Best practice:</strong> Use <code>kms</code> provider (cloud KMS, Vault, AWS KMS) over <code>aesgcm</code> or <code>secretbox</code>. KMS provides key rotation, access auditing, and HSM backing. <code>identity</code> should be last as a read-only fallback.</p>
+<h3 id="secret-distribution">Secret Distribution<a class="headerlink" href="#secret-distribution" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>etcd Stores Secret?</th>
+<th>Best For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Kubernetes Secret</td>
+<td>Yes</td>
+<td>Quick prototyping, bootstrapping</td>
+</tr>
+<tr>
+<td>External Secrets Operator</td>
+<td>Yes (syncs from external store)</td>
+<td>Bridging external stores to K8s</td>
+</tr>
+<tr>
+<td>CSI Secret Store</td>
+<td><strong>No</strong> (mounts directly)</td>
+<td>Production — secret never in etcd</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Never:</strong> supply Secrets as environment variables — they leak into pod specs, <code>/env</code> endpoints, shell history, and audit logs. Use volume mounts or projected volumes.</p>
+<h3 id="bound-serviceaccount-tokens">Bound ServiceAccount Tokens<a class="headerlink" href="#bound-serviceaccount-tokens" title="Permanent link">&para;</a></h3>
+<p>Projected service account tokens (GA in 1.21) are <strong>time-bound, audience-scoped, and pod-bound</strong>. Unlike static secrets, a token stolen from one pod cannot be used from another. Configure via projected volume:</p>
+<pre><code class="language-yaml">volumes:
+  - name: token
+    projected:
+      sources:
+        - serviceAccountToken:
+            audience: &quot;vault&quot;
+            expirationSeconds: 600
+</code></pre>
+<hr />
+<h2 id="api-server-hardening">API Server Hardening<a class="headerlink" href="#api-server-hardening" title="Permanent link">&para;</a></h2>
+<h3 id="admission-controllers">Admission Controllers<a class="headerlink" href="#admission-controllers" title="Permanent link">&para;</a></h3>
+<p>Built-in controllers run before webhooks. Key ones:</p>
+<table>
+<thead>
+<tr>
+<th>Controller</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NamespaceLifecycle</code></td>
+<td>Prevents creating resources in deleting namespaces</td>
+</tr>
+<tr>
+<td><code>NodeRestriction</code></td>
+<td>Limits kubelet's self-mutation</td>
+</tr>
+<tr>
+<td><code>PodSecurity</code></td>
+<td>Enforces PSS (replaces PSP)</td>
+</tr>
+<tr>
+<td><code>ServiceAccount</code></td>
+<td>Creates SA and token automatically</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Webhooks</strong> (mutating + validating) run after built-in controllers. Mutating runs before validating. Webhook <code>failurePolicy: Fail</code> ensures enforcement doesn't silently lapse if the webhook is down.</p>
+<h3 id="audit-logging">Audit Logging<a class="headerlink" href="#audit-logging" title="Permanent link">&para;</a></h3>
+<p>Audit logs are the record of every API request. Configure via <code>--audit-policy-file</code>:</p>
+<pre><code class="language-yaml">apiVersion: audit.k8s.io/v1
+kind: Policy
+rules:
+  - level: RequestResponse
+    verbs: [&quot;create&quot;, &quot;update&quot;, &quot;patch&quot;, &quot;delete&quot;]
+    resources:
+      - group: &quot;&quot;
+        resources: [&quot;secrets&quot;, &quot;pods&quot;, &quot;configmaps&quot;]
+  - level: Metadata
+    userGroups: [&quot;system:authenticated&quot;]
+  - level: None
+    userGroups: [&quot;system:nodes&quot;]
+</code></pre>
+<p>Stages: <code>RequestReceived</code>, <code>ResponseStarted</code>, <code>ResponseComplete</code>, <code>Panic</code>. Levels: <code>None</code>, <code>Metadata</code>, <code>Request</code>, <code>RequestResponse</code>. Route to a sidecar or external sink for retention and alerting.</p>
+<h3 id="encryption-config">Encryption Config<a class="headerlink" href="#encryption-config" title="Permanent link">&para;</a></h3>
+<p><code>--encryption-provider-config</code> controls at-rest encryption for resources in etcd (Secrets, ConfigMaps, etc.). Rotate keys periodically. With KMS provider, key rotation is a provider call — no API server restart needed.</p>
+<h3 id="tls-hardening">TLS Hardening<a class="headerlink" href="#tls-hardening" title="Permanent link">&para;</a></h3>
+<pre><code>--tls-min-version: VersionTLS12
+--tls-cipher-suites: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,...
+</code></pre>
+<p>Disable insecure cipher suites. Rotate serving certificates before expiry (kubelet and API server).</p>
+<hr />
+<h2 id="node-control-plane-security">Node &amp; Control Plane Security<a class="headerlink" href="#node-control-plane-security" title="Permanent link">&para;</a></h2>
+<h3 id="kubelet-hardening">Kubelet Hardening<a class="headerlink" href="#kubelet-hardening" title="Permanent link">&para;</a></h3>
+<p>The kubelet exposes an API on two ports. Secure them:</p>
+<pre><code>--read-only-port=0          # Disable unauthenticated port 10255
+--authentication.anonymous.enabled=false
+--authorization.mode=Webhook
+--protect-kernel-defaults=true
+</code></pre>
+<p><code>--protect-kernel-defaults</code> ensures the kubelet enforces sysctl hardening (e.g., <code>net.ipv4.conf.all.forwarding=0</code>). Without it, containers could modify kernel parameters.</p>
+<h3 id="metadata-service-blocking">Metadata Service Blocking<a class="headerlink" href="#metadata-service-blocking" title="Permanent link">&para;</a></h3>
+<p>Cloud provider metadata services (AWS <code>169.254.169.254</code>, GCE <code>metadata.google.internal</code>) grant access to instance credentials. Block via:</p>
+<ul>
+<li><strong>NetworkPolicy</strong> for egress to the metadata IP</li>
+<li><strong>Calico/Cilium</strong> host-endpoint policies to block before pod networking</li>
+<li><strong>IMDSv2</strong> with hop limit on EC2</li>
+<li><strong>GKE metadata concealment</strong> (blocks VM metadata from pods)</li>
+</ul>
+<h3 id="control-plane-isolation">Control Plane Isolation<a class="headerlink" href="#control-plane-isolation" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Taint control plane nodes (<code>node-role.kubernetes.io/control-plane:NoSchedule</code>)</li>
+<li>Don't run user workloads on control plane nodes</li>
+<li>Restrict access to etcd (<code>--peer-client-cert-auth</code>, firewall to apiserver only)</li>
+<li>Use dedicated nodes for system components (kube-system pods)</li>
+</ul>
+<h3 id="cis-benchmark-kube-bench">CIS Benchmark &amp; kube-bench<a class="headerlink" href="#cis-benchmark-kube-bench" title="Permanent link">&para;</a></h3>
+<p><a href="https://github.com/aquasecurity/kube-bench">kube-bench</a> automates CIS Kubernetes Benchmark checks. Run it against each cluster component:</p>
+<pre><code class="language-bash"># On control plane node
+kube-bench --config-dir /etc/kube-bench/cfg --benchmark cis-1.8
+
+# As a CronJob in the cluster
+kubectl apply -f https://raw.githubusercontent.com/aquasecurity/kube-bench/main/job.yaml
+</code></pre>
+<p>Key CIS controls: API server anonymous auth disabled, etcd peer cert auth, kubelet anonymous auth disabled, kubeconfig file permissions 600, controller manager <code>--use-service-account-credentials</code>.</p>
+<h3 id="immutable-os">Immutable OS<a class="headerlink" href="#immutable-os" title="Permanent link">&para;</a></h3>
+<p>Flatcar, Bottlerocket, and COS (Container-Optimized OS) reduce node attack surface by eliminating package managers, read-only root filesystems, and automatic updates. Bottlerocket's API is a single lockbox endpoint — no SSH by default.</p>
+<hr />
+<h2 id="runtime-detection">Runtime Detection<a class="headerlink" href="#runtime-detection" title="Permanent link">&para;</a></h2>
+<h3 id="falco">Falco<a class="headerlink" href="#falco" title="Permanent link">&para;</a></h3>
+<p>Falco uses eBPF or a kernel module to intercept syscalls and match them against rules. It is CRI-aware — it knows about pods, containers, and Kubernetes metadata.</p>
+<p><strong>Example rules triggered by a compromised container:</strong></p>
+<ul>
+<li>Shell spawns inside a container not built with a shell</li>
+<li>Unexpected outbound network connection to a known-bad IP</li>
+<li>Read of <code>/etc/shadow</code> or <code>/root/.ssh/id_rsa</code></li>
+<li><code>setuid</code> binary execution with no-new-privs</li>
+<li>Privilege escalation via <code>userfaultfd</code> or <code>memfd_create</code></li>
+</ul>
+<p>Falcosidekick routes alerts to Slack, Loki, PagerDuty, or webhooks. Falco Talon adds automated response: kill pod, exec debug container, capture filesystem snapshot.</p>
+<h3 id="admission-policy-engines">Admission Policy Engines<a class="headerlink" href="#admission-policy-engines" title="Permanent link">&para;</a></h3>
+<p><strong>Kyverno</strong> is Kubernetes-native (policies as CRDs). It can mutate, validate, or generate resources. Key security policies:</p>
+<pre><code class="language-yaml">apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-drop-all-capabilities
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: check-containers
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: &quot;All containers must drop ALL capabilities.&quot;
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  capabilities:
+                    drop: [&quot;ALL&quot;]
+</code></pre>
+<p><strong>OPA/Gatekeeper</strong> uses Rego, a more expressive policy language, but has a steeper learning curve. Both support audit-only mode, background scanning, and policy reports.</p>
+<h3 id="synergy">Synergy<a class="headerlink" href="#synergy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Admission policies</strong> (Kyverno/OPA) prevent bad configs from being deployed</li>
+<li><strong>PSA</strong> blocks pods that violate PSS at admission (built-in, no CRDs)</li>
+<li><strong>Falco</strong> catches runtime anomalies that admission could not (e.g., compromised image with a known-good config)</li>
+</ul>
+<hr />
+<h2 id="supply-chain-at-runtime">Supply Chain at Runtime<a class="headerlink" href="#supply-chain-at-runtime" title="Permanent link">&para;</a></h2>
+<h3 id="image-verification-at-admission">Image Verification at Admission<a class="headerlink" href="#image-verification-at-admission" title="Permanent link">&para;</a></h3>
+<p>Built-in option: <strong>ImagePolicyWebhook</strong> — a simple admission webhook that validates image references against an external policy. Limited compared to ecosystem tools.</p>
+<p><strong>Kyverno <code>verifyImages</code></strong> supports cosign verification, including keyless (Fulcio + Rekor):</p>
+<pre><code class="language-yaml">apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-image-signature
+spec:
+  validationFailureAction: Enforce
+  rules:
+    - name: verify-cosign
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      verifyImages:
+        - imageReferences:
+            - &quot;registry.io/*&quot;
+          attestors:
+            - count: 1
+              entries:
+                - keys:
+                    publicKeys: |-
+                      -----BEGIN PUBLIC KEY-----
+                      ...
+</code></pre>
+<p><strong>Ratify</strong> (CNCF sandbox) is a more flexible verification framework that supports notation, cosign, license checks, and custom verifiers. Designed for the <code>notation</code> ecosystem and pluggable verifier architecture.</p>
+<p><strong>Binary Authorization</strong> (GKE only) enforces deploy-time attestation: only images with valid attestations from trusted signers can be deployed. Integrates with Cloud Build, Artifact Registry, and external CI/CD.</p>
+<h3 id="webhook-risk">Webhook Risk<a class="headerlink" href="#webhook-risk" title="Permanent link">&para;</a></h3>
+<p>If an admission webhook is unreachable, <code>failurePolicy: Fail</code> blocks all pod creation — including system pods. Use <code>failurePolicy: Ignore</code> with caution (it silently skips verification). Monitor webhook health and deploy webhooks with high availability (multiple replicas, pod anti-affinity).</p>
+<hr />
+<h2 id="summary-defense-in-depth-layers">Summary: Defense in Depth Layers<a class="headerlink" href="#summary-defense-in-depth-layers" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Primitive / Tool</th>
+<th>What It Prevents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Authentication</td>
+<td>OIDC, Webhook, x509</td>
+<td>Unauthorized API access</td>
+</tr>
+<tr>
+<td>Authorization</td>
+<td>RBAC, Node authorizer</td>
+<td>Privilege escalation via API</td>
+</tr>
+<tr>
+<td>Pod Security</td>
+<td>SecurityContext, PSS, PSA</td>
+<td>Container breakout, privilege escalation</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>NetworkPolicy, mTLS</td>
+<td>Lateral movement, data exfiltration</td>
+</tr>
+<tr>
+<td>Secrets</td>
+<td>EncryptionConfig, CSI Store</td>
+<td>etcd compromise leads to secret exposure</td>
+</tr>
+<tr>
+<td>API Server</td>
+<td>Admission webhooks, audit</td>
+<td>Misconfigured or malicious workload admission</td>
+</tr>
+<tr>
+<td>Node</td>
+<td>kube-bench, immutable OS, taints</td>
+<td>Node compromise via kubelet</td>
+</tr>
+<tr>
+<td>Runtime</td>
+<td>Falco, Kyverno/OPA</td>
+<td>Post-compromise detection and response</td>
+</tr>
+<tr>
+<td>Supply Chain</td>
+<td>Cosign, Ratify, Binary Auth</td>
+<td>Untrusted image deployment</td>
+</tr>
+</tbody>
+</table>
+<p>No single control is sufficient. The goal is to force an attacker to defeat multiple layers to achieve cluster compromise.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../container-image-hardening/multi-arch-security/" class="btn btn-neutral float-left" title="Multi-architecture Container Security"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../securitycontext-vs-podsecuritycontext/" class="btn btn-neutral float-right" title="SecurityContext vs PodSecurityContext in Kubernetes">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../container-image-hardening/multi-arch-security/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../securitycontext-vs-podsecuritycontext/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
