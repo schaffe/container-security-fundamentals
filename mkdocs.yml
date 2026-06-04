@@ -30,6 +30,7 @@ nav:
     - articles/container-image-hardening/multi-arch-security.md
   - Kubernetes Security:
     - K8s Runtime Security Overview: articles/kubernetes-security/securing-kubernetes-runtime.md
+    - Ecosystem Tools Reference: articles/kubernetes-security/ecosystem-tools-reference.md
     - articles/kubernetes-security/securitycontext-vs-podsecuritycontext.md
     - articles/kubernetes-security/pod-security-standards.md
     - articles/kubernetes-security/adapting-upstream-helm-charts.md
