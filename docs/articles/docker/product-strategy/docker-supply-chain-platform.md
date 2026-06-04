@@ -229,6 +229,8 @@ Docker has a history of pricing changes (Docker Desktop licensing in 2021) that 
 
 **Mitigation**: Docker is building enterprise features (RBAC, audit logging, commercial SLAs) and communicating a clear product roadmap. DHI's enterprise SLA is a concrete example.
 
+Docker's [Coordinated Vulnerability Disclosure process](../../cve-lifecycle/coordinated-disclosure.md) — including embargo workflows, pre-notification lists, and severity-based customer notification — is a concrete demonstration of enterprise-grade security practices that builds trust with security teams.
+
 ---
 
 ## Opportunities
