@@ -124,7 +124,7 @@ Seccomp is set via `securityContext.seccompProfile.type`. PSA Restricted require
 
 ### readOnlyRootFilesystem
 
-Prevents binary downloads, log tampering, and unauthorized file writes. Mount `emptyDir` volumes for write paths:
+Prevents binary downloads, log tampering, and unauthorized file writes. See the dedicated [Read-only Filesystems](../container-image-hardening/readonly-filesystem.md) article for a deep dive on attack scenarios, app breakage patterns, and Helm integration. Mount `emptyDir` volumes for write paths:
 
 ```yaml
 securityContext:

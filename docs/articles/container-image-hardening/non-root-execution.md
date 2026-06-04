@@ -361,7 +361,7 @@ A pod can have 10 containers but only 2 with `runAsNonRoot: true` — the others
 
 ### Admission Control and Webhooks
 
-For enforcing non-root across your cluster, see [Admission Control](../kubernetes-security/admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../kubernetes-security/adapting-upstream-helm-charts.md).
+For enforcing non-root across your cluster, see [Admission Control](../kubernetes-security/admission-control.md). For adapting Helm charts to pass Restricted profile checks, see [Adapting Upstream Helm Charts](../kubernetes-security/adapting-upstream-helm-charts.md). For a deep dive on the companion `readOnlyRootFilesystem` setting — writable path identification, emptyDir patterns, and per-application fixes — see [Read-only Filesystems](readonly-filesystem.md).
 
 ## Complete Secure Example
 

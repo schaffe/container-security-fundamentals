@@ -94,7 +94,7 @@ containerPort: 8080
 
 **Symptom:** Container crashes with "read-only file system" errors.
 
-**Root cause:** Chart enables `readOnlyRootFilesystem: true` (or it's enforced by PSS), but the application writes logs, cache, or temporary files to `/`, `/var/log`, or `/tmp/...` on the container filesystem.
+**Root cause:** Chart enables `readOnlyRootFilesystem: true` (or it's enforced by PSS), but the application writes logs, cache, or temporary files to `/`, `/var/log`, or `/tmp/...` on the container filesystem. See [Read-only Filesystems](../container-image-hardening/readonly-filesystem.md) for an application-by-application breakdown of writable paths and fixes.
 
 **Fix:** Identify writable paths and mount `emptyDir` volumes. In Grafana:
 
@@ -133,7 +133,7 @@ volumes:
 
 **Symptom:** Probe fails with `"exec: "/bin/sh": stat /bin/sh: permission denied"` or `"exec: "sh": stat sh: permission denied"`.
 
-**Root cause:** The chart defines a `exec` probe that invokes a shell command (e.g., `wget`, `curl`), but `allowPrivilegeEscalation: false` and the image does not include a shell, or `readOnlyRootFilesystem` prevents it.
+**Root cause:** The chart defines a `exec` probe that invokes a shell command (e.g., `wget`, `curl`), but `allowPrivilegeEscalation: false` and the image does not include a shell, or `readOnlyRootFilesystem` prevents it — see [Read-only Filesystems](../container-image-hardening/readonly-filesystem.md) for probe interaction patterns.
 
 **Fix:** Replace `exec` probes with `httpGet` or `tcpSocket` probes:
 

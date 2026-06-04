@@ -62,7 +62,7 @@ Key fields:
 | `runAsUser` | Override pod-level UID for this container |
 | `runAsGroup` | Override pod-level GID for this container |
 | `runAsNonRoot` | Override pod-level non-root check |
-| `readOnlyRootFilesystem` | Mount root filesystem read-only |
+| `readOnlyRootFilesystem` | Mount root filesystem read-only — see [dedicated article](../container-image-hardening/readonly-filesystem.md) |
 | `allowPrivilegeEscalation` | Control `no_new_privs` (defaults to true if privileged) |
 | `procMount` | Mount [`/proc`](../linux-fundamentals/proc-container-isolation.md#procmount-in-kubernetes) as unmasked (default: DefaultProcMount) |
 | `seccompProfile` | Override pod-level seccomp for this container |

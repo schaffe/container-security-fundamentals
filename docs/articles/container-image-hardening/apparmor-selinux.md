@@ -267,7 +267,7 @@ spec:
       readOnlyRootFilesystem: true
 ```
 
-This combines every hardening technique: non-root user, seccomp default profile, SELinux type enforcement, no capabilities, no privilege escalation, and a read-only filesystem.
+This combines every hardening technique: non-root user, seccomp default profile, SELinux type enforcement, no capabilities, no privilege escalation, and a read-only filesystem — see [Read-only Filesystems](readonly-filesystem.md) for a full breakdown of the read-only layer.
 
 ## Debugging LSM Issues
 
