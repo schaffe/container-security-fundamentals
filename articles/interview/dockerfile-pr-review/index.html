@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>PR Review: Dockerfile Security Review - Docker Supply Chain</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "PR Review: Dockerfile Security Review";
+        var mkdocs_page_input_path = "articles/interview/dockerfile-pr-review.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Docker Supply Chain
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../docker-supply-chain/">Docker Supply Chain Overview</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Interview</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">PR Review: Dockerfile Security Review</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#the-senior-engineer-frame">The Senior Engineer Frame</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#the-four-axes-of-dockerfile-review">The Four Axes of Dockerfile Review</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#structuring-a-pr-review-response">Structuring a PR Review Response</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#level-1-i-see-a-problem-junior">Level 1: "I see a problem" (Junior)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-2-i-see-the-problem-and-can-explain-why-mid">Level 2: "I see the problem and can explain why" (Mid)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-3-i-see-the-pattern-and-can-prioritize-senior">Level 3: "I see the pattern and can prioritize" (Senior)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#level-4-i-can-teach-the-team-staff">Level 4: "I can teach the team" (Staff+)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#25-dockerfile-pr-review-snippets">25 Dockerfile PR Review Snippets</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-add-vs-copy">1. ADD vs COPY</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-running-as-root">2. Running as Root</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-pinning-base-image-tags">3. Pinning Base Image Tags</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-multi-stage-build-with-distroless-final-stage">4. Multi-stage Build with Distroless Final Stage</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-apt-get-cleanup-chains">5. apt-get Cleanup Chains</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#6-copy-chown-instead-of-run-chown">6. COPY --chown Instead of RUN chown</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#7-seccomp-profile-missing-k8s-manifest">7. Seccomp Profile Missing (K8s manifest)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#8-dropping-all-capabilities-k8s-manifest">8. Dropping All Capabilities (K8s manifest)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#9-read-only-root-filesystem-k8s-manifest">9. Read-only Root Filesystem (K8s manifest)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#10-cosign-image-signing-in-cicd">10. Cosign Image Signing in CI/CD</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#11-buildkit-secrets-for-build-time-credentials">11. BuildKit Secrets for Build-Time Credentials</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#12-sbom-generation-in-cicd">12. SBOM Generation in CI/CD</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#13-docker-compose-security-context">13. Docker Compose Security Context</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#14-verifying-signed-images-with-kyverno-k8s-policy">14. Verifying Signed Images with Kyverno (K8s policy)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#15-notary-docker-content-trust">15. Notary / Docker Content Trust</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#16-layer-caching-copying-dependencies-before-source">16. Layer Caching — Copying Dependencies Before Source</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#17-run-npm-install-without-npm-ci">17. RUN npm install Without npm ci</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#18-hardcoding-secrets-in-dockerfile">18. Hardcoding Secrets in Dockerfile</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#19-copy-app-without-dockerignore">19. COPY . /app Without .dockerignore</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#20-expose-without-port-justification">20. EXPOSE Without Port Justification</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#21-installing-build-essential-in-production-image">21. Installing build-essential in Production Image</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#22-run-pip-install-without-hash-checking">22. RUN pip install Without Hash Checking</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#23-add-chmod-for-executable-bits">23. ADD --chmod for Executable Bits</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#24-cmd-vs-entrypoint-confusion">24. CMD vs ENTRYPOINT Confusion</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#25-healthcheck-missing">25. HEALTHCHECK Missing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bonus-label-for-supply-chain-metadata">Bonus: LABEL for Supply Chain Metadata</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-questions-to-expect">Interview Questions to Expect</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-structure-a-pr-review-for-a-dockerfile">"How do you structure a PR review for a Dockerfile?"</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#whats-the-single-most-impactful-thing-a-team-can-do-for-docker-security">"What's the single most impactful thing a team can do for Docker security?"</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-balance-developer-velocity-with-container-security">"How do you balance developer velocity with container security?"</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#you-mentioned-confidentiality-vs-integrity-elaborate">"You mentioned confidentiality vs integrity — elaborate."</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#quick-reference-25-findings-by-axis">Quick Reference: 25 Findings by Axis</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Docker Supply Chain</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Interview</li>
+      <li class="breadcrumb-item active">PR Review: Dockerfile Security Review</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/interview/dockerfile-pr-review.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="pr-review-dockerfile-security-review">PR Review: Dockerfile Security Review<a class="headerlink" href="#pr-review-dockerfile-security-review" title="Permanent link">&para;</a></h1>
+<h2 id="the-senior-engineer-frame">The Senior Engineer Frame<a class="headerlink" href="#the-senior-engineer-frame" title="Permanent link">&para;</a></h2>
+<p>Most candidates can spot individual issues. Senior engineers ~<strong>thematize</strong>. The interviewer isn't testing whether you know <code>ADD</code> vs <code>COPY</code> — they're testing whether you see the pattern connecting 10 different findings into 3-4 root causes.</p>
+<h3 id="the-four-axes-of-dockerfile-review">The Four Axes of Dockerfile Review<a class="headerlink" href="#the-four-axes-of-dockerfile-review" title="Permanent link">&para;</a></h3>
+<p>Every finding maps to one of these:</p>
+<ol>
+<li><strong>Integrity &amp; Reproducibility</strong> — Can this build be reliably reproduced? (tags vs digests, lockfiles, <code>npm ci</code>, hash verification)</li>
+<li><strong>Least Privilege</strong> — Does the container have only what it needs? (root user, capabilities, seccomp, read-only rootfs, exposed ports)</li>
+<li><strong>Confidentiality</strong> — Are secrets leaked anywhere? (build args, ENV in layers, <code>.dockerignore</code> gaps, intermediate layers)</li>
+<li><strong>Transparency</strong> — Can consumers verify what's in this image? (SBOM attestation, signing, OCI labels, provenance metadata)</li>
+</ol>
+<hr />
+<h2 id="structuring-a-pr-review-response">Structuring a PR Review Response<a class="headerlink" href="#structuring-a-pr-review-response" title="Permanent link">&para;</a></h2>
+<h3 id="level-1-i-see-a-problem-junior">Level 1: "I see a problem" (Junior)<a class="headerlink" href="#level-1-i-see-a-problem-junior" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>"You should use <code>COPY</code> instead of <code>ADD</code>."</p>
+</blockquote>
+<h3 id="level-2-i-see-the-problem-and-can-explain-why-mid">Level 2: "I see the problem and can explain why" (Mid)<a class="headerlink" href="#level-2-i-see-the-problem-and-can-explain-why-mid" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>"Use <code>COPY</code> instead of <code>ADD</code> because <code>ADD</code> auto-extracts tarballs and fetches remote URLs silently — both are surprising behaviors that break reproducibility. <code>ADD</code> from URLs lacks checksum verification and cache support."</p>
+</blockquote>
+<h3 id="level-3-i-see-the-pattern-and-can-prioritize-senior">Level 3: "I see the pattern and can prioritize" (Senior)<a class="headerlink" href="#level-3-i-see-the-pattern-and-can-prioritize-senior" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>"This PR has several <code>ADD</code> usage issues. <code>ADD</code> for remote URLs is a supply chain integrity risk — no checksum verification, no cache. This connects to a broader pattern I'm seeing: <strong>the Dockerfile doesn't pin anything</strong>. Tags are floating, no lockfile enforcement, no digests. That's three findings across <code>FROM</code>, <code>ADD</code>, and dependency install, all from the same root cause — no commitment to reproducibility. Let me flag them together..."</p>
+<p>Then the reviewer <strong>prioritizes</strong>:
+- <strong>P0</strong>: <code>ADD</code> with remote URL — supply chain integrity, block the PR
+- <strong>P1</strong>: Floating <code>FROM</code> tags — high blast radius, fix in this PR
+- <strong>P2</strong>: No <code>.dockerignore</code> — medium, can follow up</p>
+</blockquote>
+<h3 id="level-4-i-can-teach-the-team-staff">Level 4: "I can teach the team" (Staff+)<a class="headerlink" href="#level-4-i-can-teach-the-team-staff" title="Permanent link">&para;</a></h3>
+<blockquote>
+<p>Same as Level 3 + "Here's a pattern I want us to adopt across the org: a <code>.dockerfile-lint.yml</code> config that enforces pinned digests, no <code>ADD</code>, no root user. I'll add it to the CI pipeline and create a PR template with a Dockerfile checklist."</p>
+</blockquote>
+<hr />
+<h2 id="25-dockerfile-pr-review-snippets">25 Dockerfile PR Review Snippets<a class="headerlink" href="#25-dockerfile-pr-review-snippets" title="Permanent link">&para;</a></h2>
+<h3 id="1-add-vs-copy">1. <code>ADD</code> vs <code>COPY</code><a class="headerlink" href="#1-add-vs-copy" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+ADD https://example.com/binary.tar.gz /tmp/
+ADD package.tar.gz /app/
+</code></pre>
+<p><strong>Issues:</strong> <code>ADD</code> auto-extracts tarballs and fetches remote URLs — both are surprising behaviors. <code>ADD</code> from URLs doesn't cache and exposes build to MITM.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"<code>ADD</code> with remote URLs has no checksum verification or caching — this is a supply chain integrity risk. Combined with the floating tag on line 3, the Dockerfile has <strong>zero reproducibility guarantees</strong>. Let's switch to <code>COPY</code> for local files and <code>curl</code> + <code>sha256sum</code> for remote downloads."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+COPY package.tar.gz /tmp/
+RUN curl -fsSLo /tmp/binary.tar.gz https://example.com/binary.tar.gz \
+  &amp;&amp; echo &quot;&lt;expected-sha256&gt; /tmp/binary.tar.gz&quot; | sha256sum -c -
+</code></pre>
+<hr />
+<h3 id="2-running-as-root">2. Running as Root<a class="headerlink" href="#2-running-as-root" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM node:20
+WORKDIR /app
+COPY . .
+RUN npm install
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Container runs as root (UID 0). Container breakout gives host root.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"This runs as root — the most common container security finding and the highest severity. If this container is compromised, the attacker has root in the container and a kernel exploit away from host root. We should adopt a <strong>non-root by default</strong> policy across all services. The <code>runAsNonRoot: true</code> K8s admission check will also catch this, but fixing it in the image is the right layer."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM node:20
+WORKDIR /app
+RUN groupadd -r appgroup -g 1001 \
+  &amp;&amp; useradd -r -g appgroup -u 1001 appuser
+COPY --chown=appuser:appgroup . .
+RUN npm ci --only=production
+USER appuser
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
+<hr />
+<h3 id="3-pinning-base-image-tags">3. Pinning Base Image Tags<a class="headerlink" href="#3-pinning-base-image-tags" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM node:20
+</code></pre>
+<p><strong>Issues:</strong> Floating tag. Breaks reproducibility. Base image change could introduce new CVEs or breaking changes.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"The floating <code>node:20</code> tag means every build could pull a different base image. This is both a security risk (silent CVE introduction) and a debugging nightmare (works-on-my-machine). Let's pin by digest. For ongoing updates, I recommend Dependabot or Renovate configured with a security-only update policy — automated PRs for digest bumps that we review."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM node:20@sha256:abc123def456...
+</code></pre>
+<hr />
+<h3 id="4-multi-stage-build-with-distroless-final-stage">4. Multi-stage Build with Distroless Final Stage<a class="headerlink" href="#4-multi-stage-build-with-distroless-final-stage" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM golang:1.22 as builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app/server
+
+FROM alpine:3.20
+COPY --from=builder /app/server /server
+EXPOSE 8080
+CMD [&quot;/server&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Alpine has ~30 packages including shell and apk. The binary is statically linked — doesn't need them.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"Since <code>CGO_ENABLED=0</code> produces a statically linked binary, Alpine's musl, apk, and shell are unreachable code — but they're still attack surface. This is the classic argument for distroless: the binary doesn't need a package manager or shell at runtime, so don't ship them. <code>gcr.io/distroless/static-debian12:nonroot</code> is the right base here."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM golang:1.22 as builder
+WORKDIR /app
+COPY go.mod go.sum ./
+RUN go mod download
+COPY . .
+RUN CGO_ENABLED=0 go build -o /app/server
+
+FROM gcr.io/distroless/static-debian12:nonroot
+COPY --from=builder /app/server /server
+EXPOSE 8080
+ENTRYPOINT [&quot;/server&quot;]
+</code></pre>
+<hr />
+<h3 id="5-apt-get-cleanup-chains">5. <code>apt-get</code> Cleanup Chains<a class="headerlink" href="#5-apt-get-cleanup-chains" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM ubuntu:22.04
+RUN apt-get update
+RUN apt-get install -y curl ca-certificates
+RUN apt-get clean
+</code></pre>
+<p><strong>Issues:</strong> Stale layer caching. Lists dir (<code>/var/lib/apt/lists/*</code>) persists across layers.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"This pattern creates three problems: (1) <code>apt-get update</code> in its own layer means stale cached package lists — subsequent builds don't refresh; (2) <code>/var/lib/apt/lists/*</code> persists in the final image (unnecessary bulk); (3) three layers where one suffices. Combine into a single <code>RUN</code> and clean up in the same step."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM ubuntu:22.04
+RUN apt-get update &amp;&amp; apt-get install -y \
+    curl \
+    ca-certificates \
+  &amp;&amp; rm -rf /var/lib/apt/lists/* \
+  &amp;&amp; apt-get clean
+</code></pre>
+<hr />
+<h3 id="6-copy-chown-instead-of-run-chown">6. <code>COPY --chown</code> Instead of <code>RUN chown</code><a class="headerlink" href="#6-copy-chown-instead-of-run-chown" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+COPY config.yaml /app/config.yaml
+RUN chown appuser:appgroup /app/config.yaml
+</code></pre>
+<p><strong>Issues:</strong> Sensitive file content exists in a root-owned intermediate layer. Extra layer.</p>
+<p><strong>PR Response (Senior frame — Confidentiality axis):</strong></p>
+<blockquote>
+<p>"The <code>COPY</code> creates a root-owned layer with the file content, then <code>chown</code> creates another. The root-owned layer is permanent in the image — anyone with pull access can extract the file's contents from that layer. <code>COPY --chown</code> solves both the layer count and the confidentiality issue in one instruction."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+COPY --chown=appuser:appgroup config.yaml /app/config.yaml
+</code></pre>
+<hr />
+<h3 id="7-seccomp-profile-missing-k8s-manifest">7. Seccomp Profile Missing (K8s manifest)<a class="headerlink" href="#7-seccomp-profile-missing-k8s-manifest" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: app
+    image: my-app:latest
+</code></pre>
+<p><strong>Issues:</strong> No seccomp profile. Default is <code>Unconfined</code> on older Kubernetes.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"No seccomp profile means ~450 syscalls are available when ~300 are unnecessary. This is part of a broader pattern: the container has no <code>securityContext</code> at all. Let's add <code>RuntimeDefault</code> seccomp, drop all capabilities, set <code>runAsNonRoot</code>, and <code>readOnlyRootFilesystem</code> as a batch. These are all the same principle — <strong>least privilege at every OS layer</strong>."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+spec:
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: app
+    image: my-app:latest
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop: [&quot;ALL&quot;]
+      runAsNonRoot: true
+</code></pre>
+<hr />
+<h3 id="8-dropping-all-capabilities-k8s-manifest">8. Dropping All Capabilities (K8s manifest)<a class="headerlink" href="#8-dropping-all-capabilities-k8s-manifest" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+    securityContext:
+      capabilities:
+        drop: [&quot;NET_RAW&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Only one capability dropped. 40+ remain.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"Dropping only <code>NET_RAW</code> is like locking one door and leaving 40 others open. The <code>DROP ALL, ADD BACK</code> pattern is a security fundamental for containers. Most apps need <code>NET_BIND_SERVICE</code> at most. This also connects to the seccomp profile — they're complementary: capabilities gate what you can request, seccomp gates what the kernel actually executes."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+    securityContext:
+      capabilities:
+        drop: [&quot;ALL&quot;]
+        add: [&quot;NET_BIND_SERVICE&quot;]
+</code></pre>
+<hr />
+<h3 id="9-read-only-root-filesystem-k8s-manifest">9. Read-only Root Filesystem (K8s manifest)<a class="headerlink" href="#9-read-only-root-filesystem-k8s-manifest" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+# No readOnlyRootFilesystem
+</code></pre>
+<p><strong>Issues:</strong> Writable rootfs by default.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"Writable rootfs is the default and it's wrong for production. A compromised container can write to any directory. The pattern is: <code>readOnlyRootFilesystem: true</code> + explicit <code>emptyDir</code> mounts for <code>/tmp</code>, <code>/var/run</code>, <code>/var/log</code>. This makes the attack surface explicit — every write path is intentional and visible."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+    securityContext:
+      readOnlyRootFilesystem: true
+    volumeMounts:
+    - name: tmp
+      mountPath: /tmp
+    - name: varrun
+      mountPath: /var/run
+  volumes:
+  - name: tmp
+    emptyDir: {}
+  - name: varrun
+    emptyDir: {}
+</code></pre>
+<hr />
+<h3 id="10-cosign-image-signing-in-cicd">10. Cosign Image Signing in CI/CD<a class="headerlink" href="#10-cosign-image-signing-in-cicd" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+- name: Build and push
+  run: |
+    docker build -t registry.example.com/app:${{ github.sha }} .
+    docker push registry.example.com/app:${{ github.sha }}
+</code></pre>
+<p><strong>Issues:</strong> No signing. Image authenticity unverifiable.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"The image is pushed unsigned. Without a signature, anyone with registry write access can replace the image and consumers can't detect it. This is the single most impactful supply chain control we can add — keyless signing with cosign is free (Fulcio certs, Rekor transparency log). I'd also add SBOM attestation so downstream consumers can verify exactly what packages are in the image."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+- name: Build, sign, and push
+  env:
+    COSIGN_EXPERIMENTAL: &quot;1&quot;
+  run: |
+    IMAGE=registry.example.com/app:${{ github.sha }}
+    docker build -t $IMAGE .
+    docker push $IMAGE
+    cosign sign $IMAGE
+    cosign attest --predicate sbom.spdx.json --type spdx $IMAGE
+    cosign attest --predicate provenance.json --type slsaprovenance $IMAGE
+</code></pre>
+<hr />
+<h3 id="11-buildkit-secrets-for-build-time-credentials">11. BuildKit Secrets for Build-Time Credentials<a class="headerlink" href="#11-buildkit-secrets-for-build-time-credentials" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+ARG NPM_TOKEN
+RUN npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+RUN npm install --only=production
+</code></pre>
+<p><strong>Issues:</strong> Token leaks in image history.</p>
+<p><strong>PR Response (Senior frame — Confidentiality axis):</strong></p>
+<blockquote>
+<p>"The <code>ARG NPM_TOKEN</code> value is visible in <code>docker history</code>. Any developer, CI system, or registry scanner can extract it. This is a <strong>secret leaking into image layers</strong> — one of the most common supply chain leaks we see. BuildKit's <code>--secret</code> flag mounts the credential ephemerally during build; it never enters the layer chain. This should be our standard pattern for private registry auth."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed (Dockerfile):
+RUN --mount=type=secret,id=npmrc \
+  cp /run/secrets/npmrc ~/.npmrc &amp;&amp; \
+  npm install --only=production
+
+# Build command:
+# docker build --secret id=npmrc,src=.npmrc -t my-app .
+</code></pre>
+<hr />
+<h3 id="12-sbom-generation-in-cicd">12. SBOM Generation in CI/CD<a class="headerlink" href="#12-sbom-generation-in-cicd" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+- name: Build image
+  run: docker build -t app:latest .
+</code></pre>
+<p><strong>Issues:</strong> No SBOM generated.</p>
+<p><strong>PR Response (Senior frame — Transparency axis):</strong></p>
+<blockquote>
+<p>"No SBOM means nobody downstream can verify what's in this image. Every consumer — whether it's a security scanner, a deploy pipeline, or a compliance auditor — works in the dark. Docker Scout can generate and attach an SBOM as an OCI attestation in one step. This gives us <strong>verifiable, signed package transparency</strong> without any external database dependency."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+- name: Build and generate SBOM
+  run: |
+    docker build -t app:latest .
+    docker scout sbom --attest app:latest
+    docker push app:latest
+</code></pre>
+<hr />
+<h3 id="13-docker-compose-security-context">13. Docker Compose Security Context<a class="headerlink" href="#13-docker-compose-security-context" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted:
+services:
+  app:
+    image: my-app:latest
+    ports:
+      - &quot;80:8080&quot;
+    volumes:
+      - ./data:/app/data
+</code></pre>
+<p><strong>Issues:</strong> No security constraints.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"Local Docker Compose environments should follow the same hardening patterns as production K8s. Otherwise developers get a 'works on my laptop' environment that behaves completely differently and never catches security issues. Compose supports <code>cap_drop</code>, <code>security_opt</code>, <code>read_only</code>, and <code>user</code> — we should mirror our production posture here."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed:
+services:
+  app:
+    image: my-app:latest
+    ports:
+      - &quot;8080:8080&quot;
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=seccomp-profile.json
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_BIND_SERVICE
+    user: &quot;1001:1001&quot;
+    read_only: true
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./data:/app/data
+</code></pre>
+<hr />
+<h3 id="14-verifying-signed-images-with-kyverno-k8s-policy">14. Verifying Signed Images with Kyverno (K8s policy)<a class="headerlink" href="#14-verifying-signed-images-with-kyverno-k8s-policy" title="Permanent link">&para;</a></h3>
+<pre><code class="language-yaml"># PR submitted: No admission policy
+</code></pre>
+<p><strong>Issues:</strong> Any unsigned image can deploy.</p>
+<p><strong>PR Response (Senior frame — Integrity + Transparency axes):</strong></p>
+<blockquote>
+<p>"Without admission control for image verification, <strong>signing gives us no value</strong>. Signing is only half the solution — the other half is enforcement at deploy time. A Kyverno <code>verifyImages</code> policy that rejects unsigned images or images signed by unknown identities closes the loop. This connects to what we discussed in the CI/CD pipeline: once images are signed, we need the cluster to enforce it."</p>
+</blockquote>
+<pre><code class="language-yaml"># Fixed (Kyverno policy):
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: verify-image-signature
+spec:
+  validationFailureAction: Enforce
+  rules:
+  - name: verify-cosign
+    match:
+      any:
+      - resources:
+          kinds:
+          - Pod
+    verifyImages:
+    - image: &quot;registry.example.com/*&quot;
+      keyless:
+        subject: &quot;https://github.com/myorg/myapp/.github/workflows/build.yml@refs/heads/main&quot;
+        issuer: &quot;https://token.actions.githubusercontent.com&quot;
+</code></pre>
+<hr />
+<h3 id="15-notary-docker-content-trust">15. Notary / Docker Content Trust<a class="headerlink" href="#15-notary-docker-content-trust" title="Permanent link">&para;</a></h3>
+<pre><code class="language-bash"># PR submitted:
+export DOCKER_CONTENT_TRUST=0
+docker push registry.example.com/app:latest
+</code></pre>
+<p><strong>Issues:</strong> DCT disabled, no tag signing.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"Disabling DCT means the push skips tag signing in Notary. Consumers can't verify image origin. For production images, we should require DCT or cosign — but not both without ceremony. The key architectural choice is: <strong>TUF (Notary) for repository integrity, Sigstore for per-artifact attestation</strong>. They solve different problems."</p>
+</blockquote>
+<pre><code class="language-bash"># Fixed:
+docker trust signer add --key ci-signer.pub production
+docker trust sign ci-signer registry.example.com/app:latest
+</code></pre>
+<hr />
+<h3 id="16-layer-caching-copying-dependencies-before-source">16. Layer Caching — Copying Dependencies Before Source<a class="headerlink" href="#16-layer-caching-copying-dependencies-before-source" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM python:3.12-slim
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+</code></pre>
+<p><strong>Issues:</strong> Every source change busts the pip cache.</p>
+<p><strong>PR Response (Senior frame — Build optimization + Integrity):</strong></p>
+<blockquote>
+<p>"Copying source before dependencies means every code change re-installs all dependencies. Docker caches layers by instruction — <code>COPY requirements.txt</code> before <code>COPY .</code> means <code>RUN pip install</code> only reruns when <code>requirements.txt</code> changes. This is the biggest build optimization we can make, and it also makes our CI failures more reproducible (dependency resolution is a separate cacheable step)."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM python:3.12-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+</code></pre>
+<hr />
+<h3 id="17-run-npm-install-without-npm-ci">17. <code>RUN npm install</code> Without <code>npm ci</code><a class="headerlink" href="#17-run-npm-install-without-npm-ci" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM node:20-slim
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+</code></pre>
+<p><strong>Issues:</strong> <code>npm install</code> ignores lockfile semantics.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"<code>npm install</code> may regenerate <code>package-lock.json</code> or install different versions than what's locked. This is a reproducibility and supply chain integrity risk — if someone tampers with the lockfile, <code>npm install</code> silently overwrites it. We also need <code>--require-hashes</code> for dependency integrity verification."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM node:20-slim
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --only=production
+COPY . .
+</code></pre>
+<hr />
+<h3 id="18-hardcoding-secrets-in-dockerfile">18. Hardcoding Secrets in Dockerfile<a class="headerlink" href="#18-hardcoding-secrets-in-dockerfile" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM python:3.12-slim
+ENV API_KEY=&quot;sk-abc123def456&quot;
+ENV DB_PASSWORD=&quot;supersecret&quot;
+COPY . .
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Secrets baked into image. Anyone with pull access can extract via <code>docker history</code>.</p>
+<p><strong>PR Response (Senior frame — Confidentiality axis):</strong></p>
+<blockquote>
+<p>"<code>ENV</code> with secrets is the most critical confidentiality finding. Every single person with image pull access — every developer, every CI system, every registry scanner — can extract these secrets from <code>docker history</code>. The secret is also in every registry replica, every cached layer, every developer's local store. <strong>Secrets in ENV propagate irreversibly.</strong> This blocks the PR."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed — no ENV secrets.
+# Secrets injected at runtime via K8s Secrets / Docker secrets.
+</code></pre>
+<hr />
+<h3 id="19-copy-app-without-dockerignore">19. <code>COPY . /app</code> Without <code>.dockerignore</code><a class="headerlink" href="#19-copy-app-without-dockerignore" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM golang:1.22
+WORKDIR /app
+COPY . .
+RUN go build -o /app/server
+</code></pre>
+<p><strong>Issues:</strong> <code>.git/</code>, <code>.env</code>, <code>node_modules/</code>, IDE configs all copied into context.</p>
+<p><strong>PR Response (Senior frame — Confidentiality + Build optimization):</strong></p>
+<blockquote>
+<p>"Without <code>.dockerignore</code>, we're copying the entire repository including <code>.git/</code> (commit history), any <code>.env</code> files (potential secrets), and local build artifacts. This is both a confidentiality risk and a build performance issue. A <code>.dockerignore</code> is a security-critical file — it should be checked into the repo and reviewed like any other config."</p>
+</blockquote>
+<pre><code># .dockerignore:
+.git/
+node_modules/
+.env*
+*.md
+.gitignore
+.dockerignore
+.DS_Store
+.docker/
+*.log
+</code></pre>
+<hr />
+<h3 id="20-expose-without-port-justification">20. <code>EXPOSE</code> Without Port Justification<a class="headerlink" href="#20-expose-without-port-justification" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+EXPOSE 3000
+EXPOSE 8080
+EXPOSE 5432
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Three exposed ports, including a database port in an app image.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"<code>EXPOSE 5432</code> suggests a database bundled in the application image — which is a single-responsibility violation. Even if Postgres isn't running, the exposed port creates unnecessary network attack surface within the cluster. An attacker who compromises this container can reach port 5432. Every <code>EXPOSE</code> should correspond to a port the application socket actually listens on."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+EXPOSE 8080
+CMD [&quot;node&quot;, &quot;server.js&quot;]
+</code></pre>
+<hr />
+<h3 id="21-installing-build-essential-in-production-image">21. Installing <code>build-essential</code> in Production Image<a class="headerlink" href="#21-installing-build-essential-in-production-image" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM python:3.12-slim
+RUN apt-get update &amp;&amp; apt-get install -y build-essential libssl-dev
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<p><strong>Issues:</strong> Compilers (~200 MB) in production image. Attack surface for cryptominer installation.</p>
+<p><strong>PR Response (Senior frame — Least Privilege axis):</strong></p>
+<blockquote>
+<p>"<code>build-essential</code> ships compilers, linkers, and headers — none of which are needed at runtime. If an attacker gains code execution in this container, they have <code>gcc</code> available without downloading anything. This is a canonical multi-stage build argument: compile in a builder stage with build tools, ship only the compiled artifacts in runtime."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM python:3.12-slim AS builder
+RUN apt-get update &amp;&amp; apt-get install -y build-essential libssl-dev
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --user -r requirements.txt
+
+FROM python:3.12-slim
+COPY --from=builder /root/.local /root/.local
+COPY . .
+ENV PATH=/root/.local/bin:$PATH
+CMD [&quot;python&quot;, &quot;app.py&quot;]
+</code></pre>
+<hr />
+<h3 id="22-run-pip-install-without-hash-checking">22. <code>RUN pip install</code> Without Hash Checking<a class="headerlink" href="#22-run-pip-install-without-hash-checking" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM python:3.12-slim
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+</code></pre>
+<p><strong>Issues:</strong> No checksum verification. Dependency confusion / typosquatting not detected.</p>
+<p><strong>PR Response (Senior frame — Integrity axis):</strong></p>
+<blockquote>
+<p>"Without <code>--require-hashes</code>, pip resolves dependencies dynamically and trusts PyPI's response. A compromised dependency (dependency confusion, account takeover, typosquatting) installs without warning. Generate <code>requirements.txt</code> with <code>--generate-hashes</code> and enforce with <code>--require-hashes</code>. This gives us <strong>reproducible, tamper-evident dependency resolution</strong>."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM python:3.12-slim
+COPY requirements.txt .
+RUN pip install --require-hashes -r requirements.txt
+</code></pre>
+<hr />
+<h3 id="23-add-chmod-for-executable-bits">23. <code>ADD --chmod</code> for Executable Bits<a class="headerlink" href="#23-add-chmod-for-executable-bits" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+</code></pre>
+<p><strong>Issues:</strong> Extra layer for permission change.</p>
+<p><strong>PR Response (Senior frame — Layer optimization):</strong></p>
+<blockquote>
+<p>"Two layers where one suffices. <code>ADD --chmod</code> (or <code>COPY --chmod</code> with BuildKit) sets permissions at copy time. This is a small optimization for a single entrypoint, but across 50 services, eliminating unnecessary layers reduces pull times and storage."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+ADD --chmod=0755 entrypoint.sh /entrypoint.sh
+</code></pre>
+<hr />
+<h3 id="24-cmd-vs-entrypoint-confusion">24. <code>CMD</code> vs <code>ENTRYPOINT</code> Confusion<a class="headerlink" href="#24-cmd-vs-entrypoint-confusion" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM alpine:3.20
+ENTRYPOINT [&quot;/bin/server&quot;]
+CMD --config /etc/config.yaml
+# But also:
+CMD /bin/server --config /etc/config.yaml
+</code></pre>
+<p><strong>Issues:</strong> Two CMDs (last wins). Shell form wraps in <code>/bin/sh -c</code> — signal handling broken.</p>
+<p><strong>PR Response (Senior frame — Reliability):</strong></p>
+<blockquote>
+<p>"The shell form wraps the command in <code>/bin/sh -c</code>, making the shell PID 1. <code>SIGTERM</code> goes to the shell, which may not forward it to the actual server process. This causes delayed shutdowns and potential data loss in production. Use exec form everywhere. The <code>ENTRYPOINT</code>/<code>CMD</code> split is intentional: <code>ENTRYPOINT</code> is the binary, <code>CMD</code> is the default arguments — it's clean when used correctly."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+ENTRYPOINT [&quot;/bin/server&quot;]
+CMD [&quot;--config&quot;, &quot;/etc/config.yaml&quot;]
+</code></pre>
+<hr />
+<h3 id="25-healthcheck-missing">25. <code>HEALTHCHECK</code> Missing<a class="headerlink" href="#25-healthcheck-missing" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM nginx:1.25
+COPY custom.conf /etc/nginx/conf.d/
+</code></pre>
+<p><strong>Issues:</strong> No HEALTHCHECK. Container runtime can't detect deadlocked process.</p>
+<p><strong>PR Response (Senior frame — Reliability):</strong></p>
+<blockquote>
+<p>"Without <code>HEALTHCHECK</code>, the orchestrator only knows if the process is running (PID exists), not if it's <em>working</em>. A deadlocked or hung process keeps running but serves no requests. This is especially important for nginx and other reverse proxies where the process often survives config errors. The health check should test actual functionality (<code>curl /healthz</code>), not process existence."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM nginx:1.25
+COPY custom.conf /etc/nginx/conf.d/
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl --fail http://localhost:80/healthz || exit 1
+</code></pre>
+<hr />
+<h3 id="bonus-label-for-supply-chain-metadata">Bonus: <code>LABEL</code> for Supply Chain Metadata<a class="headerlink" href="#bonus-label-for-supply-chain-metadata" title="Permanent link">&para;</a></h3>
+<pre><code class="language-dockerfile"># PR submitted:
+FROM alpine:3.20
+COPY app /app
+CMD [&quot;/app&quot;]
+</code></pre>
+<p><strong>Issues:</strong> No provenance metadata.</p>
+<p><strong>PR Response (Senior frame — Transparency axis):</strong></p>
+<blockquote>
+<p>"This image ships with zero metadata. Downstream consumers — security scanners, audit tools, compliance systems — can't answer basic questions: who built this? from what source? what version? OCI standard labels give us that. Combined with signed attestations (cosign + SBOM), this creates a <strong>verifiable chain from source commit to running container</strong>."</p>
+</blockquote>
+<pre><code class="language-dockerfile"># Fixed:
+FROM alpine:3.20
+LABEL org.opencontainers.image.source=&quot;https://github.com/myorg/myapp&quot;
+LABEL org.opencontainers.image.version=&quot;1.2.3&quot;
+LABEL org.opencontainers.image.revision=&quot;abc123def456&quot;
+LABEL org.opencontainers.image.created=&quot;2026-06-09T10:00:00Z&quot;
+LABEL org.opencontainers.image.title=&quot;my-app&quot;
+LABEL org.opencontainers.image.vendor=&quot;MyOrg&quot;
+COPY app /app
+CMD [&quot;/app&quot;]
+</code></pre>
+<hr />
+<h2 id="interview-questions-to-expect">Interview Questions to Expect<a class="headerlink" href="#interview-questions-to-expect" title="Permanent link">&para;</a></h2>
+<h3 id="how-do-you-structure-a-pr-review-for-a-dockerfile">"How do you structure a PR review for a Dockerfile?"<a class="headerlink" href="#how-do-you-structure-a-pr-review-for-a-dockerfile" title="Permanent link">&para;</a></h3>
+<p><strong>Senior answer:</strong></p>
+<blockquote>
+<p>"I scan along <strong>four axes</strong>: Integrity, Least Privilege, Confidentiality, Transparency. Most findings map to one of these. I group related findings — if I see no digest pinning, no lockfile enforcement, and <code>npm install</code> without <code>npm ci</code>, that's one root cause (no reproducibility commitment), not three separate issues. I prioritize: secrets leaking are an automatic block, everything else I calibrate to blast radius and exploitability."</p>
+<p>"Then I look at whether the PR has a <strong>hardening baseline</strong>. If there's no <code>.dockerignore</code>, no <code>USER</code>, no <code>--chown</code>, and <code>build-essential</code> in prod — that's a team-wide pattern problem. I'd block the PR and suggest we add a Dockerfile linter (Hadolint) and a PR template checklist."</p>
+</blockquote>
+<h3 id="whats-the-single-most-impactful-thing-a-team-can-do-for-docker-security">"What's the single most impactful thing a team can do for Docker security?"<a class="headerlink" href="#whats-the-single-most-impactful-thing-a-team-can-do-for-docker-security" title="Permanent link">&para;</a></h3>
+<p><strong>Senior answer:</strong></p>
+<blockquote>
+<p>"Non-root execution. It's the cheapest, highest-ROI control. Every other hardening measure — capabilities, seccomp, read-only rootfs — builds on it. If the container runs as root, a lot of the other controls are hedge bets rather than guarantees. I'd rather a team does <strong>non-root + digest pinning + signing</strong> before they optimize seccomp profiles or multi-stage builds."</p>
+</blockquote>
+<h3 id="how-do-you-balance-developer-velocity-with-container-security">"How do you balance developer velocity with container security?"<a class="headerlink" href="#how-do-you-balance-developer-velocity-with-container-security" title="Permanent link">&para;</a></h3>
+<p><strong>Senior answer:</strong></p>
+<blockquote>
+<p>"The key is <strong>shift-left without friction</strong>. We shouldn't make developers memorize 25 rules. Instead:"
+1. "Hadolint in CI — fails on P0 issues (secrets, root user, no digest)"
+2. "PR template with a Dockerfile checklist — 3-4 checks, not 25"
+3. "Central base images with hardening baked in — teams consume distroless with non-root and seccomp without thinking about it"
+4. "Cosign + Kyverno as an automated gating layer — if the image isn't signed, the admission controller rejects it"</p>
+<p>"The goal is to make the <strong>secure path the easiest path</strong>. If the hardened base image is the default, security happens by accident."</p>
+</blockquote>
+<h3 id="you-mentioned-confidentiality-vs-integrity-elaborate">"You mentioned confidentiality vs integrity — elaborate."<a class="headerlink" href="#you-mentioned-confidentiality-vs-integrity-elaborate" title="Permanent link">&para;</a></h3>
+<p><strong>Senior answer:</strong></p>
+<blockquote>
+<p>"They're often confused. <strong>Confidentiality</strong> is about secrets leaking — ENV with API keys, ARG values in history, <code>.dockerignore</code> gaps. The threat model is information disclosure. <strong>Integrity</strong> is about tampering — unsigned images, floating tags, no hash verification. The threat model is an attacker modifying the artifact. They require different controls: BuildKit secrets for confidentiality, cosign + DCT for integrity. A privacy breach (leaked DB password) and a supply chain attack (tampered image) are different incidents with different responses."</p>
+</blockquote>
+<hr />
+<h2 id="quick-reference-25-findings-by-axis">Quick Reference: 25 Findings by Axis<a class="headerlink" href="#quick-reference-25-findings-by-axis" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Axis</th>
+<th>Finding Numbers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Integrity &amp; Reproducibility</strong></td>
+<td>1 (ADD), 3 (digests), 10 (signing), 11 (secrets), 14 (kyverno), 15 (DCT), 17 (npm ci), 22 (pip hashes)</td>
+</tr>
+<tr>
+<td><strong>Least Privilege</strong></td>
+<td>2 (root user), 4 (distroless), 5 (apt cleanup), 7 (seccomp), 8 (capabilities), 9 (readonly), 13 (compose), 20 (EXPOSE), 21 (build-essential)</td>
+</tr>
+<tr>
+<td><strong>Confidentiality</strong></td>
+<td>6 (COPY --chown), 11 (BuildKit secrets), 18 (ENV secrets), 19 (.dockerignore)</td>
+</tr>
+<tr>
+<td><strong>Transparency</strong></td>
+<td>12 (SBOM), 14 (kyverno enforcement), bonus (LABEL)</td>
+</tr>
+<tr>
+<td><strong>Reliability</strong></td>
+<td>24 (CMD/ENTRYPOINT), 25 (HEALTHCHECK)</td>
+</tr>
+<tr>
+<td><strong>Build Optimization</strong></td>
+<td>16 (layer order), 23 (ADD --chmod)</td>
+</tr>
+</tbody>
+</table>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../image-signing-verification/" class="btn btn-neutral float-left" title="System Design: Image Signing and Verification Workflow"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../image-signing-verification/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
