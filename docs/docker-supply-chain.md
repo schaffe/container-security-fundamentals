@@ -79,6 +79,7 @@
 5. **Go coding:** Write a test that deploys a chart to a real K8s cluster and validates behavior
 6. **Docker strategy:** How should Docker position DHI vs Chainguard? How would you improve the developer experience?
 7. **Supply chain design:** Design a system that signs images, verifies at deploy time, and handles key compromise
+8. **Dockerfile PR review:** Given a Dockerfile or container manifest, identify security issues, prioritize, and communicate findings. [25 snippets with senior-level review framework](articles/interview/dockerfile-pr-review.md)
 
 ## Resources
 
