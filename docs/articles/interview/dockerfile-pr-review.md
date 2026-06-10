@@ -12,12 +12,248 @@ Most candidates can spot individual issues. Senior engineers ~**thematize**. The
 
 ### The Four Axes of Dockerfile Review
 
-Every finding maps to one of these:
+Every PR review finding maps to one or more of four orthogonal axes. Together they cover the full supply chain threat model: tampering, escape, disclosure, and blind trust. A finding that spans multiple axes is usually higher severity.
 
-1. **Integrity & Reproducibility** — Can this build be reliably reproduced? (tags vs digests, lockfiles, `npm ci`, hash verification)
-2. **Least Privilege** — Does the container have only what it needs? (root user, capabilities, seccomp, read-only rootfs, exposed ports)
-3. **Confidentiality** — Are secrets leaked anywhere? (build args, ENV in layers, `.dockerignore` gaps, intermediate layers)
-4. **Transparency** — Can consumers verify what's in this image? (SBOM attestation, signing, OCI labels, provenance metadata)
+---
+
+#### Axis 1: Integrity & Reproducibility
+
+**Threat model:** An attacker modifies the artifact or its dependencies during build, transit, or storage. The build is not reproducible, so tampering is undetectable.
+
+**Core question:** Can this build be reliably reproduced, and if tampered, would we know?
+
+**What's in scope:**
+- `FROM` tags vs digests (floating tags mask tampering — the tag may resolve to a compromised image tomorrow)
+- Lockfile enforcement (`npm ci` vs `npm install`, `pip --require-hashes`, `go.sum` verification)
+- Dependency integrity (checksum verification, dependency confusion, typosquatting)
+- Image signing (cosign, Docker Content Trust, Notary)
+- Admission control (Kyverno `verifyImages`, OPA Gatekeeper)
+- SLSA provenance attestation (build platform identity, hermetic builds)
+
+**Why it matters for a Senior Engineer:**
+
+This axis is where most supply chain attacks land. A compromised base image (e.g., `node:20` retagged to point at a malicious layer) propagates to every downstream consumer who blindly pulls `node:20`. Without lockfile enforcement, a PyPI account takeover silently injects malicious code into your production image. Without admission control, signing is theatre — the image is signed but nobody checks the signature.
+
+Reproducibility is the foundation. If a build isn't reproducible, you can't verify provenance — you can't prove the image was built from the claimed source by the claimed platform. This is why SLSA L3 requires hermetic builds (no network access during build, all inputs declared), and L4 requires reproducibility (two identical builds produce byte-identical output).
+
+**Attack scenarios:**
+
+| Attack | Axis mapping | Defense |
+|--------|-------------|---------|
+| Base image tag repointed to compromised image | Integrity | Digest pinning |
+| PyPI account takeover via typosquatted dependency | Integrity | Hash pinning (`--require-hashes`) |
+| Registry compromise — attacker replaces pushed image | Integrity | Cosign signing + verification |
+| Malicious insider pushes unsigned image | Integrity + Transparency | Kyverno admission enforce |
+| CI pipeline compromised — builds use attacker-controlled cache | Integrity | BuildKit cache isolation, provenance |
+| Dependency confusion (public package with same name as private) | Integrity | Package source pinning, `--extra-index-url` ordering |
+
+**Defense layers (in increasing order of rigor):**
+1. Pin by digest (`FROM node@sha256:...`) — prevents tag retagging attacks
+2. Enforce lockfiles (`npm ci`, `pip freeze --require-hashes`) — prevents unexpected dependency resolution
+3. Hash-verify all downloaded artifacts (`sha256sum -c`) — catches MITM during build
+4. Sign the image with identity-bound key (cosign keyless) — links image to CI identity
+5. Attest with provenance (SLSA provenance predicate) — proves who built what from what
+6. Enforce at admission (Kyverno verifyImages) — closes the verification loop
+
+**Interview depth:**
+
+Be ready to discuss why SLSA L4 requires reproducibility. The answer is about **verification without trust**: if two independent build platforms produce identical outputs, you don't need to trust either platform. Also be ready to discuss the trade-off between digest pinning (security) and automated updates (maintainability) — the answer is Renovate/Dependabot configured to PR digest bumps with scan results.
+
+---
+
+#### Axis 2: Least Privilege
+
+**Threat model:** An attacker who achieves code execution in the container can escalate privileges, escape to the host, or move laterally — because the container was granted more capability than needed.
+
+**Core question:** Does the container have only what it needs to function?
+
+**What's in scope:**
+- Running as root (UID 0) — the single highest-severity finding on this axis
+- Linux capabilities (`cap_drop: ALL` + selective add vs selective drop)
+- Seccomp profiles (`RuntimeDefault` vs `Unconfined`)
+- Read-only root filesystem (`readOnlyRootFilesystem: true`)
+- Unnecessary packages (compilers, shells, package managers in production)
+- Exposed ports that don't correspond to listening sockets
+- `allowPrivilegeEscalation` — must be `false` when not needed
+- `no-new-privileges` — prevents privilege escalation via setuid binaries
+- AppArmor/SELinux profiles
+
+**Why it matters for a Senior Engineer:**
+
+Least privilege is the oldest security principle and the most consistently violated in containers. The Docker default is "root, all capabilities, writable, no seccomp" — the exact opposite. Senior engineers understand that **these controls are multiplicative, not additive**. A root container with all capabilities and no seccomp is trivially exploitable. A non-root container with only `NET_BIND_SERVICE` and `RuntimeDefault` seccomp requires chaining multiple kernel exploits for the same outcome.
+
+The key insight is **defense in depth across OS layers**:
+
+```
+┌─────────────────────────────────────────┐
+│  USER non-root          │  ── escapes    │
+│  cap_drop: ALL          │  ── privilege  │
+│  seccomp: RuntimeDefault│  ── syscall    │
+│  readOnlyRootFilesystem │  ── writes     │
+│  no-new-privileges      │  ── escalation │
+└─────────────────────────────────────────┘
+```
+
+Each layer closes an escape path. An attacker who gets RCE in a non-root container must first find a kernel exploit (rare), then a way to call the required syscall (seccomp blocks most), while having no capability to mount filesystems or load kernel modules (capabilities dropped). Individually each control is bypassable. Together they're exponentially harder.
+
+**Attack scenarios:**
+
+| Attack | Axis mapping | Defense |
+|--------|-------------|---------|
+| RCE in container → write cryptominer to /tmp | Least Privilege | Read-only rootfs |
+| RCE → exploit kernel via userfaultfd syscall | Least Privilege | Seccomp RuntimeDefault blocks userfaultfd |
+| RCE → setuid binary for privilege escalation | Least Privilege | no-new-privileges, drop ALL capabilities |
+| RCE → write to host via mount propagation | Least Privilege | Read-only rootfs + no privileged containers |
+| RCE → compile exploit using gcc from image | Least Privilege | Distroless multi-stage |
+| Container escape via CVE-2019-5736 (runC) | Least Privilege | Non-root user (attacker exits container's UID namespace) |
+
+**Compounding effect — the interview answer:**
+
+If an interviewer asks "what's the most impactful thing," the answer is **non-root execution**. Not because it's the strongest control (it isn't — seccomp blocks more attack surface), but because it unlocks everything else. Without non-root, capabilities are less meaningful (root can re-enable them), seccomp is a hedge, and read-only rootfs is partially bypassable. Non-root is the prerequisite for the entire least-privilege stack.
+
+**Assessing blast radius of excess:**
+
+When reviewing a Dockerfile, ask: **"If an attacker gets arbitrary code execution in this container, what can they do, and what can't they do?"**
+
+- Root user → attacker owns the container namespace, can unmount protections, re-enable capabilities
+- Capabilities like `SYS_ADMIN` → attacker can mount filesystems, load kernel modules, access `/dev/mem`
+- `NET_ADMIN` → attacker can iptables-intercept traffic from other containers on the same host
+- `SYS_PTRACE` → attacker can ptrace other processes in the same container (side-channel, credential extraction)
+- Shell present → attacker can download additional tooling, chain exploits interactively
+- Compiler present → attacker can compile exploits in-container (no outbound needed)
+
+---
+
+#### Axis 3: Confidentiality
+
+**Threat model:** Secrets, credentials, or sensitive data embedded in the Docker build process leak to unauthorized parties — because image layers are persistent, portable, and visible to anyone with pull access.
+
+**Core question:** Are secrets exposed anywhere in the image layers or build context?
+
+**What's in scope:**
+- `ENV` with secrets — visible in `docker history`, `docker inspect`, and every layer
+- `ARG` with secrets — visible in `docker history` (both `--build-arg` value and intermediate layers)
+- `COPY` of secret files without cleanup — `.env`, `credentials.json`, `service-account.json` in image
+- Missing `.dockerignore` — `.git/` with credential history, local `.env`, IDE secrets
+- Intermediate layers from `COPY` + `RUN chown` — file content persists in root-owned layer
+- Build context leaks — files in the build directory that shouldn't be there
+- CI/CD environment — ARG values logged in CI output, exposed in build metadata
+
+**Why it matters for a Senior Engineer:**
+
+Secrets in images are **irreversible and viral**. Once a secret enters an image layer:
+1. It's in every layer (not just the final layer — `docker history` shows every instruction's result)
+2. It propagates to every registry the image is pushed to (Docker Hub, ECR, GCR, private registries)
+3. It's cached on every machine that pulls the image (developer laptops, CI runners, production nodes)
+4. It persists in image history forever — rotating the secret doesn't remove it from already-pushed layers
+
+The only fix for a committed secret is: (a) rotate the secret immediately, (b) delete all image tags that contain it from all registries, (c) force-repull on all nodes, (d) audit who pulled the image between commit and fix.
+
+This makes the `ENV API_KEY` pattern the most expensive mistake a team can make. The cost isn't the secret itself — it's the incident response effort to contain the disclosure.
+
+**Attack scenarios:**
+
+| Attack | Axis mapping | Defense |
+|--------|-------------|---------|
+| CI output leaks `--build-arg NPM_TOKEN=xxx` | Confidentiality | BuildKit `--secret` |
+| Image pulled from public registry, `docker history` shows DB password | Confidentiality | Never `ENV` secrets |
+| Developer copies `.env` into image via `COPY . .` | Confidentiality | `.dockerignore` |
+| Config file exists in root-owned intermediate layer after `RUN chown` | Confidentiality | `COPY --chown` |
+| `.git/` copied into context — commit history with credentials | Confidentiality | `.dockerignore` with `.git/` |
+| Scanner tool reads image history, reports secret in findings | Confidentiality | All of the above |
+
+**Defense layers:**
+1. **Never use `ENV` for secrets** — `ENV` is for configuration, not credentials. Use runtime injection (K8s Secrets, Docker secrets, vault sidecar).
+2. **Never use `ARG` for secrets** — `ARG` values are visible in `docker history`. Use `--mount=type=secret` (BuildKit).
+3. **Always have a `.dockerignore`** — at minimum `.git/`, `.env*`, `node_modules/`, `*.log`.
+4. **Use `COPY --chown`** to avoid creating root-owned intermediate layers with sensitive content.
+5. **Multi-stage builds** to strip intermediate layers — copy only what's needed to the final stage.
+6. **`docker history` audit** — run `docker history <image>` in CI and fail if it contains known patterns (`ENV API`, `ENV TOKEN`, `ENV SECRET`, `ARG *_TOKEN`).
+
+**Incident response — the interview question:**
+
+An interviewer may ask: "A developer committed `ENV DB_PASSWORD=supersecret` and pushed to your private registry. Two hours later you discover it. What do you do?"
+
+**Senior answer:**
+> "Immediately rotate the database password. Then audit: who pulled that image tag in the last two hours? Delete all image tags that contain that layer from the registry. Force-repull on all nodes. Add a `docker history` CI check that rejects images with known secret patterns. Finally, rotate any other secrets that share the same exposure window — if someone had pull access in those two hours, assume all secrets in that image are compromised. The process fix is BuildKit secrets + `.dockerignore` + automated history scanning."
+
+---
+
+#### Axis 4: Transparency
+
+**Threat model:** Consumers of the image — whether they're security scanners, deploy pipelines, or compliance auditors — cannot verify what's in the image, where it came from, or how it was built. They must trust the distributor blindly.
+
+**Core question:** Can consumers independently verify the contents and provenance of this image?
+
+**What's in scope:**
+- SBOM generation and attestation (CycloneDX/SPDX, signed as OCI attestation)
+- OCI label annotations (`org.opencontainers.image.*`)
+- Signed provenance metadata (SLSA provenance predicate type)
+- Vulnerability disclosure and VEX documents
+- Admission control that verifies attestations (not just signatures)
+- Build platform identity in attestations
+
+**Why it matters for a Senior Engineer:**
+
+Transparency is what separates **trust from verification**. Without transparency, consumers must trust the image distributor. With transparency, consumers can independently verify. This is the difference between "Docker says this image is safe" and "I can verify this image was built from commit abc123 on a SLSA L3 platform, I can inspect every package in it, and I can confirm no new CVEs were introduced since the last scan."
+
+Transparency also enables **automated policy**. A Kyverno policy that says "reject images with known critical CVEs" requires transparency (SBOM + CVE matching) to evaluate. A policy that says "only allow images built by our CI pipeline" requires transparency (signed provenance with build platform identity). Without transparency, these policies are impossible.
+
+**Attack scenarios:**
+
+| Attack | Axis mapping | Defense |
+|--------|-------------|---------|
+| Image contains unknown malicious dependency, no one notices | Transparency | SBOM + automated CVE scanning |
+| Team ships image with known critical CVE, no policy caught it | Transparency | Policy evaluation against SBOM |
+| Compliance audit asks "what was in production image version X?" | Transparency | Signed attestation stored in registry |
+| Attacker replaces image in registry, consumer can't detect | Transparency + Integrity | Signed attestation + verification |
+| Org needs SLSA L3 attestation for FedRAMP compliance | Transparency | Provenance attestation in CI/CD |
+
+**Defense layers:**
+1. **Generate SBOM** — `docker scout sbom` creates a CycloneDX/SPDX bill of materials
+2. **Attach SBOM as attestation** — `docker scout sbom --attest` signs and stores the SBOM in the registry alongside the image, not in a separate database
+3. **Add OCI labels** — source repo, commit SHA, build timestamp, version, vendor
+4. **Generate provenance attestation** — SLSA provenance predicate type stating build platform, builder identity, build config, materials
+5. **Enforce at admission** — Kyverno/OPA evaluates attestations at deploy time
+
+**The practical value for a Senior Supply Chain Engineer:**
+
+> "Without transparency, your CVE scanner is guessing. It downloads the image, extracts packages, matches against a database — but it doesn't know what the *author* claims the image contains. With an attested SBOM, you can compare: did the author say this image contains log4j 2.17.0? Does the scanner agree? The difference is actionable — if there's a discrepancy, either the build was tampered or the scanner is wrong. Both are worth investigating."
+
+Transparency also solves the **"known exploit, not affected"** problem via VEX (Vulnerability Exploitability eXchange). If a scanner reports a CVE for a dependency that's not actually used at runtime, the image maintainer publishes a VEX statement saying "not affected." Consumers see the CVE is ignored with justification. Without transparency, every consumer must independently triage every CVE.
+
+---
+
+#### How the Axes Interact
+
+The four axes are orthogonal but connected. A finding often lives at the intersection:
+
+| Finding | Primary axis | Secondary axis | Why |
+|---------|-------------|----------------|-----|
+| Image not signed | Integrity | Transparency | No signature means both integrity loss and no verifiability |
+| `.env` copied into image | Confidentiality | — | Secret disclosure, no secondary integrity impact |
+| Root user | Least Privilege | — | Excessive capability, no direct confidentiality impact |
+| No SBOM | Transparency | — | Consumer can't verify, but image may be perfectly built |
+| No `.dockerignore` with `.git/` | Confidentiality | Integrity | Secret leak + `.git/` in context could be modified during build |
+| Kyverno enforcement | Integrity | Transparency | Closes the loop on both axes |
+| `COPY` without `--chown` then `RUN chown` | Confidentiality | Least Privilege | Secret in root layer + root access needed to fix ownership |
+
+**Severity triage across axes:**
+
+When prioritizing findings in a PR review:
+
+1. **P0 — Block the PR:** Secrets in `ENV` or `ARG` (Confidentiality), root user with all capabilities (Least Privilege), remote `ADD` without checksum (Integrity)
+2. **P1 — Fix in this PR:** Floating tags (Integrity), no `.dockerignore` (Confidentiality), `build-essential` in prod (Least Privilege), no HEALTHCHECK (Reliability)
+3. **P2 — Fix before merge, separate PR OK:** No seccomp profile (Least Privilege), no SBOM (Transparency), multi-stage optimization (Least Privilege)
+4. **P3 — Follow-up item:** Missing OCI labels (Transparency), `ADD --chmod` instead of `COPY` + `RUN chmod` (Optimization), EXPOSE cleanup (Least Privilege)
+
+The severity of a finding depends on:
+- **Exploitability** — how easy is it to exploit? `ENV` with API key: attacker just runs `docker history`. Floating tag: attacker must compromise the registry.
+- **Blast radius** — how much damage if exploited? Root user: container escape → host compromise. No HEALTHCHECK: best case is delayed restarts.
+- **Persistence** — how hard to fix after the fact? Secret in layer: incident response, rotation, audit. No seccomp: just add the profile.
+- **Detectability** — would we notice exploitation? Unsigned image replaced: probably not. Root container cryptomining: maybe via resource monitoring.
+
+A senior PR review response groups findings by axis, orders by severity, and connects them to both the specific code and the broader engineering system. The output is not a list of complaints — it's a **security-informed refactoring recommendation** that a team lead can act on.
 
 ---
 
