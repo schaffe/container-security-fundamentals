@@ -190,11 +190,11 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#iterative-design">Iterative Design</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#v1-crontab-on-every-node-a-lock">v1: Crontab on Every Node + a Lock</a>
+    <li class="toctree-l3"><a class="reference internal" href="#v1-crontab-on-every-node-plus-a-lock">v1: Crontab on Every Node, Plus a Lock</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#v2-central-store-polling-workers">v2: Central Store + Polling Workers</a>
+    <li class="toctree-l3"><a class="reference internal" href="#v2-central-store-polling-workers">v2: Central Store, Polling Workers</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners + Per-Shard Timer Queues</a>
+    <li class="toctree-l3"><a class="reference internal" href="#v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners, Per-Shard Timer Queues</a>
     </li>
         </ul>
     </li>
@@ -237,42 +237,48 @@
                 <h1 id="system-design-distributed-cron">System Design: Distributed Cron<a class="headerlink" href="#system-design-distributed-cron" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>"Design distributed cron" is the compact cousin of the
-<a href="../design-a-workflow-engine/">workflow-engine question</a>: a service where users register schedules
-("run job J every 5 minutes / at 02:00 daily") and the system fires them reliably across a fleet —
-no machine is special, any node can die, and yet each tick fires exactly once. The state is tiny
-(a schedule is a few hundred bytes), which fools candidates into thinking the problem is small.
-It isn't: the hard parts are <em>exactly-one-firing</em> across many nodes, <em>missed ticks</em> when the
-system was down over a fire time, and <em>overlapping runs</em> when a job outlives its interval. This
-article builds the design iteratively, then covers the deep-dive prompts. Temporal's
-<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">Schedules</a> are the reference implementation
-throughout — not because it's the only answer, but because it has explicit answers exactly where
-hand-rolled designs go vague.</p>
+<a href="../design-a-workflow-engine/">workflow-engine question</a>: users register schedules — "run job J
+every five minutes," "at 02:00 daily" — and the system fires them reliably across a fleet where no
+machine is special and any node can die, yet each tick must fire exactly once.</p>
+<p>The state involved is tiny — a schedule is a few hundred bytes — and that smallness fools
+candidates into thinking the problem is small. It isn't. The hard parts are <em>exactly-one-firing</em>
+across many nodes, <em>missed ticks</em> when the whole system was down over a fire time, and
+<em>overlapping runs</em> when a job outlives its own interval. This article builds the design
+iteratively, then walks the deep-dive prompts. Temporal's
+<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">Schedules</a> serve as the reference
+implementation throughout — not because they're the only answer, but because they have explicit
+answers exactly where hand-rolled designs go vague.</p>
 <h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
-<p>A schedule is <strong>durable state with a timer</strong>, not a process. Stop thinking "which node runs the
-cron loop?" and start thinking "where does the schedule's state live, and who is allowed to write
-it?" Once each schedule has a <strong>single fenced writer</strong> — one owner, whose writes are conditional
-on an ownership token — "which node fires the tick?" stops being a coordination problem and
-becomes a placement detail. Firing a tick is then just a state transition: read next-fire-time,
-append "tick N fired," start the job, compute next-fire-time. Everything else (catch-up, overlap,
-backfill, pause) is policy layered on that transition.</p>
+<p>A schedule is <strong>durable state with a timer, not a process</strong>. The instinctive framing — "which node
+runs the cron loop?" — is the wrong question, and designs built on it inherit its wrongness. The
+right question is: where does the schedule's state live, and who is allowed to write it?</p>
+<p>Give each schedule a <strong>single fenced writer</strong> — one owner at a time, whose writes are conditional
+on an ownership token — and "which node fires the tick?" stops being a coordination problem and
+becomes a placement detail. Firing a tick is then just a state transition: read the next fire
+time, append "tick N fired," start the job, compute the next fire time. Everything else the
+problem demands — catch-up, overlap handling, backfill, pause — is policy layered on that one
+transition.</p>
 <hr />
 <h2 id="requirements-and-api-sketch">Requirements and API Sketch<a class="headerlink" href="#requirements-and-api-sketch" title="Permanent link">&para;</a></h2>
-<p><strong>Functional:</strong></p>
+<p>Functional requirements:</p>
 <ul>
-<li>CRUD schedules: interval or calendar (cron-expression) specs; a schedule triggers an <em>action</em>
-  (start job J with input X).</li>
+<li>CRUD on schedules, with interval or calendar (cron-expression) specs; a schedule triggers an
+  <em>action</em> — start job J with input X.</li>
 <li>Each due tick fires <strong>exactly once</strong> across the fleet — never zero times, never twice.</li>
-<li>Policy for <strong>missed ticks</strong> (system down over a fire time): run late, or skip?</li>
-<li>Policy for <strong>overlap</strong> (previous run still going when the next tick is due).</li>
-<li>Pause/resume a schedule; manual "run now"; <strong>backfill</strong> a historical time range.</li>
-<li>Answer "did tick N fire, and what happened to the run it started?" — auditable per-tick history.</li>
+<li>An explicit policy for <strong>missed ticks</strong> (the system was down over a fire time): run late, or
+  skip?</li>
+<li>An explicit policy for <strong>overlap</strong> (the previous run is still going when the next tick is due).</li>
+<li>Pause and resume; manual "run now"; <strong>backfill</strong> over a historical time range.</li>
+<li>Auditability: "did tick N fire, and what happened to the run it started?" must be answerable.</li>
 </ul>
-<p><strong>Non-functional:</strong></p>
+<p>Non-functional:</p>
 <ul>
-<li>Scale: ~1M schedules, mostly minutes-to-daily cadence; peak alignment (everyone schedules
-  at :00) means fire-time load is <em>spiky by nature</em> — name this up front.</li>
+<li>Scale on the order of a million schedules, mostly minutes-to-daily cadence. Note one property up
+  front: fire-time load is <em>spiky by nature</em>, because humans schedule things at :00 — peak
+  alignment is a feature of the domain, not an accident.</li>
 <li>A tick may fire seconds late; it must never be silently lost. Like the workflow engine, this is
-  a state system: durability over latency, and saying so licenses trade-offs later.</li>
+  a state system where durability outranks latency — and saying so explicitly licenses the
+  trade-offs to come.</li>
 </ul>
 <pre><code>CreateSchedule(id, spec, action, policies) -&gt; handle     Pause(id) / Unpause(id)
 UpdateSchedule(id, spec/policies)                        TriggerNow(id)
@@ -280,79 +286,88 @@ DescribeSchedule(id) -&gt; spec, next ticks, recent runs    Backfill(id, from, t
 </code></pre>
 <hr />
 <h2 id="iterative-design">Iterative Design<a class="headerlink" href="#iterative-design" title="Permanent link">&para;</a></h2>
-<h3 id="v1-crontab-on-every-node-a-lock">v1: Crontab on Every Node + a Lock<a class="headerlink" href="#v1-crontab-on-every-node-a-lock" title="Permanent link">&para;</a></h3>
-<p>The instinctive design: every node loads all schedules, evaluates the cron spec each minute, and
-races for a distributed lock (Redis <code>SETNX</code>, a lock row) before firing. Why it breaks:</p>
+<h3 id="v1-crontab-on-every-node-plus-a-lock">v1: Crontab on Every Node, Plus a Lock<a class="headerlink" href="#v1-crontab-on-every-node-plus-a-lock" title="Permanent link">&para;</a></h3>
+<p>The instinctive design: every node loads all the schedules, evaluates the cron specs each minute,
+and the nodes race for a distributed lock — a Redis <code>SETNX</code>, a lock row — before firing. Whoever
+wins the lock fires the tick.</p>
+<p>Three failures, one of them fatal.</p>
+<p>The fatal one: <strong>locks don't give you exactly-once.</strong> Walk the crash timings. Node A takes the
+lock, fires the job, and dies before recording that it fired — the lock expires, node B acquires
+it, sees no record, and fires again. Two firings. Or: node A takes the lock and dies <em>before</em>
+firing — the tick is lost until someone notices. Zero firings. A lease-based lock bounds
+<em>concurrency</em>; it says nothing about <em>effects</em>. Unless the act of firing is a conditional write
+against durable schedule state, you get at-most-once or at-least-once, selected by crash timing.</p>
+<p>The other two: every node parses every spec every minute — O(nodes × schedules) work for the
+privilege of mostly losing lock races — and there is <strong>no memory of missed ticks</strong>. If the whole
+fleet is down from 01:58 to 02:03, the 02:00 tick never existed anywhere. Single-machine cron has
+this bug too; distributing it didn't fix it.</p>
+<h3 id="v2-central-store-polling-workers">v2: Central Store, Polling Workers<a class="headerlink" href="#v2-central-store-polling-workers" title="Permanent link">&para;</a></h3>
+<p>Move the state into a database: rows of <code>(schedule_id, spec, next_fire_at, paused, ...)</code>. A
+worker fleet polls: <code>SELECT ... WHERE next_fire_at &lt;= now() FOR UPDATE SKIP LOCKED</code>, fires,
+computes and writes the next fire time.</p>
+<p>This is genuine progress — the firing and the state now change together, and a fleet outage
+leaves <code>next_fire_at</code> sitting in the past, so missed ticks are at least <em>visible</em> on recovery.
+But three holes remain:</p>
 <ol>
-<li><strong>Locks don't give exactly-once.</strong> Node A takes the lock, fires, dies before recording it —
-   the lock expires and node B fires again (twice); or A takes the lock and dies before firing —
-   tick lost until someone notices (zero times). A lease-based lock bounds <em>concurrency</em>, not
-   <em>effects</em>. Without the firing being a conditional write against durable schedule state, you get
-   at-most-once or at-least-once, chosen by your crash timing.</li>
-<li><strong>O(nodes × schedules) evaluation</strong> — every node parses every spec every minute for the
-   privilege of losing a lock race.</li>
-<li><strong>No memory of missed ticks.</strong> If the whole fleet is down 01:58–02:03, the 02:00 tick simply
-   never existed. Cron-on-a-box has this bug too; distributing it doesn't fix it.</li>
-</ol>
-<h3 id="v2-central-store-polling-workers">v2: Central Store + Polling Workers<a class="headerlink" href="#v2-central-store-polling-workers" title="Permanent link">&para;</a></h3>
-<p>Move state into a database: <code>(schedule_id, spec, next_fire_at, paused, ...)</code>. A worker fleet
-polls: <code>SELECT ... WHERE next_fire_at &lt;= now() FOR UPDATE SKIP LOCKED</code>, fires, computes and
-writes the next fire time. Real progress — firing and state now change together, and a fleet
-outage leaves <code>next_fire_at</code> in the past, so missed ticks are at least <em>visible</em>. Remaining
-holes:</p>
-<ol>
-<li><strong>Dual write.</strong> Firing means starting a job in some other system <em>and</em> updating the row. Crash
-   between them and you're back to lost-or-duplicate ticks. Needs an outbox: record "tick N
-   fired, start job" in the same transaction as advancing <code>next_fire_at</code>; deliver at-least-once;
-   dedupe downstream on <code>(schedule_id, tick_N)</code> as the idempotency key.</li>
-<li><strong>The DB is the timer.</strong> Poll-the-world burns the database and floors your precision at the
-   poll interval; the hot <code>next_fire_at</code> index is a contention point exactly at :00 spikes.</li>
+<li><strong>The dual write.</strong> Firing means starting a job in some other system <em>and</em> updating the row.
+   Crash between the two and you're back to lost-or-duplicated ticks. The fix — and it will carry
+   into v3 — is an outbox: record "tick N fired, start job" in the same transaction that advances
+   <code>next_fire_at</code>, deliver the start at-least-once, and dedupe downstream on
+   <code>(schedule_id, tick_N)</code> as the idempotency key.</li>
+<li><strong>The database is the timer.</strong> Polling the world burns the database and floors precision at
+   the poll interval — and the hot <code>next_fire_at</code> index becomes a contention point at exactly the
+   :00 spikes the domain guarantees.</li>
 <li><strong>Row locks are still locks.</strong> <code>SKIP LOCKED</code> serializes per row, but ownership is per-tick and
-   transient — there's no stable writer per schedule, so per-schedule invariants (overlap policy
-   needs to know about the <em>previous</em> run) require extra reads and races.</li>
+   transient. There's no stable writer per schedule — and overlap policy, which needs to reason
+   about the <em>previous</em> run's status when deciding about the next tick, requires exactly that
+   stable writer to avoid races.</li>
 </ol>
-<h3 id="v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners + Per-Shard Timer Queues<a class="headerlink" href="#v3-sharded-single-writer-owners-per-shard-timer-queues" title="Permanent link">&para;</a></h3>
-<p>The durable-execution shape — and where the workflow-engine design pays rent:</p>
-<ol>
-<li><strong>Shard the schedules</strong>: <code>hash(schedule_id) % N</code>; each shard has exactly one owner node at a
-   time, placement via a membership ring, <strong>correctness via fencing</strong> — the owner holds an epoch
-   (range ID), and every write for the shard is conditional on it at the store. A stale owner's
-   fires fail at the database, not at a lock server
-   (<a href="../history-service-internals/#history-shards">the mechanism, in Temporal's history service</a>).</li>
-<li><strong>Timers live with the shard</strong>: each schedule's next fire time is a timer task in the shard's
-   persisted priority queue; the shard processor sleeps until the head deadline. No global scan,
-   no polling; timer capacity scales with shards
-   (<a href="../history-service-internals/#timers-at-scale">timers at scale</a>).</li>
-<li><strong>Firing is one conditional transition</strong>: append <code>TickFired(N)</code> + the action's outbox record +
-   the next timer task, all in one write conditional on the fencing token. Exactly-one-firing
-   falls out: two would-be owners race, one write commits, the other fails its condition and
-   re-reads. This is exactly why Temporal Schedules get the classic hard part "for free" — a
-   schedule lives on one shard, so
-   <a href="../multi-cluster-nexus-advanced/#schedules-and-cron">"which node fires the tick?" never arises</a>.</li>
-</ol>
-<p>On this skeleton, the cron-specific policies are small, explicit state machines:</p>
+<h3 id="v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners, Per-Shard Timer Queues<a class="headerlink" href="#v3-sharded-single-writer-owners-per-shard-timer-queues" title="Permanent link">&para;</a></h3>
+<p>This is the durable-execution shape, and it's where having internalized the
+<a href="../design-a-workflow-engine/">workflow-engine design</a> pays rent — the skeleton is identical.</p>
+<p><strong>Shard the schedules</strong>: <code>hash(schedule_id) % N</code>, each shard owned by exactly one node at a time,
+placement via a membership ring, and — the load-bearing part — <strong>correctness via fencing</strong>. The
+owner holds an epoch (a range ID), and every write for the shard is conditional on it at the
+store. A stale owner's fires fail at the database, not at a lock server. This is
+<a href="../history-service-internals/#history-shards">the same mechanism as Temporal's history shards</a>.</p>
+<p><strong>Timers live with the shard</strong>: each schedule's next fire time is a timer task in the shard's
+persisted priority queue, and the shard's processor sleeps until the head deadline. No global
+scan, no polling; timer capacity scales with shard count
+(<a href="../history-service-internals/#timers-at-scale">timers at scale</a>).</p>
+<p><strong>Firing is one conditional transition</strong>: append <code>TickFired(N)</code>, write the action's outbox
+record, and write the next timer task — all in one write, conditional on the fencing token. And
+now exactly-one-firing simply <em>falls out</em>: if two would-be owners race, one write commits and the
+other fails its condition and re-reads, discovering tick N already fired. This is exactly why
+Temporal Schedules get the classic hard part for free — a schedule lives on one shard, so
+<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">"which node fires the tick?" never arises</a>.</p>
+<p>With that skeleton in place, the cron-specific policies become small, explicit state machines
+layered on the firing transition:</p>
 <ul>
-<li><strong>Catch-up window</strong> (missed ticks): on recovery, the owner sees fire times in the past. Ticks
-  within the window (e.g. 1 hour) fire late; older ones are recorded as skipped. Which you want is
-  per-schedule semantics — "send daily report" should catch up; "poll for new files every minute"
-  should collapse to one run. Making it a per-schedule knob, not a global guess, is the point.</li>
-<li><strong>Overlap policies</strong> — what if the previous run is still going? Enumerate all six: <strong>skip</strong> the
-  new tick; <strong>buffer one</strong> (start it when the current run ends, collapsing further ticks);
-  <strong>buffer all</strong> (queue every tick); <strong>cancel-other</strong> / <strong>terminate-other</strong> (kill the old run,
-  start the new); <strong>allow parallel</strong>. Implementable only because the single writer sees both the
-  tick and the previous run's completion as serialized transitions on the same state.</li>
-<li><strong>Jitter</strong>: spread fire times within a per-schedule window to break the :00 thundering herd —
-  10K schedules at "hourly" shouldn't hit downstream as one spike. Deterministic jitter
-  (hash of schedule ID) keeps a given schedule's offset stable across owners.</li>
-<li><strong>Backfill</strong>: replay a time range as synthetic ticks through the same firing path (with an
-  explicit overlap policy, since a backfill is a deliberate herd). Reusing the tick machinery
+<li><strong>Catch-up window</strong> (missed ticks): on recovery, the owner finds fire times in the past. Ticks
+  within the window — say, an hour — fire late; older ones are recorded as skipped. Which
+  behavior you want is per-schedule semantics: "send the daily report" should catch up, while
+  "poll for new files every minute" should collapse the backlog into one run. Making this a
+  per-schedule knob rather than a global guess is the point.</li>
+<li><strong>Overlap policies</strong>: what happens when the previous run is still going? Enumerate all six —
+  skip the new tick; buffer one (run it when the current run ends, collapsing further ticks);
+  buffer all; cancel the running one; terminate the running one; allow parallel. Note <em>why</em> these
+  are implementable at all: only a single writer that sees both the tick and the previous run's
+  completion as serialized transitions on the same state can enforce any of them without races.</li>
+<li><strong>Jitter</strong>: spread each schedule's fire time within a small window to break the :00 thundering
+  herd — ten thousand "hourly" schedules shouldn't hit downstream as one spike. Make the jitter
+  deterministic (hash the schedule ID) so a schedule's offset stays stable across ownership
+  changes.</li>
+<li><strong>Backfill</strong>: replay a historical range as synthetic ticks through the <em>same</em> firing path, with
+  an explicit overlap policy, since a backfill is a deliberate herd. Reusing the tick machinery
   means backfilled runs get the same audit records as real ones.</li>
-<li><strong>Pause/resume</strong>: a bit on the schedule state checked at fire time — paused ticks are recorded
-  as skipped, not silently swallowed, so resume can decide whether they're in the catch-up window.</li>
-<li><strong>Observability</strong>: the per-schedule event log <em>is</em> the answer to "did tick N fire" — each tick
-  is an appended event with outcome (fired / skipped: overlap / skipped: paused / skipped: outside
-  catch-up) and a pointer to the run it started. Recent-runs and next-N-ticks fall out of
-  <code>Describe</code>; a search projection (eventually consistent, and say so) serves listing.</li>
+<li><strong>Pause/resume</strong>: a bit on the schedule state, checked at fire time. Paused ticks are recorded
+  as skipped, not silently swallowed — so resume can decide whether they fall in the catch-up
+  window.</li>
+<li><strong>Observability</strong>: the per-schedule event log <em>is</em> the answer to "did tick N fire?" Every due
+  tick becomes an appended event with an outcome — fired, skipped-for-overlap, skipped-paused,
+  skipped-outside-catch-up — and a pointer to the run it started. Recent runs and the next N
+  ticks fall out of <code>Describe</code>; listing is served by a search projection, which is eventually
+  consistent, and you should say so.</li>
 </ul>
 <pre><code>API gateway (stateless, routes by hash(schedule_id))
    │
@@ -362,68 +377,74 @@ Job execution layer (workers / workflow engine — owns retries, timeouts, run s
    │
 Stores: state store (conditional point writes)  |  search projection (async)
 </code></pre>
-<p>One boundary worth drawing aloud: cron owns <em>when</em> and <em>whether</em> to start a run; the execution
-layer owns <em>how the run goes</em> (retries, timeouts, heartbeats). If the interviewer lets you, make
-the action "start a workflow" and inherit all of the
-<a href="../design-a-workflow-engine/">workflow engine</a> — Temporal literally builds Schedules this way, as
+<p>One boundary worth drawing aloud: cron owns <em>when and whether</em> to start a run; the execution
+layer owns <em>how the run goes</em> — retries, timeouts, heartbeats. If the interviewer lets you, make
+the action "start a workflow" and inherit the entire
+<a href="../design-a-workflow-engine/">workflow engine</a>. Temporal literally builds Schedules this way — as
 system state on the same timer and shard machinery as workflows.</p>
 <hr />
 <h2 id="deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull<a class="headerlink" href="#deep-dive-prompts-interviewers-pull" title="Permanent link">&para;</a></h2>
 <p><strong>"Two scheduler nodes both think they own a schedule — what fires?"</strong>
-The prompt is fishing for leader-election hand-waving; don't bite. Answer: both may <em>try</em>, one
-fires. Ownership is fenced — the owner's epoch/range ID is checked by a conditional write on every
-transition, so the stale node's <code>TickFired(N)</code> append fails at the store and it re-reads (finding
-tick N already fired). The membership ring is a routing optimization; <strong>the database condition is
-the guarantee</strong> (<a href="../history-service-internals/#history-shards">same answer as history shards</a>).
-Leader election without fencing just recreates v1's lock, with more machinery.</p>
-<p><strong>"The whole cluster was down from 01:55 to 02:20. The 02:00 daily tick — what happens?"</strong>
-Nothing was lost: the tick's timer task is durable state, still due. On shard reacquisition the
-owner finds it in the past and applies the catch-up policy — inside the window, fire late and
-record the tick as fired-late; outside, record it as skipped (visible, alertable — never silently
-absent). Contrast with v1, where the tick never existed anywhere.</p>
+This prompt is fishing for leader-election hand-waving; don't bite. The answer: both may <em>try</em>,
+and exactly one fires. Ownership is fenced — every transition is a conditional write checked
+against the owner's epoch, so the stale node's <code>TickFired(N)</code> append fails at the store, it
+re-reads, and it finds tick N already fired. The membership ring is a routing optimization; <strong>the
+database condition is the guarantee</strong> — the
+<a href="../history-service-internals/#history-shards">same answer as for history shards</a>. Leader election
+without fencing just recreates v1's lock with more machinery.</p>
+<p><strong>"The whole cluster was down from 01:55 to 02:20. What happens to the 02:00 daily tick?"</strong>
+Nothing was lost, because the tick's timer task is durable state and is still due. When the shard
+is reacquired, the owner finds the fire time in the past and applies the catch-up policy: inside
+the window, the tick fires late and is recorded as fired-late; outside it, it's recorded as
+skipped — visible and alertable, never silently absent. Contrast with v1, where that tick never
+existed anywhere.</p>
 <p><strong>"A job takes 90 minutes but runs hourly."</strong>
-Overlap policy, chosen per schedule: skip (drop ticks while running — fine for idempotent syncs),
-buffer-one (run again immediately after, collapsing the backlog — "don't miss, don't pile up"),
-cancel/terminate-other (freshness beats completion — dashboards), allow-parallel (only if runs
-are independent). The senior move is asking <em>what the job means</em> before picking, and noting the
-mechanism requirement: only a single writer that serializes ticks against run-completions can
-enforce any of these without races.</p>
+That's the overlap policy, and it's chosen per schedule based on what the job <em>means</em>. Skip drops
+ticks while a run is active — right for idempotent syncs. Buffer-one runs again immediately after
+the current run finishes, collapsing the backlog — "don't miss, but don't pile up."
+Cancel-or-terminate-other is for when freshness beats completion — dashboards. Allow-parallel
+only if runs are truly independent. The senior move is asking about the job's semantics before
+choosing — and noting the mechanism requirement underneath: only a single writer that serializes
+ticks against run-completions can enforce any of these without races.</p>
 <p><strong>"Everyone schedules at :00 — 100K fires in one second."</strong>
-Two herds, two answers. Fire-side: per-schedule jitter spreads the fires; the per-shard timer
-queues already spread the <em>processing</em> across shards. Downstream-side: the fire path enqueues
-starts through the outbox, so a spike becomes queue backlog and rising start latency — later, not
-lossy — plus rate limits protecting fragile targets. Also flag backfill as a self-inflicted herd
-and rate-limit it explicitly.</p>
+There are two herds here, with two different answers. On the fire side, per-schedule jitter
+spreads the fires, and the per-shard timer queues already spread the processing across the
+cluster. On the downstream side, fires flow through the outbox as queued starts, so a spike
+becomes backlog and rising start latency — the system gets later, not lossy — with rate limits
+protecting fragile targets. And flag backfill as a <em>self-inflicted</em> herd that gets rate-limited
+explicitly.</p>
 <p><strong>"How do I know tick N fired? Prove it."</strong>
-Point at the tick log: every due tick produces exactly one event with an outcome and, if fired, a
-run ID — because the tick append, the outbox record, and the next timer are one atomic write, there
-is no state where a tick fired without a record or vice versa. Dashboards project this: last-fire
-lag per schedule (now − expected fire time) is <em>the</em> health metric; skipped-tick counts by reason
-catch policy misconfiguration.</p>
-<p><strong>"Why not just use Kubernetes CronJob / a message queue with delayed delivery?"</strong>
-K8s CronJob is fine inside one cluster but is this problem, solved with weaker knobs: missed ticks
+Point at the tick log. Every due tick produces exactly one event with an outcome and, if it
+fired, a run ID — and because the tick append, the outbox record, and the next timer are one
+atomic write, no state exists where a tick fired without a record, or a record exists without the
+fire. Dashboards are projections of this log: last-fire lag per schedule (now minus expected fire
+time) is <em>the</em> health metric, and skipped-tick counts by reason catch policy misconfiguration.</p>
+<p><strong>"Why not just use Kubernetes CronJob, or a message queue with delayed delivery?"</strong>
+Take these seriously rather than dismissing them — knowing where they run out is worth more.
+Kubernetes CronJob <em>is</em> this problem, solved inside one cluster with weaker knobs: missed ticks
 governed by <code>startingDeadlineSeconds</code> (a catch-up window), overlap by <code>concurrencyPolicy</code> (three
-of the six policies), and its controller has documented double-fire and skip edge cases — plus no
-backfill and no per-tick audit. Delayed-delivery queues give you <em>a</em> timer but not schedule state:
-recurrence, catch-up, overlap, and pause all need a stateful owner anyway. Knowing the shape of
-the off-the-shelf answers and where they run out is worth more than dismissing them.</p>
+of our six policies), documented double-fire and skip edge cases in the controller, and no
+backfill or per-tick audit. Delayed-delivery queues give you <em>a</em> timer, but not schedule state:
+recurrence, catch-up, overlap, and pause all need a stateful owner anyway — at which point you're
+building v3.</p>
 <hr />
 <h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
 <ul>
 <li>This question is the <a href="../design-a-workflow-engine/#variants">workflow-engine design</a> with the
-  state shrunk and the policies grown: same skeleton (single fenced writer, colocated timers,
-  transactional outbox), different emphasis. If you've internalized that design, lead with the
-  Key Insight — "a schedule is durable state with a timer, owned by one fenced writer" — and
-  spend the interview on the policy surface, which is where weak answers stay vague.</li>
-<li>The three questions every answer must survive: <strong>who fires</strong> (single writer + fencing, not
-  locks or leader election), <strong>what about missed ticks</strong> (durable timers + explicit catch-up
-  window, per schedule), <strong>what about overlap</strong> (named policies, serialized by the owner).</li>
-<li>Name the failure asymmetry: a late tick is an incident, a lost tick is a lie. Designs that can
-  say "skipped, and here's the record" beat designs that can only say "probably fired."</li>
-<li>Temporal fluency version: Schedules replaced legacy cron workflows precisely to make these
-  policies first-class (<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">details</a>); the
-  underlying shard/fencing/timer machinery is the
-  <a href="../history-service-internals/">history service</a> — the depth reserve for follow-ups.</li>
+  state shrunk and the policies grown: the same skeleton — single fenced writer, colocated
+  timers, transactional outbox — with a different emphasis. Lead with the key insight ("a
+  schedule is durable state with a timer, owned by one fenced writer") and spend the interview
+  time on the policy surface, which is where weak answers stay vague.</li>
+<li>Every answer must survive three questions: <strong>who fires</strong> (single writer plus fencing — not
+  locks, not leader election), <strong>what about missed ticks</strong> (durable timers plus an explicit
+  per-schedule catch-up window), and <strong>what about overlap</strong> (named policies, serialized by the
+  owner).</li>
+<li>Name the failure asymmetry: a late tick is an incident; a lost tick is a lie. A design that can
+  say "skipped, and here's the record" beats a design that can only say "probably fired."</li>
+<li>The Temporal-fluency version: Schedules replaced legacy cron workflows precisely to make these
+  policies first-class (<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">details</a>), and the
+  shard/fencing/timer machinery underneath is the
+  <a href="../history-service-internals/">history service</a> — your depth reserve for follow-ups.</li>
 </ul>
               
             </div>

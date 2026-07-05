@@ -245,39 +245,44 @@
                 <h1 id="system-design-payment-saga-orchestrator">System Design: Payment Saga Orchestrator<a class="headerlink" href="#system-design-payment-saga-orchestrator" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
 <p>"Design a payment saga orchestrator" is the money-flavored skin on the
-<a href="../design-a-workflow-engine/#variants">workflow engine question</a>: a service that drives a
-multi-step payment — hold funds, capture, credit the ledger, notify — across services that can
-each fail independently, with no distributed transaction to hide behind. The interviewer is
-testing whether you can name what replaces the transaction: the <strong>saga pattern</strong>, compensation,
-idempotency on every money movement, and an audit trail. This article covers the saga design
-itself, the deep-dive prompts, and where the workflow-engine machinery slots in underneath.</p>
+<a href="../design-a-workflow-engine/">workflow-engine question</a>: a service that drives a multi-step
+payment — hold funds, capture, credit the ledger, notify — across services that each fail
+independently, with no distributed transaction available to hide behind. What the interviewer is
+really testing is whether you can name what <em>replaces</em> the transaction: the saga pattern,
+compensation, idempotency on every money movement, and an audit trail. This article covers the
+saga design itself, the deep-dive prompts, and where the workflow-engine machinery slots in
+underneath.</p>
 <h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
-<p>A saga replaces atomicity with <strong>compensation</strong>: each step has an undo (refund, release hold),
-and the orchestrator guarantees that either all steps complete or all completed steps are
-compensated. But compensation only makes the sequence <em>recoverable</em> — it doesn't make individual
-steps safe to retry. That takes <strong>idempotency keys on every money movement</strong>, and "exactly-once"
-ledger semantics built by deduplicating <strong>at the ledger</strong>, not by hoping the caller never
-retries. Saga = compensation for the sequence + idempotency for each step + an event log so you
-can prove what happened.</p>
+<p>A saga replaces atomicity with <strong>compensation</strong>. Each forward step has an undo — release the
+hold, refund the capture — and the orchestrator guarantees that either every step completes or
+every completed step is compensated. That's the sequence-level story.</p>
+<p>But notice what compensation does <em>not</em> give you: it makes the sequence recoverable, not the
+individual steps safe. A step that gets retried can still execute its side effect twice — and
+"charged twice, then compensated once" is not a comfort to anyone. Making each step safe under
+retry takes <strong>idempotency keys on every money movement</strong>, with "exactly-once" ledger semantics
+built by deduplicating <strong>at the ledger</strong> — not by hoping the caller never retries. The complete
+formula: compensation for the sequence, idempotency for each step, and an event log so you can
+prove what happened.</p>
 <hr />
 <h2 id="requirements-and-api-sketch">Requirements and API Sketch<a class="headerlink" href="#requirements-and-api-sketch" title="Permanent link">&para;</a></h2>
-<p><strong>Functional:</strong></p>
+<p>Functional:</p>
 <ul>
-<li>Execute a payment as an ordered sequence of steps: <code>AuthorizeCard → HoldFunds → Capture →
-  CreditLedger → Notify</code>, each calling a separate service (PSP, internal ledger, email).</li>
-<li>On failure past the point of no return for earlier steps, run compensations in reverse order
-  (release hold, refund capture).</li>
-<li>Query payment state at any time; expose stuck payments for human review.</li>
-<li>Payments may take days (3-D Secure challenges, bank transfers, manual fraud review).</li>
+<li>Execute a payment as an ordered sequence of steps — <code>AuthorizeCard → HoldFunds → Capture →
+  CreditLedger → Notify</code> — each calling a separate service (the payment service provider, the
+  internal ledger, email).</li>
+<li>On a failure after earlier steps have taken effect, run their compensations in reverse order:
+  release the hold, refund the capture.</li>
+<li>Query a payment's state at any time; surface stuck payments for human review.</li>
+<li>Payments may take days — 3-D Secure challenges, bank transfers, manual fraud review.</li>
 </ul>
-<p><strong>Non-functional:</strong></p>
+<p>Non-functional:</p>
 <ul>
-<li><strong>No money lost or duplicated</strong> under any single-component crash — the headline requirement,
-  stronger than the generic engine's "no workflow lost."</li>
-<li>Every state change must be auditable: who moved what money, when, why, and what the response
-  was — regulators and disputes both demand it.</li>
-<li>Scale: modest by engine standards (~100K payments/day is a big shop); correctness dominates
-  throughput. Say so — it licenses simple, serialized designs.</li>
+<li>The headline, stronger than the generic engine's "no workflow lost": <strong>no money lost or
+  duplicated under any single-component crash.</strong></li>
+<li>Every state change auditable — who moved what money, when, why, and what the counterparty
+  responded. Regulators demand it, and so does every dispute.</li>
+<li>Scale is modest by engine standards — 100K payments a day is a big shop. Correctness dominates
+  throughput, and saying so out loud licenses simple, serialized designs.</li>
 </ul>
 <pre><code>StartPayment(payment_id, amount, instrument) -&gt; handle    Signal(payment_id, &quot;3ds_completed&quot;, ...)
 GetPayment(payment_id) -&gt; status/steps/audit              ListStuck(older_than) -&gt; for ops review
@@ -285,23 +290,23 @@ GetPayment(payment_id) -&gt; status/steps/audit              ListStuck(older_tha
 <hr />
 <h2 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h2>
 <h3 id="orchestration-vs-choreography">Orchestration vs. Choreography<a class="headerlink" href="#orchestration-vs-choreography" title="Permanent link">&para;</a></h3>
-<p>Two ways to run a saga:</p>
-<ul>
-<li><strong>Choreography</strong>: no coordinator; each service reacts to the previous service's event
-  ("FundsHeld" ⇒ capture service acts). Cheap to start, but the saga's logic is smeared across
-  every participant: nobody owns the state machine, failure paths multiply combinatorially, and
-  answering "where is payment X and why?" means joining logs across services.</li>
-<li><strong>Orchestration</strong>: one component owns the payment's state machine and <em>tells</em> each service
-  what to do, recording every command and response.</li>
-</ul>
-<p><strong>Orchestration wins for money</strong>, and you should say why, not just that: money demands a single
-authoritative answer to "what state is this payment in," a single place to encode compensation
-ordering, and a single audit trail. Choreography trades those away for looser coupling — a good
-trade for notification fan-out, a bad one for funds.</p>
+<p>There are two ways to run a saga, and the choice is the first thing to get on the table.</p>
+<p><strong>Choreography</strong> has no coordinator: each service reacts to the previous service's events — the
+capture service sees "FundsHeld" and acts. It's cheap to start and loosely coupled, but the
+saga's logic ends up smeared across every participant. Nobody owns the state machine; failure
+paths multiply combinatorially as services are added; and answering "where is payment X, and
+why?" means joining logs across half the company.</p>
+<p><strong>Orchestration</strong> puts one component in charge of the payment's state machine: it <em>tells</em> each
+service what to do and records every command and response.</p>
+<p>For money, orchestration wins — and the interview point is saying <em>why</em>, not just picking it.
+Money demands a single authoritative answer to "what state is this payment in?", a single place
+where compensation ordering is encoded, and a single audit trail. Choreography trades all three
+away for looser coupling — a fine trade for notification fan-out, a bad one for funds.</p>
 <h3 id="the-saga-as-a-workflow">The Saga as a Workflow<a class="headerlink" href="#the-saga-as-a-workflow" title="Permanent link">&para;</a></h3>
-<p>The orchestrator is exactly the <a href="../design-a-workflow-engine/">durable workflow engine</a>: the saga
-is a workflow, each money movement is an activity (at-least-once, retried, timed out), and
-compensation is a <code>try/catch</code> in workflow code that runs compensating activities:</p>
+<p>The orchestrator doesn't need to be designed from scratch — it is exactly the
+<a href="../design-a-workflow-engine/">durable workflow engine</a>. The saga is a workflow; each money
+movement is an activity (at-least-once, retried, timed out); and compensation is nothing more
+exotic than a try/catch in workflow code that runs compensating activities:</p>
 <pre><code>try:
     AuthorizeCard(...)
     hold = HoldFunds(...);        compensations.push(ReleaseHold(hold))
@@ -310,48 +315,51 @@ compensation is a <code>try/catch</code> in workflow code that runs compensating
 except StepFailed:
     for c in reversed(compensations): run_with_retries(c)   # compensations can ALSO fail
 </code></pre>
-<p>Two caveats that separate senior answers:</p>
-<ol>
-<li><strong>Compensations can also fail.</strong> <code>Refund</code> calls the same flaky PSP that <code>Capture</code> did. So
-   compensations get the same treatment as forward steps — retries, idempotency keys, timeouts —
-   and a compensation that exhausts retries escalates to human review; it does not silently drop.</li>
-<li><strong>Not everything is compensatable.</strong> A completed payout to an external bank account can't be
-   clawed back by an API call. Order steps so the hardest-to-undo step (the "pivot") comes last,
-   after everything that might force a rollback.</li>
-</ol>
+<p>Two caveats separate senior answers from junior ones here.</p>
+<p>First, <strong>compensations can also fail</strong> — <code>Refund</code> calls the same flaky payment provider that
+<code>Capture</code> did. So compensations get the full treatment forward steps get: retries, idempotency
+keys, timeouts. And a compensation that exhausts its retries escalates to human review; it never
+silently drops.</p>
+<p>Second, <strong>not everything is compensatable.</strong> A completed payout to an external bank account
+cannot be clawed back by an API call. The design consequence: order the steps so the
+hardest-to-undo step — the "pivot" — comes last, after everything that might still force a
+rollback has already succeeded.</p>
 <h3 id="idempotency-on-every-money-movement">Idempotency on Every Money Movement<a class="headerlink" href="#idempotency-on-every-money-movement" title="Permanent link">&para;</a></h3>
-<p>Every activity that moves money carries an <strong>idempotency key derived from workflow ID + step</strong>
-(e.g. <code>pay-42:capture:1</code>), propagated to the PSP and to the internal ledger. The key is stable
-across retries because it's derived from durable workflow identity, not generated per attempt —
-generate-per-attempt is the classic bug, and interviewers probe for it.</p>
-<p><strong>Exactly-once ledger semantics are built on at-least-once activity execution</strong>: the workflow
-engine will run <code>CreditLedger</code> at least once; the ledger makes duplicates harmless by recording
-the idempotency key with the entry (unique constraint) and returning the original result on
-replay. Dedup lives <strong>at the ledger, not as hope at the caller</strong> — the receiver is the only
-party that can atomically check-and-write. This is the
+<p>Every activity that moves money carries an idempotency key <strong>derived from the workflow's durable
+identity</strong> — workflow ID plus step, something like <code>pay-42:capture:1</code> — and that key is
+propagated to the payment provider and to the internal ledger. Because the key derives from
+durable identity, it is stable across retry attempts. The classic bug — the one interviewers
+probe for — is generating the key <em>per attempt</em>, which makes every retry look like a fresh
+operation and silently defeats the dedup.</p>
+<p>Here's how "exactly-once" ledger semantics are really built, stated as a chain: the engine
+guarantees <code>CreditLedger</code> runs <em>at least</em> once; the ledger records the idempotency key alongside
+the entry, under a unique constraint; a duplicate execution hits the constraint and returns the
+original result instead of writing a second entry. The dedup lives <strong>at the ledger</strong> because the
+receiver is the only party that can atomically check-and-write — dedup at the caller is hope, not
+a mechanism. This is the
 <a href="../distributed-systems-foundations/#idempotency-and-dedup">effectively-once recipe</a> applied to
 money.</p>
 <h3 id="event-history-as-the-audit-trail">Event History as the Audit Trail<a class="headerlink" href="#event-history-as-the-audit-trail" title="Permanent link">&para;</a></h3>
-<p>The engine's per-workflow event log — every command issued, every PSP response, every retry,
-every compensation — <em>is</em> the audit trail regulators actually want. You don't build a separate
-audit system; you expose the history you already persist for replay. Disputes ("we never
-captured twice — here's the capture command, its idempotency key, and the PSP's dedup response")
-and compliance reviews read the same log.</p>
+<p>A pleasant surprise falls out of building on a workflow engine: the per-workflow event log —
+every command issued, every provider response, every retry, every compensation — <em>is</em> the audit
+trail regulators want. You don't build a separate audit system; you expose the history you
+already persist for replay. When a dispute arrives ("you captured twice"), the answer is the
+capture command, its idempotency key, and the provider's dedup response, read straight from the
+log.</p>
 <h3 id="stuck-states-timeouts-and-human-review">Stuck States: Timeouts and Human Review<a class="headerlink" href="#stuck-states-timeouts-and-human-review" title="Permanent link">&para;</a></h3>
-<p>Money gets stuck in limbo: funds held, capture failing, refund also failing. The design must
-name the escape hatch:</p>
-<ul>
-<li>Every step has a <strong>timeout budget</strong>; exhausting retries within it doesn't loop forever — it
-  transitions the payment to <code>NEEDS_REVIEW</code> and pages/queues for a human.</li>
-<li>Human resolution is a <strong>signal</strong> back into the workflow ("PSP confirms capture went through" /
-  "cancel and release"), so the resolution is itself recorded in the history.</li>
-</ul>
+<p>Money gets stuck in limbo: funds held, capture failing, refund also failing. A credible design
+names its escape hatch. Every step has a timeout budget, and exhausting retries within it doesn't
+loop forever — it transitions the payment to a <code>NEEDS_REVIEW</code> state and pages a human. The
+human's resolution — "the provider confirms the capture actually went through," or "cancel and
+release" — re-enters the workflow as a <strong>signal</strong>, which means the resolution itself lands in the
+history. Even manual intervention is audited.</p>
 <h3 id="reconciliation-as-a-backstop">Reconciliation as a Backstop<a class="headerlink" href="#reconciliation-as-a-backstop" title="Permanent link">&para;</a></h3>
-<p>A periodic job compares the ledger against PSP settlement reports and flags discrepancies.
-State this — and state its role: <strong>reconciliation is a backstop, not the mechanism</strong>. If your
-correctness story is "reconciliation will catch it," you've designed a system that loses money
-for a day and then notices. Idempotency + the saga's state machine are the mechanism;
-reconciliation catches the residue (PSP bugs, out-of-band operations, cosmic rays).</p>
+<p>Finally, a periodic job compares the ledger against the provider's settlement reports and flags
+discrepancies. Include it — but frame its role precisely: <strong>reconciliation is a backstop, not the
+mechanism.</strong> If your correctness story is "reconciliation will catch it," you have designed a
+system that loses money for a day and then notices. Idempotency and the saga's state machine are
+the mechanism; reconciliation catches the residue — provider bugs, out-of-band operations, cosmic
+rays.</p>
 <h3 id="happy-path-and-compensation-path">Happy Path and Compensation Path<a class="headerlink" href="#happy-path-and-compensation-path" title="Permanent link">&para;</a></h3>
 <pre><code>Happy:        Orchestrator          PSP              Ledger
               Authorize(key a1) ──▶ ok
@@ -368,39 +376,42 @@ Compensation: Capture(key c1)   ──▶ ✗ hard decline (after retries)
 <hr />
 <h2 id="deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull<a class="headerlink" href="#deep-dive-prompts-interviewers-pull" title="Permanent link">&para;</a></h2>
 <p><strong>"Capture succeeded but the response timed out — the retry would double-charge."</strong>
-The defining question. The activity retries with the <em>same</em> idempotency key (<code>pay-42:capture:1</code>);
-the PSP recognizes the key and returns the original result — <strong>the retry becomes a read</strong>, not a
-second charge. Follow-ups to expect and pre-empt: the <strong>PSP's dedup window</strong> (many PSPs only
-remember keys for 24h–30 days — a retry after the window is a fresh charge, so cap retry
-horizons below the window or verify-before-retry) and <strong>key scoping</strong> (the key must be unique
-per logical operation, not per payment — capture and refund need different keys, and a re-tried
-saga step must reuse, not regenerate).</p>
-<p><strong>"Why not a distributed transaction across PSP and ledger?"</strong>
-You can't — the PSP is a third party that offers an API, not a 2PC participant. Even internally,
-2PC couples availability (a stuck coordinator blocks everyone) and doesn't cover the external
-call anyway. The saga is what's left: sequence + compensation + idempotency.</p>
+This is the defining question of the interview. The retry goes out with the <em>same</em> idempotency
+key — <code>pay-42:capture:1</code> — and the provider recognizes it and returns the original result. <strong>The
+retry becomes a read</strong>, not a second charge. Then pre-empt the follow-ups: providers only
+remember keys for a finite <strong>dedup window</strong> (commonly 24 hours to 30 days), so a retry after the
+window would be a fresh charge — cap retry horizons below the window, or verify-before-retry
+beyond it. And keys must be <strong>scoped per logical operation</strong>, not per payment: capture and refund
+need different keys, and a retried step must <em>reuse</em> its key, never regenerate it.</p>
+<p><strong>"Why not a distributed transaction across the provider and the ledger?"</strong>
+Because you can't have one: the provider is a third party offering an API, not a two-phase-commit
+participant. And even internally, 2PC couples availability — a stuck coordinator blocks
+everyone — and still wouldn't cover the external call. The saga is what remains once 2PC is off
+the table: sequence, compensation, idempotency.</p>
 <p><strong>"What if the compensation fails permanently?"</strong>
-Retries with backoff, then <code>NEEDS_REVIEW</code> with funds-in-limbo alerting. The workflow stays open
-(durable timers make "wait for human" free), the history shows exactly what was attempted, and
-the human's decision re-enters as a signal. Never auto-abandon with funds held.</p>
+Retries with backoff, then <code>NEEDS_REVIEW</code> with funds-in-limbo alerting. The workflow stays open —
+durable timers make "wait for a human" free — the history shows exactly what was attempted, and
+the human's decision re-enters as a signal. The rule: never auto-abandon with funds held.</p>
 <p><strong>"How do you prove to an auditor that no double-credit happened?"</strong>
-Two artifacts: the ledger's unique constraint on idempotency keys (structural impossibility of
-duplicate entries per key) and the workflow event history showing every credit command and its
-outcome. Plus reconciliation reports as independent confirmation.</p>
+Two artifacts, one structural and one historical. Structural: the ledger's unique constraint on
+idempotency keys makes a duplicate entry per key <em>impossible</em>, not merely unlikely. Historical:
+the workflow event history shows every credit command and its outcome. Reconciliation reports add
+independent confirmation on top.</p>
 <p><strong>"One customer fires 500 payments at once — hot workflow?"</strong>
-No — each payment is its own workflow; per-<em>payment</em> serialization is what you want (a payment's
-steps must be ordered), and payments parallelize across shards for free. Contrast with the
-engine question's hot-workflow prompt: here the entity split is natural.</p>
+No — and the reason is instructive. Each payment is its own workflow, so per-<em>payment</em>
+serialization is exactly what you want (a payment's steps must be ordered), while the 500
+payments parallelize across shards for free. Contrast with the engine question's hot-workflow
+prompt: there the entity had to be split; here the entity split is natural to the domain.</p>
 <h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
-<p>Lead with orchestration-over-choreography and <em>why money forces it</em> (single owner of state,
-compensation ordering, audit). Build the orchestrator as a durable workflow — don't redesign the
-engine; reference it (<a href="../design-a-workflow-engine/">the design</a>) and spend your time on the
-money-specific layers: idempotency keys derived from workflow ID + step, dedup at the ledger,
-compensations-as-fallible-activities, and the <code>NEEDS_REVIEW</code> escape hatch. The double-charge
-timeout question is near-guaranteed — answer it with "the retry becomes a read" and volunteer
-the dedup-window caveat before they ask. Close with reconciliation, framed correctly: backstop,
-not mechanism. The <a href="../distributed-systems-foundations/">foundations vocabulary</a> (at-least-once,
-effectively-once, dedup at the receiver) carries the cross-questioning.</p>
+<p>Lead with orchestration over choreography and <em>why money forces it</em> — single owner of state,
+compensation ordering, one audit trail. Don't redesign the engine; reference
+<a href="../design-a-workflow-engine/">the design</a> and spend your time on the money-specific layers:
+idempotency keys derived from workflow identity, dedup at the ledger, compensations as fallible
+activities, and the <code>NEEDS_REVIEW</code> escape hatch. The double-charge timeout question is
+near-guaranteed — answer with "the retry becomes a read" and volunteer the dedup-window caveat
+before it's asked. Close with reconciliation, framed correctly: backstop, not mechanism. The
+<a href="../distributed-systems-foundations/">foundations vocabulary</a> — at-least-once, effectively-once,
+dedup at the receiver — carries the cross-questioning.</p>
               
             </div>
           </div><footer>

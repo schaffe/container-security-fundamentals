@@ -232,143 +232,132 @@
               
                 <h1 id="multi-cluster-nexus-and-advanced-platform-features">Multi-Cluster, Nexus, and Advanced Platform Features<a class="headerlink" href="#multi-cluster-nexus-and-advanced-platform-features" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>Namespaces, cross-cluster replication, Nexus, and schedules are how Temporal grows from "a
-cluster" into "a platform" — multi-tenancy, disaster recovery, cross-team service boundaries, and
-distributed cron. These are prime senior-level design-discussion material: each is a general
-distributed-systems problem (tenancy isolation, async replication and conflict resolution, RPC
-across trust boundaries, reliable scheduling) with a concrete, inspectable solution.</p>
+<p>Everything so far describes a single Temporal cluster serving a single team. This article covers
+the features that turn "a cluster" into "a platform": namespaces for multi-tenancy, cross-cluster
+replication for disaster recovery, Nexus for cross-team service boundaries, and Schedules for
+distributed cron. Each one is prime senior-interview material for the same reason — behind each
+feature sits a general distributed-systems problem (tenant isolation, async replication with
+conflict resolution, RPC across trust boundaries, reliable scheduling), and Temporal's solution is
+concrete enough to inspect and argue about.</p>
 <hr />
 <h2 id="namespaces-and-multi-tenancy">Namespaces and Multi-Tenancy<a class="headerlink" href="#namespaces-and-multi-tenancy" title="Permanent link">&para;</a></h2>
-<p>A <strong>namespace</strong> is the isolation unit within a cluster:</p>
-<ul>
-<li><strong>Scoping</strong> — workflow IDs are unique per namespace; task queues, search attributes, and
-  retention policies are namespace-scoped. Teams or applications get their own namespace and
-  cannot name-collide or read each other's executions.</li>
-<li><strong>Blast-radius control</strong> — per-namespace rate limits (actions/sec at the frontend) stop one
-  tenant's runaway workflow from starving others; per-namespace config covers retention (how long
-  closed-workflow histories are kept), archival, and custom search attributes.</li>
-<li><strong>Not a security boundary by itself</strong> in self-hosted OSS — authorization is pluggable
-  (claims-mapper interface); actual tenant isolation requires wiring authn/authz. Temporal Cloud
-  hardens this and adds <strong>cell-based architecture</strong>: namespaces are placed into isolated cells
-  (independent failure domains of the whole stack), so a bad deploy or overload in one cell can't
-  take down every customer — the same cell pattern used by AWS and Slack, worth citing in
-  reliability design rounds.</li>
-</ul>
+<p>A <strong>namespace</strong> is the unit of isolation within a cluster. Workflow IDs are unique per namespace;
+task queues, custom search attributes, and retention policies are all namespace-scoped. In
+practice, each team or application gets its own namespace, which means teams cannot collide on
+names and cannot read each other's executions.</p>
+<p>Namespaces are also the unit of <strong>blast-radius control</strong>. The frontend enforces per-namespace rate
+limits (actions per second), so one tenant's runaway workflow — a signal loop, a retry storm —
+degrades that tenant rather than starving everyone. Retention (how long closed-workflow histories
+are kept), archival, and search attributes are likewise configured per namespace.</p>
+<p>One honest caveat for self-hosted deployments: a namespace is a <em>scoping</em> boundary, not by itself
+a <em>security</em> boundary. Authorization in the open-source server is pluggable (a claims-mapper
+interface), and real tenant isolation requires actually wiring up authentication and
+authorization. Temporal Cloud hardens this and adds a further layer worth knowing: <strong>cell-based
+architecture</strong>. Namespaces are placed into cells — independent, full-stack failure domains — so a
+bad deploy or an overload in one cell cannot take down every customer. This is the same cell
+pattern AWS and Slack use, and citing it by name plays well in reliability-focused design rounds:
+namespaces for scoping, rate limits for blast radius, cells for failure domains — three layers of
+isolation, each catching what the previous one can't.</p>
 <hr />
 <h2 id="multi-cluster-replication-xdc">Multi-Cluster Replication (XDC)<a class="headerlink" href="#multi-cluster-replication-xdc" title="Permanent link">&para;</a></h2>
-<p>Temporal's disaster-recovery story: a namespace can be <strong>global</strong>, existing on multiple clusters
-with one <strong>active</strong> cluster taking writes and others as <strong>standby</strong>, receiving asynchronous
-replication.</p>
-<p>Mechanism:</p>
-<ul>
-<li>History transitions emit <strong>replication tasks</strong> through the same
-  <a href="../history-service-internals/#internal-task-queues-and-the-transactional-outbox">transactional outbox</a>
-  as everything else; standby clusters pull event batches and apply them to their copy of each
-  workflow's history.</li>
-<li>Replication is <strong>async</strong> — the active cluster never waits on a remote region to commit. This
-  keeps local latency flat but means <strong>failover can lose the tail</strong> (RPO &gt; 0): events committed in
-  the active region but not yet replicated.</li>
-<li><strong>Failover</strong> flips the active designation; workers connected to the new active cluster resume
-  workflows from replicated state. Failover is per-namespace, so it can be rehearsed and rolled
-  out incrementally.</li>
-</ul>
+<p>Temporal's disaster-recovery story starts with making a namespace <strong>global</strong>: it exists on
+multiple clusters, one of which is <strong>active</strong> and takes all writes, while the others are
+<strong>standby</strong>, receiving the active cluster's history asynchronously.</p>
+<p>The mechanism reuses machinery you've already seen. Every state transition on the active cluster
+emits <strong>replication tasks</strong> through the same
+<a href="../history-service-internals/#internal-task-queues-and-the-transactional-outbox">transactional outbox</a>
+that drives everything else; standby clusters pull batches of history events and apply them to
+their own copies of each workflow.</p>
+<p>The crucial word is <em>asynchronously</em>. The active cluster never waits for a remote region before
+committing — which keeps local latency flat, but means a failover can lose the tail: events that
+committed in the active region and hadn't yet replicated are gone from the standby's view. In DR
+terms, the recovery point objective (RPO) is greater than zero, and saying so out loud, as a
+consequence of a latency choice rather than a flaw, is the senior framing.</p>
+<p><strong>Failover</strong> itself is a designation flip: the standby becomes active, and workers connected to it
+resume workflows from whatever state replicated. Failover is per-namespace, which means it can be
+rehearsed on low-stakes namespaces and rolled out incrementally during a real incident.</p>
 <h3 id="conflict-resolution">Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permanent link">&para;</a></h3>
-<p>The interesting case: a <strong>split-brain failover</strong> — the old active kept taking writes (partition,
-not death) while the new active also progressed the same workflow. Now one workflow has two
-divergent history tails. Temporal's model:</p>
-<ul>
-<li>Histories can <strong>branch</strong>: each cluster's events carry a failover <strong>version</strong> (from a
-  cluster-versioning scheme that makes versions globally ordered and attributable); <strong>version
-  histories</strong> in mutable state track which branch is current.</li>
-<li>On reconnection, the branch with the higher version wins; the losing branch's divergent tail is
-  abandoned. A workflow on the losing branch is reset to the fork point and re-executes from
-  there — with the crucial caveat that <strong>activities on the lost tail may have already run</strong>:
-  at-least-once strikes again, and idempotent activities are what make failover safe, not just
-  retries.</li>
-</ul>
-<p>The senior framing: async replication trades RPO for latency; conflict resolution turns
-"impossible to prevent divergence" into "deterministic, attributable convergence"; and the
-application-level contract (idempotency) is part of the DR design, not an afterthought.</p>
+<p>Now the genuinely interesting case. Suppose the "failed" cluster wasn't dead — just partitioned —
+and kept taking writes while the new active cluster also made progress on the same workflow. There
+are now two divergent versions of one workflow's history. What happens when the partition heals?</p>
+<p>Temporal's model allows histories to <strong>branch</strong>. Every event carries a failover <strong>version</strong> from a
+cluster-versioning scheme that makes versions globally ordered and attributable to a cluster, and
+each workflow's mutable state tracks its <strong>version histories</strong> — which branch is current. On
+reconnection, the branch with the higher version wins deterministically. The losing branch's
+divergent tail is abandoned, and a workflow that had progressed down that tail is reset to the
+fork point to re-execute from there.</p>
+<p>But note the sting in that last clause: <strong>activities on the abandoned tail may have already run</strong>.
+Their side effects escaped into the world before the branch lost. At-least-once strikes again —
+and this is why idempotent activities are part of the <em>disaster-recovery design</em>, not just a
+retry nicety. The full senior narrative chains together: async replication trades RPO for latency;
+divergence under split-brain is impossible to prevent, so conflict resolution makes convergence
+deterministic and attributable instead; and idempotency is the application-level contract that
+makes the whole arrangement safe.</p>
 <hr />
 <h2 id="nexus">Nexus<a class="headerlink" href="#nexus" title="Permanent link">&para;</a></h2>
-<p>Nexus (GA 2025, always-enabled since) is Temporal's answer to "how do two teams' workflows call
-each other without sharing a namespace?" — <strong>durable RPC across namespace and cluster
-boundaries</strong>.</p>
-<ul>
-<li>A team exposes a <strong>Nexus endpoint</strong> — a named service contract (operations with typed
-  input/output) backed by handlers in their namespace, typically implemented by workflows or
-  activities. Endpoints are registered in a cluster-level registry and routed via tokens.</li>
-<li>A caller workflow invokes a Nexus <strong>operation</strong> like an activity — but the call crosses into the
-  callee's namespace with its own access control, worker fleet, and deployment cadence.</li>
-<li>Operations can be <strong>synchronous</strong> (quick handler) or <strong>asynchronous</strong> (starts a workflow, calls
-  back on completion) — the caller's code looks the same; the machinery handles the callback,
-  retries, and failure propagation with durable-execution semantics on both sides.</li>
-</ul>
-<p>Versus the older alternatives:</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Child workflow</th>
-<th>Signal to foreign workflow</th>
-<th>Nexus</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Crosses namespaces</td>
-<td>No (same namespace)</td>
-<td>Awkwardly</td>
-<td>Yes, by design</td>
-</tr>
-<tr>
-<td>Contract</td>
-<td>Callee's workflow signature (implementation leaks)</td>
-<td>None (stringly-typed)</td>
-<td>Explicit operation contract</td>
-</tr>
-<tr>
-<td>Team autonomy</td>
-<td>Coupled deploys/registries</td>
-<td>Coupled IDs</td>
-<td>Independent — like a service API</td>
-</tr>
-</tbody>
-</table>
-<p>The design-round framing: Nexus is a <strong>service mesh boundary for durable execution</strong> — it does for
-workflows what gRPC + API contracts did for microservices, replacing "everyone shares one giant
-namespace" with owned, versioned interfaces.</p>
+<p>As Temporal adoption grows inside a company, a new problem appears: team A's workflow needs to
+invoke team B's workflow, but the teams share neither a namespace nor, possibly, a cluster.
+Reaching directly into another team's namespace — signaling their workflows by ID, starting their
+workflow types — couples the teams at the implementation level, exactly the way calling another
+service's database would.</p>
+<p><strong>Nexus</strong> (generally available since 2025, and always enabled on current versions) is the answer:
+<strong>durable RPC across namespace and cluster boundaries, with explicit contracts.</strong></p>
+<p>The shape is service-oriented. A team exposes a <strong>Nexus endpoint</strong> — a named contract of
+operations with typed inputs and outputs — backed by handlers in their own namespace, typically
+implemented as workflows or activities. Endpoints live in a cluster-level registry. A caller
+invokes a Nexus <strong>operation</strong> from workflow code much as it would an activity, but the call
+crosses into the callee's namespace, with the callee's own access control, worker fleet, and
+deployment cadence on the other side.</p>
+<p>Operations come in two flavors that look identical to the caller: <strong>synchronous</strong> (the handler
+answers quickly) and <strong>asynchronous</strong> (the handler starts a workflow and the machinery delivers a
+callback when it completes) — with retries and failure propagation handled durably on both sides.</p>
+<p>Why not the older alternatives? A <strong>child workflow</strong> doesn't cross namespaces at all, and it
+couples the caller to the callee's workflow signature — an implementation detail. <strong>Signaling a
+foreign workflow</strong> crosses namespaces awkwardly and offers no contract whatsoever, just
+stringly-typed payloads aimed at an ID you have to know. Nexus gives the thing microservices
+learned to demand long ago: an owned, versioned interface. The framing for a design round:
+<em>Nexus is to workflows what gRPC plus API contracts were to microservices</em> — it replaces "everyone
+shares one giant namespace" with service boundaries.</p>
 <hr />
 <h2 id="schedules-and-cron">Schedules and Cron<a class="headerlink" href="#schedules-and-cron" title="Permanent link">&para;</a></h2>
-<p>Schedules (the replacement for legacy cron workflows) are Temporal's distributed-cron primitive:
-"run workflow W every interval / calendar spec."</p>
+<p>Schedules are Temporal's distributed-cron primitive — "run workflow W every five minutes / at
+02:00 daily" — and the replacement for the older, weaker cron-workflow feature.</p>
+<p>Under the hood there is pleasingly little new machinery: a schedule is durable system state driven
+by the same timer and shard infrastructure as everything else. When the timer fires, the schedule
+starts a workflow execution and records the outcome. There is no separate scheduler service to
+keep alive, and — because a schedule lives on exactly one shard with one fenced writer — the
+classic hard question of distributed cron, "which node fires the tick?", simply never arises.</p>
+<p>Where Schedules earn their keep is the policy surface, which has explicit answers exactly where
+naive cron goes vague:</p>
 <ul>
-<li>Implemented as system state driven by the same timer machinery as everything else — a schedule
-  is durable state that fires, starts a workflow execution, and records the result; no separate
-  scheduler service to keep alive.</li>
-<li><strong>Overlap policies</strong> answer the question naive cron ignores — what if the previous run is still
-  going? Skip, buffer one, buffer all, cancel-other, terminate-other, or allow parallel.</li>
-<li><strong>Catch-up/backfill</strong> — if the cluster was down over a fire time, catch-up windows control
-  whether missed runs execute late or are skipped; explicit backfill replays a time range.</li>
-<li>Pause/resume, jitter, and "run now" round out the operational surface.</li>
+<li><strong>Overlap policies</strong> answer "what if the previous run is still going when the next tick is
+  due?" — a question plain cron ignores entirely. The options: skip the new tick, buffer one,
+  buffer all, cancel the running one, terminate the running one, or allow them in parallel.</li>
+<li><strong>Catch-up windows and backfill</strong> answer "what about ticks that were due while the cluster was
+  down?" A catch-up window controls whether missed ticks fire late or are skipped; explicit
+  backfill replays a historical time range on demand.</li>
+<li>Pause/resume, per-schedule jitter (to break thundering herds at the top of the hour), and an
+  immediate "run now" round out the operational surface.</li>
 </ul>
-<p>Contrast with the interview classic "design distributed cron" (see the
-<a href="../design-a-workflow-engine/#variants">workflow-engine design article</a>): most hand-rolled designs
-struggle exactly where schedules have explicit answers — missed ticks, overlapping runs, and
-exactly-one-firing across a fleet. Temporal gets the last one free from the single-writer shard
-model: a schedule lives on one shard, so "which node fires the tick?" never arises.</p>
+<p>If you're handed the interview classic "design distributed cron," this feature is the reference
+implementation — the <a href="../design-distributed-cron/">dedicated design article</a> builds it from
+scratch, and most hand-rolled designs struggle precisely where Schedules have explicit knobs:
+missed ticks, overlapping runs, and exactly-one-firing across a fleet.</p>
 <hr />
 <h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Multi-tenancy</strong>: namespaces for scoping + rate limits for blast radius + cells for failure
-  domains — a three-layer isolation answer that generalizes to any platform design question.</li>
-<li><strong>XDC is a full DR case study</strong>: async replication → nonzero RPO → branching histories →
-  version-based conflict resolution → idempotency as the app-level contract. Walking that chain
-  end-to-end is a standout answer to "how would you make this multi-region?"</li>
-<li><strong>Nexus</strong>: know it as "durable RPC with contracts across namespaces" and when to prefer it over
-  child workflows (team/trust boundaries) — it's new enough that knowing it signals currency.</li>
+<li><strong>Multi-tenancy</strong> has a clean three-layer answer: namespaces for scoping, per-namespace rate
+  limits for blast radius, cells for failure domains. The structure generalizes to any
+  platform-design question.</li>
+<li><strong>XDC is a complete DR case study</strong> you can narrate end to end: async replication → nonzero
+  RPO → branching histories under split-brain → version-based conflict resolution → idempotency
+  as the application-level contract. Walking that chain is a standout answer to "how would you
+  make this multi-region?"</li>
+<li><strong>Nexus</strong> in one line: durable RPC with contracts across namespaces. Know when to prefer it
+  over child workflows — team and trust boundaries — and note it's new enough that knowing it at
+  all signals currency.</li>
 <li><strong>Schedules</strong>: overlap policies and catch-up windows are the two follow-ups interviewers use to
-  separate people who've run cron in production from people who haven't.</li>
+  separate people who have run cron in production from people who haven't.</li>
 </ul>
               
             </div>

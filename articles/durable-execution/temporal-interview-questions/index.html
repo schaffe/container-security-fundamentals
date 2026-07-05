@@ -198,7 +198,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency">An activity may execute multiple times — retries, worker crashes. How do you guarantee idempotency?</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for (Go)?</a>
+    <li class="toctree-l3"><a class="reference internal" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-in-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for in Go?</a>
     </li>
         </ul>
     </li>
@@ -248,122 +248,122 @@
               
                 <h1 id="temporal-interview-qa">Temporal Interview Q&amp;A<a class="headerlink" href="#temporal-interview-qa" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>A question bank in interview format: nine questions an interviewer at a Temporal-adjacent company
-(or any team running workflow orchestration) actually asks, each with a senior-level answer you
-could deliver in two minutes. The answers assume the concepts from the previous eight articles and
-link back to them instead of re-explaining — treat this as a rehearsal script, not a primer.</p>
+<p>This is a rehearsal script: nine questions an interviewer at a Temporal-adjacent company — or any
+team running workflow orchestration — actually asks, each answered the way a senior engineer would
+answer it out loud, in about two minutes. The answers are written to be <em>spoken</em>: full sentences,
+one idea leading to the next, with the technical depth layered in rather than front-loaded. They
+draw on the concepts from the previous articles and link back to them, so if an answer's
+foundation feels shaky, the link is the remediation.</p>
 <hr />
 <h2 id="temporal-concepts">Temporal Concepts<a class="headerlink" href="#temporal-concepts" title="Permanent link">&para;</a></h2>
 <h3 id="given-a-block-of-logic-how-do-you-decide-whether-it-belongs-in-a-workflow-or-an-activity">Given a block of logic, how do you decide whether it belongs in a workflow or an activity?<a class="headerlink" href="#given-a-block-of-logic-how-do-you-decide-whether-it-belongs-in-a-workflow-or-an-activity" title="Permanent link">&para;</a></h3>
-<p>Apply the <a href="../temporal-programming-model/#workflows-vs-activities-the-determinism-boundary">determinism boundary</a>:
-if the code decides <em>what happens next</em>, it's workflow; if it <em>touches the outside world</em>, it's an
-activity.</p>
-<table>
-<thead>
-<tr>
-<th>Signal</th>
-<th>Placement</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Branching, sequencing, waiting, aggregating results</td>
-<td>Workflow</td>
-</tr>
-<tr>
-<td>HTTP/DB/queue call, file I/O, anything that can fail from infra</td>
-<td>Activity</td>
-</tr>
-<tr>
-<td>Needs retry semantics of its own</td>
-<td>Activity</td>
-</tr>
-<tr>
-<td>Pure computation on workflow state, cheap and deterministic</td>
-<td>Workflow (it replays for free)</td>
-</tr>
-<tr>
-<td>Pure but expensive (minutes of CPU)</td>
-<td>Activity — replay would re-pay the cost otherwise</td>
-</tr>
-</tbody>
-</table>
-<p>Two refinements show seniority: granularity — each activity should be a unit that is independently
-retryable and idempotent, so "charge card and send email" is two activities, not one; and payload
-size — large data should pass by reference (object-store key) because every activity input/output
-is recorded in event history, which has hard size limits.</p>
+<p>The test I apply is a single question: does this code decide <em>what happens next</em>, or does it
+<em>touch the outside world</em>? Decision-making — branching, sequencing, waiting on events,
+aggregating results — belongs in the workflow, because the workflow is the durable, replayable
+record of what was decided. Anything that touches the world — an HTTP call, a database write, a
+queue publish, file I/O, anything that can fail because infrastructure failed — belongs in an
+activity, because activities are the layer where failure and retry are allowed to exist. That's
+the <a href="../temporal-programming-model/#workflows-vs-activities-the-determinism-boundary">determinism boundary</a>,
+and nearly every placement question dissolves once you ask it.</p>
+<p>There are a couple of edge cases worth handling explicitly. Pure computation on workflow state —
+cheap and deterministic — can stay in the workflow; it just replays for free. But pure computation
+that's <em>expensive</em>, say minutes of CPU, should move into an activity anyway, because otherwise
+every replay re-pays that cost. And code that needs its own retry semantics is an activity by
+definition — retry policy is an activity-level concept.</p>
+<p>Then two refinements show seniority. The first is granularity: each activity should be a unit
+that's independently retryable and idempotent. "Charge the card and send the confirmation email"
+is two activities, not one — if the email fails, you want to retry the email, not re-charge the
+card. The second is payload size: every activity input and output gets recorded in event history,
+which has hard size limits, so large data should pass by reference — an object-store key — not by
+value.</p>
 <h3 id="why-must-workflow-code-be-deterministic-and-how-does-uuidrandom-or-unmocked-system-time-break-replay">Why must workflow code be deterministic, and how does <code>UUID.random()</code> or unmocked system time break replay?<a class="headerlink" href="#why-must-workflow-code-be-deterministic-and-how-does-uuidrandom-or-unmocked-system-time-break-replay" title="Permanent link">&para;</a></h3>
-<p>Because a workflow's "memory" is not process state — it is
+<p>The reason is that a workflow's "memory" isn't process state — it's
 <a href="../durable-execution-fundamentals/#the-core-mechanism-event-sourcing-deterministic-replay">event history plus re-execution</a>.
-After a crash or cache eviction, a worker rebuilds state by running the code again and feeding it
-recorded results. That only works if the code emits the <em>same commands in the same order</em> every
-run.</p>
-<p><code>UUID.random()</code> breaks this subtly: first execution generates ID <code>abc</code> and, say, passes it to an
-activity; on replay the code generates <code>xyz</code>, so the command it emits no longer matches the
-recorded <code>ActivityTaskScheduled</code> event — the SDK throws a non-determinism error and the workflow
-task fails repeatedly. Unmocked <code>time.Now()</code> is worse because it often <em>doesn't</em> fail loudly: a
-branch like <code>if now &gt; deadline</code> can silently take the other path on replay, corrupting state.
-Non-determinism is therefore both a crash bug and a correctness bug — the loud failure is the
-lucky case.</p>
+When a worker crashes or evicts a workflow from cache, the next worker rebuilds the workflow's
+state by running the code again from the top, feeding it recorded results wherever the code makes
+a call that previously produced an event. That reconstruction is only valid if the code emits the
+same commands in the same order every time it runs. Determinism isn't a style preference; it's
+the precondition for the entire recovery mechanism.</p>
+<p>Now the two examples, because they fail in interestingly different ways. <code>UUID.random()</code> breaks
+replay <em>loudly</em>. The first execution generates ID <code>abc</code> and, say, passes it to an activity. On
+replay, the code generates <code>xyz</code> instead, so the command it emits no longer matches the
+<code>ActivityTaskScheduled</code> event recorded in history — the SDK detects the mismatch, throws a
+non-determinism error, and the workflow task fails repeatedly until a human steps in. Painful, but
+at least visible.</p>
+<p>Unmocked system time is worse, because it often <em>doesn't</em> fail loudly. A branch like
+<code>if now &gt; deadline</code> can evaluate one way in the original execution and the other way on replay —
+and if both paths happen to emit compatible commands, nothing errors at all. Your workflow's state
+is just silently wrong. That's the point I'd want to land in an interview: non-determinism is both
+a crash bug and a correctness bug, and the crash is the <em>lucky</em> outcome.</p>
 <h3 id="how-do-you-handle-non-deterministic-operations-or-external-api-calls-inside-a-workflow">How do you handle non-deterministic operations or external API calls inside a workflow?<a class="headerlink" href="#how-do-you-handle-non-deterministic-operations-or-external-api-calls-inside-a-workflow" title="Permanent link">&para;</a></h3>
-<p>Route every non-deterministic result through the server so it lands in history once and replays
-from the record:</p>
-<ul>
-<li><strong>External API calls, I/O</strong> — activities, always. The result is recorded in
-  <code>ActivityTaskCompleted</code>; replay reads it back instead of re-calling the API.</li>
-<li><strong>Time</strong> — <code>workflow.Now()</code> (the timestamp of the current workflow task, from history) and
-  <code>workflow.Sleep()</code> (a durable server-side timer), never <code>time.Now()</code>/<code>time.Sleep()</code>.</li>
-<li><strong>Random values, UUIDs</strong> — <code>SideEffect</code>/<code>workflow.newRandom()</code>: executed once, value recorded,
-  replays return the recorded value. Note <code>SideEffect</code> is not retried and must not fail — anything
-  fallible belongs in an activity.</li>
-<li><strong>Config/env reads</strong> — pass as workflow input, or read via an activity if it must be fresh.</li>
-<li><strong>Code changes</strong> (deploy-induced non-determinism) — patching (<code>GetVersion</code>/<code>patched()</code>) or
-  worker versioning with pinned deployments, plus replay tests in CI against sampled production
-  histories.</li>
-</ul>
+<p>The principle is always the same: route every non-deterministic result through the server, so it
+lands in history exactly once and replays from the record instead of being recomputed. Then it's a
+matter of knowing which tool applies to which kind of non-determinism.</p>
+<p>External API calls and any I/O go in activities — always. The result gets recorded in an
+<code>ActivityTaskCompleted</code> event, and replay reads it back rather than re-calling the API. For time,
+the SDK provides <code>workflow.Now()</code>, which returns the timestamp of the current workflow task from
+history, and <code>workflow.Sleep()</code>, which is a durable server-side timer — never <code>time.Now()</code> or
+<code>time.Sleep()</code>. For random values and UUIDs, there's <code>SideEffect</code> (or the SDK's deterministic
+random): the value is computed once, recorded, and replay returns the recording. One caveat worth
+volunteering: <code>SideEffect</code> is not retried and must not fail — anything fallible belongs in an
+activity, full stop.</p>
+<p>Two less obvious cases round out the answer. Configuration and environment reads should be passed
+in as workflow input, or read via an activity if they must be fresh — a config value that changes
+between the original run and a replay is non-determinism wearing a disguise. And the biggest
+source of non-determinism in practice isn't any of these — it's <em>deploying new code</em> over running
+workflows. That's handled with patching (<code>GetVersion</code> / <code>patched()</code>) or worker versioning with
+pinned deployments, and defended in CI with replay tests against sampled production histories.</p>
 <hr />
 <h2 id="concurrency-failure-semantics">Concurrency &amp; Failure Semantics<a class="headerlink" href="#concurrency-failure-semantics" title="Permanent link">&para;</a></h2>
 <h3 id="how-do-you-implement-custom-retry-policies-exponential-backoff-and-heartbeats-for-long-running-activities">How do you implement custom retry policies, exponential backoff, and heartbeats for long-running activities?<a class="headerlink" href="#how-do-you-implement-custom-retry-policies-exponential-backoff-and-heartbeats-for-long-running-activities" title="Permanent link">&para;</a></h3>
-<p>You mostly <em>declare</em> rather than implement: each activity carries a retry policy — initial
-interval, backoff coefficient (e.g., 1s × 2.0 up to a max interval), maximum attempts, and a list
-of non-retryable error types (<code>InvalidCardError</code> should fail fast; <code>ServiceUnavailable</code> should
-back off). The server drives the retries; workflow code just sees one awaited call.</p>
-<p>For long-running activities, set a <strong>heartbeat timeout</strong> and call <code>heartbeat(progress)</code>
-periodically. This buys two things: fast failure detection (without it, a dead worker isn't
-noticed until start-to-close expires — potentially hours), and resumability — the last heartbeat
-payload is delivered to the retry attempt, so a file-processing activity can resume from record
-1.4M instead of zero.</p>
-<p>Custom logic beyond the declarative policy — e.g., retry with a <em>different</em> activity, or
-escalate to a human after N failures — lives in the workflow: catch the <code>ActivityFailure</code> after
-the policy exhausts and branch. Policy for the mechanical retries, workflow code for the
-business-level fallback.</p>
+<p>The first thing to say is that in Temporal you mostly <em>declare</em> retries rather than implement
+them. Each activity carries a retry policy — initial interval, backoff coefficient (say, one
+second doubling up to a max), maximum attempts, and a list of non-retryable error types. That
+last one matters: an <code>InvalidCardError</code> should fail immediately, because no amount of retrying
+makes a bad card good, while a <code>ServiceUnavailable</code> should back off and try again. The server
+drives all of this; workflow code just sees one awaited call that eventually succeeds or
+definitively fails.</p>
+<p>For long-running activities, the tool is the <strong>heartbeat</strong>. You set a heartbeat timeout and have
+the activity call <code>heartbeat(progress)</code> periodically, and that buys two distinct things. The
+first is fast failure detection: without heartbeats, a worker that dies ten minutes into a
+two-hour activity isn't noticed until the full start-to-close timeout expires. With them, the
+server notices within seconds. The second is resumability: the last heartbeat payload is handed
+to the retry attempt, so a file-processing activity that recorded "I'm at record 1.4 million" can
+resume from there rather than from zero.</p>
+<p>And when the declarative policy isn't enough — you want to retry with a <em>different</em> activity, or
+escalate to a human after N failures — that logic lives in the workflow: catch the
+<code>ActivityFailure</code> after the policy exhausts, and branch. The division of labor is clean: the
+policy handles mechanical retries, workflow code handles business-level fallback.</p>
 <h3 id="an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency">An activity may execute multiple times — retries, worker crashes. How do you guarantee idempotency?<a class="headerlink" href="#an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency" title="Permanent link">&para;</a></h3>
-<p>Start by naming the guarantee: activities are
-<a href="../distributed-systems-foundations/#at-least-once-at-most-once-exactly-once">at-least-once</a> — an
-activity can complete its side effect, crash before reporting, and be retried. Temporal cannot fix
-that; the effect already escaped. So idempotency is the activity author's job:</p>
-<ol>
-<li><strong>Derive an idempotency key</strong> from stable workflow facts — workflow ID + activity/step
-   identifier (<code>order-4711:charge</code>), <em>not</em> a random UUID generated per attempt.</li>
-<li><strong>Push the key to the downstream system</strong> if it supports one (Stripe's <code>Idempotency-Key</code>,
-   conditional writes, <code>INSERT ... ON CONFLICT DO NOTHING</code>).</li>
-<li><strong>Or make the operation naturally idempotent</strong> — set-based writes ("set status=SHIPPED")
-   rather than increments.</li>
-<li><strong>Or dedup yourself</strong> — a
-   <a href="../distributed-systems-foundations/#idempotency-and-dedup">processed-keys table checked transactionally</a>
-   with the side effect.</li>
-</ol>
-<p>The interview trap is claiming "Temporal gives exactly-once." Correct framing: exactly-once
-<em>workflow state transitions</em>, at-least-once <em>activity execution</em>, and effectively-once end-to-end
-only when activities are idempotent.</p>
-<h3 id="concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for (Go)?<a class="headerlink" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go" title="Permanent link">&para;</a></h3>
-<ul>
-<li><strong>Rate limiting</strong> — <code>golang.org/x/time/rate</code> (token bucket) shared across goroutines:
-  <code>limiter.Wait(ctx)</code> before each request. For a hand-rolled version: a buffered channel refilled
-  by a ticker. Mention distributed rate limiting needs a shared store or per-node quota splitting.</li>
-<li><strong>Worker pool</strong> — fixed goroutine count draining a channel; never one goroutine per request at
-  millions-scale:</li>
-</ul>
+<p>I'd start by naming the guarantee precisely, because the framing is half the answer: activity
+execution is
+<a href="../distributed-systems-foundations/#at-least-once-at-most-once-and-the-myth-of-exactly-once">at-least-once</a>.
+An activity can complete its side effect, crash before reporting completion, and be retried —
+and Temporal cannot fix that, because the effect already escaped into the world before anyone
+knew the report was lost. So idempotency is the activity author's job, and there's a standard
+playbook.</p>
+<p>Step one is deriving an idempotency key from <em>stable</em> workflow facts — the workflow ID plus a
+step identifier, something like <code>order-4711:charge</code>. Not a random UUID generated inside the
+activity: that changes on every retry attempt, which defeats the entire purpose, and it's the
+single most common bug in this area. Step two is pushing that key to the downstream system, if it
+supports one — Stripe's <code>Idempotency-Key</code> header, a conditional write, an
+<code>INSERT ... ON CONFLICT DO NOTHING</code>. If the downstream doesn't support keys, option three is
+making the operation naturally idempotent — set-based writes like "set status to SHIPPED" rather
+than increments. And failing all of that, option four is deduplicating yourself, with a
+<a href="../distributed-systems-foundations/#idempotency-and-dedup">processed-keys table checked in the same transaction</a>
+as the side effect.</p>
+<p>The interview trap here is claiming "Temporal gives you exactly-once." The correct framing, which
+I'd state explicitly: workflow <em>state transitions</em> are exactly-once, activity <em>execution</em> is
+at-least-once, and the end-to-end system is effectively-once precisely when activities are
+idempotent. That last clause is the developer's side of the contract.</p>
+<h3 id="concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-in-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for in Go?<a class="headerlink" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-in-go" title="Permanent link">&para;</a></h3>
+<p>For rate limiting, the standard tool is <code>golang.org/x/time/rate</code> — a token bucket — shared across
+goroutines, with <code>limiter.Wait(ctx)</code> before each request so callers block until a token is
+available and respect cancellation. If asked to hand-roll it, a buffered channel refilled by a
+ticker gets you the same shape. And it's worth mentioning unprompted that this is <em>per-process</em>
+rate limiting; a distributed limit needs a shared store or per-node quota splitting.</p>
+<p>For handling millions of requests, the pattern is a fixed-size worker pool draining a channel —
+never a goroutine per request at that scale:</p>
 <pre><code class="language-go">jobs := make(chan Job, 1024)
 for i := 0; i &lt; nWorkers; i++ {
     g.Go(func() error {
@@ -372,102 +372,79 @@ for i := 0; i &lt; nWorkers; i++ {
     })
 }
 </code></pre>
-<p>Backpressure falls out naturally — a full channel blocks producers, which is what
-  <a href="../matching-service-task-queues/#flow-control">Temporal's own worker does</a> with slot limits and
-  poller counts.
-- <strong>Deadlock avoidance</strong> — acquire locks in a global order; keep critical sections tiny; prefer
-  channels/ownership transfer over shared memory; always take locks with a <code>ctx</code>/timeout escape
-  hatch. In Temporal specifically, workflow code is single-threaded coroutines — the SDK's
-  deadlock detector kills any workflow task that blocks the scheduler (~1s), which is why you
-  never do real blocking work there.</p>
+<p>The elegant property to point out is that backpressure falls out for free: when the channel
+fills, producers block, which is exactly the behavior you want. It's also exactly what
+<a href="../matching-service-task-queues/#flow-control">Temporal's own worker does</a> with slot limits and
+poller counts — a worker with no free slots simply doesn't poll.</p>
+<p>For deadlock avoidance: acquire locks in a globally consistent order, keep critical sections
+tiny, prefer channels and ownership transfer over shared memory, and always take locks with a
+context or timeout escape hatch. And there's a Temporal-specific twist worth knowing: workflow
+code runs as single-threaded coroutines, and the SDK ships a deadlock detector that kills any
+workflow task blocking the scheduler for about a second — which is precisely why real blocking
+work never goes in workflow code.</p>
 <hr />
 <h2 id="distributed-system-design">Distributed System Design<a class="headerlink" href="#distributed-system-design" title="Permanent link">&para;</a></h2>
 <h3 id="walk-me-through-a-worker-crashing-mid-task-how-does-another-worker-take-over">Walk me through a worker crashing mid-task. How does another worker take over?<a class="headerlink" href="#walk-me-through-a-worker-crashing-mid-task-how-does-another-worker-take-over" title="Permanent link">&para;</a></h3>
-<p>The concrete sequence:</p>
-<ol>
-<li>Worker A is executing a workflow task when it dies. The server notices via <strong>workflow task
-   timeout</strong> (default 10s) — no heartbeat magic here; the task simply isn't completed in time.</li>
-<li>History service marks the task timed out and <strong>reschedules it</strong>. It was likely targeted at
-   A's <a href="../matching-service-task-queues/#sticky-queues">sticky queue</a>; after the sticky
-   schedule-to-start timeout (~5s) it falls back to the <strong>normal task queue</strong> that all workers
-   poll.</li>
-<li>Worker B picks it up. It has no cached state for this execution, so it requests the <strong>full
-   event history</strong> from the history service.</li>
-<li>B <strong>replays</strong>: re-executes the workflow function from the top; every awaited call is satisfied
-   from recorded events (<code>ActivityTaskCompleted</code> results, timer firings) instead of re-executing
-   side effects.</li>
-<li>Replay reaches the first point with <strong>no recorded event</strong> — that is exactly where A died —
-   and continues live from there, emitting new commands.</li>
-</ol>
-<p>Completed activities are not re-run; an activity that was <em>in flight</em> on A is governed separately
-by its own timeouts and retry policy.</p>
+<p>Let me trace the concrete sequence. Worker A is executing a workflow task when it dies. There's
+no heartbeat magic for workflow tasks — the server notices through the <strong>workflow task timeout</strong>,
+default ten seconds: the task simply isn't completed in time.</p>
+<p>The history service marks the task timed out and reschedules it. Here's a subtlety worth
+including: the original task was probably targeted at worker A's
+<a href="../matching-service-task-queues/#sticky-queues">sticky queue</a> — a private queue that routes a
+workflow's tasks back to the worker holding its state in cache. Worker A is dead, so nobody polls
+that queue; after the sticky schedule-to-start timeout, around five seconds, the server gives up
+on stickiness and reschedules onto the normal shared queue that every worker polls.</p>
+<p>Worker B picks it up. B has no cached state for this execution, so it requests the full event
+history and <strong>replays</strong>: it re-executes the workflow function from the top, and every awaited
+call is satisfied from recorded events — activity results, timer firings — rather than by
+re-executing side effects. Replay runs until it reaches the first point with no recorded event.
+That point is, by construction, exactly where worker A died. From there, B continues live,
+emitting new commands as if nothing happened.</p>
+<p>The clean separation to close on: completed activities are never re-run — their results are in
+history. An activity that was <em>in flight</em> on the dead worker is a separate story, governed by its
+own timeouts and retry policy — which is where at-least-once execution and idempotency come in.</p>
 <h3 id="how-would-you-scale-a-workflow-orchestration-system-hot-partitions-shard-allocation-rebalancing-under-load">How would you scale a workflow orchestration system — hot partitions, shard allocation, rebalancing under load?<a class="headerlink" href="#how-would-you-scale-a-workflow-orchestration-system-hot-partitions-shard-allocation-rebalancing-under-load" title="Permanent link">&para;</a></h3>
-<p>Partition by workflow ID into a <strong>fixed set of logical shards</strong> (<code>hash(namespace, workflowID) %
-N</code>, N in the thousands), each shard single-owner so per-workflow ordering needs no cross-node
-consensus — this is <a href="../history-service-internals/#history-shards">Temporal's history shard design</a>.
-Key points:</p>
-<ul>
-<li><strong>Allocation</strong> — a membership ring (gossip/consistent hashing) maps shards to history nodes;
-  many logical shards per node means adding a node moves ~1/n of shards, no data migration, since
-  shard state lives in the database, not on the node.</li>
-<li><strong>Rebalancing under load</strong> — shard <em>ownership</em> moves, data doesn't; fencing tokens
-  (monotonic <code>rangeID</code>) make a stale ex-owner's writes fail rather than corrupt state during
-  handoff.</li>
-<li><strong>Hot shards</strong> — hashing spreads workflows, but a single hot <em>workflow</em> (signal storm, huge
-  history) can't be split; mitigate at the app layer by fanning out to child workflows or
-  sharding the entity key. Hot <em>task queues</em> are a separate axis — scale queue partitions.</li>
-<li>Fixed N is a genuine limit: resharding is effectively a migration, so overprovision N upfront.</li>
-</ul>
+<p>The foundation is partitioning by workflow ID into a <strong>fixed set of logical shards</strong> —
+<code>hash(namespace, workflowID) % N</code> with N in the thousands — where each shard has a single owner
+node at a time. Single ownership is what makes per-workflow ordering free: transitions for a
+given workflow serialize on its shard's owner, with no cross-node consensus per operation. This
+is <a href="../history-service-internals/#history-shards">Temporal's history shard design</a>.</p>
+<p>For allocation, a membership ring — gossip plus consistent hashing — maps shards to nodes. The
+reason you want many logical shards per node is elasticity: adding a node moves roughly 1/n of
+the shards to it, and because shard <em>state</em> lives in the database rather than on the node,
+"moving a shard" means transferring ownership, not migrating data.</p>
+<p>Rebalancing under load is where the correctness question hides, and the answer is <strong>fencing</strong>:
+shard ownership carries a monotonically increasing token — Temporal's <code>range_id</code> — and every
+write is conditional on it. During a handoff, a stale ex-owner's writes fail at the database
+rather than corrupting state. The gossip ring can be briefly wrong; the conditional write can't.</p>
+<p>On hot spots, I'd distinguish two different problems. Hashing spreads <em>workflows</em> evenly, but a
+single hot workflow — a signal storm, an enormous history — can't be split by any partitioning
+scheme, because its ordering guarantee is the thing being protected. That's a modeling problem:
+fan out to child workflows or shard the entity key at the application layer. A hot <em>task queue</em>
+is a different axis entirely, solved by scaling queue partitions.</p>
+<p>And the honest limitation to volunteer: fixed N is a real ceiling. Resharding is effectively a
+cluster migration, so you overprovision the shard count up front.</p>
 <h3 id="append-only-event-log-vs-relational-storage-for-execution-history-what-are-the-trade-offs">Append-only event log vs. relational storage for execution history — what are the trade-offs?<a class="headerlink" href="#append-only-event-log-vs-relational-storage-for-execution-history-what-are-the-trade-offs" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>Append-only event log</th>
-<th>Relational/mutable rows</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Write path</td>
-<td>Sequential appends — fast, contention-free</td>
-<td>Read-modify-write on status row</td>
-</tr>
-<tr>
-<td>Concurrency</td>
-<td>New events don't contend with old</td>
-<td>Updates fight over the same row</td>
-</tr>
-<tr>
-<td>Audit/debug</td>
-<td>Full causal record; replay any execution</td>
-<td>Only current state; history is lost</td>
-</tr>
-<tr>
-<td>Read "current state"</td>
-<td>Must fold the whole log — O(history)</td>
-<td>One row read</td>
-</tr>
-<tr>
-<td>Storage</td>
-<td>Grows unboundedly; needs retention/archival</td>
-<td>Compact</td>
-</tr>
-<tr>
-<td>Schema evolution</td>
-<td>Old events immutable — versioning pain</td>
-<td><code>ALTER TABLE</code></td>
-</tr>
-</tbody>
-</table>
-<p>The log gives you the replay mechanism, a perfect audit trail, and cheap writes; it costs you
-expensive state reconstruction and unbounded growth. Temporal's answer is the hybrid: the event
-log as source of truth plus <strong>mutable state</strong> — a
-<a href="../history-service-internals/#mutable-state-event-history">materialized snapshot updated transactionally with each append</a>
-— so hot-path reads never fold the log, echoing the classic
-<a href="../distributed-systems-foundations/#event-sourcing-and-cqrs">event-sourcing + CQRS</a> resolution.
-Growth is bounded by history limits plus continue-as-new, and closed histories archive to blob
-storage. Strong answers name the hybrid, not one side.</p>
+<p>Let me argue both sides, because the strong answer here is the hybrid, not a winner.</p>
+<p>The append-only log wins on the write path: appends are sequential and contention-free, and new
+events never fight old ones for locks — whereas a mutable status row makes every update a
+read-modify-write contending on the same row. The log also gives you a complete causal record:
+you can audit any execution, debug by replaying it, and answer "how did this workflow get into
+this state?" — a question mutable rows structurally cannot answer, because they've forgotten. And
+in a durable-execution system the log isn't just nice to have; it <em>is</em> the replay mechanism.</p>
+<p>The log's costs are real, though. Reading current state means folding the entire log — O(history)
+where the relational row is a single read. Storage grows without bound, so you need retention and
+archival. And schema evolution is painful, because old events are immutable — you version and
+translate rather than <code>ALTER TABLE</code>.</p>
+<p>Temporal's answer — and the classic
+<a href="../distributed-systems-foundations/#event-sourcing-and-cqrs">event-sourcing-plus-CQRS</a>
+resolution — is to refuse the either/or: the event log remains the source of truth, and
+<strong>mutable state</strong> — a
+<a href="../history-service-internals/#mutable-state-and-event-history">materialized snapshot updated transactionally with every append</a>
+— serves hot-path reads so the server never folds the log during normal operation. Unbounded
+growth is handled with per-execution history limits plus continue-as-new, and closed histories
+archive to blob storage. If I'm scoring answers to this question: naming the hybrid is the senior
+answer; picking one side is the junior one.</p>
               
             </div>
           </div><footer>

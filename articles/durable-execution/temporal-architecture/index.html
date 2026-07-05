@@ -182,7 +182,7 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#persistence-layer">Persistence Layer</a>
+    <li class="toctree-l2"><a class="reference internal" href="#the-persistence-layer">The Persistence Layer</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#life-of-a-workflow">Life of a Workflow</a>
     </li>
@@ -238,9 +238,11 @@
               
                 <h1 id="temporal-architecture">Temporal Architecture<a class="headerlink" href="#temporal-architecture" title="Permanent link">&para;</a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
-<p>A Temporal cluster is four Go services over a pluggable persistence layer, plus a worker fleet that
-<em>you</em> run. The server never executes user code — it is a state-transition and task-dispatch engine.
-Understanding one request's path through the services explains the whole system.</p>
+<p>A Temporal cluster is four Go services sitting on top of a pluggable persistence layer, plus a
+fleet of worker processes that <em>you</em> run. That last clause is the single most important fact about
+the architecture, so it bears stating immediately: the Temporal server never executes user code.
+It is a state-transition and task-dispatch engine; your workflows and activities run in your own
+processes, which connect out to the cluster and ask it for work.</p>
 <pre><code>                        ┌────────────────────────── Temporal Cluster ─┐
   ┌─────────┐  gRPC     │  ┌──────────┐    ┌─────────┐   ┌──────────┐ │
   │ Client  ├───────────┼─►│ Frontend │───►│ History │──►│ Matching │ │
@@ -254,74 +256,70 @@ Understanding one request's path through the services explains the whole system.
                         │  └──────────┘    └───────────────────────┘  │
                         └─────────────────────────────────────────────┘
 </code></pre>
+<p>The best way to understand this diagram is to trace one request through it, which the second half
+of this article does. First, what each box is for.</p>
 <hr />
 <h2 id="the-four-services">The Four Services<a class="headerlink" href="#the-four-services" title="Permanent link">&para;</a></h2>
 <h3 id="frontend">Frontend<a class="headerlink" href="#frontend" title="Permanent link">&para;</a></h3>
-<p>The stateless gRPC gateway. Every client and worker call lands here first. Responsibilities:
-request validation, authorization, per-namespace rate limiting, and routing — it computes which
-history shard owns a workflow (hash of namespace + workflow ID) and forwards to the History node
-that currently owns that shard. Scales horizontally like any stateless tier; sits behind a load
-balancer.</p>
+<p>The Frontend is the stateless gRPC gateway — every call from a client or a worker lands here
+first. It validates requests, enforces authorization and per-namespace rate limits, and routes:
+given a workflow ID, it computes which history shard owns that workflow (a hash of the namespace
+and workflow ID) and forwards the request to whichever History node currently owns that shard.
+Being stateless, it scales horizontally behind a load balancer like any API tier.</p>
 <h3 id="history">History<a class="headerlink" href="#history" title="Permanent link">&para;</a></h3>
-<p>The stateful core — where workflow state lives and every state transition is decided. The keyspace
-is divided into a <strong>fixed number of shards</strong> (set at cluster creation, e.g. 512 or 4096); each
-shard is owned by exactly one History node at a time, with ownership distributed via a membership
-ring. Per workflow, History maintains <strong>mutable state</strong> (a summary record: pending activities,
-timers, children) plus the append-only <strong>event history</strong> (source of truth). It also runs the
-internal task-queue processors (transfer, timer, visibility, replication). Detailed internals:
+<p>History is the stateful core — the service where workflow state lives and where every state
+transition is decided. Its keyspace is divided into a <strong>fixed number of shards</strong>, set at cluster
+creation (512 and 4096 are common choices), and each shard is owned by exactly one History node at
+a time, with ownership distributed across nodes via a membership ring.</p>
+<p>For each workflow execution, History maintains two things: the append-only <strong>event history</strong>,
+which is the source of truth, and <strong>mutable state</strong>, a compact summary record (pending activities,
+open timers, child workflows) that lets the server make decisions without re-reading the whole
+log. History also runs the internal task-queue processors — transfer, timer, visibility, and
+replication queues — which are covered in depth in
 <a href="../history-service-internals/">History Service Internals</a>.</p>
-<p>Scaling History = adding nodes so shards spread across more machines. The shard count itself is
-the ceiling — it cannot be changed without a cluster migration, which is a classic Temporal
-operations gotcha.</p>
+<p>Scaling History means adding nodes so the shards spread across more machines. But note the
+ceiling: the shard count itself is fixed and cannot be changed in place — raising it means
+standing up a new cluster and migrating. This is a classic Temporal operational gotcha and worth
+volunteering in any capacity-planning discussion.</p>
 <h3 id="matching">Matching<a class="headerlink" href="#matching" title="Permanent link">&para;</a></h3>
-<p>Owns <strong>task queues</strong> — the buffers between the server deciding "this activity should run" and a
-worker actually running it. Handles worker long-polls, dispatches tasks (with a sync-match fast
-path that skips persistence when a worker is already waiting), manages queue partitions and sticky
-queues. Details: <a href="../matching-service-task-queues/">Matching Service and Task Queues</a>.</p>
+<p>Matching owns <strong>task queues</strong> — the buffers between the server deciding "this activity should run"
+and one of your workers actually running it. It handles worker long-polls, dispatches tasks, and
+manages queue partitioning and sticky queues. Its signature trick, the <em>sync-match</em> fast path,
+hands a task directly to a waiting worker without ever writing it to the database — the subject of
+<a href="../matching-service-task-queues/">its own article</a>.</p>
 <h3 id="worker-service">Worker Service<a class="headerlink" href="#worker-service" title="Permanent link">&para;</a></h3>
-<p>Not your workers — an internal service running <em>system</em> workflows: archival, batch operations
-(e.g. batch terminate), cross-cluster replication bookkeeping, and the implementation behind
-schedules. It's a consumer of the same machinery user workflows use, which is a nice dogfooding
-story: Temporal features are built as Temporal workflows.</p>
+<p>Confusingly named: this is <em>not</em> your workers. It's an internal service that runs <em>system</em>
+workflows — history archival, batch operations like mass-terminate, replication bookkeeping, and
+the machinery behind Schedules. It consumes exactly the same workflow machinery your code does,
+which is a tidy dogfooding story: Temporal's own features are built as Temporal workflows.</p>
 <hr />
-<h2 id="persistence-layer">Persistence Layer<a class="headerlink" href="#persistence-layer" title="Permanent link">&para;</a></h2>
-<p>Two separate stores with different jobs:</p>
-<table>
-<thead>
-<tr>
-<th>Store</th>
-<th>Backends</th>
-<th>Holds</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Core persistence</strong></td>
-<td>Cassandra, MySQL, PostgreSQL</td>
-<td>Event histories, mutable state, internal task queues, matching task backlogs, shard metadata, namespace config</td>
-</tr>
-<tr>
-<td><strong>Visibility</strong></td>
-<td>Elasticsearch (advanced), or SQL (basic)</td>
-<td>Searchable index of executions: status, type, custom search attributes</td>
-</tr>
-</tbody>
-</table>
-<p>Why visibility is separate: core persistence is optimized for point lookups and conditional writes
-on a single workflow (get/update by shard + workflow ID). "List all failed <code>order-*</code> workflows
-started last week where <code>customerTier=gold</code>" is a search problem — wrong shape for Cassandra
-entirely, and a load profile you don't want competing with state transitions. So History emits
-visibility tasks that asynchronously upsert an execution record into Elasticsearch; the list/search
-APIs read only from there. Consequence worth knowing: visibility is eventually consistent with core
-state.</p>
-<p>Cassandra vs. SQL trade-off: Cassandra scales writes linearly and matches the shard model
-naturally, but conditional updates use LWT (Paxos rounds — expensive). Postgres/MySQL are far
-simpler to operate and fine into surprisingly high throughput, with a vertical ceiling. See
-<a href="../distributed-systems-foundations/#persistence-trade-offs">Distributed Systems Foundations</a>.</p>
+<h2 id="the-persistence-layer">The Persistence Layer<a class="headerlink" href="#the-persistence-layer" title="Permanent link">&para;</a></h2>
+<p>Temporal uses two separate stores with deliberately different jobs.</p>
+<p><strong>Core persistence</strong> (Cassandra, MySQL, or PostgreSQL) holds everything the system's correctness
+depends on: event histories, mutable state, the internal task queues, matching's task backlogs,
+shard metadata, and namespace configuration.</p>
+<p><strong>Visibility</strong> (Elasticsearch for the full feature set, or SQL for basic setups) holds a
+searchable index of executions — status, type, timestamps, and custom search attributes.</p>
+<p>Why two stores? Because the two workloads have opposite shapes. Core persistence is all point
+lookups and conditional writes against a single workflow: fetch by shard and workflow ID, update
+if the expected version matches. A query like "list all failed <code>order-*</code> workflows started last
+week where <code>customerTier=gold</code>" is a search problem — the wrong shape for Cassandra entirely, and
+a load profile you do not want competing with state transitions on the same store. So History
+emits visibility tasks that asynchronously upsert an execution record into Elasticsearch, and the
+list/search APIs read only from there.</p>
+<p>The consequence worth carrying into interviews: <strong>visibility is eventually consistent</strong> with core
+state. A workflow can be closed for a few seconds before a list query shows it closed. State reads
+by ID are strongly consistent; search is not; and that split is a design decision, not a bug.</p>
+<p>As for choosing a core store: Cassandra scales writes linearly with nodes and matches the shard
+model naturally, but its conditional writes use lightweight transactions — a Paxos round per write,
+which is expensive. Postgres and MySQL are far simpler to operate and handle surprisingly high
+throughput, but scale vertically until you hit a single-primary ceiling. The full trade-off
+discussion lives in <a href="../distributed-systems-foundations/#persistence-trade-offs">Distributed Systems Foundations</a>.</p>
 <hr />
 <h2 id="life-of-a-workflow">Life of a Workflow<a class="headerlink" href="#life-of-a-workflow" title="Permanent link">&para;</a></h2>
-<p>Trace <code>StartWorkflowExecution</code> end to end — this is the single best mental model to carry into a
-Temporal interview:</p>
+<p>Now the payoff: tracing <code>StartWorkflowExecution</code> end to end. This is the single best mental model
+to carry into a Temporal interview, because almost every deep-dive question is a question about
+one arrow in this diagram.</p>
 <pre><code>Client                Frontend        History(shard N)      Matching           Worker
   │ Start(wf-id, input) │                  │                   │                 │
   ├────────────────────►│ hash(ns,wf-id)=N │                   │                 │
@@ -345,57 +343,65 @@ Temporal interview:</p>
   │                     │                  │    xfer tasks (txn)                 │
   │                     │                  │    ... loop ...   │                 │
 </code></pre>
-<p>Key beats:</p>
-<ol>
-<li><strong>Frontend routes by shard</strong> — deterministic hash, no lookup service needed for the mapping
-   (only for which node owns the shard).</li>
-<li><strong>History does an atomic write</strong>: the started event, mutable state, and a <em>transfer task</em>
-   ("a workflow task needs to go to queue Q") in one transaction. This is the transactional-outbox
-   pattern — the task cannot be lost, and cannot exist without the state that spawned it.</li>
-<li><strong>Transfer processor</strong> on the shard pushes the task to Matching.</li>
-<li><strong>Matching dispatches</strong> to a long-polling worker — directly (sync match) if one is parked,
-   otherwise persisting to the backlog.</li>
-<li><strong>The worker runs workflow code</strong> (replaying history first if it doesn't have the workflow
-   cached) and returns a batch of <strong>commands</strong>: schedule these activities, start this timer,
-   complete the workflow.</li>
-<li><strong>History validates and applies</strong> the commands as new events + new tasks, again atomically.
-   Loop until a command completes the workflow.</li>
-</ol>
-<p>Every arrow in this diagram is at-least-once with retries; every state transition is guarded by a
-conditional write, which is how the loop stays effectively-once. Activity execution follows the
-same shape (activity task → matching → worker → <code>RespondActivityTaskCompleted</code> → History appends
-<code>ActivityTaskCompleted</code> → new workflow task so the workflow can react).</p>
+<p>Walking through the beats:</p>
+<p><strong>The Frontend routes by shard.</strong> It hashes the namespace and workflow ID to a shard number —
+a pure function, no lookup service needed for the mapping itself, only for finding which node
+currently owns that shard.</p>
+<p><strong>History performs one atomic write.</strong> In a single database transaction it appends the
+<code>WorkflowExecutionStarted</code> event, writes the initial mutable state, and writes a <em>transfer task</em> —
+an internal record saying "a workflow task needs to go to queue Q." This is the
+<strong>transactional outbox</strong> pattern, and it's the crux of the whole system's reliability: because the
+task is created in the same transaction as the state, there is no window where the state says
+"task scheduled" but no task exists, and no task can exist for state that failed to commit.</p>
+<p><strong>The transfer processor pushes the task to Matching.</strong> A background processor on the shard reads
+the transfer task and delivers it, at-least-once, to the Matching service.</p>
+<p><strong>Matching dispatches to a worker.</strong> If a worker's long-poll is already parked and waiting — the
+healthy steady state — Matching hands the task straight through without persisting it (sync
+match). Otherwise the task is written to the backlog and delivered when a poller shows up.</p>
+<p><strong>The worker runs workflow code.</strong> If it doesn't have this workflow's state cached, it fetches the
+event history and replays first. Then it executes the code forward and returns not side effects
+but a batch of <strong>commands</strong>: schedule these activities, start this timer, complete the workflow.</p>
+<p><strong>History validates and applies the commands</strong> — appending new events and writing new internal
+tasks, again in one transaction. The loop repeats until some command completes the workflow.</p>
+<p>Two properties of this loop deserve emphasis. Every arrow in the diagram is at-least-once, with
+retries. And yet every state transition is guarded by a conditional write, so duplicated or stale
+attempts fail harmlessly at the database — which is how a system built entirely from at-least-once
+parts produces effectively-once outcomes. Activity execution, by the way, follows exactly the same
+shape: activity task through Matching to a worker, <code>RespondActivityTaskCompleted</code> back to History,
+which appends <code>ActivityTaskCompleted</code> and schedules a new workflow task so the workflow can react.</p>
 <hr />
 <h2 id="workers-are-yours-not-theirs">Workers Are Yours, Not Theirs<a class="headerlink" href="#workers-are-yours-not-theirs" title="Permanent link">&para;</a></h2>
-<p>The deployment model people most often get wrong: <strong>Temporal Server never runs user code.</strong>
-Workflows and activities execute in worker processes you build with the SDK and deploy yourself —
-your containers, your VPC, your secrets. Workers connect <em>outbound</em> to the cluster and long-poll
-task queues; the server never connects to workers.</p>
-<p>Consequences:</p>
-<ul>
-<li><strong>Security story</strong>: code, credentials, and data-plane traffic stay in your environment; Temporal
-  Cloud only ever sees workflow inputs/results and event histories (which can be client-side
-  encrypted via a codec). No inbound firewall holes.</li>
-<li><strong>Scaling story</strong>: server capacity (state transitions/sec) and execution capacity (your worker
-  count) scale independently. A backlogged task queue is fixed by adding <em>your</em> pods, not by
-  scaling Temporal.</li>
-<li><strong>Polyglot story</strong>: any SDK language can host workers; different task queues can be served by
-  different services/teams/languages.</li>
-<li><strong>Tuning</strong>: workers have slot limits (concurrent workflow tasks / activities). Resource-based
-  <strong>auto-tuning</strong> (GA 2025) sizes slots from actual CPU/memory pressure instead of hand-set
-  constants. The key health metric is <strong>schedule-to-start latency</strong> — time tasks sit in the queue
-  before a worker picks them up; sustained growth means the fleet is undersized.</li>
-</ul>
+<p>The part of the deployment model people most often get wrong deserves its own section: <strong>the
+Temporal server never runs user code</strong>. Workflows and activities execute inside worker processes
+that you build with an SDK and deploy yourself — your containers, your VPC, your secrets. Workers
+connect <em>outbound</em> to the cluster and long-poll for tasks; the server never opens a connection to
+a worker.</p>
+<p>This one design choice generates several stories at once.</p>
+<p>The <strong>security story</strong>: your code, credentials, and data-plane traffic never leave your
+environment. Temporal Cloud sees only workflow inputs, results, and event histories — and even
+those can be client-side encrypted with a payload codec, so the cloud stores ciphertext. No
+inbound firewall holes, ever.</p>
+<p>The <strong>scaling story</strong>: server capacity (state transitions per second) and execution capacity (how
+many workers you run) scale independently. If a task queue is backlogged, the fix is adding <em>your</em>
+pods — the cluster is fine.</p>
+<p>The <strong>polyglot story</strong>: any SDK language can host workers, and different task queues can be served
+by different services, teams, and languages within one cluster.</p>
+<p>Operationally, workers have <strong>slot limits</strong> — caps on concurrently executing workflow tasks and
+activities — and since 2025 a resource-based auto-tuner can size those slots from observed CPU and
+memory pressure rather than hand-set constants. The health metric to watch is
+<strong>schedule-to-start latency</strong>: how long tasks sit in a queue before a worker picks them up.
+Near-zero means workers are keeping up; sustained growth means the fleet is undersized.</p>
 <hr />
 <h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
 <ul>
-<li>Be able to <strong>draw the four services and trace a start-to-completion request</strong> unprompted — this
-  is table stakes for a Temporal loop and a strong artifact in any workflow-engine design round.</li>
-<li><strong>Name the atomic write</strong> (events + mutable state + internal tasks in one transaction) as the
-  mechanism behind reliability — it's the transactional outbox, and identifying it by name signals
+<li>Be able to <strong>draw the four services and trace a start-to-completion request</strong> unprompted. This
+  is table stakes in a Temporal loop and a strong artifact in any workflow-engine design round.</li>
+<li><strong>Name the atomic write</strong> — events, mutable state, and internal tasks in one transaction — as
+  the mechanism behind reliability. Identifying it as the transactional outbox pattern signals
   pattern literacy.</li>
-<li><strong>Explain why workers are client-side</strong> from both the security and scale angles.</li>
-<li>Know the operational sharp edges: fixed shard count, visibility eventual consistency,
+<li><strong>Explain why workers are client-side</strong> from both the security angle and the
+  independent-scaling angle.</li>
+<li>Know the operational sharp edges: the fixed shard count, visibility's eventual consistency, and
   schedule-to-start latency as the fleet-sizing signal.</li>
 </ul>
               
