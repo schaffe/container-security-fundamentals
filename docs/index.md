@@ -10,6 +10,7 @@ Collection of articles on container supply chain security, image hardening, and 
 - **[Kubernetes Security](articles/kubernetes-security/securing-kubernetes-runtime.md)** — runtime hardening, SecurityContext, Pod Security Standards, admission control, RBAC, network policies, secrets management, runtime detection
 - **[CVE Lifecycle](articles/cve-lifecycle/scanner-internals.md)** — scanners, CVSS, EPSS, fix categorization, [coordinated disclosure](articles/cve-lifecycle/coordinated-disclosure.md)
 - **[Docker Product & Strategy](articles/docker/product-strategy/docker-scout.md)** — Scout, DHI, Notary, supply chain platform
+- **[Durable Execution](articles/durable-execution/durable-execution-fundamentals.md)** — Temporal architecture and internals, workflow replay and determinism, task queues, distributed-systems foundations, workflow-engine system design
 - **[Interview Questions](articles/interview/hardened-image-build-pipeline.md)** — System design: hardened image builds, CVE triage, image signing & verification
 
 [Browse the full topic map →](docker-supply-chain.md)

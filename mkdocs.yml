@@ -54,6 +54,15 @@ nav:
       - articles/docker/product-strategy/docker-hardened-images.md
       - articles/docker/product-strategy/docker-content-trust.md
       - articles/docker/product-strategy/docker-supply-chain-platform.md
+  - Durable Execution:
+    - articles/durable-execution/durable-execution-fundamentals.md
+    - articles/durable-execution/temporal-programming-model.md
+    - articles/durable-execution/temporal-architecture.md
+    - articles/durable-execution/history-service-internals.md
+    - articles/durable-execution/matching-service-task-queues.md
+    - articles/durable-execution/distributed-systems-foundations.md
+    - articles/durable-execution/multi-cluster-nexus-advanced.md
+    - articles/durable-execution/design-a-workflow-engine.md
   - Interview:
     - articles/interview/hardened-image-build-pipeline.md
     - articles/interview/cve-triage-system.md
