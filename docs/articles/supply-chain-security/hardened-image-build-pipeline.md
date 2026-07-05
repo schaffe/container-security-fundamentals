@@ -1,7 +1,7 @@
 ---
 title: "System Design: Hardened Image Build Pipeline"
-section: "Interview"
-order: 1
+section: "Supply Chain Security Theory"
+order: 8
 ---
 
 # System Design: Hardened Image Build Pipeline

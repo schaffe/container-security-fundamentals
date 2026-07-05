@@ -1,6 +1,8 @@
-# Container Supply Chain — Interview Prep
+# Artur's Knowledge Base
 
-Collection of articles on container supply chain security, image hardening, and Docker's security strategy. Published via GitHub Pages using MkDocs with the Material theme.
+Engineering knowledge base and interview prep: container supply chain security, image hardening,
+Docker's security strategy, and durable execution (Temporal architecture, internals, and
+workflow-engine system design). Published via GitHub Pages using MkDocs.
 
 **Site:** [https://schaffe.github.io/container-security-fundamentals/](https://schaffe.github.io/container-security-fundamentals/)
 
@@ -53,20 +55,37 @@ This builds the site and force-pushes to the `gh-pages` branch. GitHub Pages ser
 3. Run `mkdocs build --strict` to verify
 4. Deploy with `mkdocs gh-deploy`
 
+## Verify
+
+Run the site checks (strict build, no stale links to moved/renamed pages, nav structure):
+
+```bash
+MKDOCS_BIN=.venv/bin/mkdocs bash scripts/verify-site.sh
+```
+
+Prints one PASS/FAIL line per check; exits non-zero on any failure.
+
 ## Project Structure
 
 ```
 ├── mkdocs.yml              # Site config (nav, theme, extensions)
+├── scripts/
+│   └── verify-site.sh      # Site checks (strict build, links, nav)
 ├── docs/
-│   ├── index.md            # Landing page
-│   ├── docker-supply-chain.md  # Topic map
-│   └── articles/           # 37 interview prep articles grouped by topic
+│   ├── index.md            # Landing page (topic hub)
+│   ├── container-security.md   # Container-security topic map
+│   └── articles/           # 57 interview prep articles grouped by topic
 │       ├── supply-chain-security/
 │       ├── linux-fundamentals/
 │       ├── container-image-hardening/
 │       ├── kubernetes-security/
 │       ├── cve-lifecycle/
-│       └── docker/
-│           └── product-strategy/
+│       ├── docker/
+│       │   └── product-strategy/
+│       └── durable-execution/
 └── .venv/                  # Virtual environment (ignored)
 ```
+
+Interview/system-design articles live inside their topic directory (e.g.
+`durable-execution/design-a-workflow-engine.md`, `cve-lifecycle/cve-triage-system.md`)
+rather than a separate interview section.

@@ -1,11 +1,11 @@
-site_name: Docker Supply Chain
-site_description: Interview prep articles on container supply chain security
+site_name: Artur's Knowledge Base
+site_description: Engineering knowledge base — container supply chain security, durable execution, and interview prep
 repo_url: https://github.com/schaffe/container-security-fundamentals
 theme:
   name: readthedocs
 nav:
   - Home: index.md
-  - Docker Supply Chain Overview: docker-supply-chain.md
+  - Container Security Topic Map: container-security.md
   - Supply Chain Security Theory:
     - articles/supply-chain-security/slsa-framework.md
     - articles/supply-chain-security/in-toto-attestations.md
@@ -14,6 +14,8 @@ nav:
     - articles/supply-chain-security/dependency-management-security.md
     - articles/supply-chain-security/trusted-builds.md
     - articles/supply-chain-security/notary-docker-content-trust.md
+    - articles/supply-chain-security/hardened-image-build-pipeline.md
+    - articles/supply-chain-security/image-signing-verification.md
   - Linux Fundamentals:
     - articles/linux-fundamentals/musl-vs-glibc.md
     - articles/linux-fundamentals/proc-container-isolation.md
@@ -41,6 +43,7 @@ nav:
     - articles/cve-lifecycle/cvss-epss.md
     - articles/cve-lifecycle/fix-categorization.md
     - articles/cve-lifecycle/coordinated-disclosure.md
+    - articles/cve-lifecycle/cve-triage-system.md
   - Docker:
     - articles/docker/docker-architecture.md
     - articles/docker/build-context.md
@@ -49,6 +52,7 @@ nav:
     - articles/docker/image-layers-storage-drivers.md
     - articles/docker/docker-networking.md
     - articles/docker/kaniko-vs-docker-builds.md
+    - articles/docker/dockerfile-pr-review.md
     - Docker Product & Strategy:
       - articles/docker/product-strategy/docker-scout.md
       - articles/docker/product-strategy/docker-hardened-images.md
@@ -63,11 +67,10 @@ nav:
     - articles/durable-execution/distributed-systems-foundations.md
     - articles/durable-execution/multi-cluster-nexus-advanced.md
     - articles/durable-execution/design-a-workflow-engine.md
-  - Interview:
-    - articles/interview/hardened-image-build-pipeline.md
-    - articles/interview/cve-triage-system.md
-    - articles/interview/image-signing-verification.md
-    - articles/interview/dockerfile-pr-review.md
+    - articles/durable-execution/temporal-interview-questions.md
+    - articles/durable-execution/design-distributed-cron.md
+    - articles/durable-execution/design-ai-agent-runtime.md
+    - articles/durable-execution/design-payment-saga.md
 markdown_extensions:
   - toc:
       permalink: true

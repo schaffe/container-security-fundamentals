@@ -1,7 +1,7 @@
 ---
 title: "System Design: Image Signing and Verification Workflow"
-section: "Interview"
-order: 3
+section: "Supply Chain Security Theory"
+order: 9
 ---
 
 # System Design: Image Signing and Verification Workflow
