@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Distributed Systems Foundations - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Distributed Systems Foundations";
+        var mkdocs_page_input_path = "articles/durable-execution/distributed-systems-foundations.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Distributed Systems Foundations</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#at-least-once-at-most-once-exactly-once">At-Least-Once, At-Most-Once, "Exactly-Once"</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#idempotency-and-dedup">Idempotency and Dedup</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#event-sourcing-and-cqrs">Event Sourcing and CQRS</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sharding-and-coordination-without-consensus">Sharding and Coordination Without Consensus</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#persistence-trade-offs">Persistence Trade-offs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Distributed Systems Foundations</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/distributed-systems-foundations.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="distributed-systems-foundations">Distributed Systems Foundations<a class="headerlink" href="#distributed-systems-foundations" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The distributed-systems vocabulary a Temporal interview assumes — delivery guarantees, idempotency,
+event sourcing, sharding, coordination — mapped onto where Temporal actually uses each concept.
+Learning the concepts through a system that exercises all of them beats memorizing definitions:
+every abstraction here has a concrete "and this is where it lives in Temporal" anchor.</p>
+<hr />
+<h2 id="at-least-once-at-most-once-exactly-once">At-Least-Once, At-Most-Once, "Exactly-Once"<a class="headerlink" href="#at-least-once-at-most-once-exactly-once" title="Permanent link">&para;</a></h2>
+<p>For message delivery between two parties over a lossy network, only two primitives exist:</p>
+<ul>
+<li><strong>At-most-once</strong> — send, don't retry. Failures lose messages.</li>
+<li><strong>At-least-once</strong> — retry until acknowledged. Failures duplicate messages (the ack, not the
+  delivery, is what gets lost — the receiver may have processed it already).</li>
+</ul>
+<p><strong>Exactly-once <em>delivery</em> is impossible</strong> (the sender cannot distinguish "receiver never got it"
+from "receiver processed it and the ack was lost" — a corollary of the Two Generals problem). What
+<em>is</em> achievable is <strong>exactly-once processing</strong> (a.k.a. effectively-once): deliver at-least-once,
+then make duplicate deliveries harmless via deduplication or idempotency at the receiver.</p>
+<p>Where Temporal gives which guarantee:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Guarantee</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Workflow state transitions</td>
+<td>Effectively-once</td>
+<td>Every transition is a conditional write against event history; duplicates/stale attempts fail the condition</td>
+</tr>
+<tr>
+<td>Internal task processing (transfer/timer/…)</td>
+<td>At-least-once execution, effectively-once outcome</td>
+<td><a href="../history-service-internals/#internal-task-queues-and-the-transactional-outbox">Transactional outbox</a> + idempotent/deduped task effects</td>
+</tr>
+<tr>
+<td>Task dispatch to workers</td>
+<td>At-least-once</td>
+<td>Redelivery on timeout; completion validated against current state</td>
+</tr>
+<tr>
+<td><strong>Activity execution</strong></td>
+<td><strong>At-least-once</strong></td>
+<td>Server retries; <em>your</em> code must tolerate re-execution</td>
+</tr>
+<tr>
+<td>Signal delivery</td>
+<td>Effectively-once (deduped by request ID)</td>
+<td>Recorded in history exactly once</td>
+</tr>
+</tbody>
+</table>
+<p>The last row people get wrong in interviews: Temporal does <strong>not</strong> make your side effects
+exactly-once. It makes its <em>own</em> state exactly-once and hands you at-least-once activity
+execution; closing the gap is your job, via idempotency.</p>
+<h2 id="idempotency-and-dedup">Idempotency and Dedup<a class="headerlink" href="#idempotency-and-dedup" title="Permanent link">&para;</a></h2>
+<p>An operation is idempotent if performing it twice has the same effect as once. The standard tools:</p>
+<ul>
+<li><strong>Idempotency keys</strong> — the caller supplies a unique key per logical operation; the receiver
+  stores key → result and returns the stored result on replays. In Temporal activities, derive
+  the key from stable identity: <code>workflow_id + activity_id</code> (or a business key from the input) —
+  <em>not</em> a random UUID generated inside the activity, which changes on retry and defeats the
+  purpose.</li>
+<li><strong>Natural idempotency</strong> — upserts, absolute writes (<code>SET balance = 100</code> vs <code>ADD 10</code>),
+  create-if-not-exists.</li>
+<li><strong>Dedup at the boundary</strong> — Temporal itself dedupes <code>StartWorkflowExecution</code> by <strong>request ID</strong>
+  (client retries of the same start don't create two executions) and by <strong>workflow ID</strong>: at most
+  one open execution per ID per namespace, with a reuse policy controlling whether a completed
+  ID can be reused (allow duplicate / allow only if failed / reject). Workflow ID = business key
+  (e.g. <code>order-4711</code>) is the idiom — it turns the uniqueness constraint into a free distributed
+  lock.</li>
+</ul>
+<hr />
+<h2 id="event-sourcing-and-cqrs">Event Sourcing and CQRS<a class="headerlink" href="#event-sourcing-and-cqrs" title="Permanent link">&para;</a></h2>
+<p><strong>Event sourcing</strong>: persist the sequence of state-changing events as the source of truth; current
+state is a fold (reduction) over the log. Temporal's event history is a textbook implementation,
+with <a href="../durable-execution-fundamentals/#the-core-mechanism-event-sourcing-deterministic-replay">deterministic replay</a>
+as the fold — and the workflow <em>code</em> as the fold function.</p>
+<p><strong>CQRS</strong> (Command Query Responsibility Segregation): separate the write path from the read path,
+letting each use a representation optimized for its job. Temporal implements it twice:</p>
+<ul>
+<li><strong>Mutable state</strong> is a write-side projection of history — a summary the server maintains so
+  transitions don't re-read the log (<a href="../history-service-internals/#mutable-state-event-history">details</a>).</li>
+<li><strong>Visibility</strong> is a read-side projection — executions asynchronously indexed into Elasticsearch
+  for list/search queries, eventually consistent with core state
+  (<a href="../temporal-architecture/#persistence-layer">details</a>).</li>
+</ul>
+<p>Contrast with classic app-level event sourcing: there, <em>you</em> design events, projections, and
+schema evolution. Temporal internalizes all of it — events are SDK-defined protocol events, the
+projection is replay. You get event sourcing's guarantees without designing an event schema; you
+give up direct control of the log's contents.</p>
+<hr />
+<h2 id="sharding-and-coordination-without-consensus">Sharding and Coordination Without Consensus<a class="headerlink" href="#sharding-and-coordination-without-consensus" title="Permanent link">&para;</a></h2>
+<p><strong>Hash vs. range sharding</strong>: hash sharding (Temporal: <code>hash(namespace, workflow_id) % N</code>)
+distributes load uniformly and needs no directory, but loses locality and makes resharding hard —
+which is exactly Temporal's trade: uniform distribution, fixed shard count, no range scans needed
+(all access is point-lookup by workflow ID). Range sharding (HBase, CockroachDB, Spanner) preserves
+locality for scans and splits dynamically, at the cost of hot-range management.</p>
+<p>The more interesting design decision: <strong>Temporal runs no consensus protocol of its own.</strong> No Raft
+group per shard, no Paxos in the History service. Instead:</p>
+<ol>
+<li><strong>Membership + routing</strong> via Ringpop (SWIM gossip + consistent hashing) — determines who
+   <em>should</em> own each shard. Gossip is eventually consistent and can be briefly wrong.</li>
+<li><strong>Correctness</strong> via <strong>fencing tokens + conditional writes at the database</strong>: shard ownership
+   carries a monotonically increasing <code>range_id</code>; every write is conditional on it. A stale owner's
+   writes fail atomically. (This is Lamport's fencing-token pattern — the same one that fixes
+   naive distributed locks.)</li>
+</ol>
+<p>Consensus does exist in the stack — <em>delegated to the persistence layer</em>: Cassandra LWT runs Paxos
+per partition; an RDBMS serializes via its transaction machinery (and its own HA replication).
+The layering is the lesson: <strong>routing can be sloppy if writes are fenced; push agreement down to
+one place that already does it well.</strong> Compare Kafka (Raft/ZooKeeper for partition leadership) or
+CockroachDB (Raft per range), which own consensus themselves — different placement of the same
+responsibility.</p>
+<hr />
+<h2 id="persistence-trade-offs">Persistence Trade-offs<a class="headerlink" href="#persistence-trade-offs" title="Permanent link">&para;</a></h2>
+<p>Temporal's persistence is pluggable, and the choice is a classic interview discussion:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Cassandra</th>
+<th>MySQL / PostgreSQL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Write scaling</td>
+<td>Horizontal, linear with nodes — matches the shard model</td>
+<td>Vertical (single primary), then app-level sharding pain</td>
+</tr>
+<tr>
+<td>Conditional writes</td>
+<td>LWT = Paxos round per write — correct but costly (multiple round trips)</td>
+<td>Native transactions / optimistic concurrency — cheap</td>
+</tr>
+<tr>
+<td>Operations</td>
+<td>A distributed system of its own: compactions, repairs, tombstones</td>
+<td>Boring, well-understood, managed offerings everywhere</td>
+</tr>
+<tr>
+<td>Fit</td>
+<td>Large clusters, very high transition rates</td>
+<td>Most deployments below that scale</td>
+</tr>
+</tbody>
+</table>
+<p>The meta-point: Temporal pays LWT costs to buy linear scale; <strong>DBOS bets the exact opposite</strong> —
+that one Postgres instance (transactions are free, ops are boring) covers the majority of real
+workloads, and durable execution should be a library over it rather than a service cluster.
+Neither is wrong; they target different points on the scale/operability curve. Being able to argue
+both sides, with the crossover criteria (sustained state-transitions/sec, multi-region needs, team
+ops capacity), is senior-interview material.</p>
+<hr />
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>"Exactly-once" is a trap phrase</strong> — immediately split it: delivery (impossible) vs. processing
+  (achievable via at-least-once + idempotency). Then place Temporal's guarantees on that map,
+  ending with "activities are at-least-once, so idempotency is the developer's contract."</li>
+<li><strong>Fencing tokens</strong> — the Temporal shard <code>range_id</code> is the cleanest production example of the
+  pattern; it also answers "how do you handle split-brain without consensus?"</li>
+<li><strong>Event sourcing + CQRS</strong> — be ready to point at three projections of one log (replay for
+  workers, mutable state for the server, visibility for search) — it shows the concepts as tools
+  rather than buzzwords.</li>
+<li><strong>Trade-off fluency</strong> — hash vs. range sharding, Cassandra vs. Postgres, consensus-in-the-store
+  vs. consensus-in-the-service: each has a "Temporal chose X because Y; the opposite choice is
+  right when Z" answer.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../matching-service-task-queues/" class="btn btn-neutral float-left" title="Matching Service and Task Queues"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../multi-cluster-nexus-advanced/" class="btn btn-neutral float-right" title="Multi-Cluster, Nexus, and Advanced Platform Features">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../matching-service-task-queues/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../multi-cluster-nexus-advanced/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

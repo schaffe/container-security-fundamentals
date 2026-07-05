@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Durable Execution Fundamentals - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Durable Execution Fundamentals";
+        var mkdocs_page_input_path = "articles/durable-execution/durable-execution-fundamentals.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Durable Execution Fundamentals</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#what-problem-it-solves">What Problem It Solves</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-core-mechanism-event-sourcing-deterministic-replay">The Core Mechanism: Event Sourcing + Deterministic Replay</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#workflow-as-code-vs-workflow-as-dsl">Workflow-as-Code vs. Workflow-as-DSL</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#lineage-swf-cadence-temporal">Lineage: SWF → Cadence → Temporal</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-landscape-2026">The Landscape (2026)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-ai-agents-became-the-killer-workload">Why AI Agents Became the Killer Workload</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Durable Execution Fundamentals</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/durable-execution-fundamentals.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="durable-execution-fundamentals">Durable Execution Fundamentals<a class="headerlink" href="#durable-execution-fundamentals" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Durable execution is a programming model where the full execution state of a program survives any
+crash — process death, node failure, deploy, network partition — and resumes exactly where it left
+off. The application code looks like ordinary sequential code ("call service A, wait 30 days, call
+service B"), but the runtime guarantees it runs to completion even if every machine involved is
+replaced along the way.</p>
+<p>It is a <em>category</em>, not a single product. Temporal is the best-known implementation, but the same
+idea appears in Cadence, Azure Durable Functions, Restate, DBOS, and Inngest. Understanding the
+mechanism — event sourcing plus deterministic replay — matters more than any one vendor's API.</p>
+<hr />
+<h2 id="what-problem-it-solves">What Problem It Solves<a class="headerlink" href="#what-problem-it-solves" title="Permanent link">&para;</a></h2>
+<p>Any multi-step business process that outlives a single request hits the same wall: partial failure.
+Consider order fulfillment — charge the card, reserve inventory, ship, email the customer. The
+naive implementation scatters state across five systems:</p>
+<pre><code>┌──────────┐   ┌───────┐   ┌──────────┐   ┌──────────┐
+│ DB rows   │  │ Queues │  │ Cron jobs │  │ Retry     │
+│ (status   │  │ (next  │  │ (sweep    │  │ tables +  │
+│  columns) │  │  step) │  │  stuck    │  │ dead-letter│
+│           │  │        │  │  orders)  │  │ queues    │
+└──────────┘   └───────┘   └──────────┘   └──────────┘
+</code></pre>
+<p>The actual state machine — "where is order 4711 in its lifecycle?" — exists only implicitly, spread
+across status columns, in-flight queue messages, and sweeper cron jobs. Every failure mode needs
+hand-written recovery:</p>
+<ul>
+<li><strong>Process crashes between step 2 and 3</strong> — need a reconciliation job to find orphans.</li>
+<li><strong>Payment succeeded but the DB write failed</strong> — need idempotency keys and dedup logic.</li>
+<li><strong>Step 3 must happen 30 days after step 2</strong> — need a durable timer, so another table + cron.</li>
+<li><strong>Compensation on failure</strong> (refund the charge if shipping fails) — hand-rolled saga logic.</li>
+</ul>
+<p>Each piece is individually simple; the composition is where systems rot. Durable execution
+collapses all of it into one abstraction: the workflow <em>is</em> the state machine, expressed as code,
+and the platform makes the code's execution state durable.</p>
+<pre><code class="language-python"># The entire order lifecycle, crash-proof:
+async def order_workflow(order):
+    charge = await execute_activity(charge_card, order)      # retried until success
+    try:
+        await execute_activity(reserve_inventory, order)
+        await execute_activity(ship, order)
+    except ApplicationError:
+        await execute_activity(refund, charge)                # saga compensation
+        raise
+    await sleep(timedelta(days=30))                           # durable timer
+    await execute_activity(send_review_request, order)
+</code></pre>
+<p>If the worker running this dies at any line, another worker picks up and continues from that exact
+line — with all local variables intact.</p>
+<hr />
+<h2 id="the-core-mechanism-event-sourcing-deterministic-replay">The Core Mechanism: Event Sourcing + Deterministic Replay<a class="headerlink" href="#the-core-mechanism-event-sourcing-deterministic-replay" title="Permanent link">&para;</a></h2>
+<p>The trick is <em>not</em> checkpointing memory. Durable execution engines record every <strong>non-deterministic
+decision</strong> the workflow makes as an event in an append-only log:</p>
+<pre><code>1  WorkflowExecutionStarted   {input: order-4711}
+2  ActivityTaskScheduled      {activity: charge_card}
+3  ActivityTaskCompleted      {result: charge-991}
+4  ActivityTaskScheduled      {activity: reserve_inventory}
+5  ActivityTaskCompleted      {result: ok}
+6  TimerStarted               {duration: 30d}
+...
+</code></pre>
+<p>To recover after a crash, the engine <strong>re-executes the workflow function from the beginning</strong> on a
+fresh worker. Every time the code reaches a point that previously produced an event (an activity
+call, a timer, a random number), the SDK doesn't re-perform the side effect — it feeds back the
+recorded result from history. The code deterministically retraces its own steps until it reaches
+the first point with no recorded event, and from there continues live.</p>
+<p>This imposes the one iron rule of the model: <strong>workflow code must be deterministic</strong>. Same history
+in, same decisions out. Side effects, wall-clock reads, randomness, and iteration-order-dependent
+logic must be pushed into <strong>activities</strong> — ordinary functions that may fail and be retried, whose
+<em>results</em> are what gets recorded.</p>
+<p>Two consequences worth internalizing:</p>
+<ol>
+<li><strong>Workflow state transitions are effectively-once.</strong> The event log is the source of truth,
+   written with transactional guarantees; replay reconstructs identical state.</li>
+<li><strong>Activity execution is at-least-once.</strong> An activity may run, succeed, and crash before
+   reporting completion — the engine will retry it. Activities must be idempotent; the platform
+   cannot make external side effects exactly-once for you.</li>
+</ol>
+<h3 id="workflow-as-code-vs-workflow-as-dsl">Workflow-as-Code vs. Workflow-as-DSL<a class="headerlink" href="#workflow-as-code-vs-workflow-as-dsl" title="Permanent link">&para;</a></h3>
+<p>The older generation of orchestrators (BPMN engines, AWS Step Functions) expresses workflows as
+declarative state machines — JSON/XML documents interpreted by the engine. Durable execution's bet
+is that real business logic (loops, conditionals, error handling, data transformation) is better
+expressed in a general-purpose language with its native control flow, debugger, and test tooling.
+The cost is the determinism constraint; the payoff is that a 40-state JSON document becomes 40
+lines of readable code.</p>
+<hr />
+<h2 id="lineage-swf-cadence-temporal">Lineage: SWF → Cadence → Temporal<a class="headerlink" href="#lineage-swf-cadence-temporal" title="Permanent link">&para;</a></h2>
+<p>The model has a direct genealogy:</p>
+<table>
+<thead>
+<tr>
+<th>Year</th>
+<th>System</th>
+<th>Contribution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2012</td>
+<td><strong>AWS Simple Workflow (SWF)</strong></td>
+<td>Introduced task lists, decision tasks, and the replay model; API too low-level for adoption</td>
+</tr>
+<tr>
+<td>2016</td>
+<td><strong>Cadence</strong> (Uber)</td>
+<td>Maxim Fateev and Samar Abbas (both ex-SWF) rebuilt the model as OSS: workflow-as-code SDKs, Cassandra persistence, multi-tenant clusters. Ran Uber's driver payments, trip processing</td>
+</tr>
+<tr>
+<td>2019</td>
+<td><strong>Temporal</strong></td>
+<td>Fateev and Abbas forked Cadence into a company. Same architecture lineage, rewritten internals, commercial cloud offering</td>
+</tr>
+</tbody>
+</table>
+<p>Cadence proved the model at scale and still exists as an independent Uber-led project; Temporal is
+where the ecosystem's momentum went. The core architecture ideas — sharded history service, matching
+service with long-poll dispatch, event-sourced workflow state — carried through the whole lineage.</p>
+<hr />
+<h2 id="the-landscape-2026">The Landscape (2026)<a class="headerlink" href="#the-landscape-2026" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Model</th>
+<th>Persistence</th>
+<th>Operational weight</th>
+<th>Sweet spot</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Temporal</strong></td>
+<td>Workflow-as-code, replay-based; polyglot SDKs (Go, Java, TS, Python, .NET, Ruby, PHP)</td>
+<td>Cassandra / MySQL / Postgres + Elasticsearch for visibility</td>
+<td>Heavy: 4-service cluster + DB + your worker fleet (or Temporal Cloud)</td>
+<td>Proven scale (Uber-lineage; Snap, Netflix, Stripe, Coinbase); complex, long-lived, high-value workflows</td>
+</tr>
+<tr>
+<td><strong>Cadence</strong></td>
+<td>Same model (common ancestor)</td>
+<td>Cassandra / SQL</td>
+<td>Same shape as Temporal</td>
+<td>Existing Uber-ecosystem shops</td>
+</tr>
+<tr>
+<td><strong>DBOS</strong></td>
+<td>Library, not server: durable execution as Postgres transactions in-process</td>
+<td>Postgres only</td>
+<td>Minimal — "one database, one deploy"</td>
+<td>Postgres-centric apps that want durability without new infrastructure</td>
+</tr>
+<tr>
+<td><strong>Restate</strong></td>
+<td>Log-based sidecar/server; durable RPC + virtual objects</td>
+<td>Own embedded log (RocksDB-based)</td>
+<td>Light single binary</td>
+<td>Latency-sensitive durable services, event-driven state machines</td>
+</tr>
+<tr>
+<td><strong>Inngest</strong></td>
+<td>Step functions over an event bus, serverless-first</td>
+<td>Managed</td>
+<td>Near-zero (SaaS)</td>
+<td>Product teams on serverless; AI/agent step orchestration</td>
+</tr>
+<tr>
+<td><strong>Azure Durable Functions</strong></td>
+<td>Replay-based (same mechanism), C#/JS on Azure Functions</td>
+<td>Azure Storage / Durable Task Scheduler</td>
+<td>Managed</td>
+<td>Azure-native shops</td>
+</tr>
+<tr>
+<td><strong>AWS Step Functions</strong></td>
+<td>Declarative JSON state machine (not durable <em>code</em>)</td>
+<td>Managed</td>
+<td>Zero</td>
+<td>AWS-native glue, simple linear flows</td>
+</tr>
+</tbody>
+</table>
+<p>The recurring trade-off: <strong>Temporal's operational weight buys proven horizontal scale and the
+richest programming model; the lightweight entrants bet most teams don't need that scale.</strong> DBOS
+argues a single Postgres carries you further than people think; Restate attacks latency (its log
+sits in the request path, replacing several Temporal round-trips); Step Functions concedes the
+programming model to stay serverless.</p>
+<h3 id="why-ai-agents-became-the-killer-workload">Why AI Agents Became the Killer Workload<a class="headerlink" href="#why-ai-agents-became-the-killer-workload" title="Permanent link">&para;</a></h3>
+<p>Since ~2024 the fastest-growing durable-execution workload is AI agent orchestration. An agent loop
+is precisely the pathological case the model was built for: long-running, many external calls
+(LLM APIs, tools) each of which is slow and flaky, human-in-the-loop pauses of unbounded duration,
+and expensive partial progress you cannot afford to lose. "Retry the failed LLM call, don't rerun
+the whole 40-step agent session" is durable execution's value proposition verbatim. Temporal
+reported that AI-native companies generate a dominant share of new cloud usage, and every
+competitor (Inngest, Restate, DBOS) now leads with agent-orchestration messaging.</p>
+<hr />
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<p>Senior-level signals to hit when this topic comes up:</p>
+<ul>
+<li><strong>Name the mechanism precisely</strong>: event sourcing of non-deterministic decisions + deterministic
+  replay — not "checkpointing", not "saving memory snapshots".</li>
+<li><strong>State the guarantee split unprompted</strong>: workflow state transitions effectively-once, activity
+  execution at-least-once, therefore activities must be idempotent.</li>
+<li><strong>Frame it as a consolidation play</strong>: durable execution replaces the queue + status-column +
+  cron + reconciliation-job stack with one primitive. Be ready to argue when that trade is <em>not</em>
+  worth it (simple request/response services, extreme low-latency paths, teams unwilling to
+  operate the cluster).</li>
+<li><strong>Know the lineage</strong> (SWF → Cadence → Temporal, same founders) — it explains why the
+  architecture looks the way it does and signals genuine familiarity in a Temporal interview.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../docker/product-strategy/docker-supply-chain-platform/" class="btn btn-neutral float-left" title="Docker's Supply Chain Platform Strategy"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../temporal-programming-model/" class="btn btn-neutral float-right" title="Temporal Programming Model">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../../docker/product-strategy/docker-supply-chain-platform/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../temporal-programming-model/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

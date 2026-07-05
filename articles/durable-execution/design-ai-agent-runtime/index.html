@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>System Design: AI Agent Runtime - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "System Design: AI Agent Runtime";
+        var mkdocs_page_input_path = "articles/durable-execution/design-ai-agent-runtime.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">System Design: AI Agent Runtime</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-insight">Key Insight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requirements-and-api-sketch">Requirements and API Sketch</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-design-mapping-agent-concepts-onto-durable-execution">The Design: Mapping Agent Concepts onto Durable Execution</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">System Design: AI Agent Runtime</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/design-ai-agent-runtime.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="system-design-ai-agent-runtime">System Design: AI Agent Runtime<a class="headerlink" href="#system-design-ai-agent-runtime" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>"Design a runtime for AI agents" is the 2026-relevant skin over
+<a href="../design-a-workflow-engine/">the workflow-engine question</a>: an agent is a loop of plan → act →
+observe that may run for hours or days, calls slow flaky expensive APIs (LLMs, tools), waits on
+humans, and must never lose progress or double-spend. The engine internals — event log, outbox,
+sharding — are unchanged and covered in the workflow-engine article; this article covers the
+mapping and the agent-specific pressure points interviewers actually probe: cost control,
+non-determinism discipline, history growth, and payload limits. It's also why agents became
+durable execution's killer workload
+(<a href="../durable-execution-fundamentals/#why-ai-agents-became-the-killer-workload">landscape</a>).</p>
+<h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
+<p>The agent loop <strong>is</strong> a workflow; every LLM call and tool call <strong>is</strong> an activity. That one
+mapping buys the whole reliability story for free — crash-proof loop state, retries with backoff
+for rate limits, heartbeats for long calls, signals for human approval — <em>provided</em> you hold the
+determinism line: the LLM's output is a <strong>recorded activity result</strong>, replayed from history,
+never recomputed. An agent that re-asked the model on replay would be nondeterministic (models
+aren't pure functions) and would re-pay for every past call. Everything agent-specific in this
+design is a consequence of holding that line.</p>
+<hr />
+<h2 id="requirements-and-api-sketch">Requirements and API Sketch<a class="headerlink" href="#requirements-and-api-sketch" title="Permanent link">&para;</a></h2>
+<p><strong>Functional:</strong></p>
+<ul>
+<li>Start an agent run with a goal/prompt; it loops: ask LLM → parse decision → execute tool →
+  feed observation back → repeat until done.</li>
+<li>Tool calls hit external systems (search, code exec, email, payments) — retries, timeouts,
+  idempotency all required.</li>
+<li>Human-in-the-loop: pause for approval before irreversible actions; wait indefinitely.</li>
+<li>Budgets: hard caps on tokens/dollars/steps per run — enforced, not advisory.</li>
+<li>Multi-agent: a supervisor fans out to specialist sub-agents and aggregates.</li>
+</ul>
+<p><strong>Non-functional:</strong></p>
+<ul>
+<li>No run loses progress on any crash — a run that has paid for 30 LLM calls must resume, not
+  restart. The headline requirement, and the reason "retry the whole loop" is disqualifying.</li>
+<li>LLM calls: seconds to minutes, rate-limited, occasionally hung — the flakiest dependency
+  you'll ever orchestrate. Cost per call is real money, so at-most-once <em>payment</em> pressure
+  coexists with at-least-once <em>delivery</em> reality.</li>
+<li>Runs from seconds to weeks (human waits dominate wall-clock time).</li>
+</ul>
+<pre><code>StartAgent(goal, budget, tools) -&gt; run_id        Approve(run_id, decision)   # signal/update
+GetState(run_id) -&gt; transcript/status            Cancel(run_id)
+</code></pre>
+<hr />
+<h2 id="the-design-mapping-agent-concepts-onto-durable-execution">The Design: Mapping Agent Concepts onto Durable Execution<a class="headerlink" href="#the-design-mapping-agent-concepts-onto-durable-execution" title="Permanent link">&para;</a></h2>
+<p>Don't rebuild the engine — state that the substrate is the
+<a href="../design-a-workflow-engine/">workflow engine</a> (event log + replay, transactional outbox, sharded
+single-writer orchestrator) and spend the interview on the mapping:</p>
+<table>
+<thead>
+<tr>
+<th>Agent concept</th>
+<th>Durable-execution primitive</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plan → act → observe loop</td>
+<td>Workflow code (deterministic)</td>
+<td>Loop counter, transcript refs, budget — all durable local state; crash ⇒ replay, not restart</td>
+</tr>
+<tr>
+<td>LLM call</td>
+<td>Activity with retry policy</td>
+<td>Flaky + slow + expensive ⇒ backoff on 429s, timeout per attempt</td>
+</tr>
+<tr>
+<td>Tool call</td>
+<td>Activity with idempotency key</td>
+<td>Side effects are at-least-once ⇒ dedup at the target (<a href="../distributed-systems-foundations/#idempotency-and-dedup">foundations</a>)</td>
+</tr>
+<tr>
+<td>Human approval</td>
+<td>Signal / update + unbounded wait</td>
+<td>Durable wait costs nothing while blocked (<a href="../temporal-programming-model/#interacting-with-running-workflows">timers/signals</a>)</td>
+</tr>
+<tr>
+<td>Token/cost budget</td>
+<td>Workflow state checked each iteration</td>
+<td>Enforced in orchestration code ⇒ survives crashes, can't be bypassed by a retrying activity</td>
+</tr>
+<tr>
+<td>Sub-agents</td>
+<td>Child workflows</td>
+<td>Independent histories, parallel fan-out, failure isolation (<a href="../temporal-programming-model/#child-workflows">child workflows</a>)</td>
+</tr>
+<tr>
+<td>Cross-team/cross-cluster agents</td>
+<td>Nexus operations</td>
+<td>Contract-first calls across namespace boundaries (<a href="../multi-cluster-nexus-advanced/#nexus">Nexus</a>)</td>
+</tr>
+<tr>
+<td>Long transcript</td>
+<td>Blob storage + references in history</td>
+<td>Payload limits; history carries pointers, not megabytes</td>
+</tr>
+</tbody>
+</table>
+<p>The agent-specific design decisions, each one interview-defensible:</p>
+<ol>
+<li><strong>LLM calls as activities, tuned for the failure mode.</strong> Rate limits (429) want retries with
+   exponential backoff + jitter and a low per-attempt timeout; hung streaming calls want
+   <strong>heartbeats</strong> so a dead worker is detected in seconds, not at the end of a generous timeout
+   (<a href="../temporal-programming-model/#activity-timeouts">activity timeouts</a>). Retrying an LLM call
+   re-pays for it — acceptable for a failed call, so keep attempts bounded and surface
+   non-retryable errors (content policy, invalid request) as such instead of burning budget.</li>
+<li><strong>Budgets as workflow state with hard stops.</strong> After each LLM activity completes, workflow
+   code adds the recorded token/cost usage to a durable counter; when the cap is hit, the loop
+   exits to a "needs human decision" state — a signal wait, not an exception swallowed by a
+   retry policy. Because the counter lives in orchestration state, it's crash-proof and replay
+   reconstructs it exactly; a budget enforced inside the activity would reset on retry.</li>
+<li><strong>Human-in-the-loop via signals/updates.</strong> Before an irreversible tool call, the workflow
+   waits on an approval signal — for minutes or weeks, consuming no worker resources. Pair the
+   wait with a durable timer for escalation ("no answer in 48h ⇒ ping the manager, then
+   auto-reject"). Use <em>update</em> (not bare signal) when the approver needs a validated,
+   synchronous response.</li>
+<li><strong>Non-determinism discipline.</strong> Workflow code may branch on LLM output (it's in history), but
+   must never <em>produce</em> it: no model calls, no sampling, no <code>random()</code>/<code>now()</code> outside the SDK's
+   deterministic wrappers (<a href="../temporal-programming-model/#determinism-constraints-and-replay">determinism constraints</a>).
+   Same rule for tool selection if it involves any randomness — push it into the activity.</li>
+<li><strong>Payloads: references, not transcripts.</strong> Histories have per-payload and per-history size
+   limits; a 200KB context window passed to every LLM activity blows them fast. Store transcript
+   turns and artifacts (files, images, tool outputs) in blob storage; activities take and return
+   references plus small summaries. The history stays a compact decision log.</li>
+<li><strong>History growth ⇒ continue-as-new.</strong> Every loop iteration appends events (activity
+   scheduled/started/completed × calls per turn); a 200-turn agent approaches history limits and
+   slows replay. Check <code>should_continue_as_new</code> each iteration and roll over, carrying only the
+   compact state: goal, budget spent, loop counter, blob references to the transcript — not the
+   event history itself (<a href="../temporal-programming-model/#continue-as-new-and-the-history-limit">continue-as-new</a>).</li>
+<li><strong>Multi-agent fan-out via child workflows.</strong> Supervisor spawns specialist children (research,
+   code, review), each with its own history, budget slice, and continue-as-new schedule;
+   supervisor aggregates results and enforces the global budget. For agents owned by <em>other
+   teams</em>, call them as Nexus operations across namespaces rather than reaching into their
+   workflows.</li>
+</ol>
+<hr />
+<h2 id="deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull<a class="headerlink" href="#deep-dive-prompts-interviewers-pull" title="Permanent link">&para;</a></h2>
+<p><strong>"The agent crashed after paying for 30 LLM calls — what re-executes?"</strong>
+Nothing. The 30 completed calls exist in history as recorded activity results; a new worker
+replays the workflow code, and each <code>execute_activity</code> call is satisfied from history — no
+network call, no tokens, no money. Only an activity that was <em>in flight</em> at crash time runs
+again, under its retry policy — which is why tool calls carry idempotency keys and why LLM calls
+bound their attempts. This is the recorded-result rule paying off; it's the single best answer in
+this interview.</p>
+<p><strong>"How do you stop a retry storm from bankrupting me during an LLM outage?"</strong>
+Layered: per-attempt timeout + capped exponential backoff with jitter on the activity; a maximum
+attempt count so the activity <em>fails</em> rather than retries forever; the workflow-level budget
+counter as the backstop (retries that do succeed still consume budget); and worker-side
+concurrency limits so a thousand agents don't synchronize their retries into the provider. The
+budget check lives in workflow code precisely because activity-level state resets on retry.</p>
+<p><strong>"Human approval takes two weeks. What does that cost?"</strong>
+Almost nothing — a blocked workflow is rows in the store, not a running process. No worker slot,
+no container, no connection is held. This is the durable-timer/signal machinery from the
+<a href="../design-a-workflow-engine/">engine design</a>; the agent skin adds only the escalation pattern
+(timer racing the signal). Contrast explicitly with "agent framework holds the loop in memory,"
+which turns two weeks of waiting into two weeks of process babysitting and loses the run on any
+deploy.</p>
+<p><strong>"Histories are exploding — a chatty agent does 500 turns."</strong>
+Two independent fixes, name both: keep per-event payloads small (blob refs, not transcripts) so
+the history is a decision log; and continue-as-new on a turn/size threshold so no single
+execution's history is unbounded. Be precise about what crosses the continue-as-new boundary:
+inputs to the next execution (goal, counters, refs) — pending signals and in-flight activities
+need draining first, which is why the check happens at the top of the loop, not mid-turn.</p>
+<p><strong>"Why not just LangChain/LangGraph a loop with a database checkpoint?"</strong>
+Checkpointing state is the easy half; the hard half is everything around it — exactly-once state
+transitions, at-least-once dispatch with lease expiry, durable timers that survive restarts,
+signal delivery racing completions — i.e., the <a href="../design-a-workflow-engine/">workflow engine</a>.
+A hand-rolled checkpoint loop is v1 of that article with the same four failure modes (crash
+mid-step double-fires the tool, DB-as-queue, fused orchestration/execution, opaque blob). Framing
+the agent framework as the <em>programming model</em> and durable execution as the <em>substrate</em> — they
+compose, not compete — is the senior answer.</p>
+<p><strong>"The model provider returns different outputs for identical requests. Doesn't that break replay?"</strong>
+No — and explaining <em>why not</em> proves you understand the mechanism. Determinism is required of the
+<em>workflow code</em>, not the world: the activity ran once, its result was recorded, and replay feeds
+the recording back. The model could be discontinued tomorrow and old runs still replay. It breaks
+only if someone calls the model <em>from workflow code</em> — the number-one code-review rule for this
+platform.</p>
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Open with the mapping table, not architecture: loop = workflow, LLM/tool = activities,
+  approval = signals, budgets = workflow state, fan-out = child workflows. Then say the substrate
+  is the <a href="../design-a-workflow-engine/">durable workflow engine</a> and go deep only where the agent
+  workload stresses it: cost, payloads, history growth.</li>
+<li>The recorded-result rule is the load-bearing insight — volunteer the "crash after 30 paid
+  calls" story before it's asked.</li>
+<li>Show cost-consciousness as a first-class requirement: budgets in workflow state, bounded
+  retries, non-retryable error classification. This is what distinguishes 2026 agent-runtime
+  answers from generic workflow answers.</li>
+<li>Keep the framing vendor-neutral with Temporal as the reference implementation; the
+  at-least-once + idempotency vocabulary comes from
+  <a href="../distributed-systems-foundations/#at-least-once-at-most-once-exactly-once">foundations</a>, the
+  primitives from the <a href="../temporal-programming-model/">programming model</a>.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../design-distributed-cron/" class="btn btn-neutral float-left" title="System Design: Distributed Cron"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../design-payment-saga/" class="btn btn-neutral float-right" title="System Design: Payment Saga Orchestrator">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../design-distributed-cron/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../design-payment-saga/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

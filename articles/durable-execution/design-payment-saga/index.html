@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>System Design: Payment Saga Orchestrator - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "System Design: Payment Saga Orchestrator";
+        var mkdocs_page_input_path = "articles/durable-execution/design-payment-saga.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">System Design: Payment Saga Orchestrator</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-insight">Key Insight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requirements-and-api-sketch">Requirements and API Sketch</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#design">Design</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#orchestration-vs-choreography">Orchestration vs. Choreography</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-saga-as-a-workflow">The Saga as a Workflow</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#idempotency-on-every-money-movement">Idempotency on Every Money Movement</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#event-history-as-the-audit-trail">Event History as the Audit Trail</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stuck-states-timeouts-and-human-review">Stuck States: Timeouts and Human Review</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#reconciliation-as-a-backstop">Reconciliation as a Backstop</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#happy-path-and-compensation-path">Happy Path and Compensation Path</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">System Design: Payment Saga Orchestrator</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/design-payment-saga.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="system-design-payment-saga-orchestrator">System Design: Payment Saga Orchestrator<a class="headerlink" href="#system-design-payment-saga-orchestrator" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>"Design a payment saga orchestrator" is the money-flavored skin on the
+<a href="../design-a-workflow-engine/#variants">workflow engine question</a>: a service that drives a
+multi-step payment — hold funds, capture, credit the ledger, notify — across services that can
+each fail independently, with no distributed transaction to hide behind. The interviewer is
+testing whether you can name what replaces the transaction: the <strong>saga pattern</strong>, compensation,
+idempotency on every money movement, and an audit trail. This article covers the saga design
+itself, the deep-dive prompts, and where the workflow-engine machinery slots in underneath.</p>
+<h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
+<p>A saga replaces atomicity with <strong>compensation</strong>: each step has an undo (refund, release hold),
+and the orchestrator guarantees that either all steps complete or all completed steps are
+compensated. But compensation only makes the sequence <em>recoverable</em> — it doesn't make individual
+steps safe to retry. That takes <strong>idempotency keys on every money movement</strong>, and "exactly-once"
+ledger semantics built by deduplicating <strong>at the ledger</strong>, not by hoping the caller never
+retries. Saga = compensation for the sequence + idempotency for each step + an event log so you
+can prove what happened.</p>
+<hr />
+<h2 id="requirements-and-api-sketch">Requirements and API Sketch<a class="headerlink" href="#requirements-and-api-sketch" title="Permanent link">&para;</a></h2>
+<p><strong>Functional:</strong></p>
+<ul>
+<li>Execute a payment as an ordered sequence of steps: <code>AuthorizeCard → HoldFunds → Capture →
+  CreditLedger → Notify</code>, each calling a separate service (PSP, internal ledger, email).</li>
+<li>On failure past the point of no return for earlier steps, run compensations in reverse order
+  (release hold, refund capture).</li>
+<li>Query payment state at any time; expose stuck payments for human review.</li>
+<li>Payments may take days (3-D Secure challenges, bank transfers, manual fraud review).</li>
+</ul>
+<p><strong>Non-functional:</strong></p>
+<ul>
+<li><strong>No money lost or duplicated</strong> under any single-component crash — the headline requirement,
+  stronger than the generic engine's "no workflow lost."</li>
+<li>Every state change must be auditable: who moved what money, when, why, and what the response
+  was — regulators and disputes both demand it.</li>
+<li>Scale: modest by engine standards (~100K payments/day is a big shop); correctness dominates
+  throughput. Say so — it licenses simple, serialized designs.</li>
+</ul>
+<pre><code>StartPayment(payment_id, amount, instrument) -&gt; handle    Signal(payment_id, &quot;3ds_completed&quot;, ...)
+GetPayment(payment_id) -&gt; status/steps/audit              ListStuck(older_than) -&gt; for ops review
+</code></pre>
+<hr />
+<h2 id="design">Design<a class="headerlink" href="#design" title="Permanent link">&para;</a></h2>
+<h3 id="orchestration-vs-choreography">Orchestration vs. Choreography<a class="headerlink" href="#orchestration-vs-choreography" title="Permanent link">&para;</a></h3>
+<p>Two ways to run a saga:</p>
+<ul>
+<li><strong>Choreography</strong>: no coordinator; each service reacts to the previous service's event
+  ("FundsHeld" ⇒ capture service acts). Cheap to start, but the saga's logic is smeared across
+  every participant: nobody owns the state machine, failure paths multiply combinatorially, and
+  answering "where is payment X and why?" means joining logs across services.</li>
+<li><strong>Orchestration</strong>: one component owns the payment's state machine and <em>tells</em> each service
+  what to do, recording every command and response.</li>
+</ul>
+<p><strong>Orchestration wins for money</strong>, and you should say why, not just that: money demands a single
+authoritative answer to "what state is this payment in," a single place to encode compensation
+ordering, and a single audit trail. Choreography trades those away for looser coupling — a good
+trade for notification fan-out, a bad one for funds.</p>
+<h3 id="the-saga-as-a-workflow">The Saga as a Workflow<a class="headerlink" href="#the-saga-as-a-workflow" title="Permanent link">&para;</a></h3>
+<p>The orchestrator is exactly the <a href="../design-a-workflow-engine/">durable workflow engine</a>: the saga
+is a workflow, each money movement is an activity (at-least-once, retried, timed out), and
+compensation is a <code>try/catch</code> in workflow code that runs compensating activities:</p>
+<pre><code>try:
+    AuthorizeCard(...)
+    hold = HoldFunds(...);        compensations.push(ReleaseHold(hold))
+    cap  = Capture(...);          compensations.push(Refund(cap))
+    CreditLedger(...)
+except StepFailed:
+    for c in reversed(compensations): run_with_retries(c)   # compensations can ALSO fail
+</code></pre>
+<p>Two caveats that separate senior answers:</p>
+<ol>
+<li><strong>Compensations can also fail.</strong> <code>Refund</code> calls the same flaky PSP that <code>Capture</code> did. So
+   compensations get the same treatment as forward steps — retries, idempotency keys, timeouts —
+   and a compensation that exhausts retries escalates to human review; it does not silently drop.</li>
+<li><strong>Not everything is compensatable.</strong> A completed payout to an external bank account can't be
+   clawed back by an API call. Order steps so the hardest-to-undo step (the "pivot") comes last,
+   after everything that might force a rollback.</li>
+</ol>
+<h3 id="idempotency-on-every-money-movement">Idempotency on Every Money Movement<a class="headerlink" href="#idempotency-on-every-money-movement" title="Permanent link">&para;</a></h3>
+<p>Every activity that moves money carries an <strong>idempotency key derived from workflow ID + step</strong>
+(e.g. <code>pay-42:capture:1</code>), propagated to the PSP and to the internal ledger. The key is stable
+across retries because it's derived from durable workflow identity, not generated per attempt —
+generate-per-attempt is the classic bug, and interviewers probe for it.</p>
+<p><strong>Exactly-once ledger semantics are built on at-least-once activity execution</strong>: the workflow
+engine will run <code>CreditLedger</code> at least once; the ledger makes duplicates harmless by recording
+the idempotency key with the entry (unique constraint) and returning the original result on
+replay. Dedup lives <strong>at the ledger, not as hope at the caller</strong> — the receiver is the only
+party that can atomically check-and-write. This is the
+<a href="../distributed-systems-foundations/#idempotency-and-dedup">effectively-once recipe</a> applied to
+money.</p>
+<h3 id="event-history-as-the-audit-trail">Event History as the Audit Trail<a class="headerlink" href="#event-history-as-the-audit-trail" title="Permanent link">&para;</a></h3>
+<p>The engine's per-workflow event log — every command issued, every PSP response, every retry,
+every compensation — <em>is</em> the audit trail regulators actually want. You don't build a separate
+audit system; you expose the history you already persist for replay. Disputes ("we never
+captured twice — here's the capture command, its idempotency key, and the PSP's dedup response")
+and compliance reviews read the same log.</p>
+<h3 id="stuck-states-timeouts-and-human-review">Stuck States: Timeouts and Human Review<a class="headerlink" href="#stuck-states-timeouts-and-human-review" title="Permanent link">&para;</a></h3>
+<p>Money gets stuck in limbo: funds held, capture failing, refund also failing. The design must
+name the escape hatch:</p>
+<ul>
+<li>Every step has a <strong>timeout budget</strong>; exhausting retries within it doesn't loop forever — it
+  transitions the payment to <code>NEEDS_REVIEW</code> and pages/queues for a human.</li>
+<li>Human resolution is a <strong>signal</strong> back into the workflow ("PSP confirms capture went through" /
+  "cancel and release"), so the resolution is itself recorded in the history.</li>
+</ul>
+<h3 id="reconciliation-as-a-backstop">Reconciliation as a Backstop<a class="headerlink" href="#reconciliation-as-a-backstop" title="Permanent link">&para;</a></h3>
+<p>A periodic job compares the ledger against PSP settlement reports and flags discrepancies.
+State this — and state its role: <strong>reconciliation is a backstop, not the mechanism</strong>. If your
+correctness story is "reconciliation will catch it," you've designed a system that loses money
+for a day and then notices. Idempotency + the saga's state machine are the mechanism;
+reconciliation catches the residue (PSP bugs, out-of-band operations, cosmic rays).</p>
+<h3 id="happy-path-and-compensation-path">Happy Path and Compensation Path<a class="headerlink" href="#happy-path-and-compensation-path" title="Permanent link">&para;</a></h3>
+<pre><code>Happy:        Orchestrator          PSP              Ledger
+              Authorize(key a1) ──▶ ok
+              HoldFunds(key h1) ──▶ held
+              Capture(key c1)   ──▶ captured
+              Credit(key l1)    ─────────────────▶  entry written (dedup on l1)
+              Notify             ⇒ payment COMPLETED
+
+Compensation: Capture(key c1)   ──▶ ✗ hard decline (after retries)
+              Refund? nothing captured — skip
+              ReleaseHold(key rh1) ─▶ released      (compensations retried like forward steps)
+                                   ⇒ payment FAILED, history shows full trail
+</code></pre>
+<hr />
+<h2 id="deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull<a class="headerlink" href="#deep-dive-prompts-interviewers-pull" title="Permanent link">&para;</a></h2>
+<p><strong>"Capture succeeded but the response timed out — the retry would double-charge."</strong>
+The defining question. The activity retries with the <em>same</em> idempotency key (<code>pay-42:capture:1</code>);
+the PSP recognizes the key and returns the original result — <strong>the retry becomes a read</strong>, not a
+second charge. Follow-ups to expect and pre-empt: the <strong>PSP's dedup window</strong> (many PSPs only
+remember keys for 24h–30 days — a retry after the window is a fresh charge, so cap retry
+horizons below the window or verify-before-retry) and <strong>key scoping</strong> (the key must be unique
+per logical operation, not per payment — capture and refund need different keys, and a re-tried
+saga step must reuse, not regenerate).</p>
+<p><strong>"Why not a distributed transaction across PSP and ledger?"</strong>
+You can't — the PSP is a third party that offers an API, not a 2PC participant. Even internally,
+2PC couples availability (a stuck coordinator blocks everyone) and doesn't cover the external
+call anyway. The saga is what's left: sequence + compensation + idempotency.</p>
+<p><strong>"What if the compensation fails permanently?"</strong>
+Retries with backoff, then <code>NEEDS_REVIEW</code> with funds-in-limbo alerting. The workflow stays open
+(durable timers make "wait for human" free), the history shows exactly what was attempted, and
+the human's decision re-enters as a signal. Never auto-abandon with funds held.</p>
+<p><strong>"How do you prove to an auditor that no double-credit happened?"</strong>
+Two artifacts: the ledger's unique constraint on idempotency keys (structural impossibility of
+duplicate entries per key) and the workflow event history showing every credit command and its
+outcome. Plus reconciliation reports as independent confirmation.</p>
+<p><strong>"One customer fires 500 payments at once — hot workflow?"</strong>
+No — each payment is its own workflow; per-<em>payment</em> serialization is what you want (a payment's
+steps must be ordered), and payments parallelize across shards for free. Contrast with the
+engine question's hot-workflow prompt: here the entity split is natural.</p>
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<p>Lead with orchestration-over-choreography and <em>why money forces it</em> (single owner of state,
+compensation ordering, audit). Build the orchestrator as a durable workflow — don't redesign the
+engine; reference it (<a href="../design-a-workflow-engine/">the design</a>) and spend your time on the
+money-specific layers: idempotency keys derived from workflow ID + step, dedup at the ledger,
+compensations-as-fallible-activities, and the <code>NEEDS_REVIEW</code> escape hatch. The double-charge
+timeout question is near-guaranteed — answer it with "the retry becomes a read" and volunteer
+the dedup-window caveat before they ask. Close with reconciliation, framed correctly: backstop,
+not mechanism. The <a href="../distributed-systems-foundations/">foundations vocabulary</a> (at-least-once,
+effectively-once, dedup at the receiver) carries the cross-questioning.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../design-ai-agent-runtime/" class="btn btn-neutral float-left" title="System Design: AI Agent Runtime"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../design-ai-agent-runtime/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

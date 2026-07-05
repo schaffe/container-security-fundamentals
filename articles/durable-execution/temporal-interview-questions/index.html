@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Temporal Interview Q&A - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Temporal Interview Q\u0026A";
+        var mkdocs_page_input_path = "articles/durable-execution/temporal-interview-questions.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Temporal Interview Q&A</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#temporal-concepts">Temporal Concepts</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#given-a-block-of-logic-how-do-you-decide-whether-it-belongs-in-a-workflow-or-an-activity">Given a block of logic, how do you decide whether it belongs in a workflow or an activity?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#why-must-workflow-code-be-deterministic-and-how-does-uuidrandom-or-unmocked-system-time-break-replay">Why must workflow code be deterministic, and how does UUID.random() or unmocked system time break replay?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-handle-non-deterministic-operations-or-external-api-calls-inside-a-workflow">How do you handle non-deterministic operations or external API calls inside a workflow?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#concurrency-failure-semantics">Concurrency &amp; Failure Semantics</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-implement-custom-retry-policies-exponential-backoff-and-heartbeats-for-long-running-activities">How do you implement custom retry policies, exponential backoff, and heartbeats for long-running activities?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency">An activity may execute multiple times — retries, worker crashes. How do you guarantee idempotency?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for (Go)?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#distributed-system-design">Distributed System Design</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#walk-me-through-a-worker-crashing-mid-task-how-does-another-worker-take-over">Walk me through a worker crashing mid-task. How does another worker take over?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-would-you-scale-a-workflow-orchestration-system-hot-partitions-shard-allocation-rebalancing-under-load">How would you scale a workflow orchestration system — hot partitions, shard allocation, rebalancing under load?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#append-only-event-log-vs-relational-storage-for-execution-history-what-are-the-trade-offs">Append-only event log vs. relational storage for execution history — what are the trade-offs?</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Temporal Interview Q&A</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/temporal-interview-questions.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="temporal-interview-qa">Temporal Interview Q&amp;A<a class="headerlink" href="#temporal-interview-qa" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>A question bank in interview format: nine questions an interviewer at a Temporal-adjacent company
+(or any team running workflow orchestration) actually asks, each with a senior-level answer you
+could deliver in two minutes. The answers assume the concepts from the previous eight articles and
+link back to them instead of re-explaining — treat this as a rehearsal script, not a primer.</p>
+<hr />
+<h2 id="temporal-concepts">Temporal Concepts<a class="headerlink" href="#temporal-concepts" title="Permanent link">&para;</a></h2>
+<h3 id="given-a-block-of-logic-how-do-you-decide-whether-it-belongs-in-a-workflow-or-an-activity">Given a block of logic, how do you decide whether it belongs in a workflow or an activity?<a class="headerlink" href="#given-a-block-of-logic-how-do-you-decide-whether-it-belongs-in-a-workflow-or-an-activity" title="Permanent link">&para;</a></h3>
+<p>Apply the <a href="../temporal-programming-model/#workflows-vs-activities-the-determinism-boundary">determinism boundary</a>:
+if the code decides <em>what happens next</em>, it's workflow; if it <em>touches the outside world</em>, it's an
+activity.</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Placement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Branching, sequencing, waiting, aggregating results</td>
+<td>Workflow</td>
+</tr>
+<tr>
+<td>HTTP/DB/queue call, file I/O, anything that can fail from infra</td>
+<td>Activity</td>
+</tr>
+<tr>
+<td>Needs retry semantics of its own</td>
+<td>Activity</td>
+</tr>
+<tr>
+<td>Pure computation on workflow state, cheap and deterministic</td>
+<td>Workflow (it replays for free)</td>
+</tr>
+<tr>
+<td>Pure but expensive (minutes of CPU)</td>
+<td>Activity — replay would re-pay the cost otherwise</td>
+</tr>
+</tbody>
+</table>
+<p>Two refinements show seniority: granularity — each activity should be a unit that is independently
+retryable and idempotent, so "charge card and send email" is two activities, not one; and payload
+size — large data should pass by reference (object-store key) because every activity input/output
+is recorded in event history, which has hard size limits.</p>
+<h3 id="why-must-workflow-code-be-deterministic-and-how-does-uuidrandom-or-unmocked-system-time-break-replay">Why must workflow code be deterministic, and how does <code>UUID.random()</code> or unmocked system time break replay?<a class="headerlink" href="#why-must-workflow-code-be-deterministic-and-how-does-uuidrandom-or-unmocked-system-time-break-replay" title="Permanent link">&para;</a></h3>
+<p>Because a workflow's "memory" is not process state — it is
+<a href="../durable-execution-fundamentals/#the-core-mechanism-event-sourcing-deterministic-replay">event history plus re-execution</a>.
+After a crash or cache eviction, a worker rebuilds state by running the code again and feeding it
+recorded results. That only works if the code emits the <em>same commands in the same order</em> every
+run.</p>
+<p><code>UUID.random()</code> breaks this subtly: first execution generates ID <code>abc</code> and, say, passes it to an
+activity; on replay the code generates <code>xyz</code>, so the command it emits no longer matches the
+recorded <code>ActivityTaskScheduled</code> event — the SDK throws a non-determinism error and the workflow
+task fails repeatedly. Unmocked <code>time.Now()</code> is worse because it often <em>doesn't</em> fail loudly: a
+branch like <code>if now &gt; deadline</code> can silently take the other path on replay, corrupting state.
+Non-determinism is therefore both a crash bug and a correctness bug — the loud failure is the
+lucky case.</p>
+<h3 id="how-do-you-handle-non-deterministic-operations-or-external-api-calls-inside-a-workflow">How do you handle non-deterministic operations or external API calls inside a workflow?<a class="headerlink" href="#how-do-you-handle-non-deterministic-operations-or-external-api-calls-inside-a-workflow" title="Permanent link">&para;</a></h3>
+<p>Route every non-deterministic result through the server so it lands in history once and replays
+from the record:</p>
+<ul>
+<li><strong>External API calls, I/O</strong> — activities, always. The result is recorded in
+  <code>ActivityTaskCompleted</code>; replay reads it back instead of re-calling the API.</li>
+<li><strong>Time</strong> — <code>workflow.Now()</code> (the timestamp of the current workflow task, from history) and
+  <code>workflow.Sleep()</code> (a durable server-side timer), never <code>time.Now()</code>/<code>time.Sleep()</code>.</li>
+<li><strong>Random values, UUIDs</strong> — <code>SideEffect</code>/<code>workflow.newRandom()</code>: executed once, value recorded,
+  replays return the recorded value. Note <code>SideEffect</code> is not retried and must not fail — anything
+  fallible belongs in an activity.</li>
+<li><strong>Config/env reads</strong> — pass as workflow input, or read via an activity if it must be fresh.</li>
+<li><strong>Code changes</strong> (deploy-induced non-determinism) — patching (<code>GetVersion</code>/<code>patched()</code>) or
+  worker versioning with pinned deployments, plus replay tests in CI against sampled production
+  histories.</li>
+</ul>
+<hr />
+<h2 id="concurrency-failure-semantics">Concurrency &amp; Failure Semantics<a class="headerlink" href="#concurrency-failure-semantics" title="Permanent link">&para;</a></h2>
+<h3 id="how-do-you-implement-custom-retry-policies-exponential-backoff-and-heartbeats-for-long-running-activities">How do you implement custom retry policies, exponential backoff, and heartbeats for long-running activities?<a class="headerlink" href="#how-do-you-implement-custom-retry-policies-exponential-backoff-and-heartbeats-for-long-running-activities" title="Permanent link">&para;</a></h3>
+<p>You mostly <em>declare</em> rather than implement: each activity carries a retry policy — initial
+interval, backoff coefficient (e.g., 1s × 2.0 up to a max interval), maximum attempts, and a list
+of non-retryable error types (<code>InvalidCardError</code> should fail fast; <code>ServiceUnavailable</code> should
+back off). The server drives the retries; workflow code just sees one awaited call.</p>
+<p>For long-running activities, set a <strong>heartbeat timeout</strong> and call <code>heartbeat(progress)</code>
+periodically. This buys two things: fast failure detection (without it, a dead worker isn't
+noticed until start-to-close expires — potentially hours), and resumability — the last heartbeat
+payload is delivered to the retry attempt, so a file-processing activity can resume from record
+1.4M instead of zero.</p>
+<p>Custom logic beyond the declarative policy — e.g., retry with a <em>different</em> activity, or
+escalate to a human after N failures — lives in the workflow: catch the <code>ActivityFailure</code> after
+the policy exhausts and branch. Policy for the mechanical retries, workflow code for the
+business-level fallback.</p>
+<h3 id="an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency">An activity may execute multiple times — retries, worker crashes. How do you guarantee idempotency?<a class="headerlink" href="#an-activity-may-execute-multiple-times-retries-worker-crashes-how-do-you-guarantee-idempotency" title="Permanent link">&para;</a></h3>
+<p>Start by naming the guarantee: activities are
+<a href="../distributed-systems-foundations/#at-least-once-at-most-once-exactly-once">at-least-once</a> — an
+activity can complete its side effect, crash before reporting, and be retried. Temporal cannot fix
+that; the effect already escaped. So idempotency is the activity author's job:</p>
+<ol>
+<li><strong>Derive an idempotency key</strong> from stable workflow facts — workflow ID + activity/step
+   identifier (<code>order-4711:charge</code>), <em>not</em> a random UUID generated per attempt.</li>
+<li><strong>Push the key to the downstream system</strong> if it supports one (Stripe's <code>Idempotency-Key</code>,
+   conditional writes, <code>INSERT ... ON CONFLICT DO NOTHING</code>).</li>
+<li><strong>Or make the operation naturally idempotent</strong> — set-based writes ("set status=SHIPPED")
+   rather than increments.</li>
+<li><strong>Or dedup yourself</strong> — a
+   <a href="../distributed-systems-foundations/#idempotency-and-dedup">processed-keys table checked transactionally</a>
+   with the side effect.</li>
+</ol>
+<p>The interview trap is claiming "Temporal gives exactly-once." Correct framing: exactly-once
+<em>workflow state transitions</em>, at-least-once <em>activity execution</em>, and effectively-once end-to-end
+only when activities are idempotent.</p>
+<h3 id="concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go">Concurrency coding rounds: rate limiting, worker pools for millions of requests, deadlock avoidance — what patterns do you reach for (Go)?<a class="headerlink" href="#concurrency-coding-rounds-rate-limiting-worker-pools-for-millions-of-requests-deadlock-avoidance-what-patterns-do-you-reach-for-go" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Rate limiting</strong> — <code>golang.org/x/time/rate</code> (token bucket) shared across goroutines:
+  <code>limiter.Wait(ctx)</code> before each request. For a hand-rolled version: a buffered channel refilled
+  by a ticker. Mention distributed rate limiting needs a shared store or per-node quota splitting.</li>
+<li><strong>Worker pool</strong> — fixed goroutine count draining a channel; never one goroutine per request at
+  millions-scale:</li>
+</ul>
+<pre><code class="language-go">jobs := make(chan Job, 1024)
+for i := 0; i &lt; nWorkers; i++ {
+    g.Go(func() error {
+        for j := range jobs { process(ctx, j) }
+        return nil
+    })
+}
+</code></pre>
+<p>Backpressure falls out naturally — a full channel blocks producers, which is what
+  <a href="../matching-service-task-queues/#flow-control">Temporal's own worker does</a> with slot limits and
+  poller counts.
+- <strong>Deadlock avoidance</strong> — acquire locks in a global order; keep critical sections tiny; prefer
+  channels/ownership transfer over shared memory; always take locks with a <code>ctx</code>/timeout escape
+  hatch. In Temporal specifically, workflow code is single-threaded coroutines — the SDK's
+  deadlock detector kills any workflow task that blocks the scheduler (~1s), which is why you
+  never do real blocking work there.</p>
+<hr />
+<h2 id="distributed-system-design">Distributed System Design<a class="headerlink" href="#distributed-system-design" title="Permanent link">&para;</a></h2>
+<h3 id="walk-me-through-a-worker-crashing-mid-task-how-does-another-worker-take-over">Walk me through a worker crashing mid-task. How does another worker take over?<a class="headerlink" href="#walk-me-through-a-worker-crashing-mid-task-how-does-another-worker-take-over" title="Permanent link">&para;</a></h3>
+<p>The concrete sequence:</p>
+<ol>
+<li>Worker A is executing a workflow task when it dies. The server notices via <strong>workflow task
+   timeout</strong> (default 10s) — no heartbeat magic here; the task simply isn't completed in time.</li>
+<li>History service marks the task timed out and <strong>reschedules it</strong>. It was likely targeted at
+   A's <a href="../matching-service-task-queues/#sticky-queues">sticky queue</a>; after the sticky
+   schedule-to-start timeout (~5s) it falls back to the <strong>normal task queue</strong> that all workers
+   poll.</li>
+<li>Worker B picks it up. It has no cached state for this execution, so it requests the <strong>full
+   event history</strong> from the history service.</li>
+<li>B <strong>replays</strong>: re-executes the workflow function from the top; every awaited call is satisfied
+   from recorded events (<code>ActivityTaskCompleted</code> results, timer firings) instead of re-executing
+   side effects.</li>
+<li>Replay reaches the first point with <strong>no recorded event</strong> — that is exactly where A died —
+   and continues live from there, emitting new commands.</li>
+</ol>
+<p>Completed activities are not re-run; an activity that was <em>in flight</em> on A is governed separately
+by its own timeouts and retry policy.</p>
+<h3 id="how-would-you-scale-a-workflow-orchestration-system-hot-partitions-shard-allocation-rebalancing-under-load">How would you scale a workflow orchestration system — hot partitions, shard allocation, rebalancing under load?<a class="headerlink" href="#how-would-you-scale-a-workflow-orchestration-system-hot-partitions-shard-allocation-rebalancing-under-load" title="Permanent link">&para;</a></h3>
+<p>Partition by workflow ID into a <strong>fixed set of logical shards</strong> (<code>hash(namespace, workflowID) %
+N</code>, N in the thousands), each shard single-owner so per-workflow ordering needs no cross-node
+consensus — this is <a href="../history-service-internals/#history-shards">Temporal's history shard design</a>.
+Key points:</p>
+<ul>
+<li><strong>Allocation</strong> — a membership ring (gossip/consistent hashing) maps shards to history nodes;
+  many logical shards per node means adding a node moves ~1/n of shards, no data migration, since
+  shard state lives in the database, not on the node.</li>
+<li><strong>Rebalancing under load</strong> — shard <em>ownership</em> moves, data doesn't; fencing tokens
+  (monotonic <code>rangeID</code>) make a stale ex-owner's writes fail rather than corrupt state during
+  handoff.</li>
+<li><strong>Hot shards</strong> — hashing spreads workflows, but a single hot <em>workflow</em> (signal storm, huge
+  history) can't be split; mitigate at the app layer by fanning out to child workflows or
+  sharding the entity key. Hot <em>task queues</em> are a separate axis — scale queue partitions.</li>
+<li>Fixed N is a genuine limit: resharding is effectively a migration, so overprovision N upfront.</li>
+</ul>
+<h3 id="append-only-event-log-vs-relational-storage-for-execution-history-what-are-the-trade-offs">Append-only event log vs. relational storage for execution history — what are the trade-offs?<a class="headerlink" href="#append-only-event-log-vs-relational-storage-for-execution-history-what-are-the-trade-offs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Append-only event log</th>
+<th>Relational/mutable rows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Write path</td>
+<td>Sequential appends — fast, contention-free</td>
+<td>Read-modify-write on status row</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>New events don't contend with old</td>
+<td>Updates fight over the same row</td>
+</tr>
+<tr>
+<td>Audit/debug</td>
+<td>Full causal record; replay any execution</td>
+<td>Only current state; history is lost</td>
+</tr>
+<tr>
+<td>Read "current state"</td>
+<td>Must fold the whole log — O(history)</td>
+<td>One row read</td>
+</tr>
+<tr>
+<td>Storage</td>
+<td>Grows unboundedly; needs retention/archival</td>
+<td>Compact</td>
+</tr>
+<tr>
+<td>Schema evolution</td>
+<td>Old events immutable — versioning pain</td>
+<td><code>ALTER TABLE</code></td>
+</tr>
+</tbody>
+</table>
+<p>The log gives you the replay mechanism, a perfect audit trail, and cheap writes; it costs you
+expensive state reconstruction and unbounded growth. Temporal's answer is the hybrid: the event
+log as source of truth plus <strong>mutable state</strong> — a
+<a href="../history-service-internals/#mutable-state-event-history">materialized snapshot updated transactionally with each append</a>
+— so hot-path reads never fold the log, echoing the classic
+<a href="../distributed-systems-foundations/#event-sourcing-and-cqrs">event-sourcing + CQRS</a> resolution.
+Growth is bounded by history limits plus continue-as-new, and closed histories archive to blob
+storage. Strong answers name the hybrid, not one side.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../design-a-workflow-engine/" class="btn btn-neutral float-left" title="System Design: Durable Workflow Engine"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../design-distributed-cron/" class="btn btn-neutral float-right" title="System Design: Distributed Cron">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../design-a-workflow-engine/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../design-distributed-cron/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

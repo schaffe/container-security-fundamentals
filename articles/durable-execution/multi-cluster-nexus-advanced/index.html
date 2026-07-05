@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Multi-Cluster, Nexus, and Advanced Platform Features - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Multi-Cluster, Nexus, and Advanced Platform Features";
+        var mkdocs_page_input_path = "articles/durable-execution/multi-cluster-nexus-advanced.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#namespaces-and-multi-tenancy">Namespaces and Multi-Tenancy</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#multi-cluster-replication-xdc">Multi-Cluster Replication (XDC)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#conflict-resolution">Conflict Resolution</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nexus">Nexus</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#schedules-and-cron">Schedules and Cron</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Multi-Cluster, Nexus, and Advanced Platform Features</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/multi-cluster-nexus-advanced.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="multi-cluster-nexus-and-advanced-platform-features">Multi-Cluster, Nexus, and Advanced Platform Features<a class="headerlink" href="#multi-cluster-nexus-and-advanced-platform-features" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Namespaces, cross-cluster replication, Nexus, and schedules are how Temporal grows from "a
+cluster" into "a platform" — multi-tenancy, disaster recovery, cross-team service boundaries, and
+distributed cron. These are prime senior-level design-discussion material: each is a general
+distributed-systems problem (tenancy isolation, async replication and conflict resolution, RPC
+across trust boundaries, reliable scheduling) with a concrete, inspectable solution.</p>
+<hr />
+<h2 id="namespaces-and-multi-tenancy">Namespaces and Multi-Tenancy<a class="headerlink" href="#namespaces-and-multi-tenancy" title="Permanent link">&para;</a></h2>
+<p>A <strong>namespace</strong> is the isolation unit within a cluster:</p>
+<ul>
+<li><strong>Scoping</strong> — workflow IDs are unique per namespace; task queues, search attributes, and
+  retention policies are namespace-scoped. Teams or applications get their own namespace and
+  cannot name-collide or read each other's executions.</li>
+<li><strong>Blast-radius control</strong> — per-namespace rate limits (actions/sec at the frontend) stop one
+  tenant's runaway workflow from starving others; per-namespace config covers retention (how long
+  closed-workflow histories are kept), archival, and custom search attributes.</li>
+<li><strong>Not a security boundary by itself</strong> in self-hosted OSS — authorization is pluggable
+  (claims-mapper interface); actual tenant isolation requires wiring authn/authz. Temporal Cloud
+  hardens this and adds <strong>cell-based architecture</strong>: namespaces are placed into isolated cells
+  (independent failure domains of the whole stack), so a bad deploy or overload in one cell can't
+  take down every customer — the same cell pattern used by AWS and Slack, worth citing in
+  reliability design rounds.</li>
+</ul>
+<hr />
+<h2 id="multi-cluster-replication-xdc">Multi-Cluster Replication (XDC)<a class="headerlink" href="#multi-cluster-replication-xdc" title="Permanent link">&para;</a></h2>
+<p>Temporal's disaster-recovery story: a namespace can be <strong>global</strong>, existing on multiple clusters
+with one <strong>active</strong> cluster taking writes and others as <strong>standby</strong>, receiving asynchronous
+replication.</p>
+<p>Mechanism:</p>
+<ul>
+<li>History transitions emit <strong>replication tasks</strong> through the same
+  <a href="../history-service-internals/#internal-task-queues-and-the-transactional-outbox">transactional outbox</a>
+  as everything else; standby clusters pull event batches and apply them to their copy of each
+  workflow's history.</li>
+<li>Replication is <strong>async</strong> — the active cluster never waits on a remote region to commit. This
+  keeps local latency flat but means <strong>failover can lose the tail</strong> (RPO &gt; 0): events committed in
+  the active region but not yet replicated.</li>
+<li><strong>Failover</strong> flips the active designation; workers connected to the new active cluster resume
+  workflows from replicated state. Failover is per-namespace, so it can be rehearsed and rolled
+  out incrementally.</li>
+</ul>
+<h3 id="conflict-resolution">Conflict Resolution<a class="headerlink" href="#conflict-resolution" title="Permanent link">&para;</a></h3>
+<p>The interesting case: a <strong>split-brain failover</strong> — the old active kept taking writes (partition,
+not death) while the new active also progressed the same workflow. Now one workflow has two
+divergent history tails. Temporal's model:</p>
+<ul>
+<li>Histories can <strong>branch</strong>: each cluster's events carry a failover <strong>version</strong> (from a
+  cluster-versioning scheme that makes versions globally ordered and attributable); <strong>version
+  histories</strong> in mutable state track which branch is current.</li>
+<li>On reconnection, the branch with the higher version wins; the losing branch's divergent tail is
+  abandoned. A workflow on the losing branch is reset to the fork point and re-executes from
+  there — with the crucial caveat that <strong>activities on the lost tail may have already run</strong>:
+  at-least-once strikes again, and idempotent activities are what make failover safe, not just
+  retries.</li>
+</ul>
+<p>The senior framing: async replication trades RPO for latency; conflict resolution turns
+"impossible to prevent divergence" into "deterministic, attributable convergence"; and the
+application-level contract (idempotency) is part of the DR design, not an afterthought.</p>
+<hr />
+<h2 id="nexus">Nexus<a class="headerlink" href="#nexus" title="Permanent link">&para;</a></h2>
+<p>Nexus (GA 2025, always-enabled since) is Temporal's answer to "how do two teams' workflows call
+each other without sharing a namespace?" — <strong>durable RPC across namespace and cluster
+boundaries</strong>.</p>
+<ul>
+<li>A team exposes a <strong>Nexus endpoint</strong> — a named service contract (operations with typed
+  input/output) backed by handlers in their namespace, typically implemented by workflows or
+  activities. Endpoints are registered in a cluster-level registry and routed via tokens.</li>
+<li>A caller workflow invokes a Nexus <strong>operation</strong> like an activity — but the call crosses into the
+  callee's namespace with its own access control, worker fleet, and deployment cadence.</li>
+<li>Operations can be <strong>synchronous</strong> (quick handler) or <strong>asynchronous</strong> (starts a workflow, calls
+  back on completion) — the caller's code looks the same; the machinery handles the callback,
+  retries, and failure propagation with durable-execution semantics on both sides.</li>
+</ul>
+<p>Versus the older alternatives:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Child workflow</th>
+<th>Signal to foreign workflow</th>
+<th>Nexus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Crosses namespaces</td>
+<td>No (same namespace)</td>
+<td>Awkwardly</td>
+<td>Yes, by design</td>
+</tr>
+<tr>
+<td>Contract</td>
+<td>Callee's workflow signature (implementation leaks)</td>
+<td>None (stringly-typed)</td>
+<td>Explicit operation contract</td>
+</tr>
+<tr>
+<td>Team autonomy</td>
+<td>Coupled deploys/registries</td>
+<td>Coupled IDs</td>
+<td>Independent — like a service API</td>
+</tr>
+</tbody>
+</table>
+<p>The design-round framing: Nexus is a <strong>service mesh boundary for durable execution</strong> — it does for
+workflows what gRPC + API contracts did for microservices, replacing "everyone shares one giant
+namespace" with owned, versioned interfaces.</p>
+<hr />
+<h2 id="schedules-and-cron">Schedules and Cron<a class="headerlink" href="#schedules-and-cron" title="Permanent link">&para;</a></h2>
+<p>Schedules (the replacement for legacy cron workflows) are Temporal's distributed-cron primitive:
+"run workflow W every interval / calendar spec."</p>
+<ul>
+<li>Implemented as system state driven by the same timer machinery as everything else — a schedule
+  is durable state that fires, starts a workflow execution, and records the result; no separate
+  scheduler service to keep alive.</li>
+<li><strong>Overlap policies</strong> answer the question naive cron ignores — what if the previous run is still
+  going? Skip, buffer one, buffer all, cancel-other, terminate-other, or allow parallel.</li>
+<li><strong>Catch-up/backfill</strong> — if the cluster was down over a fire time, catch-up windows control
+  whether missed runs execute late or are skipped; explicit backfill replays a time range.</li>
+<li>Pause/resume, jitter, and "run now" round out the operational surface.</li>
+</ul>
+<p>Contrast with the interview classic "design distributed cron" (see the
+<a href="../design-a-workflow-engine/#variants">workflow-engine design article</a>): most hand-rolled designs
+struggle exactly where schedules have explicit answers — missed ticks, overlapping runs, and
+exactly-one-firing across a fleet. Temporal gets the last one free from the single-writer shard
+model: a schedule lives on one shard, so "which node fires the tick?" never arises.</p>
+<hr />
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Multi-tenancy</strong>: namespaces for scoping + rate limits for blast radius + cells for failure
+  domains — a three-layer isolation answer that generalizes to any platform design question.</li>
+<li><strong>XDC is a full DR case study</strong>: async replication → nonzero RPO → branching histories →
+  version-based conflict resolution → idempotency as the app-level contract. Walking that chain
+  end-to-end is a standout answer to "how would you make this multi-region?"</li>
+<li><strong>Nexus</strong>: know it as "durable RPC with contracts across namespaces" and when to prefer it over
+  child workflows (team/trust boundaries) — it's new enough that knowing it signals currency.</li>
+<li><strong>Schedules</strong>: overlap policies and catch-up windows are the two follow-ups interviewers use to
+  separate people who've run cron in production from people who haven't.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../distributed-systems-foundations/" class="btn btn-neutral float-left" title="Distributed Systems Foundations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../design-a-workflow-engine/" class="btn btn-neutral float-right" title="System Design: Durable Workflow Engine">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../distributed-systems-foundations/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../design-a-workflow-engine/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

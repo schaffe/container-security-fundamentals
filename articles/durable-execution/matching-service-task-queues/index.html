@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Matching Service and Task Queues - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Matching Service and Task Queues";
+        var mkdocs_page_input_path = "articles/durable-execution/matching-service-task-queues.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Matching Service and Task Queues</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#task-queue-model">Task Queue Model</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sync-match-vs-async-match">Sync Match vs. Async Match</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#sticky-queues">Sticky Queues</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#flow-control">Flow Control</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Matching Service and Task Queues</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/matching-service-task-queues.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="matching-service-and-task-queues">Matching Service and Task Queues<a class="headerlink" href="#matching-service-and-task-queues" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Matching is the service that pairs tasks with workers. Its defining feature — the <strong>sync-match
+fast path</strong>, which hands a task directly to a parked long-poll without touching the database — is
+the answer to "isn't Temporal just a database-backed queue?" No: when workers keep up, the queue
+is a rendezvous point, not a table.</p>
+<hr />
+<h2 id="task-queue-model">Task Queue Model<a class="headerlink" href="#task-queue-model" title="Permanent link">&para;</a></h2>
+<p>Task queues are lightweight and dynamic:</p>
+<ul>
+<li><strong>Created on demand</strong> — first reference (a workflow scheduling onto it, or a worker polling it)
+  brings a queue into existence. No provisioning, no capacity declaration, no CRUD API needed.</li>
+<li><strong>Two kinds per name</strong>: a workflow task queue (delivering "run workflow code" tasks) and an
+  activity task queue (delivering activity executions). A worker polling task queue <code>orders</code>
+  polls both kinds.</li>
+<li><strong>Routing unit</strong> — the task queue name is how work is directed: different services own
+  different queues; a GPU-only activity gets its own queue served only by GPU workers; per-tenant
+  queues isolate noisy neighbors. Queues are cheap enough that per-entity queues (e.g., one per
+  physical host, for host-affine tasks) are a supported pattern.</li>
+<li><strong>Partitions</strong> — a hot queue is internally split into N partitions (default grows with load),
+  each owned by a Matching node, so one queue's throughput isn't capped by one node. Pollers and
+  tasks are spread across partitions; a background forwarder drains non-root partitions toward
+  pollers when traffic is light.</li>
+</ul>
+<hr />
+<h2 id="sync-match-vs-async-match">Sync Match vs. Async Match<a class="headerlink" href="#sync-match-vs-async-match" title="Permanent link">&para;</a></h2>
+<p>The dispatch path has a fast and a slow lane:</p>
+<pre><code>History ──ProduceTask──► Matching partition
+                            │
+                            ├─ worker long-poll already parked?
+                            │        │
+                       yes ─┘        └─ no
+                        │                │
+              SYNC MATCH:           ASYNC MATCH:
+              hand task directly    persist task to backlog
+              to the poller —       (DB write); deliver later
+              no DB write           when a poller arrives;
+                                    delete after ack
+</code></pre>
+<ul>
+<li><strong>Sync match</strong> — when workers are keeping up (the healthy steady state), there is a parked
+  long-poll waiting at the partition when the task arrives. Matching hands the task straight
+  through and acks History; the task never touches persistence. Latency: single-digit
+  milliseconds; persistence cost: zero. Under sync match, Temporal behaves like an RPC router,
+  not a queue.</li>
+<li><strong>Async match</strong> — no poller available (backlog, worker deploy, traffic spike): the task is
+  written to the matching store, becomes backlog, and is read back out when pollers return.
+  Backlog is drained roughly in order (ordering is <em>not</em> guaranteed — workflows never depend on
+  task-queue order; causality lives in event history).</li>
+<li><strong>Delivery is at-least-once</strong> — a task delivered to a worker that dies is redelivered after its
+  timeout; History validates staleness on completion, so duplicate/zombie deliveries resolve to
+  one recorded outcome.</li>
+</ul>
+<p>Long-polling (not push) keeps the connection model outbound-only from workers and gives natural
+flow control: a worker with no free slots simply doesn't poll.</p>
+<hr />
+<h2 id="sticky-queues">Sticky Queues<a class="headerlink" href="#sticky-queues" title="Permanent link">&para;</a></h2>
+<p>Naively, <em>every</em> workflow task would require the worker to replay the workflow's whole event
+history — O(history) work per transition. Sticky queues remove this from the hot path:</p>
+<ul>
+<li>After a worker executes a workflow task, it keeps the workflow's state cached in memory and
+  advertises a <strong>sticky queue</strong> — a private task queue unique to that worker process.</li>
+<li>Subsequent workflow tasks for that execution are scheduled to the sticky queue first, so the
+  same worker continues from cached state, processing only the <em>new</em> events. Replay becomes the
+  exception, not the rule.</li>
+<li><strong>Fallback</strong>: if the sticky worker doesn't pick up the task within a short
+  schedule-to-start timeout (worker died, cache evicted, deploy), the server reschedules the task
+  onto the normal shared queue, any worker picks it up, and full replay reconstructs the state.
+  Correctness never depends on the cache — stickiness is purely a performance optimization, which
+  is the pattern to name in interviews: <em>cache with a durable fallback, not a correctness
+  dependency</em>.</li>
+</ul>
+<hr />
+<h2 id="flow-control">Flow Control<a class="headerlink" href="#flow-control" title="Permanent link">&para;</a></h2>
+<p>The knobs and signals that keep the pipeline healthy:</p>
+<ul>
+<li><strong>Worker slots</strong> — per-worker concurrency limits for workflow tasks and activities. A worker
+  only polls when it has a free slot. <strong>Resource-based auto-tuning</strong> (GA 2025) adjusts slot counts
+  from observed CPU/memory instead of hand-tuned constants.</li>
+<li><strong>Task queue rate limits</strong> — server-enforced dispatch rate per queue; the blunt instrument for
+  protecting a fragile downstream (e.g., cap <code>payment-gateway</code> activities at 100/s fleet-wide).</li>
+<li><strong>Schedule-to-start latency</strong> — <em>the</em> backlog health metric: how long tasks wait between
+  scheduling and worker pickup. Near-zero means sync-matching; sustained growth means the worker
+  fleet is undersized (scale <em>your</em> pods — see
+  <a href="../temporal-architecture/#workers-are-yours-not-theirs">workers are yours</a>) or a downstream
+  rate limit is binding.</li>
+<li><strong>Backpressure shape</strong> — because workers pull, overload manifests as growing backlog +
+  schedule-to-start latency, not as dropped work or overwhelmed workers. The system degrades by
+  getting <em>later</em>, never by getting <em>lossy</em> — a line worth saying verbatim in a reliability-focused
+  design round.</li>
+</ul>
+<hr />
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Sync match is the headline</strong>: "when workers keep up, tasks never hit the database" — this is
+  what separates the design from <code>SELECT ... FOR UPDATE SKIP LOCKED</code> polling on a jobs table, and
+  the natural answer to "why not just use Postgres as the queue?"</li>
+<li><strong>Sticky queues = memoized replay</strong>: know the mechanism <em>and</em> the property that it's
+  correctness-irrelevant (durable fallback to full replay).</li>
+<li><strong>Pull vs. push</strong>: long-polling gives outbound-only networking, per-worker flow control, and
+  graceful backlog behavior — three answers for the price of one design choice.</li>
+<li><strong>Know the ops signals</strong>: schedule-to-start latency for fleet sizing, queue rate limits for
+  downstream protection, partitions for hot queues.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../history-service-internals/" class="btn btn-neutral float-left" title="History Service Internals"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../distributed-systems-foundations/" class="btn btn-neutral float-right" title="Distributed Systems Foundations">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../history-service-internals/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../distributed-systems-foundations/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

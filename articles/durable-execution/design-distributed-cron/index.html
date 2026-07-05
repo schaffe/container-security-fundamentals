@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>System Design: Distributed Cron - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "System Design: Distributed Cron";
+        var mkdocs_page_input_path = "articles/durable-execution/design-distributed-cron.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">System Design: Distributed Cron</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-insight">Key Insight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requirements-and-api-sketch">Requirements and API Sketch</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#iterative-design">Iterative Design</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#v1-crontab-on-every-node-a-lock">v1: Crontab on Every Node + a Lock</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#v2-central-store-polling-workers">v2: Central Store + Polling Workers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners + Per-Shard Timer Queues</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#interview-angle">Interview Angle</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">System Design: Distributed Cron</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/design-distributed-cron.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="system-design-distributed-cron">System Design: Distributed Cron<a class="headerlink" href="#system-design-distributed-cron" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>"Design distributed cron" is the compact cousin of the
+<a href="../design-a-workflow-engine/">workflow-engine question</a>: a service where users register schedules
+("run job J every 5 minutes / at 02:00 daily") and the system fires them reliably across a fleet —
+no machine is special, any node can die, and yet each tick fires exactly once. The state is tiny
+(a schedule is a few hundred bytes), which fools candidates into thinking the problem is small.
+It isn't: the hard parts are <em>exactly-one-firing</em> across many nodes, <em>missed ticks</em> when the
+system was down over a fire time, and <em>overlapping runs</em> when a job outlives its interval. This
+article builds the design iteratively, then covers the deep-dive prompts. Temporal's
+<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">Schedules</a> are the reference implementation
+throughout — not because it's the only answer, but because it has explicit answers exactly where
+hand-rolled designs go vague.</p>
+<h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
+<p>A schedule is <strong>durable state with a timer</strong>, not a process. Stop thinking "which node runs the
+cron loop?" and start thinking "where does the schedule's state live, and who is allowed to write
+it?" Once each schedule has a <strong>single fenced writer</strong> — one owner, whose writes are conditional
+on an ownership token — "which node fires the tick?" stops being a coordination problem and
+becomes a placement detail. Firing a tick is then just a state transition: read next-fire-time,
+append "tick N fired," start the job, compute next-fire-time. Everything else (catch-up, overlap,
+backfill, pause) is policy layered on that transition.</p>
+<hr />
+<h2 id="requirements-and-api-sketch">Requirements and API Sketch<a class="headerlink" href="#requirements-and-api-sketch" title="Permanent link">&para;</a></h2>
+<p><strong>Functional:</strong></p>
+<ul>
+<li>CRUD schedules: interval or calendar (cron-expression) specs; a schedule triggers an <em>action</em>
+  (start job J with input X).</li>
+<li>Each due tick fires <strong>exactly once</strong> across the fleet — never zero times, never twice.</li>
+<li>Policy for <strong>missed ticks</strong> (system down over a fire time): run late, or skip?</li>
+<li>Policy for <strong>overlap</strong> (previous run still going when the next tick is due).</li>
+<li>Pause/resume a schedule; manual "run now"; <strong>backfill</strong> a historical time range.</li>
+<li>Answer "did tick N fire, and what happened to the run it started?" — auditable per-tick history.</li>
+</ul>
+<p><strong>Non-functional:</strong></p>
+<ul>
+<li>Scale: ~1M schedules, mostly minutes-to-daily cadence; peak alignment (everyone schedules
+  at :00) means fire-time load is <em>spiky by nature</em> — name this up front.</li>
+<li>A tick may fire seconds late; it must never be silently lost. Like the workflow engine, this is
+  a state system: durability over latency, and saying so licenses trade-offs later.</li>
+</ul>
+<pre><code>CreateSchedule(id, spec, action, policies) -&gt; handle     Pause(id) / Unpause(id)
+UpdateSchedule(id, spec/policies)                        TriggerNow(id)
+DescribeSchedule(id) -&gt; spec, next ticks, recent runs    Backfill(id, from, to, overlap_policy)
+</code></pre>
+<hr />
+<h2 id="iterative-design">Iterative Design<a class="headerlink" href="#iterative-design" title="Permanent link">&para;</a></h2>
+<h3 id="v1-crontab-on-every-node-a-lock">v1: Crontab on Every Node + a Lock<a class="headerlink" href="#v1-crontab-on-every-node-a-lock" title="Permanent link">&para;</a></h3>
+<p>The instinctive design: every node loads all schedules, evaluates the cron spec each minute, and
+races for a distributed lock (Redis <code>SETNX</code>, a lock row) before firing. Why it breaks:</p>
+<ol>
+<li><strong>Locks don't give exactly-once.</strong> Node A takes the lock, fires, dies before recording it —
+   the lock expires and node B fires again (twice); or A takes the lock and dies before firing —
+   tick lost until someone notices (zero times). A lease-based lock bounds <em>concurrency</em>, not
+   <em>effects</em>. Without the firing being a conditional write against durable schedule state, you get
+   at-most-once or at-least-once, chosen by your crash timing.</li>
+<li><strong>O(nodes × schedules) evaluation</strong> — every node parses every spec every minute for the
+   privilege of losing a lock race.</li>
+<li><strong>No memory of missed ticks.</strong> If the whole fleet is down 01:58–02:03, the 02:00 tick simply
+   never existed. Cron-on-a-box has this bug too; distributing it doesn't fix it.</li>
+</ol>
+<h3 id="v2-central-store-polling-workers">v2: Central Store + Polling Workers<a class="headerlink" href="#v2-central-store-polling-workers" title="Permanent link">&para;</a></h3>
+<p>Move state into a database: <code>(schedule_id, spec, next_fire_at, paused, ...)</code>. A worker fleet
+polls: <code>SELECT ... WHERE next_fire_at &lt;= now() FOR UPDATE SKIP LOCKED</code>, fires, computes and
+writes the next fire time. Real progress — firing and state now change together, and a fleet
+outage leaves <code>next_fire_at</code> in the past, so missed ticks are at least <em>visible</em>. Remaining
+holes:</p>
+<ol>
+<li><strong>Dual write.</strong> Firing means starting a job in some other system <em>and</em> updating the row. Crash
+   between them and you're back to lost-or-duplicate ticks. Needs an outbox: record "tick N
+   fired, start job" in the same transaction as advancing <code>next_fire_at</code>; deliver at-least-once;
+   dedupe downstream on <code>(schedule_id, tick_N)</code> as the idempotency key.</li>
+<li><strong>The DB is the timer.</strong> Poll-the-world burns the database and floors your precision at the
+   poll interval; the hot <code>next_fire_at</code> index is a contention point exactly at :00 spikes.</li>
+<li><strong>Row locks are still locks.</strong> <code>SKIP LOCKED</code> serializes per row, but ownership is per-tick and
+   transient — there's no stable writer per schedule, so per-schedule invariants (overlap policy
+   needs to know about the <em>previous</em> run) require extra reads and races.</li>
+</ol>
+<h3 id="v3-sharded-single-writer-owners-per-shard-timer-queues">v3: Sharded Single-Writer Owners + Per-Shard Timer Queues<a class="headerlink" href="#v3-sharded-single-writer-owners-per-shard-timer-queues" title="Permanent link">&para;</a></h3>
+<p>The durable-execution shape — and where the workflow-engine design pays rent:</p>
+<ol>
+<li><strong>Shard the schedules</strong>: <code>hash(schedule_id) % N</code>; each shard has exactly one owner node at a
+   time, placement via a membership ring, <strong>correctness via fencing</strong> — the owner holds an epoch
+   (range ID), and every write for the shard is conditional on it at the store. A stale owner's
+   fires fail at the database, not at a lock server
+   (<a href="../history-service-internals/#history-shards">the mechanism, in Temporal's history service</a>).</li>
+<li><strong>Timers live with the shard</strong>: each schedule's next fire time is a timer task in the shard's
+   persisted priority queue; the shard processor sleeps until the head deadline. No global scan,
+   no polling; timer capacity scales with shards
+   (<a href="../history-service-internals/#timers-at-scale">timers at scale</a>).</li>
+<li><strong>Firing is one conditional transition</strong>: append <code>TickFired(N)</code> + the action's outbox record +
+   the next timer task, all in one write conditional on the fencing token. Exactly-one-firing
+   falls out: two would-be owners race, one write commits, the other fails its condition and
+   re-reads. This is exactly why Temporal Schedules get the classic hard part "for free" — a
+   schedule lives on one shard, so
+   <a href="../multi-cluster-nexus-advanced/#schedules-and-cron">"which node fires the tick?" never arises</a>.</li>
+</ol>
+<p>On this skeleton, the cron-specific policies are small, explicit state machines:</p>
+<ul>
+<li><strong>Catch-up window</strong> (missed ticks): on recovery, the owner sees fire times in the past. Ticks
+  within the window (e.g. 1 hour) fire late; older ones are recorded as skipped. Which you want is
+  per-schedule semantics — "send daily report" should catch up; "poll for new files every minute"
+  should collapse to one run. Making it a per-schedule knob, not a global guess, is the point.</li>
+<li><strong>Overlap policies</strong> — what if the previous run is still going? Enumerate all six: <strong>skip</strong> the
+  new tick; <strong>buffer one</strong> (start it when the current run ends, collapsing further ticks);
+  <strong>buffer all</strong> (queue every tick); <strong>cancel-other</strong> / <strong>terminate-other</strong> (kill the old run,
+  start the new); <strong>allow parallel</strong>. Implementable only because the single writer sees both the
+  tick and the previous run's completion as serialized transitions on the same state.</li>
+<li><strong>Jitter</strong>: spread fire times within a per-schedule window to break the :00 thundering herd —
+  10K schedules at "hourly" shouldn't hit downstream as one spike. Deterministic jitter
+  (hash of schedule ID) keeps a given schedule's offset stable across owners.</li>
+<li><strong>Backfill</strong>: replay a time range as synthetic ticks through the same firing path (with an
+  explicit overlap policy, since a backfill is a deliberate herd). Reusing the tick machinery
+  means backfilled runs get the same audit records as real ones.</li>
+<li><strong>Pause/resume</strong>: a bit on the schedule state checked at fire time — paused ticks are recorded
+  as skipped, not silently swallowed, so resume can decide whether they're in the catch-up window.</li>
+<li><strong>Observability</strong>: the per-schedule event log <em>is</em> the answer to "did tick N fire" — each tick
+  is an appended event with outcome (fired / skipped: overlap / skipped: paused / skipped: outside
+  catch-up) and a pointer to the run it started. Recent-runs and next-N-ticks fall out of
+  <code>Describe</code>; a search projection (eventually consistent, and say so) serves listing.</li>
+</ul>
+<pre><code>API gateway (stateless, routes by hash(schedule_id))
+   │
+Schedule owner shards (schedule state + tick log + timer queue + outbox; single fenced writer)
+   │  fire actions (outbox, at-least-once, deduped on (schedule_id, tick))
+Job execution layer (workers / workflow engine — owns retries, timeouts, run status)
+   │
+Stores: state store (conditional point writes)  |  search projection (async)
+</code></pre>
+<p>One boundary worth drawing aloud: cron owns <em>when</em> and <em>whether</em> to start a run; the execution
+layer owns <em>how the run goes</em> (retries, timeouts, heartbeats). If the interviewer lets you, make
+the action "start a workflow" and inherit all of the
+<a href="../design-a-workflow-engine/">workflow engine</a> — Temporal literally builds Schedules this way, as
+system state on the same timer and shard machinery as workflows.</p>
+<hr />
+<h2 id="deep-dive-prompts-interviewers-pull">Deep-Dive Prompts Interviewers Pull<a class="headerlink" href="#deep-dive-prompts-interviewers-pull" title="Permanent link">&para;</a></h2>
+<p><strong>"Two scheduler nodes both think they own a schedule — what fires?"</strong>
+The prompt is fishing for leader-election hand-waving; don't bite. Answer: both may <em>try</em>, one
+fires. Ownership is fenced — the owner's epoch/range ID is checked by a conditional write on every
+transition, so the stale node's <code>TickFired(N)</code> append fails at the store and it re-reads (finding
+tick N already fired). The membership ring is a routing optimization; <strong>the database condition is
+the guarantee</strong> (<a href="../history-service-internals/#history-shards">same answer as history shards</a>).
+Leader election without fencing just recreates v1's lock, with more machinery.</p>
+<p><strong>"The whole cluster was down from 01:55 to 02:20. The 02:00 daily tick — what happens?"</strong>
+Nothing was lost: the tick's timer task is durable state, still due. On shard reacquisition the
+owner finds it in the past and applies the catch-up policy — inside the window, fire late and
+record the tick as fired-late; outside, record it as skipped (visible, alertable — never silently
+absent). Contrast with v1, where the tick never existed anywhere.</p>
+<p><strong>"A job takes 90 minutes but runs hourly."</strong>
+Overlap policy, chosen per schedule: skip (drop ticks while running — fine for idempotent syncs),
+buffer-one (run again immediately after, collapsing the backlog — "don't miss, don't pile up"),
+cancel/terminate-other (freshness beats completion — dashboards), allow-parallel (only if runs
+are independent). The senior move is asking <em>what the job means</em> before picking, and noting the
+mechanism requirement: only a single writer that serializes ticks against run-completions can
+enforce any of these without races.</p>
+<p><strong>"Everyone schedules at :00 — 100K fires in one second."</strong>
+Two herds, two answers. Fire-side: per-schedule jitter spreads the fires; the per-shard timer
+queues already spread the <em>processing</em> across shards. Downstream-side: the fire path enqueues
+starts through the outbox, so a spike becomes queue backlog and rising start latency — later, not
+lossy — plus rate limits protecting fragile targets. Also flag backfill as a self-inflicted herd
+and rate-limit it explicitly.</p>
+<p><strong>"How do I know tick N fired? Prove it."</strong>
+Point at the tick log: every due tick produces exactly one event with an outcome and, if fired, a
+run ID — because the tick append, the outbox record, and the next timer are one atomic write, there
+is no state where a tick fired without a record or vice versa. Dashboards project this: last-fire
+lag per schedule (now − expected fire time) is <em>the</em> health metric; skipped-tick counts by reason
+catch policy misconfiguration.</p>
+<p><strong>"Why not just use Kubernetes CronJob / a message queue with delayed delivery?"</strong>
+K8s CronJob is fine inside one cluster but is this problem, solved with weaker knobs: missed ticks
+governed by <code>startingDeadlineSeconds</code> (a catch-up window), overlap by <code>concurrencyPolicy</code> (three
+of the six policies), and its controller has documented double-fire and skip edge cases — plus no
+backfill and no per-tick audit. Delayed-delivery queues give you <em>a</em> timer but not schedule state:
+recurrence, catch-up, overlap, and pause all need a stateful owner anyway. Knowing the shape of
+the off-the-shelf answers and where they run out is worth more than dismissing them.</p>
+<hr />
+<h2 id="interview-angle">Interview Angle<a class="headerlink" href="#interview-angle" title="Permanent link">&para;</a></h2>
+<ul>
+<li>This question is the <a href="../design-a-workflow-engine/#variants">workflow-engine design</a> with the
+  state shrunk and the policies grown: same skeleton (single fenced writer, colocated timers,
+  transactional outbox), different emphasis. If you've internalized that design, lead with the
+  Key Insight — "a schedule is durable state with a timer, owned by one fenced writer" — and
+  spend the interview on the policy surface, which is where weak answers stay vague.</li>
+<li>The three questions every answer must survive: <strong>who fires</strong> (single writer + fencing, not
+  locks or leader election), <strong>what about missed ticks</strong> (durable timers + explicit catch-up
+  window, per schedule), <strong>what about overlap</strong> (named policies, serialized by the owner).</li>
+<li>Name the failure asymmetry: a late tick is an incident, a lost tick is a lie. Designs that can
+  say "skipped, and here's the record" beat designs that can only say "probably fired."</li>
+<li>Temporal fluency version: Schedules replaced legacy cron workflows precisely to make these
+  policies first-class (<a href="../multi-cluster-nexus-advanced/#schedules-and-cron">details</a>); the
+  underlying shard/fencing/timer machinery is the
+  <a href="../history-service-internals/">history service</a> — the depth reserve for follow-ups.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../temporal-interview-questions/" class="btn btn-neutral float-left" title="Temporal Interview Q&A"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../design-ai-agent-runtime/" class="btn btn-neutral float-right" title="System Design: AI Agent Runtime">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../temporal-interview-questions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../design-ai-agent-runtime/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

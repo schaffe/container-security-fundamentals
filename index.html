@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Interview prep articles on container supply chain security" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Engineering knowledge base — container supply chain security, durable execution, and interview prep" />
       <link rel="shortcut icon" href="img/favicon.ico" />
-    <title>Docker Supply Chain</title>
+    <title>Artur's Knowledge Base</title>
     <link rel="stylesheet" href="css/theme.css" />
     <link rel="stylesheet" href="css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -31,7 +31,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href="." class="icon icon-home"> Docker Supply Chain
+          <a href="." class="icon icon-home"> Artur's Knowledge Base
         </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
@@ -49,7 +49,7 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="docker-supply-chain/">Docker Supply Chain Overview</a>
+                <li class="toctree-l1"><a class="reference internal" href="container-security/">Container Security Topic Map</a>
                 </li>
               </ul>
               <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
@@ -67,6 +67,10 @@
                   <li class="toctree-l1"><a class="reference internal" href="articles/supply-chain-security/trusted-builds/">Trusted Builds</a>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="articles/supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
                   </li>
               </ul>
               <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
@@ -126,6 +130,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="articles/cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
               </ul>
               <p class="caption"><span class="caption-text">Docker</span></p>
               <ul>
@@ -143,6 +149,8 @@
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="articles/docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
                   </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
                   <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
     <ul>
                 <li class="toctree-l2"><a class="reference internal" href="articles/docker/product-strategy/docker-scout/">Docker Scout</a>
@@ -156,15 +164,31 @@
     </ul>
                   </li>
               </ul>
-              <p class="caption"><span class="caption-text">Interview</span></p>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
               <ul>
-                  <li class="toctree-l1"><a class="reference internal" href="articles/interview/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/durable-execution-fundamentals/">Durable Execution Fundamentals</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="articles/interview/cve-triage-system/">System Design: CVE Triage System</a>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/temporal-programming-model/">Temporal Programming Model</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="articles/interview/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/temporal-architecture/">Temporal Architecture</a>
                   </li>
-                  <li class="toctree-l1"><a class="reference internal" href="articles/interview/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="articles/durable-execution/design-payment-saga/">System Design: Payment Saga Orchestrator</a>
                   </li>
               </ul>
       </div>
@@ -174,7 +198,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href=".">Docker Supply Chain</a>
+          <a href=".">Artur's Knowledge Base</a>
         
       </nav>
       <div class="wy-nav-content">
@@ -191,24 +215,24 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="docker-supply-chain-interview-prep">Docker Supply Chain — Interview Prep<a class="headerlink" href="#docker-supply-chain-interview-prep" title="Permanent link">&para;</a></h1>
-<p>Collection of articles on container supply chain security, image hardening, and Docker's security strategy.</p>
+                <h1 id="arturs-knowledge-base">Artur's Knowledge Base<a class="headerlink" href="#arturs-knowledge-base" title="Permanent link">&para;</a></h1>
+<p>Engineering knowledge base covering container supply chain security and durable execution, plus interview prep for both domains.</p>
 <h2 id="topics">Topics<a class="headerlink" href="#topics" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong><a href="articles/supply-chain-security/slsa-framework/">Supply Chain Security Theory</a></strong> — SLSA, in-toto, SBOM, Sigstore, trusted builds</li>
+<li><strong><a href="articles/supply-chain-security/slsa-framework/">Supply Chain Security Theory</a></strong> — SLSA, in-toto, SBOM, Sigstore, trusted builds, <a href="articles/supply-chain-security/hardened-image-build-pipeline/">hardened image build pipeline</a>, <a href="articles/supply-chain-security/image-signing-verification/">image signing &amp; verification</a></li>
 <li><strong><a href="articles/linux-fundamentals/musl-vs-glibc/">Linux Fundamentals</a></strong> — musl vs glibc, /proc and container isolation, C standard library considerations</li>
 <li><strong><a href="articles/container-image-hardening/distroless-images/">Container Image Hardening</a></strong> — distroless, Wolfi, Docker Hardened Images, user namespaces, seccomp, capabilities, AppArmor</li>
 <li><strong><a href="articles/kubernetes-security/securing-kubernetes-runtime/">Kubernetes Security</a></strong> — runtime hardening, SecurityContext, Pod Security Standards, admission control, RBAC, network policies, secrets management, runtime detection</li>
-<li><strong><a href="articles/cve-lifecycle/scanner-internals/">CVE Lifecycle</a></strong> — scanners, CVSS, EPSS, fix categorization, <a href="articles/cve-lifecycle/coordinated-disclosure/">coordinated disclosure</a></li>
-<li><strong><a href="articles/docker/product-strategy/docker-scout/">Docker Product &amp; Strategy</a></strong> — Scout, DHI, Notary, supply chain platform</li>
-<li><strong><a href="articles/interview/hardened-image-build-pipeline/">Interview Questions</a></strong> — System design: hardened image builds, CVE triage, image signing &amp; verification</li>
+<li><strong><a href="articles/cve-lifecycle/scanner-internals/">CVE Lifecycle</a></strong> — scanners, CVSS, EPSS, fix categorization, <a href="articles/cve-lifecycle/coordinated-disclosure/">coordinated disclosure</a>, <a href="articles/cve-lifecycle/cve-triage-system/">CVE triage system design</a></li>
+<li><strong><a href="articles/docker/product-strategy/docker-scout/">Docker Product &amp; Strategy</a></strong> — Scout, DHI, Notary, supply chain platform, <a href="articles/docker/dockerfile-pr-review/">Dockerfile PR review</a></li>
+<li><strong><a href="articles/durable-execution/durable-execution-fundamentals/">Durable Execution</a></strong> — Temporal architecture and internals, workflow replay and determinism, task queues, distributed-systems foundations, workflow-engine system design, <a href="articles/durable-execution/temporal-interview-questions/">interview Q&amp;A</a></li>
 </ul>
-<p><a href="docker-supply-chain/">Browse the full topic map →</a></p>
+<p><a href="container-security/">Container security topic map →</a></p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="docker-supply-chain/" class="btn btn-neutral float-right" title="Docker Supply Chain Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="container-security/" class="btn btn-neutral float-right" title="Container Security Topic Map">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -236,7 +260,7 @@
     
     
     
-      <span><a href="docker-supply-chain/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="container-security/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
@@ -256,5 +280,5 @@
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2026-06-10 06:52:04.232548+00:00
+Build Date UTC : 2026-07-05 16:36:48.200474+00:00
 -->
