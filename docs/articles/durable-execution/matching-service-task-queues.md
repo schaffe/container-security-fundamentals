@@ -8,36 +8,45 @@ order: 5
 
 ## Overview
 
-Matching is the service that pairs tasks with workers. Its defining feature — the **sync-match
-fast path**, which hands a task directly to a parked long-poll without touching the database — is
-the answer to "isn't Temporal just a database-backed queue?" No: when workers keep up, the queue
-is a rendezvous point, not a table.
+Matching is the service that pairs tasks with workers, and it exists to answer a skeptical
+question you should expect in any Temporal conversation: "isn't this just a database-backed job
+queue?" The answer is no, and the reason is Matching's defining feature — the **sync-match fast
+path**, which hands a task directly to a worker that's already waiting, without the task ever
+touching the database. When workers are keeping up, a Temporal task queue is not a table being
+polled; it's a rendezvous point.
 
 ---
 
-## Task Queue Model
+## The Task Queue Model
 
-Task queues are lightweight and dynamic:
+Task queues in Temporal are deliberately lightweight — closer to a naming convention with
+machinery behind it than to provisioned infrastructure.
 
-- **Created on demand** — first reference (a workflow scheduling onto it, or a worker polling it)
-  brings a queue into existence. No provisioning, no capacity declaration, no CRUD API needed.
-- **Two kinds per name**: a workflow task queue (delivering "run workflow code" tasks) and an
-  activity task queue (delivering activity executions). A worker polling task queue `orders`
-  polls both kinds.
-- **Routing unit** — the task queue name is how work is directed: different services own
-  different queues; a GPU-only activity gets its own queue served only by GPU workers; per-tenant
-  queues isolate noisy neighbors. Queues are cheap enough that per-entity queues (e.g., one per
-  physical host, for host-affine tasks) are a supported pattern.
-- **Partitions** — a hot queue is internally split into N partitions (default grows with load),
-  each owned by a Matching node, so one queue's throughput isn't capped by one node. Pollers and
-  tasks are spread across partitions; a background forwarder drains non-root partitions toward
-  pollers when traffic is light.
+A queue is **created on demand**: the first reference to its name, whether a workflow scheduling
+work onto it or a worker polling it, brings it into existence. There is no provisioning step, no
+capacity declaration, no CRUD API to manage.
+
+Under each queue name there are actually **two queues**: one delivering workflow tasks ("run this
+workflow's code forward") and one delivering activity tasks. A worker polling the queue `orders`
+polls both.
+
+The queue name is Temporal's **routing unit** — the mechanism by which work is directed to the
+workers able to do it. Different services own different queues. An activity that needs a GPU gets
+its own queue, served only by GPU workers. A noisy tenant gets a dedicated queue so it can't
+starve anyone else. Queues are cheap enough that even per-entity queues — say, one per physical
+host, for tasks that must run on a particular machine — are a supported pattern.
+
+Finally, a hot queue doesn't bottleneck on a single Matching node: internally it splits into N
+**partitions** (the count grows with load), each owned by a Matching node, with pollers and tasks
+spread across them. A background forwarder drains the non-root partitions toward wherever pollers
+are waiting when traffic is light, so partitioning doesn't strand tasks.
 
 ---
 
 ## Sync Match vs. Async Match
 
-The dispatch path has a fast and a slow lane:
+The dispatch path has a fast lane and a slow lane, and which one a task takes depends on a single
+question: is a worker already waiting?
 
 ```
 History ──ProduceTask──► Matching partition
@@ -53,72 +62,87 @@ History ──ProduceTask──► Matching partition
                                     delete after ack
 ```
 
-- **Sync match** — when workers are keeping up (the healthy steady state), there is a parked
-  long-poll waiting at the partition when the task arrives. Matching hands the task straight
-  through and acks History; the task never touches persistence. Latency: single-digit
-  milliseconds; persistence cost: zero. Under sync match, Temporal behaves like an RPC router,
-  not a queue.
-- **Async match** — no poller available (backlog, worker deploy, traffic spike): the task is
-  written to the matching store, becomes backlog, and is read back out when pollers return.
-  Backlog is drained roughly in order (ordering is *not* guaranteed — workflows never depend on
-  task-queue order; causality lives in event history).
-- **Delivery is at-least-once** — a task delivered to a worker that dies is redelivered after its
-  timeout; History validates staleness on completion, so duplicate/zombie deliveries resolve to
-  one recorded outcome.
+**Sync match** is the healthy steady state. Workers long-poll the queue, and when they're keeping
+up with the load, there is always a poll parked at the partition when a new task arrives. Matching
+hands the task straight to that poller and acknowledges History — the task never touches
+persistence. Latency is single-digit milliseconds and the persistence cost is zero. In this
+regime, Temporal is behaving like an RPC router, not a queue — which is the crisp answer to "why
+not just poll a Postgres jobs table with `SELECT ... FOR UPDATE SKIP LOCKED`?"
 
-Long-polling (not push) keeps the connection model outbound-only from workers and gives natural
-flow control: a worker with no free slots simply doesn't poll.
+**Async match** is the degraded-but-correct path. When no poller is available — a backlog has
+formed, workers are mid-deploy, traffic spiked — the task is written to the matching store,
+becomes backlog, and is read back out when pollers return. Backlog drains roughly in order, but
+ordering is explicitly *not* guaranteed — and doesn't need to be, because workflows never depend
+on task-queue ordering. Causality lives in the event history, not the queue.
+
+Either way, delivery is **at-least-once**: a task handed to a worker that then dies is redelivered
+after a timeout, and History validates every completion against the workflow's current state, so
+a duplicate or zombie delivery resolves to exactly one recorded outcome.
+
+One design choice underlies all of this: workers **pull** via long-poll rather than the server
+pushing. Pull keeps the connection model outbound-only from the workers' side (no inbound
+firewall holes) and gives flow control for free — a worker with no free capacity simply doesn't
+poll.
 
 ---
 
 ## Sticky Queues
 
-Naively, *every* workflow task would require the worker to replay the workflow's whole event
-history — O(history) work per transition. Sticky queues remove this from the hot path:
+There's a performance problem hiding in the replay model. Naively, *every* workflow task — every
+single "advance this workflow" step — would require the worker to fetch and replay the workflow's
+entire event history, because the worker starts with no state. That's O(history) work per
+transition, and for a workflow with thousands of events it would be crippling.
 
-- After a worker executes a workflow task, it keeps the workflow's state cached in memory and
-  advertises a **sticky queue** — a private task queue unique to that worker process.
-- Subsequent workflow tasks for that execution are scheduled to the sticky queue first, so the
-  same worker continues from cached state, processing only the *new* events. Replay becomes the
-  exception, not the rule.
-- **Fallback**: if the sticky worker doesn't pick up the task within a short
-  schedule-to-start timeout (worker died, cache evicted, deploy), the server reschedules the task
-  onto the normal shared queue, any worker picks it up, and full replay reconstructs the state.
-  Correctness never depends on the cache — stickiness is purely a performance optimization, which
-  is the pattern to name in interviews: *cache with a durable fallback, not a correctness
-  dependency*.
+Sticky queues remove replay from the hot path. After a worker executes a workflow task, it keeps
+that workflow's reconstructed state cached in memory and advertises a **sticky queue** — a private
+task queue unique to that worker process. The server then schedules subsequent workflow tasks for
+that execution onto the sticky queue first, so the same worker continues from its cached state and
+processes only the *new* events since last time. Replay becomes the exception — the recovery path
+— rather than the rule.
+
+And the fallback is airtight: if the sticky worker doesn't pick the task up within a short
+schedule-to-start timeout (it died, its cache evicted the workflow, a deploy replaced it), the
+server reschedules the task onto the normal shared queue, any worker picks it up, and a full
+replay reconstructs the state from history. Correctness never depends on the cache. This is the
+pattern to name explicitly in interviews: *a cache with a durable fallback, not a correctness
+dependency*.
 
 ---
 
 ## Flow Control
 
-The knobs and signals that keep the pipeline healthy:
+A few knobs and signals keep the dispatch pipeline healthy, and they're worth knowing as a set.
 
-- **Worker slots** — per-worker concurrency limits for workflow tasks and activities. A worker
-  only polls when it has a free slot. **Resource-based auto-tuning** (GA 2025) adjusts slot counts
-  from observed CPU/memory instead of hand-tuned constants.
-- **Task queue rate limits** — server-enforced dispatch rate per queue; the blunt instrument for
-  protecting a fragile downstream (e.g., cap `payment-gateway` activities at 100/s fleet-wide).
-- **Schedule-to-start latency** — *the* backlog health metric: how long tasks wait between
-  scheduling and worker pickup. Near-zero means sync-matching; sustained growth means the worker
-  fleet is undersized (scale *your* pods — see
-  [workers are yours](temporal-architecture.md#workers-are-yours-not-theirs)) or a downstream
-  rate limit is binding.
-- **Backpressure shape** — because workers pull, overload manifests as growing backlog +
-  schedule-to-start latency, not as dropped work or overwhelmed workers. The system degrades by
-  getting *later*, never by getting *lossy* — a line worth saying verbatim in a reliability-focused
-  design round.
+**Worker slots** cap each worker's concurrency — separate limits for workflow tasks and
+activities. A worker polls only when it has a free slot, which is the pull model's flow control in
+action. Since 2025, resource-based **auto-tuning** can size the slot counts from observed CPU and
+memory pressure instead of hand-tuned constants.
+
+**Task queue rate limits** cap dispatch rate per queue on the server side — the blunt instrument
+for protecting a fragile downstream, like capping the `payment-gateway` activity queue at 100
+tasks per second across the whole fleet.
+
+**Schedule-to-start latency** is *the* backlog health metric: how long tasks wait between being
+scheduled and being picked up. Near zero means sync-matching is happening and workers are keeping
+up. Sustained growth means either the worker fleet is undersized — the fix is scaling *your* pods,
+per [the deployment model](temporal-architecture.md#workers-are-yours-not-theirs) — or a
+downstream rate limit is binding.
+
+Put together, these give the system a distinctive **backpressure shape**. Because workers pull,
+overload cannot manifest as dropped work or crushed workers; it manifests as growing backlog and
+rising schedule-to-start latency. The system degrades by getting *later*, never by getting
+*lossy* — a line worth delivering verbatim in a reliability-focused design round.
 
 ---
 
 ## Interview Angle
 
-- **Sync match is the headline**: "when workers keep up, tasks never hit the database" — this is
-  what separates the design from `SELECT ... FOR UPDATE SKIP LOCKED` polling on a jobs table, and
-  the natural answer to "why not just use Postgres as the queue?"
-- **Sticky queues = memoized replay**: know the mechanism *and* the property that it's
-  correctness-irrelevant (durable fallback to full replay).
-- **Pull vs. push**: long-polling gives outbound-only networking, per-worker flow control, and
+- **Sync match is the headline.** "When workers keep up, tasks never hit the database" is what
+  separates this design from polling a jobs table, and it's the prepared answer to "why not just
+  use Postgres as the queue?"
+- **Sticky queues are memoized replay.** Know the mechanism *and* the property that makes it safe:
+  it's correctness-irrelevant, because full replay is always available as the fallback.
+- **Pull beats push three ways here**: outbound-only networking, per-worker flow control, and
   graceful backlog behavior — three answers for the price of one design choice.
 - **Know the ops signals**: schedule-to-start latency for fleet sizing, queue rate limits for
   downstream protection, partitions for hot queues.
