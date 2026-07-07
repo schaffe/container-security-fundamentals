@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../img/favicon.ico" />
+    <title>Go Concurrency: Classic Patterns - Artur's Knowledge Base</title>
+    <link rel="stylesheet" href="../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../css/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Go Concurrency: Classic Patterns";
+        var mkdocs_page_input_path = "articles/durable-execution/go-concurrency-patterns.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../.." class="icon icon-home"> Artur's Knowledge Base
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../container-security/">Container Security Topic Map</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Supply Chain Security Theory</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/slsa-framework/">SLSA Framework (Supply-chain Levels for Software Artifacts)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/in-toto-attestations/">In-toto Attestations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sbom/">Software Bill of Materials (SBOM)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/sigstore/">Sigstore (cosign, Fulcio, Rekor)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/dependency-management-security/">Dependency Management Security</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/trusted-builds/">Trusted Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/notary-docker-content-trust/">Notary / Docker Content Trust</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/hardened-image-build-pipeline/">System Design: Hardened Image Build Pipeline</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../supply-chain-security/image-signing-verification/">System Design: Image Signing and Verification Workflow</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Linux Fundamentals</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/musl-vs-glibc/">musl vs glibc: Choosing a C Standard Library for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/proc-container-isolation/">/proc and Container Isolation</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../linux-fundamentals/sysctl-container-security/">sysctl: Kernel Parameter Tuning in Containers</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Container Image Hardening</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/distroless-images/">Distroless Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/image-minimization/">Image Minimization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/non-root-execution/">Non-root Execution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/user-namespaces/">User Namespaces in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/linux-capabilities/">Linux Capabilities in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/seccomp/">Seccomp Profiles for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/apparmor-selinux/">AppArmor and SELinux for Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/readonly-filesystem/">Read-only Filesystems in Containers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../container-image-hardening/multi-arch-security/">Multi-architecture Container Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Kubernetes Security</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securing-kubernetes-runtime/">K8s Runtime Security Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/ecosystem-tools-reference/">Ecosystem Tools Reference</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/securitycontext-vs-podsecuritycontext/">SecurityContext vs PodSecurityContext in Kubernetes</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/pod-security-standards/">Pod Security Standards (PSS)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/adapting-upstream-helm-charts/">Adapting Upstream Helm Charts for Hardened Environments</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../kubernetes-security/admission-control/">Admission Control for Supply Chain Security</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">CVE Lifecycle</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/scanner-internals/">Container Vulnerability Scanner Internals (Trivy, Grype, Docker Scout)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-sources/">CVE Data Sources</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cvss-epss/">CVSS and EPSS for Vulnerability Prioritization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/fix-categorization/">CVE Fix Categorization and Strategies</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/coordinated-disclosure/">Coordinated Vulnerability Disclosure</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../cve-lifecycle/cve-triage-system/">System Design: CVE Triage System</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Docker</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-architecture/">Docker Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/build-context/">Build Context</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/buildkit-internals/">BuildKit Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/how-docker-builds-images/">How Docker Builds Images</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/image-layers-storage-drivers/">Image Layers & Storage Drivers</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/docker-networking/">Docker Networking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/kaniko-vs-docker-builds/">Kaniko vs Docker Builds</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../docker/dockerfile-pr-review/">PR Review: Dockerfile Security Review</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Docker Product & Strategy</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-scout/">Docker Scout</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-hardened-images/">Docker Hardened Images (DHI)</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-content-trust/">Docker Content Trust and Notary v2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../docker/product-strategy/docker-supply-chain-platform/">Docker's Supply Chain Platform Strategy</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Durable Execution</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../durable-execution-fundamentals/">Durable Execution Fundamentals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-programming-model/">Temporal Programming Model</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-architecture/">Temporal Architecture</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../history-service-internals/">History Service Internals</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../matching-service-task-queues/">Matching Service and Task Queues</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../distributed-systems-foundations/">Distributed Systems Foundations</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../multi-cluster-nexus-advanced/">Multi-Cluster, Nexus, and Advanced Platform Features</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-a-workflow-engine/">System Design: Durable Workflow Engine</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../temporal-interview-questions/">Temporal Interview Q&A</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-distributed-cron/">System Design: Distributed Cron</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-ai-agent-runtime/">System Design: AI Agent Runtime</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../design-payment-saga/">System Design: Payment Saga Orchestrator</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Go Concurrency: Classic Patterns</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-insight">Key Insight</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-mental-model">The Mental Model</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#goroutines-and-channels">Goroutines and channels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#select-context-and-the-synchronization-toolbox">select, context, and the synchronization toolbox</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#the-forselect-loop-three-shapes">The for/select loop: three shapes</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-classic-patterns">The Classic Patterns</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#worker-pool-the-workhorse">Worker pool — the workhorse</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#fan-out-fan-in-merging-channels">Fan-out / fan-in — merging channels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#pipeline-stages-connected-by-channels">Pipeline — stages connected by channels</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#bounded-parallelism-semaphore-channel-and-errgroup">Bounded parallelism — semaphore channel and errgroup</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#timeout-and-rate-limiting">Timeout and rate limiting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#graceful-shutdown-putting-it-together">Graceful shutdown — putting it together</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#choosing-a-pattern-the-decision-path">Choosing a Pattern: The Decision Path</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-classic-pitfalls">The Classic Pitfalls</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-questions-answered">Common Questions, Answered</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#buffered-or-unbuffered-how-do-you-choose">Buffered or unbuffered — how do you choose?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-stop-a-goroutine-from-the-outside">How do you stop a goroutine from the outside?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#when-a-mutex-and-when-a-channel">When a mutex and when a channel?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#what-are-the-semantics-of-a-closed-channel-exactly">What are the semantics of a closed channel, exactly?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#limit-concurrency-to-n-what-are-the-options">Limit concurrency to N — what are the options?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#two-goroutines-increment-a-counter-a-million-times-each-and-the-total-comes-up-short-why">Two goroutines increment a counter a million times each and the total comes up short — why?</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-do-you-add-retries-and-backoff-on-top-of-the-worker-pool">How do you add retries and backoff on top of the worker pool?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#key-takeaways">Key Takeaways</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../..">Artur's Knowledge Base</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Durable Execution</li>
+      <li class="breadcrumb-item active">Go Concurrency: Classic Patterns</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/schaffe/container-security-fundamentals/edit/master/docs/articles/durable-execution/go-concurrency-patterns.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="go-concurrency-classic-patterns">Go Concurrency: Classic Patterns<a class="headerlink" href="#go-concurrency-classic-patterns" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>Go's concurrency model — goroutines, channels, <code>select</code>, <code>context</code> — is small enough to learn in
+an afternoon and subtle enough to misuse for years. This article builds the mental model first,
+then walks the classic patterns every Go service ends up containing — worker pools, fan-in,
+pipelines, bounded parallelism, rate limiting, graceful shutdown — each with working code and
+the reasoning behind every line. It closes with the pitfalls that account for most concurrency
+bugs in the wild (nearly all of them are goroutine leaks or channel-close mistakes in disguise)
+and a set of common questions answered in plain language.</p>
+<p>The connection to the rest of this section is direct: Temporal's server and its most-used SDK
+are written in Go, and a <a href="../matching-service-task-queues/">Temporal worker</a> is a set of poller
+goroutines feeding task channels, bounded by a slot semaphore, shut down by a context — every
+pattern here is running in production inside a durable execution platform.</p>
+<h2 id="key-insight">Key Insight<a class="headerlink" href="#key-insight" title="Permanent link">&para;</a></h2>
+<p>Nearly every Go concurrency problem is the same problem wearing different clothes: <strong>move values
+between goroutines through channels, bound how many goroutines run at once, and make sure every
+goroutine you start has a guaranteed way to exit.</strong> If you can write a worker pool with clean
+shutdown — workers exit when the input channel closes <em>or</em> the context is cancelled, the output
+channel closes exactly once, and nothing leaks — you can solve the fan-in, pipeline,
+rate-limiter, and bounded-parallelism variants by rearranging the same three moves.</p>
+<p>The invariants matter as much as the code, and they're worth stating explicitly whenever you
+write or review this kind of code: "the channel is closed from the sender side, never the
+receiver," "<code>wg.Add</code> happens before the goroutine starts, not inside it," "this <code>select</code> exists
+so a worker doesn't block forever on a full output channel after cancellation." Code that can't
+articulate its invariants is code that loses them in the next refactor.</p>
+<hr />
+<h2 id="the-mental-model">The Mental Model<a class="headerlink" href="#the-mental-model" title="Permanent link">&para;</a></h2>
+<h3 id="goroutines-and-channels">Goroutines and channels<a class="headerlink" href="#goroutines-and-channels" title="Permanent link">&para;</a></h3>
+<p>A <strong>goroutine</strong> is a function running concurrently with the rest of the program — started with
+the <code>go</code> keyword, scheduled by the Go runtime onto OS threads, and cheap enough (a few kilobytes
+of stack) that starting tens of thousands is normal. The catch is that goroutines are invisible:
+nothing tracks them for you, <code>main</code> exiting kills them all mid-flight, and a goroutine blocked
+forever on a channel nobody writes to is a <strong>leak</strong> — it holds its stack and everything it
+references until the process dies. A large share of writing correct concurrent Go is simply
+never creating one of those.</p>
+<p>A <strong>channel</strong> is a typed conduit between goroutines: <code>ch := make(chan int)</code> creates one,
+<code>ch &lt;- v</code> sends, <code>v := &lt;-ch</code> receives. An <strong>unbuffered</strong> channel (capacity zero) makes send and
+receive a rendezvous — the sender blocks until a receiver is ready, and vice versa — which means
+a successful send is also a synchronization event: you <em>know</em> the other side has the value. A
+<strong>buffered</strong> channel (<code>make(chan int, 8)</code>) decouples the two sides up to its capacity; sends
+block only when the buffer is full. The useful framing: unbuffered channels transfer <em>and</em>
+synchronize; buffered channels are a queue with backpressure built in — when the buffer fills,
+producers slow to the consumers' pace automatically.</p>
+<p>Closing a channel (<code>close(ch)</code>) is a broadcast that no more values are coming. Receivers can
+detect it — <code>v, ok := &lt;-ch</code> returns <code>ok == false</code> on a closed, drained channel — and the
+<code>for v := range ch</code> loop exits automatically when the channel is closed and empty. The rules
+around close are rigid enough to be worth memorizing as a table:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Nil channel</th>
+<th>Open channel</th>
+<th>Closed channel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Send <code>ch &lt;- v</code></td>
+<td>blocks forever</td>
+<td>blocks until received/buffered</td>
+<td><strong>panics</strong></td>
+</tr>
+<tr>
+<td>Receive <code>&lt;-ch</code></td>
+<td>blocks forever</td>
+<td>blocks until sent</td>
+<td>returns remaining values, then zero value with <code>ok == false</code></td>
+</tr>
+<tr>
+<td><code>close(ch)</code></td>
+<td><strong>panics</strong></td>
+<td>closes it</td>
+<td><strong>panics</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Two design rules fall out of that table. First, <strong>only the sender closes a channel</strong> — the
+receiver can't know whether the sender is about to send, so a receiver-side close risks the
+send-on-closed panic. With multiple senders, no single sender can close either; you either let
+the channel be garbage-collected unclosed (fine — close is a signal, not a resource release) or
+have a coordinator close it after all senders finish, which is exactly what
+<code>sync.WaitGroup</code> + a closer goroutine does in the patterns below. Second, "blocks forever on
+nil" is a feature, not a trap: setting a channel variable to <code>nil</code> inside a <code>select</code> <em>disables
+that case</em>, which is the idiomatic way to switch a source off after it's drained.</p>
+<h3 id="select-context-and-the-synchronization-toolbox">select, context, and the synchronization toolbox<a class="headerlink" href="#select-context-and-the-synchronization-toolbox" title="Permanent link">&para;</a></h3>
+<p><code>select</code> waits on several channel operations at once and runs whichever becomes ready first
+(choosing randomly on ties — no priority). It's how Go expresses "this, or that, or give up":
+receive a result <em>or</em> notice a timeout <em>or</em> notice cancellation. A <code>default</code> case makes the
+whole thing non-blocking — try the send, and if nobody's ready, do something else — which is how
+you build "drop if full" semantics.</p>
+<p><code>context.Context</code> is Go's standard cancellation and deadline carrier. It flows as the first
+parameter through every call chain (<code>func fetch(ctx context.Context, ...)</code>); calling the
+<code>cancel</code> function returned by <code>context.WithCancel</code> — or a deadline expiring under
+<code>context.WithTimeout</code> — closes the channel returned by <code>ctx.Done()</code>, and everything blocked in a
+<code>select</code> with a <code>case &lt;-ctx.Done():</code> arm wakes up and unwinds. Cancellation in Go is
+<strong>cooperative</strong>: nothing kills a goroutine from outside; the goroutine must be written to
+observe <code>Done()</code> at every point where it blocks. "How do you stop a goroutine?" reduces to
+exactly that sentence.</p>
+<h3 id="the-forselect-loop-three-shapes">The for/select loop: three shapes<a class="headerlink" href="#the-forselect-loop-three-shapes" title="Permanent link">&para;</a></h3>
+<p>In practice, "observe <code>Done()</code> at every blocking point" comes down to three loop shapes, and
+knowing which one a situation calls for is most of the skill.</p>
+<p><strong>Shape one: the event loop</strong> — a goroutine that consumes a channel until either the channel
+closes or the context is cancelled. A plain <code>for v := range ch</code> can't do this, because <code>range</code>
+watches exactly one thing: the channel. The moment a loop must watch <em>two</em> things — data and
+cancellation — <code>range</code> gets replaced by <code>for</code> + <code>select</code>:</p>
+<pre><code class="language-go">for {
+    select {
+    case &lt;-ctx.Done():
+        return ctx.Err() // cancelled: report why
+    case job, ok := &lt;-jobs:
+        if !ok {
+            return nil // channel closed and drained: clean end of input
+        }
+        handle(job)
+    }
+}
+</code></pre>
+<p>The <code>ok</code> check is load-bearing. A receive on a closed channel doesn't block — it returns the
+zero value immediately, forever — so without <code>ok</code> this loop would spin at full CPU on zero-value
+jobs after the channel closes. And notice the two exits mean different things, so they return
+differently: cancellation is an abnormal end (<code>ctx.Err()</code> says whether it was cancel or
+deadline), close is the normal one.</p>
+<p><strong>Shape two: range with a cancellable send</strong> — the one used throughout the patterns below. When
+the <em>receive</em> side can rely on close alone, <code>range</code> stays; the <code>select</code> guards the send, which
+is the operation that can block indefinitely if the consumer went away:</p>
+<pre><code class="language-go">for v := range in {
+    select {
+    case out &lt;- transform(v):
+    case &lt;-ctx.Done():
+        return
+    }
+}
+</code></pre>
+<p>The rule of thumb that picks between shapes one and two: wrap <code>select</code> around whichever
+operation can block with nobody on the other end. If that's the receive, use shape one; if
+it's the send, shape two; if both, shape one with the send also inside a <code>select</code>.</p>
+<p><strong>Shape three: the CPU-bound loop</strong> — no channels at all, just a long computation over a
+collection. Nothing here blocks, so nothing would ever notice <code>Done()</code> closing; the loop must
+poll for it explicitly, using <code>ctx.Err()</code> as a non-blocking check (it returns non-nil once the
+context is cancelled):</p>
+<pre><code class="language-go">for i, item := range items {
+    if i%1024 == 0 { // amortize the check on hot loops
+        if err := ctx.Err(); err != nil {
+            return err
+        }
+    }
+    process(item)
+}
+</code></pre>
+<p>One caveat spans all three shapes: <code>select</code> chooses <em>randomly</em> among ready cases, so if data is
+ready at the same moment cancellation fires, the loop may process another item or two before it
+notices <code>Done()</code>. Usually that's fine — cancellation is a request, not a guarantee of
+instantaneous stop. When it isn't fine (the next iteration is expensive or has side effects),
+check <code>ctx.Err()</code> at the top of the loop body so cancellation wins ties.</p>
+<p>The <code>sync</code> package covers the cases channels handle awkwardly. <code>sync.WaitGroup</code> counts
+outstanding goroutines: <code>Add(1)</code> before starting each one, <code>defer wg.Done()</code> inside it,
+<code>Wait()</code> blocks until the count reaches zero. The classic mistake is calling <code>Add</code> <em>inside</em> the
+goroutine — <code>Wait</code> can then run before any <code>Add</code> has happened and return immediately; <code>Add</code>
+must happen-before the <code>Wait</code> it's meant to hold back, so it goes in the spawning goroutine.
+<code>sync.Mutex</code> protects shared state; <code>sync.Once</code> runs initialization exactly once under
+concurrent callers. The decision rule for mutex versus channel is about what you're modeling:
+<strong>channels for transferring ownership of data and signaling between goroutines; mutexes for
+guarding shared state in place</strong> (counters, caches, maps). A hit counter behind three channels
+is a design smell just as much as a hand-rolled queue built from a mutex and a slice.</p>
+<p>One more tool earns its keep: <code>golang.org/x/sync/errgroup</code>. It's a <code>WaitGroup</code> that also
+collects the first error, cancels a shared context when any task fails, and — with
+<code>SetLimit(n)</code> — bounds concurrency. Several classic problems below collapse to five lines with
+it.</p>
+<hr />
+<h2 id="the-classic-patterns">The Classic Patterns<a class="headerlink" href="#the-classic-patterns" title="Permanent link">&para;</a></h2>
+<h3 id="worker-pool-the-workhorse">Worker pool — the workhorse<a class="headerlink" href="#worker-pool-the-workhorse" title="Permanent link">&para;</a></h3>
+<p>The canonical problem: given a stream of jobs, process them with exactly N concurrent workers,
+deliver results, and shut down cleanly. Every requirement in that sentence maps to one piece of
+the solution.</p>
+<pre><code class="language-go">func WorkerPool(ctx context.Context, jobs &lt;-chan Job, workers int) &lt;-chan Result {
+    results := make(chan Result)
+    var wg sync.WaitGroup
+
+    for i := 0; i &lt; workers; i++ {
+        wg.Add(1)
+        go func() {
+            defer wg.Done()
+            for job := range jobs { // exits when jobs is closed and drained
+                select {
+                case results &lt;- process(ctx, job):
+                case &lt;-ctx.Done(): // don't block forever if nobody's reading results
+                    return
+                }
+            }
+        }()
+    }
+
+    // Closer: the only goroutine allowed to close results, and only
+    // after every sender (worker) has finished.
+    go func() {
+        wg.Wait()
+        close(results)
+    }()
+
+    return results
+}
+</code></pre>
+<p>Walking it invariant by invariant: concurrency is bounded by construction — N workers exist,
+so at most N jobs are in flight; no semaphore needed because the workers <em>are</em> the semaphore.
+Shutdown has two triggers and the code handles both: when the producer closes <code>jobs</code>, the
+<code>range</code> loop ends and workers drain what remains; when the context is cancelled, the <code>select</code>
+around the result send lets workers exit even if the consumer has stopped reading — omit that
+<code>select</code> and a cancelled consumer strands every worker blocked on <code>results &lt;-</code>, one of the most
+common goroutine leaks in real codebases. Finally, <code>results</code> is closed exactly once, by a
+dedicated closer goroutine after <code>wg.Wait()</code>, honoring both close rules: sender-side close,
+coordinated across multiple senders.</p>
+<p>The caller's side completes the picture: the producer writes jobs and — crucially —
+<code>close(jobs)</code> when done (sender closes); the consumer just ranges over <code>results</code> until it
+closes:</p>
+<pre><code class="language-go">func main() {
+    ctx, cancel := context.WithCancel(context.Background())
+    defer cancel()
+
+    jobs := make(chan Job)
+
+    // Producer: feed the pool, then close — the close is what
+    // eventually shuts the workers down and closes results.
+    go func() {
+        defer close(jobs)
+        for _, j := range loadJobs() {
+            select {
+            case jobs &lt;- j:
+            case &lt;-ctx.Done(): // stop feeding if we're cancelled
+                return
+            }
+        }
+    }()
+
+    // Consumer: results closes only after all workers finish,
+    // so this loop ends exactly when the work does.
+    for res := range WorkerPool(ctx, jobs, 8) {
+        if res.Err != nil {
+            log.Printf(&quot;job %s failed: %v&quot;, res.ID, res.Err)
+            continue
+        }
+        handle(res)
+    }
+}
+</code></pre>
+<p>Note the symmetry: the producer owns <code>jobs</code> and closes it; the pool owns <code>results</code> and closes
+it; the consumer closes nothing and simply ranges until the end. Each channel has exactly one
+closing party, and the shutdown sequence — producer finishes → workers drain → closer fires →
+consumer's loop ends — follows from the close rules alone, with no extra coordination. This
+shape — bounded workers pulling from a task channel, context-driven shutdown, a
+WaitGroup coordinating the close — is, not coincidentally, the skeleton of a Temporal worker:
+poller goroutines are the producers, the executor pool is the workers, and
+<a href="../matching-service-task-queues/">worker slots</a> are the bound.</p>
+<h3 id="fan-out-fan-in-merging-channels">Fan-out / fan-in — merging channels<a class="headerlink" href="#fan-out-fan-in-merging-channels" title="Permanent link">&para;</a></h3>
+<p>Fan-out is free in Go: multiple goroutines receiving from one channel automatically split the
+work, each value going to exactly one receiver. The interesting half is fan-<em>in</em>: merge many
+channels into one, closing the output only when every input is done.</p>
+<pre><code class="language-go">func Merge[T any](ctx context.Context, inputs ...&lt;-chan T) &lt;-chan T {
+    out := make(chan T)
+    var wg sync.WaitGroup
+
+    for _, in := range inputs {
+        wg.Add(1)
+        go func(in &lt;-chan T) {
+            defer wg.Done()
+            for v := range in {
+                select {
+                case out &lt;- v:
+                case &lt;-ctx.Done():
+                    return
+                }
+            }
+        }(in)
+    }
+
+    go func() {
+        wg.Wait()
+        close(out)
+    }()
+    return out
+}
+</code></pre>
+<p>It's the worker pool with the roles inverted — one forwarding goroutine per input instead of N
+workers on one input — and the same two invariants carry it: every forwarder has a context
+escape hatch, and the single close happens after all senders finish. (Passing <code>in</code> as a
+parameter guards against the loop-variable capture bug; since Go 1.22 each iteration gets a
+fresh variable and the closure alone would be safe, but the explicit parameter is
+version-proof.)</p>
+<h3 id="pipeline-stages-connected-by-channels">Pipeline — stages connected by channels<a class="headerlink" href="#pipeline-stages-connected-by-channels" title="Permanent link">&para;</a></h3>
+<p>A pipeline chains stages, each a goroutine (or pool) reading an input channel and writing an
+output channel. The pattern per stage is mechanical: create the output, launch the work, close
+the output when the input is exhausted, and give every send a cancellation escape.</p>
+<pre><code class="language-go">func Stage[In, Out any](ctx context.Context, in &lt;-chan In, f func(In) Out) &lt;-chan Out {
+    out := make(chan Out)
+    go func() {
+        defer close(out) // this stage is the sole sender: it closes
+        for v := range in {
+            select {
+            case out &lt;- f(v):
+            case &lt;-ctx.Done():
+                return
+            }
+        }
+    }()
+    return out
+}
+</code></pre>
+<p>Two properties are worth noting. Closing propagates <em>forward</em> on its own: the source closes
+its output, each stage's <code>range</code> ends, its <code>defer close</code> fires, and the shutdown ripples to the
+sink — no coordination needed. Cancellation propagates <em>everywhere at once</em> through the shared
+context — which matters because closing alone can't stop a pipeline early: if the sink stops
+reading, upstream stages just block on full channels. Backpressure is also built in: every
+stage runs at the pace of the slowest one downstream, because channel sends block. To widen a
+slow stage, run the worker pool from above as that stage and merge with <code>Merge</code> — the patterns
+compose.</p>
+<h3 id="bounded-parallelism-semaphore-channel-and-errgroup">Bounded parallelism — semaphore channel and errgroup<a class="headerlink" href="#bounded-parallelism-semaphore-channel-and-errgroup" title="Permanent link">&para;</a></h3>
+<p>"Fetch these 10,000 URLs, but no more than 20 at a time." When the work is a known collection
+rather than a stream, you can skip the standing worker pool and bound goroutines directly with
+a <strong>semaphore channel</strong> — a buffered channel where the buffer slots are the permits:</p>
+<pre><code class="language-go">sem := make(chan struct{}, 20)
+var wg sync.WaitGroup
+for _, url := range urls {
+    wg.Add(1)
+    sem &lt;- struct{}{} // acquire: blocks when 20 are in flight
+    go func(url string) {
+        defer wg.Done()
+        defer func() { &lt;-sem }() // release
+        fetch(ctx, url)
+    }(url)
+}
+wg.Wait()
+</code></pre>
+<p>Acquiring <em>before</em> launching the goroutine means at most 20 goroutines ever exist, not 10,000
+goroutines of which 20 make progress — a distinction worth being deliberate about. The
+production version also handles the question that always comes next ("what about errors?"):</p>
+<pre><code class="language-go">g, ctx := errgroup.WithContext(ctx)
+g.SetLimit(20)
+for _, url := range urls {
+    g.Go(func() error {
+        return fetch(ctx, url) // first error cancels ctx for all others
+    })
+}
+if err := g.Wait(); err != nil { /* first failure */ }
+</code></pre>
+<p><code>errgroup.WithContext</code> gives fail-fast semantics for free: the first task to return an error
+cancels the shared context, every other <code>fetch</code> observes <code>ctx.Done()</code> and unwinds, and <code>Wait</code>
+returns that first error.</p>
+<p>The errgroup implementation is essentially a
+<code>sync.Once</code> capturing the first error, a cancel invoked on first failure and after <code>Wait</code> — in
+about fifty lines you no longer have to write, test, or review. That's the real argument for
+reaching for it: not that the hand-rolled version is impossible, but that its bugs are the
+silent kind that pass tests and deadlock under load.</p>
+<h3 id="timeout-and-rate-limiting">Timeout and rate limiting<a class="headerlink" href="#timeout-and-rate-limiting" title="Permanent link">&para;</a></h3>
+<p>Timeout around any channel wait is a two-case <code>select</code>:</p>
+<pre><code class="language-go">select {
+case res := &lt;-resultCh:
+    return res, nil
+case &lt;-time.After(2 * time.Second):
+    return nil, ErrTimeout
+}
+</code></pre>
+<p>with the production caveat that for calls that carry a context you'd use
+<code>context.WithTimeout</code> instead, so the deadline propagates to everything downstream instead of
+just abandoning the wait. (And in a hot loop, prefer a reused <code>time.Timer</code> — each <code>time.After</code>
+allocates a timer that isn't collected until it fires.)</p>
+<p>A simple rate limiter is a ticker used as a permit stream — receive one tick per allowed
+operation:</p>
+<pre><code class="language-go">tick := time.NewTicker(time.Second / 100) // 100 ops/sec
+defer tick.Stop()
+for job := range jobs {
+    &lt;-tick.C
+    go handle(job)
+}
+</code></pre>
+<p>For "allow bursts of B, refill at R per second" — the token bucket — the trick is that a
+buffered channel <em>is</em> the bucket: capacity B, a goroutine dropping a token in every 1/R
+seconds (non-blocking send so a full bucket discards the token), workers receiving a token per
+operation. In production, <code>golang.org/x/time/rate.Limiter</code> implements exactly that with a
+<code>Wait(ctx)</code> that blocks politely.</p>
+<h3 id="graceful-shutdown-putting-it-together">Graceful shutdown — putting it together<a class="headerlink" href="#graceful-shutdown-putting-it-together" title="Permanent link">&para;</a></h3>
+<p>The capstone: a service with producers and a worker pool that, on SIGTERM, stops accepting
+work, finishes what's in flight, and exits within a deadline. The composition is three ideas
+you already have. <code>signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)</code>
+turns the OS signal into context cancellation. Producers stop on <code>ctx.Done()</code> and <strong>close the
+jobs channel</strong> — that's the "stop accepting, finish in-flight" half, because workers ranging
+over <code>jobs</code> drain it and exit naturally. And the deadline half is a race between completion
+and a timer:</p>
+<pre><code class="language-go">done := make(chan struct{})
+go func() { wg.Wait(); close(done) }()
+
+select {
+case &lt;-done: // clean drain
+case &lt;-time.After(30 * time.Second): // give up; report what's still running
+}
+</code></pre>
+<p>The subtle point: there are <em>two</em> stop signals with different meanings. Closing the jobs
+channel means "no more input, drain and stop" — graceful. Context cancellation means "stop
+now, abandon blocking operations" — the hard deadline. A well-shaped worker honors both, which
+is precisely why the worker-pool code above has both the <code>range</code> exit and the <code>ctx.Done()</code>
+case. This is also, recognizably, what <code>worker.Run</code> does in the Temporal SDK: stop polling,
+drain in-flight tasks under a grace period, then force-stop.</p>
+<hr />
+<h2 id="choosing-a-pattern-the-decision-path">Choosing a Pattern: The Decision Path<a class="headerlink" href="#choosing-a-pattern-the-decision-path" title="Permanent link">&para;</a></h2>
+<p>With five patterns on the table, the practical question is which one a given problem calls for.
+The good news is that the choice is almost fully determined by answering three questions about
+the <em>work</em>, in order — the pattern falls out at the end.</p>
+<p><strong>Question one: is the work a finite collection you hold in your hand, or an open-ended
+stream?</strong> This is the biggest fork. A finite collection — "these 10,000 URLs," "every file in
+this directory" — wants <strong>bounded parallelism</strong>: you launch tasks for known items, bound how
+many run at once, and wait for all of them; there is no standing machinery left afterward. A
+stream — jobs arriving from a queue, requests from a socket, events from a subscription — wants
+a <strong>worker pool</strong>: long-lived workers exist <em>before</em> the work does, and the interesting
+lifecycle question becomes shutdown, not completion.</p>
+<p><strong>Question two (if it's a collection): do you care about errors, and should one failure stop
+the rest?</strong> If yes — the common case in request handling, where there's no point fetching the
+other 19 shards after one has failed — use <strong><code>errgroup</code> with <code>SetLimit</code></strong>: first error cancels
+the shared context, <code>Wait</code> hands you that error, five lines total. If failures are independent
+and you genuinely want everything attempted regardless — best-effort cache warming, sending
+independent notifications — the plain <strong>semaphore channel</strong> is enough, and its simplicity is
+the point: no context plumbing, no error collection you'd ignore anyway. (If you need <em>all</em>
+errors rather than the first, that's neither: collect results into a pre-sized slice indexed by
+position — no locking needed, each goroutine writes its own slot — and inspect afterward.)</p>
+<p><strong>Question three (if it's a stream): does the work have stages?</strong> A single processing step is
+the worker pool as written. Multiple steps with different costs — parse, then enrich, then
+write — become a <strong>pipeline</strong>, because separating stages lets each scale independently: the
+cheap parse stage stays a single goroutine, the slow enrich stage becomes a worker pool, and
+<strong>fan-in/<code>Merge</code></strong> reassembles the widened stage's outputs into one channel for the next. That
+composition is the whole reason fan-in exists as a named pattern — you rarely reach for it
+directly; it arrives when a pipeline stage widens.</p>
+<p>Two cross-cutting concerns then overlay whichever pattern you picked. If the constraint is
+<em>rate</em> rather than <em>concurrency</em> — an API allowing 100 requests per second, regardless of how
+many are in flight — that's the <strong>rate limiter</strong>, and note that it composes with rather than
+replaces the others: a worker pool of 20 can still sit behind a 100 req/s token bucket, because
+the two limits bound different resources (memory and open connections versus the provider's
+quota). And if the process serves traffic, <strong>graceful shutdown</strong> isn't optional garnish — it
+decides how the jobs channel closes and who waits on what, so it's worth choosing before
+writing the pool, not bolting on after.</p>
+<p>A worked example to make the path concrete: "sync a customer's 50,000 records into a
+third-party CRM that allows 10 concurrent connections and 50 calls per second." Finite
+collection → bounded parallelism. Failures should stop the run (an expired credential fails
+every subsequent call too) → <code>errgroup.WithContext</code> with <code>SetLimit(10)</code>. Rate constraint on
+top → each task takes a token from a <code>rate.Limiter</code> before calling. Three decisions, and the
+whole design is determined.</p>
+<p>If in doubt, default to the simplest shape that answers the questions: <code>errgroup</code> for
+collections, a worker pool for streams, and add stages, merging, and rate limits only when the
+problem names them. Premature pipelines are how codebases end up with six channels where one
+function call would do — concurrency is a cost you pay for throughput or responsiveness, not a
+style.</p>
+<hr />
+<h2 id="the-classic-pitfalls">The Classic Pitfalls<a class="headerlink" href="#the-classic-pitfalls" title="Permanent link">&para;</a></h2>
+<p><strong>Goroutine leaks</strong> are pitfall number one, and every variant has the same anatomy: a goroutine
+blocked on a channel operation that can never complete. The abandoned sender — a goroutine
+computing a result for a caller that timed out and went away, blocked forever on an unbuffered
+send — is the classic; the fix is a buffer of one (send always completes, result gets collected
+by the garbage collector) or a <code>select</code> with <code>ctx.Done()</code>. The audit habit worth building: for
+every <code>go</code> statement, name the event that guarantees it exits. If you can't, it leaks.</p>
+<p><strong>Channel-close mistakes</strong> are pitfall two: closing from the receiver side, closing twice,
+or sending after close — the last two panic outright. The worker-pool closer pattern
+(<code>wg.Wait()</code> then a single <code>close</code>) exists to make all three impossible by construction.</p>
+<p><strong>WaitGroup misuse</strong> — <code>Add</code> inside the spawned goroutine instead of before the <code>go</code> statement —
+races <code>Add</code> against <code>Wait</code> and lets <code>Wait</code> return early. It passes tests on fast machines and
+fails in production, which is what makes it so persistent.</p>
+<p><strong>Data races on shared variables</strong> — the counter incremented from N goroutines without a mutex
+or <code>atomic</code> — remain the most common concurrency bug in review. The answer includes the
+tooling: <code>go test -race</code> and <code>go run -race</code> catch these at runtime and belong in CI. Related
+and subtler: the pre-1.22 loop-variable capture, where every closure sees the <em>last</em> value of
+the loop variable. Go 1.22 fixed the semantics (each iteration gets a fresh variable), but
+older codebases still carry both the bug and the <code>v := v</code> workaround, so it's worth knowing
+both worlds.</p>
+<p><strong>Deadlocks</strong> round it out: an unbuffered send with no concurrent receiver ("all goroutines are
+asleep"), two goroutines each waiting on the other, or — the sneaky one — a pipeline where an
+early-exiting consumer leaves producers blocked on full channels forever. The diagnosis tools:
+a <code>SIGQUIT</code> (Ctrl-) dump or <code>pprof</code> goroutine profile, which shows every goroutine's
+blocked-at stack. Ten thousand goroutines parked on the same channel send is a leak
+announcing itself.</p>
+<hr />
+<h2 id="common-questions-answered">Common Questions, Answered<a class="headerlink" href="#common-questions-answered" title="Permanent link">&para;</a></h2>
+<h3 id="buffered-or-unbuffered-how-do-you-choose">Buffered or unbuffered — how do you choose?<a class="headerlink" href="#buffered-or-unbuffered-how-do-you-choose" title="Permanent link">&para;</a></h3>
+<p>Default to unbuffered, because it gives the strongest guarantee: a completed send means the
+receiver has the value, so the channel synchronizes as well as communicates, and problems show
+up immediately as blocking instead of hiding in a buffer. Add a buffer for one of three
+specific reasons: a known small burst you want to absorb (queue semantics with backpressure
+when it fills), a semaphore where the capacity <em>is</em> the concurrency limit, or a buffer of
+exactly one so a producer can fire-and-forget a single result without leaking if the consumer
+disappears. What you shouldn't do is add a buffer to "fix" a deadlock — that usually converts a
+visible bug into an invisible one that returns under load when the buffer fills.</p>
+<h3 id="how-do-you-stop-a-goroutine-from-the-outside">How do you stop a goroutine from the outside?<a class="headerlink" href="#how-do-you-stop-a-goroutine-from-the-outside" title="Permanent link">&para;</a></h3>
+<p>You can't — Go has no kill primitive, deliberately — so the real answer is that goroutines stop
+themselves, and your job is to give every goroutine a stop signal it actually observes. The
+standard signal is a context: every blocking point in the goroutine becomes a <code>select</code> with a
+<code>case &lt;-ctx.Done()</code> arm, so cancellation wakes it wherever it's parked. For "no more work"
+rather than "abort," closing the input channel is the gentler signal — a <code>range</code> loop drains and
+exits. And the discipline that makes it stick: don't write <code>go func()</code> without being able to
+say which of those two signals guarantees that goroutine's exit.</p>
+<h3 id="when-a-mutex-and-when-a-channel">When a mutex and when a channel?<a class="headerlink" href="#when-a-mutex-and-when-a-channel" title="Permanent link">&para;</a></h3>
+<p>By what you're modeling. If data is <em>moving</em> between goroutines — work items, results, events —
+a channel, because transferring a value through a channel also transfers ownership, and the
+happens-before guarantee means no locking at either end. If data is <em>staying put</em> and multiple
+goroutines touch it — a counter, a cache, a map of live sessions — a mutex, because wrapping
+shared state in channel choreography means building a server goroutine and request/response
+protocol to do what two lines of <code>Lock</code>/<code>Unlock</code> do. The working heuristic: channels for
+communication, mutexes for state — and if a mutex is held across anything that blocks, that's
+the sign the design wants restructuring.</p>
+<h3 id="what-are-the-semantics-of-a-closed-channel-exactly">What are the semantics of a closed channel, exactly?<a class="headerlink" href="#what-are-the-semantics-of-a-closed-channel-exactly" title="Permanent link">&para;</a></h3>
+<p>Close is a broadcast from sender to receivers that no more values are coming — and it's the only
+channel operation that naturally fans out to <em>all</em> receivers, which is why <code>ctx.Done()</code> is
+implemented as a channel that cancellation closes. Mechanically: receives on a closed channel
+first drain any buffered values, then return the zero value with <code>ok == false</code>; a <code>range</code> loop
+exits at that point. Sends on a closed channel panic, closing twice panics — which is why the
+rule is that only the sender closes, and with multiple senders, only a coordinator that knows
+all senders are done, typically a goroutine sitting behind a <code>WaitGroup</code>. And channels don't
+<em>need</em> closing to be collected — close is a signal you send when receivers must know the end
+arrived, not a resource you must release.</p>
+<h3 id="limit-concurrency-to-n-what-are-the-options">Limit concurrency to N — what are the options?<a class="headerlink" href="#limit-concurrency-to-n-what-are-the-options" title="Permanent link">&para;</a></h3>
+<p>Three, in increasing order of what they give you. A semaphore channel — buffered to N, acquire
+by sending before launching the goroutine, release by receiving — is the primitive; acquiring
+before the launch matters because it caps goroutines <em>created</em>, not just goroutines
+progressing. A fixed worker pool — N long-lived workers ranging over a jobs channel — adds
+amortization: no per-task goroutine, a natural place for per-worker state, and the shutdown
+story comes from closing the jobs channel. And <code>errgroup</code> with <code>SetLimit(n)</code> is the production
+choice for collection-shaped work, because it folds in the two things the first two don't:
+first-error propagation and cancelling the survivors when one task fails.</p>
+<h3 id="two-goroutines-increment-a-counter-a-million-times-each-and-the-total-comes-up-short-why">Two goroutines increment a counter a million times each and the total comes up short — why?<a class="headerlink" href="#two-goroutines-increment-a-counter-a-million-times-each-and-the-total-comes-up-short-why" title="Permanent link">&para;</a></h3>
+<p>Because <code>counter++</code> is a read, an add, and a write, and without synchronization the two
+goroutines interleave those steps and overwrite each other's updates — a data race, which in Go
+is not just a wrong-count problem but undefined behavior. Three fixes, chosen by context:
+<code>atomic.AddInt64</code> (or the <code>atomic.Int64</code> type) for a bare counter — cheapest by far; a
+<code>sync.Mutex</code> when the counter is part of a larger invariant that must update atomically with
+other fields; or restructure so each goroutine owns a local count and the totals merge at the
+end — no sharing, nothing to race. Either way, <code>go test -race</code> catches this class of bug at
+runtime and belongs in CI.</p>
+<h3 id="how-do-you-add-retries-and-backoff-on-top-of-the-worker-pool">How do you add retries and backoff on top of the worker pool?<a class="headerlink" href="#how-do-you-add-retries-and-backoff-on-top-of-the-worker-pool" title="Permanent link">&para;</a></h3>
+<p>Keep the pool exactly as it is and make retry a policy at the job level, not the pool level.
+Each job carries an attempt count and a not-before time. A worker that fails a job doesn't loop
+retrying it in place — that would occupy a worker slot for the full backoff — it computes the
+next attempt time with exponential backoff plus jitter and hands the job to a scheduler: a
+goroutine owning a min-heap ordered by ready time, sleeping on a timer until the earliest job
+is due, then re-sending it to the jobs channel. Jitter matters because a burst of correlated
+failures otherwise synchronizes into retry waves. Cap attempts and shunt exhausted jobs to a
+dead-letter destination for humans. The resemblance is worth naming: this is a miniature of
+what a <a href="../design-a-workflow-engine/">durable execution engine</a> does — the heap is the timer
+store, the jobs channel is the task queue, at-least-once delivery means handlers need
+<a href="../distributed-systems-foundations/#idempotency-and-dedup">idempotency</a> — except this one
+evaporates on restart, which is the pitch for durable timers in one sentence.</p>
+<h2 id="key-takeaways">Key Takeaways<a class="headerlink" href="#key-takeaways" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Learn the worker pool until you can write it from memory along with its three invariants:
+  bounded workers, dual shutdown paths (input close and context cancel), single sender-side
+  close behind a <code>WaitGroup</code>. Every other pattern here is a rearrangement.</li>
+<li>Account for exits. The strongest habit in concurrent Go is pointing at each <code>go</code> statement
+  and naming the event that guarantees that goroutine terminates. Leaks hide wherever that
+  question has no answer.</li>
+<li>Know both layers: build the primitives by hand (semaphore channel, fan-in, token bucket) to
+  understand them, then use the production libraries (<code>errgroup</code>, <code>x/time/rate</code>) and tooling
+  (<code>-race</code> in CI, goroutine dumps for stuck processes) in real code.</li>
+<li>The patterns aren't academic: a Temporal worker is poller goroutines, a slot semaphore, task
+  channels, and context-driven graceful shutdown — the
+  <a href="../matching-service-task-queues/">matching-service article</a> describes the server side of the
+  same machinery.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../design-payment-saga/" class="btn btn-neutral float-left" title="System Design: Payment Saga Orchestrator"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/schaffe/container-security-fundamentals" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../design-payment-saga/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../..";</script>
+    <script src="../../../js/theme_extra.js"></script>
+    <script src="../../../js/theme.js"></script>
+      <script src="../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
